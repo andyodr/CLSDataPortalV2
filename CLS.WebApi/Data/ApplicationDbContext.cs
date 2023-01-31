@@ -20,24 +20,42 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 			.HasOne<User>()
 			.WithMany()
 			.HasForeignKey(a => a.UpdatedBy);  // configure a foreign key without navigation
+		modelBuilder.Entity<AuditTrail>().Property(a => a.Type).IsUnicode(false).HasMaxLength(20);
+		modelBuilder.Entity<AuditTrail>().Property(a => a.Code).IsUnicode(false).HasMaxLength(20);
+		modelBuilder.Entity<AuditTrail>().Property(a => a.Description).IsUnicode(false).HasMaxLength(255);
+		modelBuilder.Entity<AuditTrail>().Property(a => a.Data).IsUnicode(false);
 
 		modelBuilder.Entity<Calendar>().HasKey(c => c.Id);
+		modelBuilder.Entity<Calendar>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<CustomerHierarchy>().ToTable("CustomerHierarchy").HasKey(c => c.Id);
+		modelBuilder.Entity<CustomerHierarchy>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<ErrorLog>().HasKey(e => e.Id);
+		modelBuilder.Entity<ErrorLog>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Interval>().HasKey(i => i.Id);
+		modelBuilder.Entity<Interval>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureData>().HasKey(m => m.Id);
+		modelBuilder.Entity<MeasureData>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureDefinition>().HasKey(m => m.Id);
+		modelBuilder.Entity<MeasureDefinition>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Measure>().HasKey(m => m.Id);
+		modelBuilder.Entity<Measure>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureType>().HasKey(m => m.Id);
+		modelBuilder.Entity<MeasureType>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Hierarchy>().HasKey(h => h.Id);
+		modelBuilder.Entity<Hierarchy>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<HierarchyLevel>().HasKey(h => h.Id);
+		modelBuilder.Entity<HierarchyLevel>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Target>().HasKey(t => t.Id);
+		modelBuilder.Entity<Target>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<User>().HasKey(u => u.Id);
 		modelBuilder.Entity<UserCalendarLock>().HasKey(u => u.Id);
 		modelBuilder.Entity<UserHierarchy>().HasKey(u => u.Id);
 		modelBuilder.Entity<UserRole>().HasKey(u => u.Id);
 		modelBuilder.Entity<Setting>().HasKey(s => s.Id);
+		modelBuilder.Entity<Setting>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Unit>().HasKey(u => u.Id);
+		modelBuilder.Entity<Unit>().Metadata.SetIsTableExcludedFromMigrations(true);
+		modelBuilder.Ignore<Unit>();
 
 		//modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 	}

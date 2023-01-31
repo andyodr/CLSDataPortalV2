@@ -6,7 +6,7 @@ public class MeasureDefinition
 
 	public MeasureType MeasureType { set; get; } = null!;
 
-	public int ReportIntervalId { set; get; }
+	public Interval ReportInterval { set; get; } = null!;
 
 	public string Name { set; get; } = string.Empty;
 
@@ -14,7 +14,7 @@ public class MeasureDefinition
 
 	public string Description { set; get; } = null!;
 
-	public string Expression { set; get; } = null!;
+	public string? Expression { set; get; } = null!;
 
 	public byte Precision { set; get; }
 
