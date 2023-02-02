@@ -31,7 +31,7 @@ public class AddController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel.Id < 3).OrderBy(r => r.Id).ToList();
+			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToList();
 			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.getSubsLevel(regions.ElementAt(0).Id), count = 0 });
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
@@ -74,11 +74,11 @@ public class AddController : ControllerBase
 				Active = Helper.stringToBool(value.active),
 				LastUpdatedOn = lastUpdatedOn
 			});
-			userC.Property("UserRoleId").CurrentValue = value.roleId;
-			_context.SaveChanges();
-			var user = userC.Entity;
 
+			userC.Property("UserRoleId").CurrentValue = value.roleId;
+			var user = userC.Entity;
 			Helper.AddUserHierarchy(user.Id, _context, value.hierarchiesId, addedHierarchies);
+			_context.SaveChanges();
 			value.id = user.Id;
 			returnObject.data.Add(value);
 			addedHierarchies.Clear();

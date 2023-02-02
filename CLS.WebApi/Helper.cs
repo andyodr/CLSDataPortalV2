@@ -865,12 +865,12 @@ public class Helper
 		return userCookies[userId.Value];
 	}
 
-	internal static void UserDeleteHierarchy(int userId, IUserHierarchyRepository userHierarchyRepo) {
-		var deleteRecords = userHierarchyRepo.All().Where(u => u.UserId == userId).ToList();
-		if (deleteRecords.Count() > 0) {
-			foreach (var record in deleteRecords)
-				userHierarchyRepo.Delete(record);
-			userHierarchyRepo.SaveChanges();
+	internal static void UserDeleteHierarchy(int userId, ApplicationDbContext context) {
+		var deleteRecords = context.UserHierarchy.Where(u => u.User.Id == userId).ToList();
+		if (deleteRecords.Count > 0) {
+			foreach (var record in deleteRecords) {
+				context.UserHierarchy.Remove(record);
+			}
 		}
 	}
 
@@ -884,8 +884,6 @@ public class Helper
 				addedHierarchies.Add(hId);
 			}
 		}
-
-		context.SaveChanges();
 	}
 
 	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {

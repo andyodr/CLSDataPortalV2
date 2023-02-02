@@ -17,4 +17,6 @@ public class User
 	public bool? Active { set; get; } = true;
 
 	public DateTime LastUpdatedOn { set; get; }
+
+	public List<UserHierarchy>? UserHierarchies { set; get; }
 }

@@ -7,7 +7,7 @@ public class Hierarchy
 	/// </summary>
 	public int Id { get; set; }
 
-	public HierarchyLevel HierarchyLevel { set; get; } = null!;
+	public HierarchyLevel? HierarchyLevel { set; get; }
 
 	public int? HierarchyParentId { set; get; } = null;
 
