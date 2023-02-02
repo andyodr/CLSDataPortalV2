@@ -974,11 +974,12 @@ public class Helper
 		return isLocked;
 	}
 
-	internal static int CalculateScheduleInt(string value, string pattern1, string pattern2) {
-		int iReturn = 0;
+	internal static int? CalculateScheduleInt(string? value, string pattern1, string pattern2) {
+		if (value == null) { return null; }
+		int? iReturn = 0;
 		try {
 			String[] schedule = Regex.Split(value, pattern2);
-			if (schedule.Count() == 3) {
+			if (schedule.Length == 3) {
 				switch (pattern1) {
 					case "HH":
 						iReturn = Int32.Parse(schedule[0]);
@@ -993,6 +994,7 @@ public class Helper
 						break;
 				}
 			}
+
 			return iReturn;
 		}
 		catch (Exception) {
