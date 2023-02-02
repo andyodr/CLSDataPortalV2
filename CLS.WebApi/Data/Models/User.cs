@@ -14,7 +14,7 @@ public class User
 
 	public UserRole UserRole { set; get; } = null!;
 
-	public bool Active { set; get; } = true;
+	public bool? Active { set; get; } = true;
 
 	public DateTime LastUpdatedOn { set; get; }
 }

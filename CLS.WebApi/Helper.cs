@@ -874,26 +874,31 @@ public class Helper
 		}
 	}
 
-	internal static void addUserHierarchy(int userId, IHierarchyRepository hierarchyRepo, IUserHierarchyRepository userHierarchyRepo, List<int> hierarchiesId, List<int> addedHierarchies) {
+	internal static void AddUserHierarchy(int userId, ApplicationDbContext context, List<int> hierarchiesId, List<int> addedHierarchies) {
 		foreach (int hId in hierarchiesId) {
-			if (!addedHierarchies.Contains(hId) && userHierarchyRepo.All().Where(u => u.HierarchyId == hId && u.UserId == userId).Count() == 0) {
-				userHierarchyRepo.Create(new UserHierarchy { UserId = userId, HierarchyId = hId, LastUpdatedOn = DateTime.Now });
-				addHierarchyChildren(hId, userId, hierarchyRepo, userHierarchyRepo, addedHierarchies);
+			if (!addedHierarchies.Contains(hId) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == hId && u.User.Id == userId).Any()) {
+				var uht = context.UserHierarchy.Add(new() { LastUpdatedOn = DateTime.Now });
+				uht.Property("HierarchyId").CurrentValue = hId;
+				uht.Property("UserId").CurrentValue = userId;
+				AddHierarchyChildren(userId, context, hId, addedHierarchies);
 				addedHierarchies.Add(hId);
 			}
 		}
-		userHierarchyRepo.SaveChanges();
+
+		context.SaveChanges();
 	}
 
-	internal static void addHierarchyChildren(int hierarchyId, int userId, IHierarchyRepository hierarchyRepo, IUserHierarchyRepository userHierarchyRepo, List<int> addedHierarchies) {
+	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {
 		List<RegionFilterObject> children = new List<RegionFilterObject>();
-		var hierarchies = hierarchyRepo.All().Where(h => h.HierarchyParentId == hierarchyId);
+		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId);
 
 		foreach (var record in hierarchies) {
-			if (!addedHierarchies.Contains(record.Id) && userHierarchyRepo.All().Where(u => u.HierarchyId == record.Id && u.UserId == userId).Count() == 0) {
-				userHierarchyRepo.Create(new UserHierarchy { HierarchyId = record.Id, UserId = userId, LastUpdatedOn = DateTime.Now });
+			if (!addedHierarchies.Contains(record.Id) && context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Count() == 0) {
+				var uht = context.UserHierarchy.Add(new() { LastUpdatedOn = DateTime.Now });
+				uht.Property("HierarchyId").CurrentValue = record.Id;
+				uht.Property("UserId").CurrentValue = userId;
 				addedHierarchies.Add(record.Id);
-				addHierarchyChildren(record.Id, userId, hierarchyRepo, userHierarchyRepo, addedHierarchies);
+				AddHierarchyChildren(userId, context, record.Id, addedHierarchies);
 			}
 		}
 	}
