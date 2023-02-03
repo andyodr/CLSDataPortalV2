@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Users;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private List<int> addedHierarchies = new();
+	private readonly List<int> addedHierarchies = new();
 	private UserObject _user = new();
 
 	public EditController(ApplicationDbContext context) {
@@ -31,10 +31,11 @@ public class EditController : ControllerBase
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToList();
 			result.hierarchy.Add(new() {
-				hierarchy = regions.ElementAt(0).Name,
-				id = regions.ElementAt(0).Id,
-				sub = Helper.getSubsLevel(regions.ElementAt(0).Id),
-				count = 0 });
+				hierarchy = regions.First().Name,
+				id = regions.First().Id,
+				sub = Helper.getSubsLevel(regions.First().Id),
+				count = 0
+			});
 
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
@@ -66,8 +67,9 @@ public class EditController : ControllerBase
 				}
 
 				if (user.Id == (int)Helper.userRoles.powerUser) {
-					if (_user.userId == (int)Helper.userRoles.powerUser)
+					if (_user.userId == (int)Helper.userRoles.powerUser) {
 						result.data.Add(currentUser);
+					}
 				}
 				else {
 					result.data.Add(currentUser);
@@ -130,7 +132,7 @@ public class EditController : ControllerBase
 
 			if (user.Id == _user.userId) {
 				//Helper.setUserTemp(user.UserName);
-				UserObject tempUser = new UserObject();
+				UserObject tempUser = new();
 				tempUser = Helper.setUser(_user.userName);
 				if (tempUser != null) {
 					if (Helper.userCookies.ContainsKey(tempUser.userId.ToString())) {

@@ -47,7 +47,7 @@ public class IndexController : ControllerBase
 					lastName = user.LastName,
 					firstName = user.FirstName,
 					department = user.Department,
-					roleName = _context.UserRole.Where(u => u.Id == user.UserRole.Id).AsNoTracking().First().Name,
+					roleName = user.UserRole.Name,
 					active = Helper.boolToString(user.Active)
 				};
 

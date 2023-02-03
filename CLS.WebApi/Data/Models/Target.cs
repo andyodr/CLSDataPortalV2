@@ -8,6 +8,8 @@ public class Target
 
 	public Measure? Measure { get; set; }
 
+	public List<MeasureData>? MeasureData { get; set; }
+
 	public double? Value { get; set;}
 
 	public double? YellowValue { get; set;}

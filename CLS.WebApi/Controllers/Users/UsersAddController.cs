@@ -32,10 +32,10 @@ public class AddController : ControllerBase
 			}
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.getSubsLevel(regions.ElementAt(0).Id), count = 0 });
+			returnObject.hierarchy.Add(new() { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.getSubsLevel(regions.ElementAt(0).Id), count = 0 });
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				returnObject.roles.Add(new IntervalsObject { id = role.Id, name = role.Name });
+				returnObject.roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
 			return new JsonResult(returnObject);
@@ -61,8 +61,9 @@ public class AddController : ControllerBase
 				throw new Exception();
 			}
 
-			if (_context.User.Where(u => u.UserName == value.userName).Count() > 0)
+			if (_context.User.Where(u => u.UserName == value.userName).Any()) {
 				throw new Exception(Resource.USERS_EXIST);
+			}
 
 			var lastUpdatedOn = DateTime.Now;
 

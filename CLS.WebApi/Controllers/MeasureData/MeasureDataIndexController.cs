@@ -27,10 +27,13 @@ public class IndexController : ControllerBase
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId))
+			}
+
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			returnObject.allow = _user.hierarchyIds.Contains(value.hierarchyId);
 
@@ -38,13 +41,15 @@ public class IndexController : ControllerBase
 			returnObject.editValue = Helper.canEditValueFromSpecialHierarchy(value.hierarchyId);
 
 			returnObject.calendarId = value.calendarId;
-			if (value.day == null || value.day.Equals(""))
+			if (value.day == null || value.day.Equals("")) {
 				date = null;
+			}
 			else {
 				date = Convert.ToDateTime(value.day);
 				var cal = _context.Calendar.Where(c => c.StartDate == date).AsNoTracking().ToList();
-				if (cal.Count() > 0)
+				if (cal.Count > 0) {
 					returnObject.calendarId = cal.First().Id;
+				}
 			}
 
 			var calendar = _context.Calendar
@@ -58,15 +63,14 @@ public class IndexController : ControllerBase
 				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.userId, calendar, _context);
 			}
 
-			var measures = from m in _context.Measure.Where(m => m.Active == true && m.Hierarchy.Id == value.hierarchyId)
-						   join t in _context.Target
-						   on m.Id equals t.Measure!.Id
-						   join mdef in _context.MeasureDefinition.Where(m => m.MeasureType.Id == value.measureTypeId)
-						   on m.MeasureDefinition!.Id equals mdef.Id
-						   join md in _context.MeasureData.Where(mm => mm.Calendar!.Id == returnObject.calendarId)
-						   on t.Id equals md.Target!.Id
-						   select new
-						   {
+			var measures = from mdef in _context.MeasureDefinition
+						   from m in mdef.Measures
+						   from t in m.Targets
+						   from md in t.MeasureData
+						   where m.Active == true && m.Hierarchy.Id == value.hierarchyId
+						   && mdef.MeasureType.Id == value.measureTypeId
+						   && md.Calendar!.Id == returnObject.calendarId
+						   select new {
 							   lastUpdatedOn = md.LastUpdatedOn,
 							   md.User,
 							   value = md.Value,
@@ -109,14 +113,17 @@ public class IndexController : ControllerBase
 				newObject.yellow = record.yellow;
 				newObject.value = record.value;
 
-				if (record.target != null)
+				if (record.target != null) {
 					newObject.target = Math.Round((double)record.target, record.precision, MidpointRounding.AwayFromZero);
+				}
 
-				if (record.yellow != null)
+				if (record.yellow != null) {
 					newObject.yellow = Math.Round((double)record.yellow, record.precision, MidpointRounding.AwayFromZero);
+				}
 
-				if (record.value != null)
+				if (record.value != null) {
 					newObject.value = Math.Round((double)record.value, record.precision, MidpointRounding.AwayFromZero);
+				}
 
 				newObject.calculated = record.calculated;
 
@@ -126,8 +133,9 @@ public class IndexController : ControllerBase
 				if (newObject.calculated && !string.IsNullOrEmpty(newObject.expression)) {
 					var varNames = new List<VariableName>();
 					foreach (var item in allVarNames) {
-						if (newObject.expression.Contains(item.VariableName))
+						if (newObject.expression.Contains(item.VariableName)) {
 							varNames.Add(new VariableName { id = item.Id, varName = item.VariableName });
+						}
 					}
 					// Search measure data values from variables
 					if (varNames.Count > 0) {
@@ -137,8 +145,9 @@ public class IndexController : ControllerBase
 							if (measure.Count > 0) {
 								var measureData = _context.MeasureData.Where(md => md.Measure.Id == measure.First().Id && md.Calendar.Id == returnObject.calendarId).AsNoTracking().ToList();
 								if (measureData.Count > 0) {
-									if (measureData.First().Value != null)
+									if (measureData.First().Value != null) {
 										sExpression = sExpression.Replace("Data[\"" + item.varName + "\"]", measureData.First().Value.ToString());
+									}
 								}
 							}
 						}
@@ -162,7 +171,6 @@ public class IndexController : ControllerBase
 			returnObject.filter = _user.savedFilters[Helper.pages.measureData];
 
 			return new JsonResult(returnObject);
-
 		}
 		catch (Exception e) {
 			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));

@@ -8,11 +8,13 @@ public class MeasureDefinition
 
 	public Interval? ReportInterval { get; set; }
 
+	public List<Measure>? Measures { get; set; }
+
 	public string Name { get; set; } = string.Empty;
 
 	public string VariableName { get; set; } = string.Empty;
 
-	public string Description { get; set; } = null!;
+	public string? Description { get; set; } = null!;
 
 	public string? Expression { get; set; }
 

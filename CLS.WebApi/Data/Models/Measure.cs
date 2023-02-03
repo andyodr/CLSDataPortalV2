@@ -6,7 +6,7 @@ public class Measure
 
 	public Hierarchy? Hierarchy { get; set; }
 
-	public int MeasureDefinitionId { get; set; }
+	public long MeasureDefinitionId { get; set; }
 	public MeasureDefinition? MeasureDefinition { get; set; }
 
 	public List<Target>? Targets { get; set; }
