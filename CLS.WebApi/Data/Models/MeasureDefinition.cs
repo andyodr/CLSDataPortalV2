@@ -2,43 +2,45 @@
 
 public class MeasureDefinition
 {
-	public long Id { set; get; }
+	public long Id { get; set; }
 
-	public MeasureType MeasureType { set; get; } = null!;
+	public MeasureType? MeasureType { get; set; }
 
-	public Interval ReportInterval { set; get; } = null!;
+	public Interval? ReportInterval { get; set; }
 
-	public string Name { set; get; } = string.Empty;
+	public string Name { get; set; } = string.Empty;
 
-	public string VariableName { set; get; } = string.Empty;
+	public string VariableName { get; set; } = string.Empty;
 
-	public string Description { set; get; } = null!;
+	public string Description { get; set; } = null!;
 
-	public string? Expression { set; get; } = null!;
+	public string? Expression { get; set; }
 
-	public byte Precision { set; get; }
+	public byte Precision { get; set; }
 
-	public short Priority { set; get; }
+	public short Priority { get; set; }
 
-	public short FieldNumber { set; get; }
+	public short FieldNumber { get; set; }
 
-	public Unit? Unit { set; get; } = null!;
+	public int UnitId { get; set; }
 
-	public bool? Calculated { set; get; } = null;
+	public Unit? Unit { get; set; }
 
-	public bool? AggDaily { set; get; } = null;
+	public bool? Calculated { get; set; }
 
-	public bool? AggWeekly { set; get; } = null;
+	public bool? AggDaily { get; set; }
 
-	public bool? AggMonthly { set; get; } = null;
+	public bool? AggWeekly { get; set; }
 
-	public bool? AggQuarterly { set; get; } = null;
+	public bool? AggMonthly { get; set; }
 
-	public bool? AggYearly { set; get; } = null;
+	public bool? AggQuarterly { get; set; }
 
-	public byte? AggFunction { get; set; } = null;
+	public bool? AggYearly { get; set; }
+
+	public byte? AggFunction { get; set; }
 
 	public byte IsProcessed { get; set; }
 
-	public DateTime? LastUpdatedOn { set; get; } = null;
+	public DateTime? LastUpdatedOn { get; set; }
 }

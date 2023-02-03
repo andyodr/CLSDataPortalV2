@@ -2,23 +2,27 @@
 
 public class MeasureData
 {
-	public long Id { set; get; }
+	public long Id { get; set; }
 
-	public Measure? Measure { set; get; } = null!;
+	public Measure? Measure { get; set; }
 
-	public Calendar? Calendar { set; get; } = null!;
+	public Calendar? Calendar { get; set; }
 
-	public Target? Target { get; set; } = null!;
+	public long TargetId { get; set; }
 
-	public User? User { set; get; } = null!;
+	public Target? Target { get; set; }
 
-	public double? Value { set; get; } = null;
+	public int UserId { get; set; }
 
-	public string Explanation { set; get; } = null!;
+	public User? User { get; set; }
 
-	public string Action { set; get; } = null!;
+	public double? Value { get; set; }
+
+	public string Explanation { get; set; } = null!;
+
+	public string Action { get; set; } = null!;
 
 	public byte IsProcessed { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set; }
 }

@@ -2,19 +2,23 @@
 
 public class Target
 {
-	public long Id { set; get; }
+	public long Id { get; set; }
 
-	public Measure? Measure { get; set; } = null!;
+	public long MeasureId { get; set;}
 
-	public double? Value { set; get; }
+	public Measure? Measure { get; set; }
 
-	public double? YellowValue { set; get; }
+	public double? Value { get; set;}
 
-	public bool Active { get; set; } = false;
+	public double? YellowValue { get; set;}
 
-	public User? User { get; set; } = null!;
+	public bool Active { get; set; }
+
+	public int? UserId { get; set; }
+
+	public User? User { get; set; }
 
 	public byte IsProcessed { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set;}
 }

@@ -13,7 +13,7 @@ public class MeasureDataReturnObject
 	public int unitId { set; get; }
 	public string units { set; get; }
 	public double? yellow { set; get; }
-	public string expression { set; get; }
+	public string? expression { set; get; }
 	public string evaluated { set; get; }
 	public bool calculated { set; get; }
 	public string description { set; get; }

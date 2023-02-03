@@ -2,19 +2,22 @@
 
 public class Measure
 {
-	public long Id { set; get; }
+	public long Id { get; set; }
 
-	public Hierarchy Hierarchy { set; get; } = null!;
+	public Hierarchy? Hierarchy { get; set; }
 
-	public MeasureDefinition? MeasureDefinition { set; get; } = null!;
+	public int MeasureDefinitionId { get; set; }
+	public MeasureDefinition? MeasureDefinition { get; set; }
 
-	public bool? Active { set; get; } = null;
+	public List<Target>? Targets { get; set; }
 
-	public bool? Expression { set; get; } = null;
+	public bool? Active { get; set; }
 
-	public bool? Rollup { set; get; } = null;
+	public bool? Expression { get; set; }
 
-	public string? Owner { set; get; } = null;
+	public bool? Rollup { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public string? Owner { get; set; }
+
+	public DateTime LastUpdatedOn { get; set; }
 }

@@ -665,9 +665,9 @@ public class Helper
 
 	}
 
-	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string userName) {
+	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string? userName) {
 
-		UpdatedObject update = new UpdatedObject();
+		UpdatedObject update = new();
 		update.by = userName;
 		update.longDt = lastUpdatedOn.ToString();
 
