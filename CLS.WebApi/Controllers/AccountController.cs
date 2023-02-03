@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace CLS.WebApi.Controllers;
@@ -9,24 +10,26 @@ namespace CLS.WebApi.Controllers;
 [AllowAnonymous]
 public class AccountController : Controller
 {
+	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
 
-	public AccountController(ApplicationDbContext context) {
+	public AccountController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+		_config = config.Value;
 		_context = context;
 	}
 
 	[HttpGet]
-	public IActionResult Login(string returnUrl = null) {
+	public IActionResult Login(string returnUrl) {
 		HttpContext.SignOutAsync("Cookies");
 		return View();
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Login(string userName, string password, string returnUrl = null) {
+	public async Task<IActionResult> Login(string userName, string password, string returnUrl) {
 		bool bContinue = true;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
 
-		UserObject user = new UserObject();
+		UserObject user = new();
 
 		if (String.IsNullOrWhiteSpace(userName) || String.IsNullOrWhiteSpace(password)) {
 			msgErr = Resource.VAL_USERNAME_PASSWORD;
@@ -58,8 +61,8 @@ public class AccountController : Controller
 			// **************** DELETE ***********************************
 
 			//Validates ByPass user
-			if ((userName == Startup.ConfigurationJson.byPassUserName) &&
-				(password == Startup.ConfigurationJson.byPassUserPassword)) {
+			if ((userName == _config.byPassUserName) &&
+				(password == _config.byPassUserPassword)) {
 				bIsByPass = true;
 			}
 
@@ -78,13 +81,10 @@ public class AccountController : Controller
 
 		// Success
 		if (bContinue) {
-			var claims = new List<Claim>
-				{
-		  new Claim("userId", user.userId.ToString())
-		  ,new Claim("name", user.userName)
-		  //,new Claim("first", user.firstName)
-		  //,new Claim(ClaimTypes.Role, user.userRole)
-		};
+			var claims = new List<Claim> {
+				new Claim("userId", user.userId.ToString()),
+				new Claim("name", user.userName)
+			};
 			var id = new ClaimsIdentity(claims, "local", "name", "role");
 
 			await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(id));
@@ -117,7 +117,7 @@ public class AccountController : Controller
 				Helper.userCookies.Remove(userId);
 
 			int nUserId = Int32.Parse(userId);
-			var userRepo = _userRepository.All().Where(u => u.Id == nUserId).FirstOrDefault();
+			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
 			if (userRepo != null) {
 				Helper.addAuditTrail(
 				  Resource.SECURITY,

@@ -1,11 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CLS.WebApi.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers;
 
 public class HomeController : Controller
 {
-	private UserObject _user = new UserObject();
+	private readonly ConfigurationObject _config;
+	private UserObject _user = new();
+
+	public HomeController(IOptions<ConfigurationObject> config) {
+		_config = config.Value;
+	}
 
 	[Authorize]
 	[HttpGet("", Name = "default")]
@@ -20,7 +27,7 @@ public class HomeController : Controller
 		ViewBag.UserName = "Guess";
 		ViewBag.ShowMenu = false.ToString().ToLower();
 		ViewBag.ShowMenuSub = false.ToString().ToLower();
-		ViewBag.TableauLink = Startup.ConfigurationJson.tableauLink;
+		ViewBag.TableauLink = _config.tableauLink;
 
 		if (String.IsNullOrWhiteSpace(_user.firstName))
 			ViewBag.UserName = _user.userName;

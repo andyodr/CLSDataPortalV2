@@ -16,6 +16,6 @@ public class MeasureDataReturnObject
 	public string? expression { set; get; }
 	public string evaluated { set; get; }
 	public bool calculated { set; get; }
-	public string description { set; get; }
+	public string? description { set; get; }
 	public UpdatedObject updated { set; get; }
 }
