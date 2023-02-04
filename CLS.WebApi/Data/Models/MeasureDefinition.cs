@@ -8,7 +8,7 @@ public class MeasureDefinition
 
 	public Interval? ReportInterval { get; set; }
 
-	public List<Measure>? Measures { get; set; }
+	public List<Measure>? Measures { get; } = new();
 
 	public string Name { get; set; } = string.Empty;
 

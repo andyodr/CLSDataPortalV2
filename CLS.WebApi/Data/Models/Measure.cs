@@ -1,4 +1,6 @@
-﻿namespace CLS.WebApi.Data.Models;
+﻿using System.Collections;
+
+namespace CLS.WebApi.Data.Models;
 
 public class Measure
 {
@@ -9,7 +11,9 @@ public class Measure
 	public long MeasureDefinitionId { get; set; }
 	public MeasureDefinition? MeasureDefinition { get; set; }
 
-	public List<Target>? Targets { get; set; }
+	public List<Target>? Targets { get; } = new();
+
+	ICollection<MeasureData> MeasureData { get; } = new HashSet<MeasureData>();
 
 	public bool? Active { get; set; }
 

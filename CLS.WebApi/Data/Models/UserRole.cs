@@ -2,6 +2,6 @@
 
 public class UserRole
 {
-	public int Id { set; get; }
-	public string Name { set; get; } = null!;
+	public int Id { get; set; }
+	public string Name { get; set; } = null!;
 }

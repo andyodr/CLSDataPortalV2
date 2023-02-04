@@ -48,34 +48,34 @@ public class FilterController : ControllerBase
 
 			//USE SAVED FILTER
 			var intervals = _context.Interval.OrderBy(i => i.Id);
-			foreach (var interval in intervals.AsNoTracking()) {
-				filter.intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
+			foreach (var interval in intervals.AsNoTrackingWithIdentityResolution()) {
+				filter.intervals.Add(new() { id = interval.Id, name = interval.Name });
 			}
 
 			var years = _context.Calendar
 						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Helper.intervals.yearly)
 						.OrderByDescending(y => y.Year);
 
-			foreach (var year in years.AsNoTracking()) {
-				YearsObject newYear = new YearsObject();
+			foreach (var year in years.AsNoTrackingWithIdentityResolution()) {
+				YearsObject newYear = new();
 				newYear.id = year.Id;
 				newYear.year = year.Year;
 				filter.years.Add(newYear);
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
-			foreach (var measureType in measureTypes.AsNoTracking()) {
+			foreach (var measureType in measureTypes.AsNoTrackingWithIdentityResolution()) {
 				filter.measureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var regions = _context.Hierarchy.AsNoTracking().Single(m => m.HierarchyLevel.Id == 1);
+			var regions = _context.Hierarchy.AsNoTrackingWithIdentityResolution().Single(m => m.HierarchyLevel!.Id == 1);
 			//filter.hierarchy.Add(new RegionFilterObject { hierarchy = regions.Name, id = regions.Id, sub = Helper.getSubs(regions.Id, _user), count = 0 });
 
-			filter.hierarchy.Add(new RegionFilterObject {
+			filter.hierarchy.Add(new() {
 				hierarchy = regions.Name,
 				id = regions.Id,
 				found = true,
-				sub = Helper.getSubs(regions.Id, _user),
+				sub = Helper.GetSubs(_context, regions.Id, _user),
 				count = 0
 			});
 

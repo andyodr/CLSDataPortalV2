@@ -8,7 +8,7 @@ public class Target
 
 	public Measure? Measure { get; set; }
 
-	public List<MeasureData>? MeasureData { get; set; }
+	public ICollection<MeasureData>? MeasureData { get; } = new HashSet<MeasureData>();
 
 	public double? Value { get; set;}
 

@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 using CLS.WebApi.Data;
+using System.Runtime.Intrinsics.Arm;
 
 namespace CLS.WebApi;
 
@@ -283,58 +284,31 @@ public class Helper
 		return children;
 	}
 
-	internal static List<Data.RegionFilterObject> getSubs(int id, UserObject user) {
-		List<Data.RegionFilterObject> children = new List<Data.RegionFilterObject>();
+	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext context, int id, UserObject user) {
+		List<RegionFilterObject> children = new();
+		var hierarchyList = context.Hierarchy
+			.Where(h => h.HierarchyParentId == id && h.Active == true)
+			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.AsNoTrackingWithIdentityResolution()
+			.ToList();
+		foreach (var rfo in hierarchyList) {
+			rfo.sub = GetSubs(context, rfo.id, user);
+			rfo.count = rfo.sub.Count;
+			rfo.found = user.hierarchyIds.Contains(rfo.id);
+			if (rfo.found == false) {
+				var child = context.Hierarchy
+					.Where(c => c.HierarchyParentId == rfo.id)
+					.Select(c => c.Id)
+					.ToList();
+				rfo.found = user.hierarchyIds.Any(i => child.Contains(i));
+			}
 
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			string HierarchySQL = "Select Name, Id from Hierarchy where HierarchyParentId = " + id + " AND Active = 1";
-			con.Open();
-			SqlCommand cmd = new SqlCommand(HierarchySQL, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						var current = new Data.RegionFilterObject { hierarchy = rdr.GetString(0), id = rdr.GetInt32(1), sub = getSubs(rdr.GetInt32(1), user), count = 0 };
-						current.count = current.sub.Count();
-
-						if (user.hierarchyIds.Contains(rdr.GetInt32(1)))
-							current.found = true;
-						else
-							current.found = allowRecord(rdr.GetInt32(1), user);
-
-						if (current.found == true)
-							children.Add(current);
-					}
-				}
+			if (rfo.found == true) {
+				children.Add(rfo);
 			}
 		}
+
 		return children;
-	}
-
-	internal static bool allowRecord(int hId, UserObject user) {
-
-		bool bReturn = false;
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			string selectSQL = "select Id from Hierarchy where HierarchyParentId = " + hId;
-			con.Open();
-			SqlCommand cmd = new SqlCommand(selectSQL, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						if (user.hierarchyIds.Contains(rdr.GetInt32(0))) {
-							bReturn = true;
-							break;
-						}
-					}
-				}
-
-			}
-		}
-		return bReturn;
 	}
 
 	public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver

@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<AuditTrail>().Property(a => a.Code).IsUnicode(false).HasMaxLength(20);
 		modelBuilder.Entity<AuditTrail>().Property(a => a.Description).IsUnicode(false).HasMaxLength(255);
 		modelBuilder.Entity<AuditTrail>().Property(a => a.Data).IsUnicode(false);
+		modelBuilder.Entity<AuditTrail>().Metadata.SetIsTableExcludedFromMigrations(true);
 
 		modelBuilder.Entity<Calendar>().HasKey(c => c.Id);
 		modelBuilder.Entity<Calendar>().Metadata.SetIsTableExcludedFromMigrations(true);
@@ -42,7 +43,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<MeasureType>().HasKey(m => m.Id);
 		modelBuilder.Entity<MeasureType>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Hierarchy>().HasKey(h => h.Id);
+		modelBuilder.Entity<Hierarchy>()
+			.HasOne(h => h.Parent)
+			.WithMany(h => h.Children)
+			.HasForeignKey(h => h.HierarchyParentId)
+			.IsRequired(false)
+			.OnDelete(DeleteBehavior.Restrict);
 		modelBuilder.Entity<Hierarchy>().Metadata.SetIsTableExcludedFromMigrations(true);
+
 		modelBuilder.Entity<HierarchyLevel>().HasKey(h => h.Id);
 		modelBuilder.Entity<HierarchyLevel>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Target>().HasKey(t => t.Id);

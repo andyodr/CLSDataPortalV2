@@ -44,12 +44,12 @@ public class FilterController : ControllerBase
 				});
 			}
 
-			var regions = _context.Hierarchy.Where(m => m.HierarchyLevel.Id == 1)
+			var regionList = _context.Hierarchy.Where(m => m.HierarchyLevel!.Id == 1)
 				.OrderBy(r => r.Id)
-				.AsNoTracking()
+				.AsNoTrackingWithIdentityResolution()
 				.ToList();
-			foreach (var region in regions) {
-				var subs = Helper.getSubs(region.Id, _user);
+			foreach (var region in regionList) {
+				var subs = Helper.GetSubs(_context, region.Id, _user);
 				if (subs.Count > 0) {
 					returnObject.hierarchy.Add(new() {
 						hierarchy = region.Name,

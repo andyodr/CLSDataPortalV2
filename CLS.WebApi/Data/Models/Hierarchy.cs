@@ -7,9 +7,13 @@ public class Hierarchy
 	/// </summary>
 	public int Id { get; set; }
 
-	public HierarchyLevel? HierarchyLevel { set; get; }
+	public HierarchyLevel? HierarchyLevel { get; set; }
 
-	public int? HierarchyParentId { set; get; } = null;
+	public int? HierarchyParentId { get; set; }
+
+	public Hierarchy? Parent { get; set; }
+
+	public List<Hierarchy>? Children { get; } = new();
 
 	public string Name { get; set; } = null!;
 
@@ -17,5 +21,5 @@ public class Hierarchy
 
 	public byte IsProcessed { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set; }
 }

@@ -2,11 +2,11 @@
 
 public class UserHierarchy
 {
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public User User { set; get; } = null!;
+	public User User { get; set; } = null!;
 
-	public Hierarchy? Hierarchy { set; get; } = null!;
+	public Hierarchy? Hierarchy { get; set; } = null!;
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set; }
 }

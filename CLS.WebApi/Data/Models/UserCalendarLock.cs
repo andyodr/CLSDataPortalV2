@@ -2,13 +2,13 @@
 
 public class UserCalendarLock
 {
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public User User { set; get; } = null!;
+	public User User { get; set; } = null!;
 
-	public Calendar? Calendar { set; get; } = null!;
+	public Calendar? Calendar { get; set; } = null!;
 
-	public bool? LockOverride { set; get; }
+	public bool? LockOverride { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set; }
 }
