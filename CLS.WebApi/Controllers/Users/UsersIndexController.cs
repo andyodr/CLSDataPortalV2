@@ -20,10 +20,9 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
-		UserIndexGetObject returnObject = new() { data = new(), hierarchy = null, roles = new() };
+		var returnObject = new UserIndexGetObject { data = new(), hierarchy = null, roles = new() };
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -41,7 +40,7 @@ public class IndexController : ControllerBase
 
 			var users = _context.User.OrderBy(u => u.UserName);
 			foreach (var user in users.Include(u => u.UserRole).AsNoTracking()) {
-				UserIndexDto currentUser = new() {
+				var currentUser = new UserIndexDto {
 					id = user.Id,
 					userName = user.UserName,
 					lastName = user.LastName,
@@ -66,23 +65,19 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

@@ -20,7 +20,7 @@ public class EditController : ControllerBase
 	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get(int measureDefinitionId) {
-		MeasureDefinitionIndexReturnObject returnObject = new() {
+		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new List<UnitsObject>(),
 			intervals = new(),
 			measureTypes = new(),
@@ -51,9 +51,9 @@ public class EditController : ControllerBase
 			}
 
 			foreach (var md in _context.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
-				MeasureDefinitionViewModel currentMD = new() {
+				var currentMD = new MeasureDefinitionViewModel {
 					id = md.Id,
-					measureTypeId = md.MeasureType.Id,
+					measureTypeId = md.MeasureTypeId,
 					name = md.Name,
 					varName = md.VariableName,
 					description = md.Description,
@@ -66,7 +66,7 @@ public class EditController : ControllerBase
 
 					//find which interval Id to give
 					//currentMD.intervalId = Helper.findIntervalId(currentMD, _intervalsRepository);
-					intervalId = md.ReportInterval.Id
+					intervalId = md.ReportIntervalId
 				};
 
 				bool daily, weekly, monthly, quarterly, yearly = false;
@@ -92,15 +92,13 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonResult> Put(int id2, [FromBody] MeasureDefinitionViewModel value) {
-		MeasureDefinitionIndexReturnObject returnObject = new() {
+		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new List<UnitsObject>(),
 			intervals = new(),
 			measureTypes = new(),
@@ -161,10 +159,7 @@ public class EditController : ControllerBase
 			monthly = Helper.nullBoolToBool(value.monthly) && value.intervalId != (int)Helper.intervals.monthly;
 			quarterly = Helper.nullBoolToBool(value.quarterly) && value.intervalId != (int)Helper.intervals.quarterly;
 			yearly = Helper.nullBoolToBool(value.yearly) && value.intervalId != (int)Helper.intervals.yearly;
-
-			if (value.aggFunctionId == null) {
-				value.aggFunctionId = (byte)enumAggFunctions.summation;
-			}
+			value.aggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
 			var mDef_ = _context.Entry(mDef);
@@ -256,9 +251,7 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

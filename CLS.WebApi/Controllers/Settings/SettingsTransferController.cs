@@ -19,7 +19,6 @@ public class TransferController : ControllerBase
 		_context = context;
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] dynamic jsonString) {
 		try {

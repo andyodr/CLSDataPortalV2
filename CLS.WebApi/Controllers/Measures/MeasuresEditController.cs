@@ -19,23 +19,25 @@ public class EditController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasuresOwnerObject values) {
-		MeasureIDReturnObject returnObject = new() { data = new() };
+		var returnObject = new MeasureIDReturnObject { data = new() };
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measure, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measure, _user.userRoleId)) {
+				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			var measureDef = _context.MeasureDefinition
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.measureDefinitionId)
-				.AsNoTracking().First();
-			MeasureTypeDataObject data = new() {
+				.AsNoTrackingWithIdentityResolution().First();
+			var data = new MeasureTypeDataObject {
 				measureName = measureDef.Name,
-				measureTypeName = measureDef.MeasureType.Name,
+				measureTypeName = measureDef.MeasureType!.Name,
 				hierarchy = new()
 			};
 
@@ -46,10 +48,10 @@ public class EditController : ControllerBase
 
 			foreach (var hierarchy in hierarchies.AsNoTracking()) {
 				var measure = _context.Measure
-							  .Where(m => m.Hierarchy.Id == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId)
-							  .AsNoTracking().First();
+							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinitionId == values.measureDefinitionId)
+							  .AsNoTrackingWithIdentityResolution().First();
 
-				RegionOwnerObject hierarchyOwner = new() {
+				var hierarchyOwner = new RegionOwnerObject {
 					id = hierarchy.Id,
 					name = hierarchy.Name
 				};
@@ -64,8 +66,6 @@ public class EditController : ControllerBase
 			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
 	}
-
-	// PUT api/values/5
 
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] MeasuresOwnerObject values) {
@@ -87,9 +87,9 @@ public class EditController : ControllerBase
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.measureDefinitionId)
 				.First();
-			MeasureTypeDataObject data = new() {
+			var data = new MeasureTypeDataObject {
 				measureName = measureDef.Name,
-				measureTypeName = _context.MeasureType.Find(measureDef.MeasureType.Id)?.Name
+				measureTypeName = _context.MeasureType.Find(measureDef.MeasureTypeId)?.Name
 			};
 
 			var hierarchies = from h in _context.Hierarchy
@@ -97,7 +97,7 @@ public class EditController : ControllerBase
 							  orderby h.Id
 							  select h;
 
-			int count = 0;
+			bool any = false;
 			data.hierarchy = new List<RegionOwnerObject>();
 			data.owner = values.owner;
 			var lastUpdatedOn = DateTime.Now;
@@ -108,12 +108,12 @@ public class EditController : ControllerBase
 				});
 
 				var measure = _context.Measure
-							  .Where(m => m.Hierarchy.Id == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId).FirstOrDefault();
+							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId).FirstOrDefault();
 
 				if (measure != null) {
 					measure.Owner = values.owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
-					count++;
+					any = true;
 					Helper.UpdateMeasureDataIsProcessed(measure.Id, _user.userId, lastUpdatedOn, Helper.IsProcessed.complete);
 
 					Helper.addAuditTrail(
@@ -128,7 +128,7 @@ public class EditController : ControllerBase
 				}
 			}
 
-			if (count > 0) {
+			if (any) {
 				_context.SaveChanges();
 			}
 

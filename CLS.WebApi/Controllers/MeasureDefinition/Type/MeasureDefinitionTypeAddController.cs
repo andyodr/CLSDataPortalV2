@@ -16,19 +16,16 @@ public class AddController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public IEnumerable<string> Get() {
 		return new string[] { "value1", "value2" };
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] MeasureTypeObject value) {
 		try {
@@ -41,7 +38,7 @@ public class AddController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			MeasureTypeModel returnObject = new() { data = new MeasureTypeObject() };
+			var returnObject = new MeasureTypeModel { data = new() };
 
 			// Validates name
 			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.name.Trim().ToLower()).Count();
@@ -50,12 +47,11 @@ public class AddController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			Data.Models.MeasureType measureType = new() {
+			var measureType = _context.MeasureType.Add(new() {
 				Description = value.description,
 				Name = value.name,
 				LastUpdatedOn = lastUpdatedOn
-			};
-			_context.MeasureType.Add(measureType);
+			}).Entity;
 			_context.SaveChanges();
 			//value.id = _measureTypeRepository.All().Where(m => m.Name == value.name).First().Id;
 			value.id = measureType.Id;
@@ -77,14 +73,11 @@ public class AddController : ControllerBase
 		}
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

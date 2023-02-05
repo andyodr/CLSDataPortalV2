@@ -19,7 +19,7 @@ public class IntervalsController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
-		IntervalListObject returnObject = new();
+		var returnObject = new IntervalListObject();
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -56,7 +56,7 @@ public class IntervalsController : ControllerBase
 					}));
 					break;
 				default:
-					GetIntervalsObject intervalObject = new();
+					var intervalObject = new GetIntervalsObject();
 					intervalObject.error.message = Resource.VAL_VALID_INTERVAL_ID;
 					returnObject.data.Add(intervalObject);
 					break;
@@ -78,25 +78,20 @@ public class IntervalsController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

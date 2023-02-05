@@ -17,7 +17,6 @@ public class FilterController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
 		try {
@@ -30,7 +29,7 @@ public class FilterController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			FilterReturnObject returnObject = new() { measureTypes = new() };
+			var returnObject = new FilterReturnObject { measureTypes = new() };
 			var measureTypes = _context.MeasureType;
 			foreach (var measuretype in measureTypes.AsNoTracking()) {
 				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = measuretype.Id, Name = measuretype.Name });
@@ -45,19 +44,14 @@ public class FilterController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
-
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

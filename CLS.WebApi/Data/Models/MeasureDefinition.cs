@@ -4,7 +4,11 @@ public class MeasureDefinition
 {
 	public long Id { get; set; }
 
+	public int MeasureTypeId { get; set; }
+
 	public MeasureType? MeasureType { get; set; }
+
+	public int ReportIntervalId { get; set; }
 
 	public Interval? ReportInterval { get; set; }
 

@@ -8,7 +8,7 @@ public class MeasureDefinitionViewModel
 	public string interval { set; get; }
 	public int intervalId { set; get; }
 	public string varName { set; get; }
-	public string description { set; get; }
+	public string? description { set; get; }
 	public string? expression { set; get; }
 	public byte precision { set; get; }
 	public int priority { set; get; }

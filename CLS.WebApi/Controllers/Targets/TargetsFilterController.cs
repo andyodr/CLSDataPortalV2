@@ -19,7 +19,7 @@ public class FilterController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
-		FilterReturnObject filter = new() {
+		var filter = new FilterReturnObject {
 			intervals = null,
 			measureTypes = new List<MeasureTypeFilterObject>(),
 			hierarchy = new List<RegionFilterObject>()
@@ -27,11 +27,13 @@ public class FilterController : ControllerBase
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.target, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
+			if (!Helper.IsUserPageAuthorized(Helper.pages.target, _user.userRoleId)) {
+				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTracking()) {
@@ -57,5 +59,4 @@ public class FilterController : ControllerBase
 			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
 	}
-
 }

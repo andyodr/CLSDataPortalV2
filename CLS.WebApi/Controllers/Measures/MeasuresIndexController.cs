@@ -19,7 +19,7 @@ public class IndexController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasuresIndexGetRecieveObject values) {
-		RegionIndexGetReturnObject returnObject = new() {
+		var returnObject = new RegionIndexGetReturnObject {
 			hierarchy = new List<string>(),
 			data = new List<MeasureTypeRegionsObject>()
 		};
@@ -53,13 +53,13 @@ public class IndexController : ControllerBase
 									 select measureDef;
 
 			foreach (var measuredef in measureDefinitions.AsNoTracking()) {
-				MeasureTypeRegionsObject currentDataObject = new() { hierarchy = new() };
+				var currentDataObject = new MeasureTypeRegionsObject { hierarchy = new() };
 				foreach (var hierarchy in hierarchies) {
 					var measure = _context.Measure
 						.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy.Id == hierarchy.Id)
 						.AsNoTracking().ToList();
 					if (measure.Count > 0) {
-						RegionActiveCalculatedObject newRegion = new() {
+						var newRegion = new RegionActiveCalculatedObject {
 							id = measure.First().Id,
 							active = measure.First().Active ?? false,
 							expression = measure.First().Expression ?? false,
@@ -98,12 +98,12 @@ public class IndexController : ControllerBase
 			throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 		}
 
-		RegionIndexGetReturnObject returnObject = new() { data = new() };
+		var returnObject = new RegionIndexGetReturnObject { data = new() };
 		var lastUpdatedOn = DateTime.Now;
 		try {
-			MeasureTypeRegionsObject currentMeasure = new() {
+			var currentMeasure = new MeasureTypeRegionsObject {
 				id = value.measureDefinitionId,
-				hierarchy = new List<RegionActiveCalculatedObject>(),
+				hierarchy = new(),
 				name = _context.MeasureDefinition.Find(value.measureDefinitionId)?.Name
 			};
 

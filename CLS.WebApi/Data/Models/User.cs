@@ -12,11 +12,13 @@ public class User
 
 	public string Department { get; set; } = null!;
 
-	public UserRole UserRole { get; set; } = null!;
+	public UserRole? UserRole { get; set; }
 
 	public bool? Active { get; set; } = true;
 
 	public DateTime LastUpdatedOn { get; set; }
 
 	public List<UserHierarchy>? UserHierarchies { get; } = new();
+
+	public List<UserCalendarLock>? UserCalendarLocks { get; } = new();
 }

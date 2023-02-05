@@ -21,7 +21,6 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get(SettingsGetRecieveObject value) {
 		try {
@@ -34,7 +33,7 @@ public class IndexController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			SettingsGetReturnObject returnObject = new() { locked = new(), users = new(), years = new() };
+			var returnObject = new SettingsGetReturnObject { locked = new(), users = new(), years = new() };
 			var calendarRecords = _context.Calendar.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly);
 			var settings = _context.Setting;
 			if (!settings.Any()) {
@@ -74,9 +73,11 @@ public class IndexController : ControllerBase
 			}
 
 			foreach (var user in users) {
-				UserSettingObject currentUser = new() { locks = new() };
-				currentUser.id = user.id;
-				currentUser.userName = user.userName;
+				var currentUser = new UserSettingObject {
+					locks = new(),
+					id = user.id,
+					userName = user.userName
+				};
 				foreach (var calRecord in calendarRecords) {
 					var userCalRecord = _context.UserCalendarLock.Where(c => c.User.Id == user.id && c.Calendar!.Id == calRecord.Id);
 					if (userCalRecord == null || userCalRecord.Count() == 0 || userCalRecord.First().LockOverride == false) {
@@ -102,12 +103,10 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] SettingsGetRecieveObject value) {
 		try {
@@ -115,8 +114,7 @@ public class IndexController : ControllerBase
 			if (_user == null) { throw new Exception(); }
 
 			var lastUpdatedOn = DateTime.Now;
-
-			SettingsGetReturnObject returnObject = new() { locked = new(), years = new() };
+			var returnObject = new SettingsGetReturnObject { locked = new(), years = new() };
 			var calendarRecords = _context.Calendar
 				.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly)
 				.OrderBy(c => c.Month);
@@ -178,7 +176,6 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

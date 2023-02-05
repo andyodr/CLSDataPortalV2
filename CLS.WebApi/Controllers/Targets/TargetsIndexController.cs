@@ -22,9 +22,8 @@ public class IndexController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(TargetGetAllObject value) {
-		MeasureDataIndexListObject returnObject = new();
-		List<MeasureDataReturnObject> measureDataList = new();
-		List<long> id = new();
+		var returnObject = new MeasureDataIndexListObject { data = new() };
+		var id = new List<long>();
 
 		try {
 			_user = Helper.UserAuthorization(User);
@@ -49,7 +48,7 @@ public class IndexController : ControllerBase
 			foreach (var def in defs.Include(d => d.Unit)) {
 				foreach (var t in msr.Include(t => t.User)) {
 					if (def.Id == t.Measure!.MeasureDefinitionId) {
-						MeasureDataReturnObject mdr = new() {
+						var mdr = new MeasureDataReturnObject {
 							id = t.Measure.Id,
 							name = def.Name,
 							target = t.Value,
@@ -73,7 +72,7 @@ public class IndexController : ControllerBase
 							mdr.yellow = Math.Round((double)t.YellowValue, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
-						measureDataList.Add(mdr);
+						returnObject.data.Add(mdr);
 					}
 				}
 			}
@@ -83,9 +82,6 @@ public class IndexController : ControllerBase
 			returnObject.allow = false;
 			if (_user.userRoleId == (int)Helper.userRoles.systemAdministrator)
 				returnObject.allow = _user.hierarchyIds.Contains(value.hierarchyId);
-
-
-			returnObject.data = measureDataList;
 
 			_user.savedFilters[Helper.pages.target].hierarchyId = value.hierarchyId;
 			_user.savedFilters[Helper.pages.target].measureTypeId = value.measureTypeId;
@@ -103,7 +99,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] TargetGetAllObject value) {
-		MeasureDataIndexListObject returnObject = new();
+		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 		try {
 			_user = Helper.UserAuthorization(User);
@@ -196,7 +192,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut("{id}")]
 	public ActionResult<JsonResult> applytochildren([FromBody] TargetGetAllObject value) {
-		MeasureDataIndexListObject returnObject = new();
+		var returnObject = new MeasureDataIndexListObject();
 		var lastUpdatedOn = DateTime.Now;
 
 		try {
@@ -358,7 +354,6 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

@@ -19,7 +19,7 @@ public class AddController : ControllerBase
 	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
-		MeasureDefinitionIndexReturnObject returnObject = new() {
+		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new(),
 			intervals = new(),
 			aggFunctions = AggregationFunctions.list,
@@ -55,23 +55,24 @@ public class AddController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] MeasureDefinitionViewModel value) {
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
-			MeasureDefinitionIndexReturnObject result = new() {
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
+				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
+
+			var result = new MeasureDefinitionIndexReturnObject {
 				units = new List<UnitsObject>(),
 				intervals = new(),
 				measureTypes = new(),
@@ -84,9 +85,9 @@ public class AddController : ControllerBase
 				m.Name.Trim().ToLower() == value.name.Trim().ToLower() ||
 				m.VariableName.Trim().ToLower() == value.varName.Trim().ToLower()).Count();
 
-			if (validateCount > 0)
+			if (validateCount > 0) {
 				throw new Exception(Resource.VAL_MEASURE_DEF_NAME_EXIST);
-
+			}
 
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals) {
@@ -117,11 +118,8 @@ public class AddController : ControllerBase
 			monthly = Helper.nullBoolToBool(value.monthly) && value.intervalId != (int)Helper.intervals.monthly;
 			quarterly = Helper.nullBoolToBool(value.quarterly) && value.intervalId != (int)Helper.intervals.quarterly;
 			yearly = Helper.nullBoolToBool(value.yearly) && value.intervalId != (int)Helper.intervals.yearly;
-
-			if (value.aggFunctionId == null)
-				value.aggFunctionId = (byte)enumAggFunctions.summation;
-
-			DateTime lastUpdatedOn = DateTime.Now;
+			value.aggFunctionId ??= (byte)enumAggFunctions.summation;
+			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
 			var currentMD = new Data.Models.MeasureDefinition {
@@ -142,9 +140,9 @@ public class AddController : ControllerBase
 
 			if (daily || weekly || monthly || quarterly || yearly) {
 				currentMD.AggFunction = value.aggFunctionId;
-
-				if (currentMD.Calculated != true && value.aggFunctionId == (byte)enumAggFunctions.expression)
+				if (currentMD.Calculated != true && value.aggFunctionId == (byte)enumAggFunctions.expression) {
 					currentMD.AggFunction = (byte)enumAggFunctions.summation;
+				}
 			}
 			else {
 				currentMD.AggFunction = null;
@@ -184,7 +182,6 @@ public class AddController : ControllerBase
 			   _user.userId
 			);
 
-
 			return new JsonResult(result);
 		}
 		catch (Exception e) {
@@ -192,14 +189,11 @@ public class AddController : ControllerBase
 		}
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

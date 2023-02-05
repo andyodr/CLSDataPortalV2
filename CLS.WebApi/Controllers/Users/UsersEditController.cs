@@ -18,16 +18,18 @@ public class EditController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet("{id}")]
 	public ActionResult<JsonResult> Get(int id) {
-		UserIndexGetObject result = new() { data = new(), hierarchy = new(), roles = new() };
+		var result = new UserIndexGetObject { data = new(), hierarchy = new(), roles = new() };
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.users, _user.userRoleId))
+			}
+
+			if (!Helper.IsUserPageAuthorized(Helper.pages.users, _user.userRoleId)) {
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToList();
 			result.hierarchy.Add(new() {
@@ -49,7 +51,7 @@ public class EditController : ControllerBase
 				.Include(u => u.UserHierarchies)!
 				.ThenInclude(uh => uh.Hierarchy);
 			foreach (var user in users) {
-				UserIndexDto currentUser = new() {
+				var currentUser = new UserIndexDto {
 					hierarchiesId = new(),
 					id = user.Id,
 					userName = user.UserName,
@@ -83,12 +85,10 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] UserIndexDto value) {
 		try {
@@ -97,7 +97,7 @@ public class EditController : ControllerBase
 				throw new Exception();
 			}
 
-			UserIndexGetObject returnObject = new() { data = new() };
+			var returnObject = new UserIndexGetObject { data = new() };
 			var user = _context.User.Where(u => u.Id == value.id).First();
 			if (value.userName != user.UserName) {
 				if (_context.User.Where(u => u.UserName == value.userName).Any()) {
@@ -132,8 +132,7 @@ public class EditController : ControllerBase
 
 			if (user.Id == _user.userId) {
 				//Helper.setUserTemp(user.UserName);
-				UserObject tempUser = new();
-				tempUser = Helper.setUser(_user.userName);
+				var tempUser = Helper.GetUserObject(_context, _user.userName);
 				if (tempUser != null) {
 					if (Helper.userCookies.ContainsKey(tempUser.userId.ToString())) {
 						Helper.userCookies.Remove(tempUser.userId.ToString());
@@ -150,7 +149,6 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

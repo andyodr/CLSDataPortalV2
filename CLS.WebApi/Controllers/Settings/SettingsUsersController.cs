@@ -40,7 +40,7 @@ public class UsersController : ControllerBase
 	public ActionResult<JsonResult> Put([FromBody] string json) {
 		try {
 			var node = JsonNode.Parse(json);
-			SettingsGetReturnObject value = new() { users = new() };
+			var value = new SettingsGetReturnObject { users = new() };
 			var test = node!["users"];
 			UserSettingObject user = test.Deserialize<UserSettingObject>()!;
 			value.year = (int)node["year"]!;
@@ -92,7 +92,6 @@ public class UsersController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

@@ -10,17 +10,16 @@ namespace CLS.WebApi.Controllers.Users;
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private List<int> addedHierarchies = new();
+	private readonly List<int> addedHierarchies = new();
 	private UserObject _user = new();
 
 	public AddController(ApplicationDbContext context) {
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
-		UserIndexGetObject returnObject = new() { hierarchy = new(), roles = new() };
+		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -45,16 +44,14 @@ public class AddController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] UserIndexDto value) {
-		UserIndexGetObject returnObject = new() { data = new() };
+		var returnObject = new UserIndexGetObject { data = new() };
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -100,14 +97,11 @@ public class AddController : ControllerBase
 		}
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

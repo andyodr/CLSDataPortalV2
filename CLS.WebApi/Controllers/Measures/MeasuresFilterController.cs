@@ -17,7 +17,6 @@ public class FilterController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> GetAll() {
 		try {
@@ -30,12 +29,7 @@ public class FilterController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			FilterReturnObject returnObject = new() {
-				measureTypes = new(),
-				hierarchy = new(),
-				years = null
-			};
-
+			var returnObject = new FilterReturnObject { measureTypes = new(), hierarchy = new() };
 			foreach (var metricType in _context.MeasureType) {
 				returnObject.measureTypes.Add(new() {
 					Id = metricType.Id,
@@ -74,11 +68,5 @@ public class FilterController : ControllerBase
 		catch (Exception e) {
 			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
-	}
-
-	private bool ifExist(int id) {
-		if (!_context.Measure.Where(m => m.Hierarchy.Id == id).Any())
-			return false;
-		else return true;
 	}
 }

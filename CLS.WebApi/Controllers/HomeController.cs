@@ -29,11 +29,12 @@ public class HomeController : Controller
 		ViewBag.ShowMenuSub = false.ToString().ToLower();
 		ViewBag.TableauLink = _config.tableauLink;
 
-		if (String.IsNullOrWhiteSpace(_user.firstName))
+		if (String.IsNullOrWhiteSpace(_user.firstName)) {
 			ViewBag.UserName = _user.userName;
-		else
+		}
+		else {
 			ViewBag.UserName = _user.firstName;
-
+		}
 
 		// If Role Id is System Administrator
 		if (_user.userRoleId == (int)Helper.userRoles.systemAdministrator) {

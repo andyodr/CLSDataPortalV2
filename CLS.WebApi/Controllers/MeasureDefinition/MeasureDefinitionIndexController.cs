@@ -17,25 +17,24 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get(int measureTypeId) {
-
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
 				throw new Exception();
 			}
 
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId))
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
-			MeasureDefinitionIndexReturnObject returnObject = new() { data = new() };
+			var returnObject = new MeasureDefinitionIndexReturnObject { data = new() };
 
 			//_userRepository.Find(u => u.Id == record.userId).UserName
 
 			var mDef = from md in _context.MeasureDefinition
-					   where md.MeasureType.Id == measureTypeId
+					   where md.MeasureTypeId == measureTypeId
 					   orderby md.FieldNumber ascending, md.Name
 					   select new
 					   {
@@ -59,7 +58,7 @@ public class IndexController : ControllerBase
 					   };
 
 			foreach (var md in mDef.AsNoTracking()) {
-				MeasureDefinitionViewModel currentMD = new() {
+				var currentMD = new MeasureDefinitionViewModel {
 					id = md.id,
 					name = md.name,
 					varName = md.varName,
@@ -119,19 +118,15 @@ public class IndexController : ControllerBase
 
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

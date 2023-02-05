@@ -29,12 +29,7 @@ public class IndexController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			RegionMetricsFilterObject returnObject = new() {
-				data = new List<RegionsDataViewModel>(),
-				hierarchy = new List<RegionFilterObject>(),
-				levels = new List<LevelObject>()
-			};
-
+			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new(), levels = new() };
 			var levels = from level in _context.HierarchyLevel.OrderBy(l => l.Id)
 						 select new { id = level.Id, name = level.Name };
 
@@ -56,7 +51,7 @@ public class IndexController : ControllerBase
 							  from md in measure.MeasureData
 							  where measure.HierarchyId == hierarchy.Id
 							  select md.Id).Any();
-				RegionsDataViewModel newData = new() {
+				var newData = new RegionsDataViewModel {
 					id = hierarchy.Id,
 					name = hierarchy.Name,
 					levelId = hierarchy.HierarchyLevelId,
@@ -93,7 +88,7 @@ public class IndexController : ControllerBase
 
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] RegionsDataViewModelAdd value) {
-		RegionMetricsFilterObject returnObject = new() { data = new(), hierarchy = new() };
+		var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
 
 		try {
 			_user = Helper.UserAuthorization(User);
@@ -110,7 +105,7 @@ public class IndexController : ControllerBase
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			_ = _context.SaveChanges();
-			RegionsDataViewModel newHierarchy = new() {
+			var newHierarchy = new RegionsDataViewModel {
 				id = updatedHierarchy.Id,
 				name = updatedHierarchy.Name,
 				levelId = updatedHierarchy.HierarchyLevelId,
@@ -163,7 +158,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] RegionsDataViewModel value) {
-		RegionMetricsFilterObject returnObject = new() { data = new() };
+		var returnObject = new RegionMetricsFilterObject { data = new() };
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -188,7 +183,7 @@ public class IndexController : ControllerBase
 			updateHierarchy.IsProcessed = (byte)Helper.IsProcessed.complete;
 			_context.SaveChanges();
 
-			RegionsDataViewModel newHierarchy = new() {
+			var newHierarchy = new RegionsDataViewModel {
 				id = updateHierarchy.Id,
 				name = updateHierarchy.Name,
 				levelId = updateHierarchy.HierarchyLevelId,
@@ -235,13 +230,8 @@ public class IndexController : ControllerBase
 				throw new Exception();
 			}
 
-			RegionMetricsFilterObject returnObject = new() {
-				data = new List<RegionsDataViewModel>(),
-				hierarchy = new List<RegionFilterObject>()
-			};
-
+			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
 			string hierarchyName = string.Empty;
-
 			var exists = (from measure in _context.Measure
 						  from md in measure.MeasureData
 						  where measure.HierarchyId == id
@@ -280,7 +270,7 @@ public class IndexController : ControllerBase
 				_context.SaveChanges();
 			}
 
-			RegionsDataViewModel newHierarchy = new() {
+			var newHierarchy = new RegionsDataViewModel {
 				id = id,
 				name = "",
 				levelId = null,

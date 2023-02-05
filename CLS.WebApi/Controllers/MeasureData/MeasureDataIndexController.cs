@@ -20,7 +20,7 @@ public class IndexController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasureDataReceiveObject value) {
-		MeasureDataIndexListObject returnObject = new();
+		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 		DateTime? date = new();
 		List<long> id = new();
@@ -93,7 +93,7 @@ public class IndexController : ControllerBase
 							  select new { m.Id, m.VariableName };
 
 			foreach (var record in measures.AsNoTracking()) {
-				MeasureDataReturnObject newObject = new();
+				var newObject = new MeasureDataReturnObject();
 
 				if (record.User == null) {
 					newObject.updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, Resource.SYSTEM);
@@ -177,27 +177,25 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public string Get(int id) {
 		return "value";
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] MeasureDataReceiveObject value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonObject> Put([FromBody] MeasureDataReceiveObject value) {
-		MeasureDataIndexListObject returnObject = new();
+		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
+			}
 
 			//apply precision and validate unit if value != null 
 			if (value.measureValue != null) {
@@ -268,7 +266,6 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}

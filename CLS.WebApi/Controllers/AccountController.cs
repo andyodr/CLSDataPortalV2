@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Runtime.Versioning;
 using System.Security.Claims;
 
 namespace CLS.WebApi.Controllers;
@@ -25,35 +26,32 @@ public class AccountController : Controller
 	}
 
 	[HttpPost]
+	[SupportedOSPlatform("windows")]
 	public async Task<IActionResult> Login(string userName, string password, string returnUrl) {
-		bool bContinue = true;
+		bool continueLogin = true;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
 
-		UserObject user = new();
+		UserObject? user = null;
 
 		if (String.IsNullOrWhiteSpace(userName) || String.IsNullOrWhiteSpace(password)) {
 			msgErr = Resource.VAL_USERNAME_PASSWORD;
-			bContinue = false;
+			continueLogin = false;
 		}
 
 		// Checks if userName exists in database
-		if (bContinue) {
-			user = Helper.setUser(userName);
+		if (continueLogin) {
+			user = Helper.GetUserObject(_context, userName);
 			if (user == null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
-				bContinue = false;
+				continueLogin = false;
 			}
 			else {
-				if (Helper.userCookies.ContainsKey(user.userId.ToString()))
-					Helper.userCookies.Remove(user.userId.ToString());
-
-				Helper.userCookies.Add(user.userId.ToString(), user);
+				Helper.userCookies[user.userId.ToString()] = user;
 			}
 		}
 
 		// Validates against Active Directory
-		if (bContinue) {
-
+		if (continueLogin) {
 			bool bIsByPass = false;
 			// **************** DELETE ***********************************
 			//bIsByPass = true;
@@ -67,25 +65,24 @@ public class AccountController : Controller
 
 			// Check Active Directory if User is NOT ByPassUser 
 			if (!bIsByPass) {
-				LdapAuthentication AD = new LdapAuthentication();
+				var AD = new LdapAuthentication(_config);
 				string sADReturn = AD.IsAuthenticated2(userName, password);
-
 				if (!String.IsNullOrWhiteSpace(sADReturn)) {
 					msgErr = sADReturn;
-					bContinue = false;
+					continueLogin = false;
 				}
 			}
 		}
 
 		// Success
-		if (bContinue) {
+		if (continueLogin) {
 			var claims = new List<Claim> {
-				new Claim("userId", user.userId.ToString()),
-				new Claim("name", user.userName)
+				new("userId", user!.userId.ToString()),
+				new("name", user.userName)
 			};
-			var id = new ClaimsIdentity(claims, "local", "name", "role");
+			var identity = new ClaimsIdentity(claims, "local", "name", "role");
 
-			await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(id));
+			await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(identity));
 
 			Helper.addAuditTrail(
 			  Resource.SECURITY,
@@ -110,8 +107,9 @@ public class AccountController : Controller
 		var user = User.Claims.Where(c => c.Type == "userId").ToList();
 		if (user.Count() > 0) {
 			string userId = user.First().Value;
-			if (Helper.userCookies.ContainsKey(userId))
+			if (Helper.userCookies.ContainsKey(userId)) {
 				Helper.userCookies.Remove(userId);
+			}
 
 			int nUserId = Int32.Parse(userId);
 			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();

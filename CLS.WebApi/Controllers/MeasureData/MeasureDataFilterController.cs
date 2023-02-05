@@ -41,10 +41,13 @@ public class FilterController : ControllerBase
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId))
+			}
+
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			//USE SAVED FILTER
 			var intervals = _context.Interval.OrderBy(i => i.Id);
@@ -57,7 +60,7 @@ public class FilterController : ControllerBase
 						.OrderByDescending(y => y.Year);
 
 			foreach (var year in years.AsNoTrackingWithIdentityResolution()) {
-				YearsObject newYear = new();
+				var newYear = new YearsObject();
 				newYear.id = year.Id;
 				newYear.year = year.Year;
 				filter.years.Add(newYear);
@@ -140,10 +143,13 @@ public class FilterController : ControllerBase
 		var returnObject = new List<GetIntervalsObject>();
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId))
+			}
+
+			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
 			_user.savedFilters[Helper.pages.measureData].intervalId = values.intervalId;
 
@@ -185,7 +191,7 @@ public class FilterController : ControllerBase
 				}
 			}
 			else {
-				GetIntervalsObject intervalObject = new();
+				var intervalObject = new GetIntervalsObject();
 				intervalObject.error.message = Resource.VAL_VALID_INTERVAL_ID;
 				returnObject.Add(intervalObject);
 			}

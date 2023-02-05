@@ -16,7 +16,6 @@ public class EditController : ControllerBase
 		_context = context;
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
 	public ActionResult<JsonResult> Get(int id) {
 
@@ -30,7 +29,7 @@ public class EditController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			MeasureTypeModel returnObject = new() { data = new() };
+			var returnObject = new MeasureTypeModel { data = new() };
 			foreach (var measType in _context.MeasureType.Where(m => m.Id == id)) {
 				returnObject.data.id = measType.Id;
 				returnObject.data.name = measType.Name;
@@ -44,12 +43,10 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<JsonResult> Put([FromBody] MeasureTypeObject value) {
 		try {
@@ -62,7 +59,7 @@ public class EditController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			MeasureTypeModel returnObject = new() { data = new MeasureTypeObject() };
+			var returnObject = new MeasureTypeModel { data = new() };
 
 			// Validates name
 			int validateCount = _context.MeasureType
@@ -99,9 +96,7 @@ public class EditController : ControllerBase
 		}
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

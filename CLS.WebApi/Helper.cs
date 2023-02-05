@@ -152,7 +152,7 @@ public class Helper
 		);
 		db.SaveChanges();
 
-		ErrorModel errorObject = new() {
+		var errorObject = new ErrorModel {
 			id = auditTrail.Entity.Id,
 			message = errorMessage,
 			authError = authError
@@ -238,8 +238,8 @@ public class Helper
 
 	}
 
-	internal static IEnumerable<RegionFilterObject> getSubsLevel(int id) {
-		List<RegionFilterObject> children = new List<RegionFilterObject>();
+	internal static ICollection<RegionFilterObject> getSubsLevel(int id) {
+		var children = new List<RegionFilterObject>();
 
 		string cs = Startup.ConfigurationJson.connectionString;
 		using (SqlConnection con = new SqlConnection(cs)) {
@@ -643,7 +643,7 @@ public class Helper
 
 	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string? userName) {
 
-		UpdatedObject update = new();
+		var update = new UpdatedObject();
 		update.by = userName;
 		update.longDt = lastUpdatedOn.ToString();
 
@@ -698,68 +698,25 @@ public class Helper
 		return update;
 	}
 
-	public static UserObject setUser(string userName) {
-		UserObject localUser = new UserObject();
-
+	public static UserObject? GetUserObject(ApplicationDbContext dbc, string userName) {
 		try {
-
-			localUser.hierarchyIds.Clear();
-			localUser.calendarLockIds.Clear();
-			localUser.userName = userName;
-			string cs = Startup.ConfigurationJson.connectionString;
-			using (SqlConnection con = new SqlConnection(cs)) {
-				string User = "select Id, UserRoleId, UserName, FirstName from [User] where UserName = '" + userName + "'";
-
-				con.Open();
-				//check userHierarchy
-				SqlCommand cmd = new SqlCommand(User, con);
-				IAsyncResult result = cmd.BeginExecuteReader();
-				using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-					if (rdr.HasRows) {
-						while (rdr.Read()) {
-							localUser.userId = rdr.GetInt32(0);
-							localUser.userRoleId = rdr.GetInt32(1);
-							localUser.userName = rdr.GetString(2);
-							localUser.firstName = rdr.GetString(3);
-						}
-
-					}
-					else return null;
-
-				}
-				string UserCalendarLock = "select CalendarId, LockOverride from UserCalendarLock where UserId = " + localUser.userId;
-				string UserHierarchy = "select HierarchyId from UserHierarchy where UserId = " + localUser.userId;
-				string UserRole = "select Name from UserRole where Id = " + localUser.userRoleId;
-				cmd = new SqlCommand(UserRole, con);
-				result = cmd.BeginExecuteReader();
-				using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-					if (rdr.HasRows) {
-						while (rdr.Read()) {
-							localUser.userRole = rdr.GetString(0);
-						}
-					}
-				}
-				cmd = new SqlCommand(UserCalendarLock, con);
-				result = cmd.BeginExecuteReader();
-				using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-					if (rdr.HasRows) {
-						while (rdr.Read()) {
-							localUser.calendarLockIds.Add(new users.userCalendarLocks { CalendarId = rdr.GetInt32(0), LockOverride = rdr.GetBoolean(1) });
-						}
-					}
-
-				}
-				cmd = new SqlCommand(UserHierarchy, con);
-				result = cmd.BeginExecuteReader();
-				using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-					if (rdr.HasRows) {
-						while (rdr.Read()) {
-							localUser.hierarchyIds.Add(rdr.GetInt32(0));
-						}
-					}
-					//localUser.hierarchyIds.Sort();
-				}
-			}
+			var entity = dbc.User
+				.Where(u => u.UserName == userName)
+				.Include(u => u.UserRole)
+				.Include(u => u.UserCalendarLocks)
+				.Include(u => u.UserHierarchies)
+				.AsNoTrackingWithIdentityResolution().Single();
+			var localUser = new UserObject {
+					userId = entity.Id,
+					userRoleId = entity.UserRole!.Id,
+					userName = entity.UserName,
+					firstName = entity.FirstName,
+					userRole = entity.UserRole.Name };
+			localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
+				CalendarId = c.CalendarId,
+				LockOverride = c.LockOverride
+			}));
+			localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
 
 			// Sets page authorization based on roles
 			localUser.Authorized[pages.measureData] = true;
@@ -812,17 +769,19 @@ public class Helper
 		return bReturn;
 	}
 
-	public static UserObject UserAuthorization(ClaimsPrincipal userClaim) {
-
-		if (!userClaim.Identity.IsAuthenticated)
+	public static UserObject? UserAuthorization(ClaimsPrincipal userClaim) {
+		if (!userClaim.Identity.IsAuthenticated) {
 			return null;
+		}
 
 		var userId = userClaim.Claims.Where(c => c.Type == "userId").FirstOrDefault();
-		if (userId == null)
+		if (userId == null) {
 			return null;
+		}
 
-		if (!userCookies.ContainsKey(userId.Value))
+		if (!userCookies.ContainsKey(userId.Value)) {
 			return null;
+		}
 
 		return userCookies[userId.Value];
 	}
