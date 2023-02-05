@@ -2,10 +2,15 @@
 
 public class GetIntervalsObject
 {
-	public ErrorModel error { set; get; }
-	public int id { set; get; }
-	public byte? number { set; get; }
-	public string? startDate { set; get; }
-	public string? endDate { set; get; }
-	public string? month { set; get; }
+	public ErrorModel error { get; set; } = new();
+
+	public int id { get; set; }
+
+	public byte? number { get; set; }
+
+	public string? startDate { get; set; }
+
+	public string? endDate { get; set; }
+
+	public string? month { get; set; }
 }
