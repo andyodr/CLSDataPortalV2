@@ -159,7 +159,7 @@ public class AddController : ControllerBase
 			result.data.Add(value);
 
 			// Create Measure and Target records
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_user.userId, value, _context);
+			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, value);
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
 			}

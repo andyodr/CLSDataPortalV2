@@ -51,7 +51,6 @@ public class AccountController : Controller
 			}
 		}
 
-
 		// Validates against Active Directory
 		if (bContinue) {
 
@@ -75,7 +74,6 @@ public class AccountController : Controller
 					msgErr = sADReturn;
 					bContinue = false;
 				}
-
 			}
 		}
 
@@ -106,7 +104,6 @@ public class AccountController : Controller
 		// Failure
 		ViewBag.Error = msgErr;
 		return View();
-
 	}
 
 	public async Task<IActionResult> Logoff() {
@@ -134,5 +131,4 @@ public class AccountController : Controller
 		}
 		return RedirectToAction(nameof(AccountController.Login), "Account");
 	}
-
 }

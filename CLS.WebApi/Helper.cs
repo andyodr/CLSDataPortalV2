@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 using CLS.WebApi.Data;
 using System.Runtime.Intrinsics.Arm;
+using static CLS.WebApi.Helper;
+using System.Diagnostics;
 
 namespace CLS.WebApi;
 
@@ -480,32 +482,38 @@ public class Helper
 		return result;
 	}
 
-	internal static string CreateMeasuresAndTargets(int userId, MeasureDefinitionViewModel measureDef, ApplicationDbContext db) {
+	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, MeasureDefinitionViewModel measureDef) {
 		try {
 			string result = String.Empty;
+			var hierarchyRecords = from record in dbc.Hierarchy
+								   select new { id = record.Id };
 			var dtNow = DateTime.Now;
-			foreach (var hierarchy in db.Hierarchy) {
+			foreach (var id in hierarchyRecords) {
 				//create Measure records
-				db.Measure.Add(new() {
-					Hierarchy = hierarchy,
+				_ = dbc.Measure.Add(new() {
+					HierarchyId = id.id,
+					MeasureDefinitionId = measureDef.id ?? -1,
 					Active = true,
 					Expression = measureDef.calculated,
 					Rollup = true,
 					LastUpdatedOn = dtNow
-				}).Property("MeasureDefinitionId").CurrentValue = measureDef.id;
+				});
 			}
 
+			var measures = from measure in dbc.Measure
+							 where measure.MeasureDefinitionId == measureDef.id
+							 select new { id = measure.Id };
 			//make target ids
-			foreach (var measure in db.Measure.Where(m => m.MeasureDefinition!.Id == measureDef.id)) {
-				db.Target.Add(new() {
-					Measure = measure,
+			foreach (var measure in measures) {
+				_ = dbc.Target.Add(new() {
+					MeasureId = measure.id,
 					Active = true,
-					IsProcessed = (byte)IsProcessed.complete,
+					UserId = userId,
+					IsProcessed = 2,
 					LastUpdatedOn = dtNow
-				}).Property("UserId").CurrentValue = userId;
+				});
 			}
 
-			db.SaveChanges();
 			return result;
 		}
 		catch (Exception e) {
@@ -513,38 +521,32 @@ public class Helper
 		}
 	}
 
-	internal static string createMeasuresAndTargets(int userId, int hierarchyId, IMeasureDefinitionRepository measureDefRepo, IMeasureRepository measureRepo, ITargetRepository targetRepo) {
+	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, int hierarchyId) {
 		try {
 			string result = String.Empty;
-			DateTime dtNow = DateTime.Now;
-
-			// Create Measure records
-			var measureDefs = from record in measureDefRepo.All()
-							  select new { id = record.Id, calculated = record.Calculated };
-			foreach (var item in measureDefs) {
-				var newMeasure = new Measure();
-				newMeasure.HierarchyId = hierarchyId;
-				newMeasure.MeasureDefinitionId = (long)item.id;
-				newMeasure.Active = true;
-				newMeasure.Expression = (bool)item.calculated;
-				newMeasure.Rollup = true;
-				newMeasure.LastUpdatedOn = dtNow;
-				measureRepo.Create(newMeasure);
+			var dtNow = DateTime.Now;
+			foreach (var measureDef in dbc.MeasureDefinition.Select(md => new { md.Id, md.Calculated })) {
+				//create Measure records
+				_ = dbc.Measure.Add(new() {
+					HierarchyId = hierarchyId,
+					MeasureDefinitionId = measureDef.Id,
+					Active = true,
+					Expression = measureDef.Calculated,
+					Rollup = true,
+					LastUpdatedOn = dtNow
+				});
 			}
-			measureRepo.SaveChanges();
 
-			// Create Target records
-			var measures = measureRepo.All().Where(m => m.HierarchyId == hierarchyId);
-			foreach (var item in measures) {
-				var newTarget = new CLSFilter.Models.DB.Target();
-				newTarget.MeasureId = item.Id;
-				newTarget.Active = true;
-				newTarget.UserId = userId;
-				newTarget.LastUpdatedOn = dtNow;
-				newTarget.IsProcessed = (byte)IsProcessed.complete;
-				targetRepo.Create(newTarget);
+			//make target ids
+			foreach (var measure in dbc.Measure.Where(m => m.HierarchyId == hierarchyId)) {
+				_ = dbc.Target.Add(new() {
+					Measure = measure,
+					Active = true,
+					UserId = userId,
+					IsProcessed = (byte)IsProcessed.complete,
+					LastUpdatedOn = dtNow
+				});
 			}
-			targetRepo.SaveChanges();
 
 			return result;
 		}
@@ -810,20 +812,6 @@ public class Helper
 		return bReturn;
 	}
 
-	public static UserObject UserAuthorization2(ClaimsPrincipal userClaim) {
-		if (!userClaim.Identity.IsAuthenticated)
-			return null;
-
-		var userId = userClaim.Claims.Where(c => c.Type == "userId").FirstOrDefault();
-		if (userId == null)
-			return null;
-
-		if (!userCookies.ContainsKey(userId.Value))
-			return null;
-
-		return userCookies[userId.Value];
-	}
-
 	public static UserObject UserAuthorization(ClaimsPrincipal userClaim) {
 
 		if (!userClaim.Identity.IsAuthenticated)
@@ -851,9 +839,11 @@ public class Helper
 	internal static void AddUserHierarchy(int userId, ApplicationDbContext context, List<int> hierarchiesId, List<int> addedHierarchies) {
 		foreach (int hId in hierarchiesId) {
 			if (!addedHierarchies.Contains(hId) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == hId && u.User.Id == userId).Any()) {
-				var uht = context.UserHierarchy.Add(new() { LastUpdatedOn = DateTime.Now });
-				uht.Property("HierarchyId").CurrentValue = hId;
-				uht.Property("UserId").CurrentValue = userId;
+				_ = context.UserHierarchy.Add(new() {
+					LastUpdatedOn = DateTime.Now,
+					HierarchyId = hId,
+					UserId = userId
+				});
 				AddHierarchyChildren(userId, context, hId, addedHierarchies);
 				addedHierarchies.Add(hId);
 			}
@@ -861,14 +851,16 @@ public class Helper
 	}
 
 	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {
-		List<RegionFilterObject> children = new List<RegionFilterObject>();
-		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId);
+		List<RegionFilterObject> children = new();
+		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId).ToList();
 
 		foreach (var record in hierarchies) {
-			if (!addedHierarchies.Contains(record.Id) && context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Count() == 0) {
-				var uht = context.UserHierarchy.Add(new() { LastUpdatedOn = DateTime.Now });
-				uht.Property("HierarchyId").CurrentValue = record.Id;
-				uht.Property("UserId").CurrentValue = userId;
+			if (!addedHierarchies.Contains(record.Id) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Any()) {
+				_ = context.UserHierarchy.Add(new() {
+					LastUpdatedOn = DateTime.Now,
+					HierarchyId = record.Id,
+					UserId = userId
+				});
 				addedHierarchies.Add(record.Id);
 				AddHierarchyChildren(userId, context, record.Id, addedHierarchies);
 			}
