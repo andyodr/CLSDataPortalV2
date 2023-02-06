@@ -161,15 +161,15 @@ public class IndexController : ControllerBase
 					UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, value.measureId ?? 0L, _user.userId, lastUpdatedOn);
 				}
 
-				Helper.addAuditTrail(
-				  Resource.WEB_PAGES,
-				   "WEB-02",
-				   Resource.TARGET,
-				   @"Updated / ID=" + newTarget.Id.ToString() +
-						   " / Value=" + newTarget.Value.ToString() +
-						   " / Yellow=" + newTarget.YellowValue.ToString(),
-				   lastUpdatedOn,
-				   _user.userId
+				Helper.AddAuditTrail(_context,
+					Resource.WEB_PAGES,
+					"WEB-02",
+					Resource.TARGET,
+					@"Updated / ID=" + newTarget.Id.ToString() +
+							" / Value=" + newTarget.Value.ToString() +
+							" / Yellow=" + newTarget.YellowValue.ToString(),
+					lastUpdatedOn,
+					_user.userId
 				);
 			}
 
@@ -270,8 +270,8 @@ public class IndexController : ControllerBase
 						}
 
 						_ = _context.SaveChanges();
-						Helper.addAuditTrail(
-						  Resource.WEB_PAGES,
+						Helper.AddAuditTrail(
+						  _context, Resource.WEB_PAGES,
 						   "WEB-02",
 						   Resource.TARGET,
 						   @"Apply to Children / ID=" + newTarget.Id.ToString() +

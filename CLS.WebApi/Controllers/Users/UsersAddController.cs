@@ -81,8 +81,8 @@ public class AddController : ControllerBase
 			returnObject.data.Add(value);
 			addedHierarchies.Clear();
 
-			Helper.addAuditTrail(
-			  Resource.SECURITY,
+			Helper.AddAuditTrail(
+			  _context, Resource.SECURITY,
 			   "SEC-03",
 			   "User Added",
 			   @"ID=" + user.Id.ToString() + " / Username=" + user.UserName,

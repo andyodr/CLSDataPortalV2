@@ -76,13 +76,13 @@ public class UsersController : ControllerBase
 
 			_context.SaveChanges();
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-09",
-			   Resource.SETTINGS,
-			   @"Updated Users",
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-09",
+				Resource.SETTINGS,
+				@"Updated Users",
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			return new JsonResult(value);

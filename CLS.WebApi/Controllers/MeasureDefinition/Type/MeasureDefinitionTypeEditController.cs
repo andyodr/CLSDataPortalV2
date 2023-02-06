@@ -78,13 +78,13 @@ public class EditController : ControllerBase
 				measureType.LastUpdatedOn = lastUpdatedOn;
 				_context.SaveChanges();
 
-				Helper.addAuditTrail(
-				  Resource.WEB_PAGES,
-				   "WEB-08",
-				   Resource.MEASURE_TYPE,
-				   @"Updated / ID=" + measureType.Id.ToString(),
-				   lastUpdatedOn,
-				   _user.userId
+				Helper.AddAuditTrail(_context,
+					Resource.WEB_PAGES,
+					"WEB-08",
+					Resource.MEASURE_TYPE,
+					@"Updated / ID=" + measureType.Id.ToString(),
+					lastUpdatedOn,
+					_user.userId
 				);
 			}
 

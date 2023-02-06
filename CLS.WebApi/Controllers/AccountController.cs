@@ -84,13 +84,13 @@ public class AccountController : Controller
 
 			await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(identity));
 
-			Helper.addAuditTrail(
-			  Resource.SECURITY,
-			   "SEC-01",
-			   "Login",
-			   @"ID=" + user.userId.ToString() + " / Username=" + user.userName,
-			   DateTime.Now,
-			   user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.SECURITY,
+				"SEC-01",
+				"Login",
+				@"ID=" + user.userId.ToString() + " / Username=" + user.userName,
+				DateTime.Now,
+				user.userId
 			);
 
 			// Start Task for login Active
@@ -114,13 +114,13 @@ public class AccountController : Controller
 			int nUserId = Int32.Parse(userId);
 			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
 			if (userRepo != null) {
-				Helper.addAuditTrail(
-				  Resource.SECURITY,
-				   "SEC-02",
-				   "Logout",
-				   @"User Logout / ID=" + userId + " / Username=" + userRepo.UserName,
-				   DateTime.Now,
-				   nUserId
+				Helper.AddAuditTrail(_context,
+					Resource.SECURITY,
+					"SEC-02",
+					"Logout",
+					@"User Logout / ID=" + userId + " / Username=" + userRepo.UserName,
+					DateTime.Now,
+					nUserId
 				);
 			}
 

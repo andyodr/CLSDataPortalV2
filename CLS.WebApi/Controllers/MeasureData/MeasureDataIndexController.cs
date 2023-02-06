@@ -228,16 +228,16 @@ public class IndexController : ControllerBase
 			measureData.LastUpdatedOn = lastUpdatedOn;
 			_context.SaveChanges();
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-01",
-			   Resource.MEASURE_DATA,
-			   @"Updated / ID=" + value.measureDataId.ToString() +
-					   " / Value=" + value.measureValue.ToString() +
-					   " / Explanation=" + value.explanation +
-					   " / Action=" + value.action,
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-01",
+				Resource.MEASURE_DATA,
+				@"Updated / ID=" + value.measureDataId.ToString() +
+						" / Value=" + value.measureValue.ToString() +
+						" / Explanation=" + value.explanation +
+						" / Action=" + value.action,
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			measureDataList.Add(

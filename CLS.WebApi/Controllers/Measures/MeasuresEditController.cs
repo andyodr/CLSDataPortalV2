@@ -116,8 +116,8 @@ public class EditController : ControllerBase
 					any = true;
 					Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, Helper.IsProcessed.complete);
 
-					Helper.addAuditTrail(
-					  Resource.WEB_PAGES,
+					Helper.AddAuditTrail(_context,
+						Resource.WEB_PAGES,
 						"WEB-03",
 						Resource.MEASURE,
 						@"Updated Owner / ID=" + measure.Id.ToString() +

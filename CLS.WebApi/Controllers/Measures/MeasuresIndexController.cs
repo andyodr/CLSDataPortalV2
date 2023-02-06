@@ -128,16 +128,16 @@ public class IndexController : ControllerBase
 
 						Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, EnumIsProcessed);
 
-						Helper.addAuditTrail(
-						  Resource.WEB_PAGES,
-						   "WEB-03",
-						   Resource.MEASURE,
-						   @"Updated / ID=" + measure.Id.ToString() +
-								   " / Active=" + measure.Active.ToString() +
-								   " / Expression=" + measure.Expression.ToString() +
-								   " / Rollup=" + measure.Rollup.ToString(),
-						   lastUpdatedOn,
-						   _user.userId
+						Helper.AddAuditTrail(_context,
+							Resource.WEB_PAGES,
+							"WEB-03",
+							Resource.MEASURE,
+							@"Updated / ID=" + measure.Id.ToString() +
+									" / Active=" + measure.Active.ToString() +
+									" / Expression=" + measure.Expression.ToString() +
+									" / Rollup=" + measure.Rollup.ToString(),
+							lastUpdatedOn,
+							_user.userId
 						);
 					}
 				}

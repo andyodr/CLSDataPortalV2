@@ -173,13 +173,13 @@ public class AddController : ControllerBase
 			if (yearly)
 				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, currentMD.Id);
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-04",
-			   Resource.MEASURE_DEFINITION,
-			   @"Added / ID=" + currentMD.Id.ToString(),
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-04",
+				Resource.MEASURE_DEFINITION,
+				@"Added / ID=" + currentMD.Id.ToString(),
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			return new JsonResult(result);

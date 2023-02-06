@@ -56,8 +56,8 @@ public class AddController : ControllerBase
 			//value.id = _measureTypeRepository.All().Where(m => m.Name == value.name).First().Id;
 			value.id = measureType.Id;
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
 				"WEB-08",
 				Resource.MEASURE_TYPE,
 				@"Added / ID=" + measureType.Id.ToString(),

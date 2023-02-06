@@ -75,31 +75,22 @@ public class Helper
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
 
-	internal static bool addAuditTrail(string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
-		string sSql = " INSERT INTO AuditTrail (Type, Code, Description, Data, UpdatedBy, LastUpdatedOn)" +
-					  " VALUES (@type, @code, @description, @data, @userId, @lastUpdatedOn)";
+	internal static bool AddAuditTrail(ApplicationDbContext dbc, string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
+		try {
+			_ = dbc.AuditTrail.Add(new AuditTrail {
+				Type = type,
+				Code = code,
+				Description = description,
+				Data = data,
+				UpdatedBy = userId,
+				LastUpdatedOn = lastUpdatedOn
+			});
+			dbc.SaveChanges();
 
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			try {
-				con.Open();
-				SqlCommand cmd = new SqlCommand(sSql, con);
-				cmd = new SqlCommand(sSql, con);
-				cmd.Parameters.AddWithValue("@type", type);
-				cmd.Parameters.AddWithValue("@code", code);
-				cmd.Parameters.AddWithValue("@description", description);
-				cmd.Parameters.AddWithValue("@data", data);
-				cmd.Parameters.AddWithValue("@userId", userId);
-				cmd.Parameters.AddWithValue("@lastUpdatedOn", lastUpdatedOn);
-
-				cmd.ExecuteNonQuery();
-				con.Close();
-
-				return true;
-			}
-			catch {
-				return false;
-			}
+			return true;
+		}
+		catch {
+			return false;
 		}
 	}
 

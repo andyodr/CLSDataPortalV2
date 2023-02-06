@@ -121,13 +121,13 @@ public class EditController : ControllerBase
 			_context.SaveChanges();
 			addedHierarchies.Clear();
 
-			Helper.addAuditTrail(
-			  Resource.SECURITY,
-			   "SEC-04",
-			   "User Updated",
-			   @"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.SECURITY,
+				"SEC-04",
+				"User Updated",
+				@"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			if (user.Id == _user.userId) {

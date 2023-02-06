@@ -137,13 +137,13 @@ public class IndexController : ControllerBase
 			newHierarchy.remove = !exists;
 			returnObject.data.Add(newHierarchy);
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-05",
-			   Resource.HIERARCHY,
-			   @"Added / ID=" + newHierarchy.id.ToString(),
-			   DateTime.Now,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-05",
+				Resource.HIERARCHY,
+				@"Added / ID=" + newHierarchy.id.ToString(),
+				DateTime.Now,
+				_user.userId
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();
@@ -205,13 +205,13 @@ public class IndexController : ControllerBase
 				newHierarchy.parentName = parent.Name;
 			}
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-05",
-			   Resource.HIERARCHY,
-			   @"Updated / ID=" + newHierarchy.id.ToString(),
-			   updatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-05",
+				Resource.HIERARCHY,
+				@"Updated / ID=" + newHierarchy.id.ToString(),
+				updatedOn,
+				_user.userId
 			);
 
 			returnObject.data.Add(newHierarchy);
@@ -281,14 +281,14 @@ public class IndexController : ControllerBase
 			returnObject.data.Add(newHierarchy);
 
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-05",
-			   Resource.HIERARCHY,
-			   @"Deleted / ID=" + newHierarchy.id.ToString() +
-					   " / Name=" + hierarchyName,
-			   DateTime.Now,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-05",
+				Resource.HIERARCHY,
+				@"Deleted / ID=" + newHierarchy.id.ToString() +
+						" / Name=" + hierarchyName,
+				DateTime.Now,
+				_user.userId
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();

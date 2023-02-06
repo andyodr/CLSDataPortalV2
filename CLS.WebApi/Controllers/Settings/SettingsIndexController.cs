@@ -137,13 +137,13 @@ public class IndexController : ControllerBase
 			settings.LastUpdatedOn = lastUpdatedOn;
 			_context.SaveChanges();
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-09",
-			   Resource.SETTINGS,
-			   @"Updated",
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-09",
+				Resource.SETTINGS,
+				@"Updated",
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			foreach (var yyear in years) {

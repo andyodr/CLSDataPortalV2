@@ -235,13 +235,13 @@ public class EditController : ControllerBase
 					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, mDef.Id);
 			}
 
-			Helper.addAuditTrail(
-			  Resource.WEB_PAGES,
-			   "WEB-04",
-			   Resource.MEASURE_DEFINITION,
-			   @"Updated / ID=" + mDef.Id.ToString(),
-			   lastUpdatedOn,
-			   _user.userId
+			Helper.AddAuditTrail(_context,
+				Resource.WEB_PAGES,
+				"WEB-04",
+				Resource.MEASURE_DEFINITION,
+				@"Updated / ID=" + mDef.Id.ToString(),
+				lastUpdatedOn,
+				_user.userId
 			);
 
 			return new JsonResult(returnObject);

@@ -30,13 +30,13 @@ public class TransferController : ControllerBase
 
 			// Runs SQL Job
 			if (Helper.StartSQLJob(_context, _config.sQLJobSSIS)) {
-				Helper.addAuditTrail(
-				  Resource.WEB_PAGES,
-				   "WEB-09",
-				   Resource.SETTINGS,
-				   @"Transfer / SQL Job Run=" + _config.sQLJobSSIS,
-				   DateTime.Now,
-				   _user.userId
+				Helper.AddAuditTrail(_context,
+					Resource.WEB_PAGES,
+					"WEB-09",
+					Resource.SETTINGS,
+					@"Transfer / SQL Job Run=" + _config.sQLJobSSIS,
+					DateTime.Now,
+					_user.userId
 				);
 
 				return new JsonResult(null);
