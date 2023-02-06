@@ -12,7 +12,7 @@ public class TransferController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public TransferController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -29,7 +29,7 @@ public class TransferController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 
 			// Runs SQL Job
-			if (Helper.StartSQLJob(_config.sQLJobSSIS)) {
+			if (Helper.StartSQLJob(_context, _config.sQLJobSSIS)) {
 				Helper.addAuditTrail(
 				  Resource.WEB_PAGES,
 				   "WEB-09",

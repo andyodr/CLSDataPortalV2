@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public EditController(ApplicationDbContext context) {
 		_context = context;
@@ -219,20 +219,20 @@ public class EditController : ControllerBase
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				Helper.UpdateMeasureDataIsProcessed(mDef.Id, _user.userId);
+				Helper.UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.userId);
 			}
 
 			// Create Measure Data records for current intervals if they don't exists
 			if (createMeasureData) {
-				Helper.CreateMeasureDataRecords(value.intervalId, mDef.Id);
+				Helper.CreateMeasureDataRecords(_context, value.intervalId, mDef.Id);
 				if (weekly)
-					Helper.CreateMeasureDataRecords((int)Helper.intervals.weekly, mDef.Id);
+					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, mDef.Id);
 				if (monthly)
-					Helper.CreateMeasureDataRecords((int)Helper.intervals.monthly, mDef.Id);
+					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.monthly, mDef.Id);
 				if (quarterly)
-					Helper.CreateMeasureDataRecords((int)Helper.intervals.quarterly, mDef.Id);
+					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.quarterly, mDef.Id);
 				if (yearly)
-					Helper.CreateMeasureDataRecords((int)Helper.intervals.yearly, mDef.Id);
+					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, mDef.Id);
 			}
 
 			Helper.addAuditTrail(

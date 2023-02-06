@@ -105,7 +105,7 @@ public class AccountController : Controller
 
 	public async Task<IActionResult> Logoff() {
 		var user = User.Claims.Where(c => c.Type == "userId").ToList();
-		if (user.Count() > 0) {
+		if (user.Count > 0) {
 			string userId = user.First().Value;
 			if (Helper.userCookies.ContainsKey(userId)) {
 				Helper.userCookies.Remove(userId);

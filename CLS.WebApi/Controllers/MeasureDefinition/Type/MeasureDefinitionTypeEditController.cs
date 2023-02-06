@@ -10,7 +10,7 @@ namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public EditController(ApplicationDbContext context) {
 		_context = context;

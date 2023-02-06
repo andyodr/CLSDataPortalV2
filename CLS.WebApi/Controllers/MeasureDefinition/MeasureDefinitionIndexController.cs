@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.MeasureDefinition;
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public IndexController(ApplicationDbContext context) {
 		_context = context;

@@ -13,7 +13,7 @@ public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -46,7 +46,7 @@ public class IndexController : ControllerBase
 					lastName = user.LastName,
 					firstName = user.FirstName,
 					department = user.Department,
-					roleName = user.UserRole.Name,
+					roleName = user.UserRole!.Name,
 					active = Helper.boolToString(user.Active)
 				};
 

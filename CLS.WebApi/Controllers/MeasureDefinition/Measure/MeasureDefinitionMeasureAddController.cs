@@ -10,7 +10,7 @@ namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public AddController(ApplicationDbContext context) {
 		_context = context;
@@ -163,15 +163,15 @@ public class AddController : ControllerBase
 			}
 
 			// Create Measure Data records for current intervals
-			Helper.CreateMeasureDataRecords(value.intervalId, currentMD.Id);
+			Helper.CreateMeasureDataRecords(_context, value.intervalId, currentMD.Id);
 			if (weekly)
-				Helper.CreateMeasureDataRecords((int)Helper.intervals.weekly, currentMD.Id);
+				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, currentMD.Id);
 			if (monthly)
-				Helper.CreateMeasureDataRecords((int)Helper.intervals.monthly, currentMD.Id);
+				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.monthly, currentMD.Id);
 			if (quarterly)
-				Helper.CreateMeasureDataRecords((int)Helper.intervals.quarterly, currentMD.Id);
+				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.quarterly, currentMD.Id);
 			if (yearly)
-				Helper.CreateMeasureDataRecords((int)Helper.intervals.yearly, currentMD.Id);
+				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, currentMD.Id);
 
 			Helper.addAuditTrail(
 			  Resource.WEB_PAGES,

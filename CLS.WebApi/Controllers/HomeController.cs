@@ -8,7 +8,7 @@ namespace CLS.WebApi.Controllers;
 public class HomeController : Controller
 {
 	private readonly ConfigurationObject _config;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public HomeController(IOptions<ConfigurationObject> config) {
 		_config = config.Value;

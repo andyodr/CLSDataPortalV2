@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Nodes;
 
 namespace CLS.WebApi.Controllers.MeasureData;
@@ -11,10 +12,12 @@ namespace CLS.WebApi.Controllers.MeasureData;
 [ApiController]
 public class IndexController : ControllerBase
 {
+	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
-	public IndexController(ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+		_config = config.Value;
 		_context = context;
 	}
 
@@ -38,7 +41,7 @@ public class IndexController : ControllerBase
 			returnObject.allow = _user.hierarchyIds.Contains(value.hierarchyId);
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.editValue = Helper.canEditValueFromSpecialHierarchy(value.hierarchyId);
+			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, value.hierarchyId);
 
 			returnObject.calendarId = value.calendarId;
 			if (value.day == null || value.day.Equals("")) {
@@ -55,7 +58,7 @@ public class IndexController : ControllerBase
 			var calendar = _context.Calendar
 				.Where(c => c.Id == returnObject.calendarId)
 				.Include(c => c.Interval)
-				.AsNoTracking().First();
+				.AsNoTrackingWithIdentityResolution().First();
 
 			returnObject.locked = false;
 			// From settings page, DO NOT USE = !Active
@@ -85,7 +88,7 @@ public class IndexController : ControllerBase
 							   explanation = md.Explanation,
 							   action = md.Action,
 							   hId = m.Hierarchy.Id,
-							   calculated = Helper.IsMeasureCalculated(m.Expression ?? false, value.hierarchyId, calendar.Interval.Id, md.Id, _context, null)
+							   calculated = Helper.IsMeasureCalculated(_context, m.Expression ?? false, value.hierarchyId, calendar.Interval.Id, md.Id, null)
 						   };
 
 			// Find all measure definition variables.

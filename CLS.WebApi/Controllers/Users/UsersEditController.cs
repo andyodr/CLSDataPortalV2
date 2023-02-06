@@ -12,7 +12,7 @@ public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
 	private readonly List<int> addedHierarchies = new();
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public EditController(ApplicationDbContext context) {
 		_context = context;
@@ -35,7 +35,7 @@ public class EditController : ControllerBase
 			result.hierarchy.Add(new() {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,
-				sub = Helper.getSubsLevel(regions.First().Id),
+				sub = Helper.GetSubsLevel(_context, regions.First().Id),
 				count = 0
 			});
 
@@ -58,8 +58,8 @@ public class EditController : ControllerBase
 					lastName = user.LastName,
 					firstName = user.FirstName,
 					department = user.Department,
-					roleName = user.UserRole.Name,
-					roleId = user.UserRole.Id,
+					roleName = user.UserRole?.Name ?? string.Empty,
+					roleId = user.UserRole?.Id ?? -1,
 					active = Helper.boolToString(user.Active)
 				};
 

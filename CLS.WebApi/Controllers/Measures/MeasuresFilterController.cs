@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Measures;
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public FilterController(ApplicationDbContext context) {
 		_context = context;

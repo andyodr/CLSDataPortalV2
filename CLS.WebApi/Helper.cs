@@ -2,14 +2,12 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Data;
-using System.Timers;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 using CLS.WebApi.Data;
-using System.Runtime.Intrinsics.Arm;
-using static CLS.WebApi.Helper;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CLS.WebApi;
 
@@ -73,24 +71,8 @@ public class Helper
 		return result;
 	}
 
-	public static int findIntervalId(MeasureDefinitionViewModel record, IIntervalRepository intervalRepo) {
-		if (record.weekly == true)
-			return intervalRepo.All().Where(i => i.Name.ToLower() == "weekly").First().Id;
-		else if (record.monthly == true)
-			return intervalRepo.All().Where(i => i.Name.ToLower() == "monthly").First().Id;
-		else if (record.quarterly == true)
-			return intervalRepo.All().Where(i => i.Name.ToLower() == "quarterly").First().Id;
-		else if (record.yearly == true)
-			return intervalRepo.All().Where(i => i.Name.ToLower() == "yearly").First().Id;
-		else throw new Exception(String.Format(Resource.ERR_INTERVAL_ID, record.id));
-	}
-
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
-	}
-
-	internal static int findCurrentCalendarId(ICalendarRepository calendarRepo) {
-		return calendarRepo.Find(c => c.IntervalId == defaultIntervalId && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Id;
 	}
 
 	internal static bool addAuditTrail(string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
@@ -121,8 +103,7 @@ public class Helper
 		}
 	}
 
-	internal static MeasureTypeModel ErrorProcessing(Exception e, ApplicationDbContext db, HttpContext httpContext, UserObject user) {
-
+	internal static MeasureTypeModel? ErrorProcessing(Exception e, ApplicationDbContext db, HttpContext httpContext, UserObject? user) {
 		if (user == null) {
 			httpContext.SignOutAsync("Cookies");
 			return null;
@@ -145,7 +126,7 @@ public class Helper
 			UpdatedBy = userId,
 			Type = Resource.SYSTEM,
 			Code = "SE-01",
-			Data = errorMessage + "\n" + e.StackTrace.ToString(),
+			Data = errorMessage + "\n" + e.StackTrace?.ToString(),
 			Description = "Web Site Error",
 			LastUpdatedOn = DateTime.Now
 		}
@@ -183,104 +164,29 @@ public class Helper
 		return returnModel;
 	}
 
-	internal static bool dateIsLocked(int calendarId, int userId) {
-		bool calendarBool = false;
-		bool userCalendarBool = false;
-		bool settingBool = false;
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-
-			string calendarSQL = "select Locked from Calendar where Id =" + calendarId;
-			string userCalendarSQL = "select LockOverride from UserCalendarLock where UserId = " + userId;
-			string settingSQL = "select Active from Setting";
-			con.Open();
-			//check userHierarchy
-			SqlCommand cmd = new SqlCommand(calendarSQL, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						if ((rdr.GetBoolean(0))) {
-							calendarBool = true;
-						}
-					}
-				}
-			}
-			cmd = new SqlCommand(userCalendarSQL, con);
-			result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						if ((rdr.GetBoolean(0))) {
-							userCalendarBool = true;
-						}
-					}
-				}
-			}
-			cmd = new SqlCommand(settingSQL, con);
-			result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						if ((rdr.GetBoolean(0))) {
-							settingBool = true;
-						}
-					}
-				}
-			}
-		}
-		if (settingBool == false)
-			return false;
-		else if (calendarBool == true && userCalendarBool == false)
-			return true;
-		else return false;
-
-	}
-
-	internal static ICollection<RegionFilterObject> getSubsLevel(int id) {
-		var children = new List<RegionFilterObject>();
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			string HierarchySQL = "Select Hierarchy.Name, Hierarchy.Id from Hierarchy inner join UserHierarchy on Hierarchy.Id = UserHierarchy.HierarchyId where Hierarchy.HierarchyParentId = " + id + " AND Hierarchy.HierarchyLevelId <= 3"; //AND UserHierarchy.UserId = " + user.userId;
-			string test = "Select Name, Id from Hierarchy where HierarchyParentId = " + id + " AND Hierarchy.HierarchyLevelId < 4";
-			con.Open();
-			//check userHierarchy
-			SqlCommand cmd = new SqlCommand(test, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						RegionFilterObject current = new RegionFilterObject { hierarchy = rdr.GetString(0), id = rdr.GetInt32(1), sub = getSubsLevel(rdr.GetInt32(1)), count = 0 };
-						current.count = current.sub.Count();
-						children.Add(current);
-					}
-				}
-			}
+	internal static ICollection<RegionFilterObject> GetSubsLevel(ApplicationDbContext dbc, int id) {
+		var children = dbc.Hierarchy
+			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 4)
+			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.AsNoTrackingWithIdentityResolution()
+			.ToList();
+		foreach (var rfo in children) {
+			rfo.sub = GetSubsLevel(dbc, rfo.id);
+			rfo.count = rfo.sub.Count;
 		}
 
 		return children;
 	}
 
-	internal static List<RegionFilterObject> getSubsAll(int id) {
-		List<RegionFilterObject> children = new List<RegionFilterObject>();
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			string HierarchySQL = "Select Name, Id from Hierarchy where HierarchyParentId = " + id;
-			con.Open();
-			SqlCommand cmd = new SqlCommand(HierarchySQL, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows) {
-					while (rdr.Read()) {
-						RegionFilterObject current = new RegionFilterObject { hierarchy = rdr.GetString(0), id = rdr.GetInt32(1), sub = getSubsAll(rdr.GetInt32(1)), count = 0 };
-						current.count = current.sub.Count();
-						children.Add(current);
-					}
-				}
-			}
+	internal static List<RegionFilterObject> GetSubsAll(ApplicationDbContext dbc, int id) {
+		var children = dbc.Hierarchy
+			.Where(h => h.HierarchyParentId == id)
+			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.AsNoTrackingWithIdentityResolution()
+			.ToList();
+		foreach (var rfo in children) {
+			rfo.sub = GetSubsAll(dbc, rfo.id);
+			rfo.count = rfo.sub.Count;
 		}
 
 		return children;
@@ -313,62 +219,35 @@ public class Helper
 		return children;
 	}
 
-	public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
-	{
-		protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
-			return type.GetProperties()
-					.Select(p => {
-						var jp = base.CreateProperty(p, memberSerialization);
-						jp.ValueProvider = new NullToEmptyStringValueProvider(p);
-						return jp;
-					}).ToList();
-		}
-	}
-
-	public class NullToEmptyStringValueProvider : IValueProvider
-	{
-		PropertyInfo _MemberInfo;
-		public NullToEmptyStringValueProvider(PropertyInfo memberInfo) {
-			_MemberInfo = memberInfo;
-		}
-
-		public object GetValue(object target) {
-			object result = _MemberInfo.GetValue(target);
-			if (_MemberInfo.PropertyType == typeof(string) && result == null) result = "";
-			return result;
-		}
-
-		public void SetValue(object target, object value) {
-			_MemberInfo.SetValue(target, value);
-		}
-	}
-
-	internal static bool IsMeasureCalculated(bool isCalculatedExpression, int hId, int intervalId, long measureDefId, ApplicationDbContext _context, MeasureCalculatedObject measureCalculated = null) {
+	internal static bool IsMeasureCalculated(ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
 		// Expression calculated overrides calculated from MeasureDefinition if true only
 		if (isCalculatedExpression)
 			return true;
 
-		// If children are a rollup  
-		if (haveChildrenRollup(hId, measureDefId))
+		// If children are a rollup
+		if (dbc.Measure.Where(m => m.MeasureDefinitionId == measureDefId
+				&& m.HierarchyId == hId && m.Active == true && m.Rollup == true).Any()) {
 			return true;
+		}
 
 		if (measureCalculated == null) {
-			var measureDef = _context.MeasureDefinition.Where(m => m.Id == measureDefId).First();
-			measureCalculated = new MeasureCalculatedObject();
-
-			measureCalculated.reportIntervalId = measureDef.ReportIntervalId;
-			measureCalculated.calculated = (measureDef.Calculated == null) ? false : (bool)measureDef.Calculated;
-			measureCalculated.aggDaily = (measureDef.AggDaily == null) ? false : (bool)measureDef.AggDaily;
-			measureCalculated.aggWeekly = (measureDef.AggWeekly == null) ? false : (bool)measureDef.AggWeekly;
-			measureCalculated.aggMonthly = (measureDef.AggMonthly == null) ? false : (bool)measureDef.AggMonthly;
-			measureCalculated.aggQuarterly = (measureDef.AggQuarterly == null) ? false : (bool)measureDef.AggQuarterly;
-			measureCalculated.aggYearly = (measureDef.AggYearly == null) ? false : (bool)measureDef.AggYearly;
+			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).First();
+			measureCalculated = new MeasureCalculatedObject {
+				reportIntervalId = measureDef.ReportIntervalId,
+				calculated = (measureDef.Calculated == null) ? false : (bool)measureDef.Calculated,
+				aggDaily = (measureDef.AggDaily == null) ? false : (bool)measureDef.AggDaily,
+				aggWeekly = (measureDef.AggWeekly == null) ? false : (bool)measureDef.AggWeekly,
+				aggMonthly = (measureDef.AggMonthly == null) ? false : (bool)measureDef.AggMonthly,
+				aggQuarterly = (measureDef.AggQuarterly == null) ? false : (bool)measureDef.AggQuarterly,
+				aggYearly = (measureDef.AggYearly == null) ? false : (bool)measureDef.AggYearly
+			};
 		}
 
 		// If Measure.Expression = 0, then check MeasureDefinition
 		if (!measureCalculated.calculated) {
-			if (measureCalculated.reportIntervalId == intervalId)
+			if (measureCalculated.reportIntervalId == intervalId) {
 				return false;
+			}
 
 			bool bReturn = false;
 			// Checks aggregations from MeasureDefinition
@@ -395,29 +274,6 @@ public class Helper
 		}
 		else
 			return isCalculatedExpression; // This is false
-	}
-
-	internal static bool haveChildrenRollup(int hierarchyId, long measureDefinitionId) {
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			string selectSQL =
-			  " SELECT m.Id FROM Measure m " +
-			  " INNER JOIN Hierarchy h ON (h.Id = m.HierarchyId) " +
-			  " WHERE h.HierarchyParentId = " + hierarchyId +
-			  " AND m.MeasureDefinitionId = " + measureDefinitionId +
-			  " AND m.Active= 1 " +
-			  " AND m.Rollup = 1 ";
-
-			con.Open();
-			SqlCommand cmd = new SqlCommand(selectSQL, con);
-			IAsyncResult result = cmd.BeginExecuteReader();
-			using (SqlDataReader rdr = cmd.EndExecuteReader(result)) {
-				if (rdr.HasRows)
-					return true;
-			}
-		}
-		return false;
 	}
 
 	internal static DataImportObject dataImportHeading(dataImports dataImport) {
@@ -471,12 +327,13 @@ public class Helper
 		return result;
 	}
 
-	internal static bool canEditValueFromSpecialHierarchy(int hierarchyId) {
+	internal static bool CanEditValueFromSpecialHierarchy(ConfigurationObject config, int hierarchyId) {
 		//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
 		bool result = true;
-		if (Startup.ConfigurationJson.specialHierarhies != null) {
-			if (Startup.ConfigurationJson.specialHierarhies.Contains(hierarchyId))
+		if (config.specialHierarhies != null) {
+			if (config.specialHierarhies.Contains(hierarchyId)) {
 				result = false;
+			}
 		}
 
 		return result;
@@ -501,8 +358,8 @@ public class Helper
 			}
 
 			var measures = from measure in dbc.Measure
-							 where measure.MeasureDefinitionId == measureDef.id
-							 select new { id = measure.Id };
+						   where measure.MeasureDefinitionId == measureDef.id
+						   select new { id = measure.Id };
 			//make target ids
 			foreach (var measure in measures) {
 				_ = dbc.Target.Add(new() {
@@ -638,11 +495,9 @@ public class Helper
 			}
 			return span;
 		}
-
 	}
 
 	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string? userName) {
-
 		var update = new UpdatedObject();
 		update.by = userName;
 		update.longDt = lastUpdatedOn.ToString();
@@ -707,11 +562,12 @@ public class Helper
 				.Include(u => u.UserHierarchies)
 				.AsNoTrackingWithIdentityResolution().Single();
 			var localUser = new UserObject {
-					userId = entity.Id,
-					userRoleId = entity.UserRole!.Id,
-					userName = entity.UserName,
-					firstName = entity.FirstName,
-					userRole = entity.UserRole.Name };
+				userId = entity.Id,
+				userRoleId = entity.UserRole!.Id,
+				userName = entity.UserName,
+				firstName = entity.FirstName,
+				userRole = entity.UserRole.Name
+			};
 			localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
 				CalendarId = c.CalendarId,
 				LockOverride = c.LockOverride
@@ -770,7 +626,7 @@ public class Helper
 	}
 
 	public static UserObject? UserAuthorization(ClaimsPrincipal userClaim) {
-		if (!userClaim.Identity.IsAuthenticated) {
+		if (!userClaim.Identity?.IsAuthenticated ?? true) {
 			return null;
 		}
 
@@ -826,18 +682,17 @@ public class Helper
 		}
 	}
 
-	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext db) {
-
+	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext dbc) {
 		// --------------------------------- Lock Override ----------------------------
 		bool isLocked = false;
 		bool isLockedOverride = false;
 
-		if (calendar.IntervalId == (int)Helper.intervals.monthly) {
+		if (calendar.Interval.Id == (int)Helper.intervals.monthly) {
 			if (calendar.Locked == true) {
 				isLocked = true;
-				var userCal = db.UserCalendarLock.Where(u => u.UserId == userId && u.CalendarId == calendarId);
+				var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == calendarId);
 				foreach (var itemUserCal in userCal) {
-					if ((bool)itemUserCal.LockOverride) {
+					if (itemUserCal.LockOverride ?? false) {
 						isLockedOverride = true;
 						break;
 					}
@@ -846,16 +701,15 @@ public class Helper
 		}
 
 		// This is a fix because Settings page does not have calendarLock by other intervals yet. Only monthly.
-
-		if (calendar.IntervalId == (int)Helper.intervals.weekly) {
-			var cal = db.Calendar.Where(
-			  c => c.IntervalId == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
+		if (calendar.Interval.Id == (int)Helper.intervals.weekly) {
+			var cal = dbc.Calendar.Where(
+			  c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
-					var userCal = db.UserCalendarLock.Where(u => u.UserId == userId && u.CalendarId == item.Id);
+					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
 					foreach (var itemUserCal in userCal) {
-						if ((bool)itemUserCal.LockOverride) {
+						if (itemUserCal.LockOverride ?? false) {
 							isLockedOverride = true;
 							break;
 						}
@@ -863,14 +717,14 @@ public class Helper
 				}
 			}
 		}
-		if (calendar.IntervalId == (int)Helper.intervals.quarterly) {
-			var cal = db.Calendar.Where(c => c.IntervalId == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
+		if (calendar.Interval.Id == (int)Helper.intervals.quarterly) {
+			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
-					var userCal = userCalendarLockRepo.All().Where(u => u.UserId == userId && u.CalendarId == item.Id);
+					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
 					foreach (var itemUserCal in userCal) {
-						if ((bool)itemUserCal.LockOverride) {
+						if (itemUserCal.LockOverride ?? false) {
 							isLockedOverride = true;
 							break;
 						}
@@ -878,14 +732,14 @@ public class Helper
 				}
 			}
 		}
-		if (calendar.IntervalId == (int)Helper.intervals.yearly) {
-			var cal = db.Calendar.Where(c => c.IntervalId == (int)Helper.intervals.monthly && c.Year == calendar.Year);
+		if (calendar.Interval.Id == (int)Helper.intervals.yearly) {
+			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
-					var userCal = db.UserCalendarLock.Where(u => u.UserId == userId && u.CalendarId == item.Id);
+					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
 					foreach (var itemUserCal in userCal) {
-						if ((bool)itemUserCal.LockOverride) {
+						if (itemUserCal.LockOverride ?? false) {
 							isLockedOverride = true;
 							break;
 						}
@@ -974,148 +828,58 @@ public class Helper
 		}
 	}
 
-	internal static bool UpdateMeasureDataIsProcessed(long measureDefId, int userId) {
-
-		DateTime lastUpdatedOn = DateTime.Now;
-
-		string updateRowSql = "UPDATE md SET md.IsProcessed = @isProcessed, md.UserId = @userId, md.LastUpdatedOn = @lastUpdatedOn" +
-							  " FROM MeasureData md" +
-							  " INNER JOIN Measure m ON (m.Id = md.MeasureId)" +
-							  " WHERE m.MeasureDefinitionId = @measureDefId";
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			try {
-				con.Open();
-				SqlCommand cmd = new SqlCommand(updateRowSql, con);
-				cmd = new SqlCommand(updateRowSql, con);
-				cmd.Parameters.AddWithValue("@isProcessed", (byte)Helper.IsProcessed.measureData);
-				cmd.Parameters.AddWithValue("@userId", userId);
-				cmd.Parameters.AddWithValue("@lastUpdatedOn", lastUpdatedOn);
-				cmd.Parameters.AddWithValue("@measureDefId", measureDefId);
-
-				cmd.ExecuteNonQuery();
-				con.Close();
-
-				return true;
-			}
-			catch {
-				return false;
-			}
-		}
-	}
-
-	internal static bool UpdateMeasureDataIsProcessed(long measureId, int userId, DateTime lastUpdatedOn, Helper.IsProcessed isProcessed) {
-
-		string updateRowSql = "UPDATE MeasureData SET IsProcessed = @isProcessed, UserId = @userId, LastUpdatedOn = @lastUpdatedOn " +
-							  " FROM MeasureData WHERE MeasureId = @measureId";
-
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			try {
-				con.Open();
-				SqlCommand cmd = new SqlCommand(updateRowSql, con);
-				cmd = new SqlCommand(updateRowSql, con);
-				cmd.Parameters.AddWithValue("@isProcessed", (byte)isProcessed);
-				cmd.Parameters.AddWithValue("@userId", userId);
-				cmd.Parameters.AddWithValue("@lastUpdatedOn", lastUpdatedOn);
-				cmd.Parameters.AddWithValue("@measureId", measureId);
-
-				cmd.ExecuteNonQuery();
-				con.Close();
-
-				return true;
-			}
-			catch {
-				return false;
-			}
-		}
-	}
-
-	internal static bool CreateMeasureDataRecords(int intervalId, long? measureDefIf = null) {
-
-		// Create measure dtaa records if don't exist
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			try {
-				con.Open();
-				SqlCommand cmd = new SqlCommand("spMeasureData", con);
-				cmd.CommandType = CommandType.StoredProcedure;
-
-				cmd.Parameters.AddWithValue("@p_interval", intervalId);
-				cmd.Parameters.AddWithValue("@p_days_offset", 0);
-				cmd.Parameters.AddWithValue("@p_measureDefId", (object)measureDefIf ?? DBNull.Value);
-
-				cmd.ExecuteNonQuery();
-				con.Close();
-
-				return true;
-			}
-			catch {
-				return false;
-			}
-		}
-	}
-
-	internal static bool StartSQLJob(string spName) {
-
-		// Create measure dtaa records if don't exist
-		string cs = Startup.ConfigurationJson.connectionString;
-		using (SqlConnection con = new SqlConnection(cs)) {
-			try {
-				con.Open();
-				SqlCommand cmd = new SqlCommand("msdb.dbo.sp_start_job", con);
-				cmd.CommandType = CommandType.StoredProcedure;
-
-				cmd.Parameters.AddWithValue("@job_name", spName);
-
-				cmd.ExecuteNonQuery();
-				con.Close();
-
-				return true;
-			}
-			catch {
-				return false;
-			}
-		}
-	}
-
-	internal static Task UseCookieAuthenticationValidate(CookieValidatePrincipalContext context) {
+	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureDefId, int userId) {
+		var lastUpdatedOn = DateTime.Now;
 		try {
-			string userId = context.Principal.Claims.Where(c => c.Type == "userId").First().Value;
-			if (userCookies.ContainsKey(userId))
-				userCookies[userId].expiresUtc = context.Properties.ExpiresUtc;
+			_ = dbc.MeasureData
+				.Where(md => md.Measure!.MeasureDefinition!.Id == measureDefId)
+				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, md => (byte)Helper.IsProcessed.measureData)
+					.SetProperty(md => md.UserId, md => userId)
+					.SetProperty(md => md.LastUpdatedOn, md => lastUpdatedOn));
+			return true;
 		}
-		catch (Exception) {
+		catch {
+			return false;
 		}
-		return Task.FromResult(0);
 	}
 
-	public static void OnUsersTimedEvent(object source, ElapsedEventArgs e) {
+	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, Helper.IsProcessed isProcessed) {
 		try {
-
-			if (userCookies.Count() > 0) {
-				var keysToRemove = userCookies.Where(c => c.Value.expiresUtc == null ||
-													(c.Value.expiresUtc != null && c.Value.expiresUtc.Value.UtcTicks < DateTimeOffset.UtcNow.UtcTicks))
-								  .Select(c => c.Key)
-								  .ToArray();
-
-				foreach (var key in keysToRemove) {
-					if (userCookies.ContainsKey(key)) {
-						addAuditTrail(
-						  Resource.SECURITY,
-						   "SEC-02",
-						   "Logout",
-						   @"Timeout Logout / ID=" + key + " / Username=" + userCookies[key].userName,
-						   DateTime.Now,
-						   Convert.ToInt32(key)
-						);
-						userCookies.Remove(key);
-					}
-				}
-			}
+			_ = dbc.MeasureData
+					.Where(md => md.Measure!.Id == measureId)
+					.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, md => (byte)isProcessed)
+						.SetProperty(md => md.UserId, md => userId)
+						.SetProperty(md => md.LastUpdatedOn, md => lastUpdatedOn));
+			return true;
 		}
-		catch (Exception) {
+		catch {
+			return false;
+		}
+	}
+
+	internal static bool CreateMeasureDataRecords(ApplicationDbContext dbc, int intervalId, long? measureDefIf = null) {
+		// Create measure dtaa records if don't exist
+		int p_interval = intervalId, p_days_offset = 0;
+		try {
+			_ = dbc.Database.ExecuteSql($"EXEC [dbo].[spMeasureData] {p_interval} {p_days_offset}");
+
+			return true;
+		}
+		catch {
+			return false;
+		}
+	}
+
+	internal static bool StartSQLJob(ApplicationDbContext dbc, string spName) {
+		// Create measure dtaa records if don't exist
+		var jobName = spName;
+		try {
+			_ = dbc.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={jobName}");
+
+			return true;
+		}
+		catch {
+			return false;
 		}
 	}
 }

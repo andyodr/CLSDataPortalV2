@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Measures;
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public IndexController(ApplicationDbContext context) {
 		_context = context;
@@ -48,7 +48,7 @@ public class IndexController : ControllerBase
 			}
 
 			var measureDefinitions = from measureDef in _context.MeasureDefinition
-									 where measureDef.MeasureType.Id == values.measureTypeId
+									 where measureDef.MeasureType!.Id == values.measureTypeId
 									 orderby measureDef.FieldNumber ascending, measureDef.Name
 									 select measureDef;
 
@@ -56,7 +56,7 @@ public class IndexController : ControllerBase
 				var currentDataObject = new MeasureTypeRegionsObject { hierarchy = new() };
 				foreach (var hierarchy in hierarchies) {
 					var measure = _context.Measure
-						.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy.Id == hierarchy.Id)
+						.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy!.Id == hierarchy.Id)
 						.AsNoTracking().ToList();
 					if (measure.Count > 0) {
 						var newRegion = new RegionActiveCalculatedObject {
@@ -126,7 +126,7 @@ public class IndexController : ControllerBase
 							EnumIsProcessed = Helper.IsProcessed.complete;
 						}
 
-						Helper.UpdateMeasureDataIsProcessed(measure.Id, _user.userId, lastUpdatedOn, EnumIsProcessed);
+						Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, EnumIsProcessed);
 
 						Helper.addAuditTrail(
 						  Resource.WEB_PAGES,

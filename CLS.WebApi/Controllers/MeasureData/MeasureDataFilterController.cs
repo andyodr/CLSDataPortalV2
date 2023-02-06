@@ -12,7 +12,7 @@ namespace CLS.WebApi.Controllers.MeasureData;
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new ();
+	private UserObject? _user = new ();
 
 	public FilterController(ApplicationDbContext context) {
 		_context = context;
@@ -30,7 +30,7 @@ public class FilterController : ControllerBase
 	}
 
 	// Used first time Measure Data page is open.
-	private object Filter() {
+	private ActionResult<JsonResult> Filter() {
 		var filter = new FilterReturnObject {
 			intervals = new List<IntervalsObject>(),
 			measureTypes = new List<MeasureTypeFilterObject>(),
@@ -131,15 +131,15 @@ public class FilterController : ControllerBase
 
 			filter.filter = _user.savedFilters[Helper.pages.measureData];
 
-			return filter;
+			return new JsonResult(filter);
 		}
 		catch (Exception e) {
-			return Helper.ErrorProcessing(e, _context, HttpContext, _user);
+			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
 	}
 
 	// Used after Measure Data page has been open already.
-	private object Filter(MeasureDataFilterReceiveObject values) {
+	private ActionResult<JsonResult> Filter(MeasureDataFilterReceiveObject values) {
 		var returnObject = new List<GetIntervalsObject>();
 		try {
 			_user = Helper.UserAuthorization(User);
@@ -195,10 +195,10 @@ public class FilterController : ControllerBase
 				intervalObject.error.message = Resource.VAL_VALID_INTERVAL_ID;
 				returnObject.Add(intervalObject);
 			}
-			return returnObject;
+			return new JsonResult(returnObject);
 		}
 		catch (Exception e) {
-			return Helper.ErrorProcessing(e, _context, HttpContext, _user);
+			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
 	}
 }

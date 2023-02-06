@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Hierarchy;
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public IndexController(ApplicationDbContext context) {
 		_context = context;
@@ -41,7 +41,7 @@ public class IndexController : ControllerBase
 			returnObject.hierarchy.Add(new RegionFilterObject {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,
-				sub = Helper.getSubsAll(regions.First().Id),
+				sub = Helper.GetSubsAll(_context, regions.First().Id),
 				count = 0
 			});
 
@@ -147,7 +147,7 @@ public class IndexController : ControllerBase
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.getSubsAll(regions.ElementAt(0).Id), count = 0 });
+			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0 });
 
 			return new JsonResult(returnObject);
 		}
@@ -292,7 +292,7 @@ public class IndexController : ControllerBase
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.getSubsAll(regions.ElementAt(0).Id), count = 0 });
+			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0 });
 
 			return new JsonResult(returnObject);
 		}

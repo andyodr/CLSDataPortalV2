@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Filters;
 public class IntervalsController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public IntervalsController(ApplicationDbContext context) {
 		_context = context;

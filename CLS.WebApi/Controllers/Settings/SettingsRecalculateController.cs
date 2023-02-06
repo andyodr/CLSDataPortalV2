@@ -10,7 +10,7 @@ namespace CLS.WebApi.Controllers.Settings;
 public class RecalculateController : Controller
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public RecalculateController(ApplicationDbContext context) {
 		_context = context;

@@ -11,7 +11,7 @@ namespace CLS.WebApi.Controllers.Measures;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public EditController(ApplicationDbContext context) {
 		_context = context;
@@ -114,7 +114,7 @@ public class EditController : ControllerBase
 					measure.Owner = values.owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					Helper.UpdateMeasureDataIsProcessed(measure.Id, _user.userId, lastUpdatedOn, Helper.IsProcessed.complete);
+					Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, Helper.IsProcessed.complete);
 
 					Helper.addAuditTrail(
 					  Resource.WEB_PAGES,

@@ -12,7 +12,7 @@ namespace CLS.WebApi.Controllers.Settings;
 public class UsersController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = new();
+	private UserObject? _user = new();
 
 	public UsersController(ApplicationDbContext context) {
 		_context = context;
