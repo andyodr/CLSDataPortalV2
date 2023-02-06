@@ -8,16 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMvc();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.Configure<ConfigurationObject>(builder.Configuration.GetSection(ConfigurationObject.Section));
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services
+	.AddEndpointsApiExplorer()
+	.AddSwaggerGen()
+	.Configure<ConfigurationObject>(builder.Configuration.GetSection(ConfigurationObject.Section))
+	.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"))
+	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(options => {
 		options.ExpireTimeSpan = TimeSpan.FromHours(2);
 		options.SlidingExpiration = true;
 	});
 
-builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

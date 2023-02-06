@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Data;
@@ -133,24 +133,25 @@ public class Helper
 		return new MeasureTypeModel() { error = errorObject };
 	}
 
-	internal static measureTypeModel errorProcessingDataImport(Exception e, IAuditTrailRepository _auditTrailRepository, int userId) {
-		measureTypeModel returnModel = new measureTypeModel();
+	internal static MeasureTypeModel ErrorProcessingDataImport(ApplicationDbContext dbc, Exception e, int userId) {
+		var returnModel = new MeasureTypeModel();
 		int errorId = -1;
 		string errorMessage = string.Empty;
-		var record = _auditTrailRepository.Create(new AuditTrail {
+		var record = dbc.AuditTrail.Add(new AuditTrail {
 			UpdatedBy = userId,
 			Type = Resource.WEB_PAGES,
 			Code = "WEB-06",
-			Data = e.Message + "\n" + e.StackTrace.ToString(),
+			Data = e.Message + "\n" + (e.StackTrace?.ToString() ?? string.Empty),
 			Description = Resource.DATA_IMPORT,
 			LastUpdatedOn = DateTime.Now
-		});
-		_auditTrailRepository.SaveChanges();
+		}).Entity;
+		dbc.SaveChanges();
 		errorId = (int)record.Id;
 		errorMessage = e.Message;
-		ErrorModel errorObject = new ErrorModel();
-		errorObject.id = errorId;
-		errorObject.message = errorMessage;
+		var errorObject = new ErrorModel {
+			id = errorId,
+			message = errorMessage
+		};
 		returnModel.error = errorObject;
 		return returnModel;
 	}
@@ -267,52 +268,52 @@ public class Helper
 			return isCalculatedExpression; // This is false
 	}
 
-	internal static DataImportObject dataImportHeading(dataImports dataImport) {
-		DataImportObject result = new DataImportObject { heading = new List<headingObject>() };
+	internal static DataImportObject DataImportHeading(dataImports dataImport) {
+		DataImportObject result = new DataImportObject { heading = new() };
 
 		if (dataImport == dataImports.target) {
 			result.id = (int)dataImports.target;
 			result.name = "Target";
-			result.heading.Add(new headingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new headingObject { title = "measureid", required = true });
-			result.heading.Add(new headingObject { title = "target", required = true });
-			result.heading.Add(new headingObject { title = "yellow", required = false });
+			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
+			result.heading.Add(new HeadingObject { title = "measureid", required = true });
+			result.heading.Add(new HeadingObject { title = "target", required = true });
+			result.heading.Add(new HeadingObject { title = "yellow", required = false });
 		}
 		else if (dataImport == dataImports.customer) {
 			result.id = (int)dataImports.customer;
 			result.name = "Customer Region";
-			result.heading.Add(new headingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new headingObject { title = "calendarid", required = true });
-			result.heading.Add(new headingObject { title = "customergroup", required = false });
-			result.heading.Add(new headingObject { title = "customersubgroup", required = false });
-			result.heading.Add(new headingObject { title = "purchasetype", required = false });
-			result.heading.Add(new headingObject { title = "tradechannel", required = false });
-			result.heading.Add(new headingObject { title = "tradechannelgroup", required = false });
-			result.heading.Add(new headingObject { title = "sales", required = false });
-			result.heading.Add(new headingObject { title = "numorders", required = false });
-			result.heading.Add(new headingObject { title = "numlines", required = false });
-			result.heading.Add(new headingObject { title = "ordertype", required = false });
-			result.heading.Add(new headingObject { title = "numlateorders", required = false });
-			result.heading.Add(new headingObject { title = "numlatelines", required = false });
-			result.heading.Add(new headingObject { title = "numordlens", required = false });
-			result.heading.Add(new headingObject { title = "ordqty", required = false });
-			result.heading.Add(new headingObject { title = "headerstatuscode", required = false });
-			result.heading.Add(new headingObject { title = "headerstatus", required = false });
-			result.heading.Add(new headingObject { title = "blockcode", required = false });
-			result.heading.Add(new headingObject { title = "blocktext", required = false });
-			result.heading.Add(new headingObject { title = "rejectioncode", required = false });
-			result.heading.Add(new headingObject { title = "rejectiontext", required = false });
-			result.heading.Add(new headingObject { title = "creditstatuscheck", required = false });
-			result.heading.Add(new headingObject { title = "creditcode", required = false });
+			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
+			result.heading.Add(new HeadingObject { title = "calendarid", required = true });
+			result.heading.Add(new HeadingObject { title = "customergroup", required = false });
+			result.heading.Add(new HeadingObject { title = "customersubgroup", required = false });
+			result.heading.Add(new HeadingObject { title = "purchasetype", required = false });
+			result.heading.Add(new HeadingObject { title = "tradechannel", required = false });
+			result.heading.Add(new HeadingObject { title = "tradechannelgroup", required = false });
+			result.heading.Add(new HeadingObject { title = "sales", required = false });
+			result.heading.Add(new HeadingObject { title = "numorders", required = false });
+			result.heading.Add(new HeadingObject { title = "numlines", required = false });
+			result.heading.Add(new HeadingObject { title = "ordertype", required = false });
+			result.heading.Add(new HeadingObject { title = "numlateorders", required = false });
+			result.heading.Add(new HeadingObject { title = "numlatelines", required = false });
+			result.heading.Add(new HeadingObject { title = "numordlens", required = false });
+			result.heading.Add(new HeadingObject { title = "ordqty", required = false });
+			result.heading.Add(new HeadingObject { title = "headerstatuscode", required = false });
+			result.heading.Add(new HeadingObject { title = "headerstatus", required = false });
+			result.heading.Add(new HeadingObject { title = "blockcode", required = false });
+			result.heading.Add(new HeadingObject { title = "blocktext", required = false });
+			result.heading.Add(new HeadingObject { title = "rejectioncode", required = false });
+			result.heading.Add(new HeadingObject { title = "rejectiontext", required = false });
+			result.heading.Add(new HeadingObject { title = "creditstatuscheck", required = false });
+			result.heading.Add(new HeadingObject { title = "creditcode", required = false });
 		}
 		else {
 			result.id = (int)dataImports.measureData;
 			result.name = "Measure Data";
-			result.heading.Add(new headingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new headingObject { title = "measureid", required = true });
-			result.heading.Add(new headingObject { title = "value", required = true });
-			result.heading.Add(new headingObject { title = "explanation", required = false });
-			result.heading.Add(new headingObject { title = "action", required = false });
+			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
+			result.heading.Add(new HeadingObject { title = "measureid", required = true });
+			result.heading.Add(new HeadingObject { title = "value", required = true });
+			result.heading.Add(new HeadingObject { title = "explanation", required = false });
+			result.heading.Add(new HeadingObject { title = "action", required = false });
 		}
 
 		return result;
