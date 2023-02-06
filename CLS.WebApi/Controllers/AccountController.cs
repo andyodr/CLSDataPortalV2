@@ -127,6 +127,7 @@ public class AccountController : Controller
 			await HttpContext.SignOutAsync("Cookies");
 
 		}
+
 		return RedirectToAction(nameof(AccountController.Login), "Account");
 	}
 }

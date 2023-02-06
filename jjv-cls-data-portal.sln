@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CLS.WebApi", "CLS.WebApi\CL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{64E6FFD8-7E07-4A1A-A278-7052A93EDA2C}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "CLS", "CLS\CLS.esproj", "{1FF69631-52DC-440A-8A99-97146709A5F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,12 @@ Global
 		{64E6FFD8-7E07-4A1A-A278-7052A93EDA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64E6FFD8-7E07-4A1A-A278-7052A93EDA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64E6FFD8-7E07-4A1A-A278-7052A93EDA2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF69631-52DC-440A-8A99-97146709A5F7}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
