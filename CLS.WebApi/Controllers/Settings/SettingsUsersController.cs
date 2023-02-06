@@ -14,9 +14,7 @@ public class UsersController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public UsersController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public UsersController(ApplicationDbContext context) => _context = context;
 
 	// GET: api/values
 	[HttpGet]

@@ -13,9 +13,7 @@ public class AddController : ControllerBase
 	private readonly List<int> addedHierarchies = new();
 	private UserObject? _user = new();
 
-	public AddController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public AddController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
@@ -45,9 +43,7 @@ public class AddController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] UserIndexDto value) {

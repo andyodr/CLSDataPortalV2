@@ -23,7 +23,6 @@ public class Helper
 
 	public static Dictionary<string, UserObject> userCookies = new Dictionary<string, UserObject>();
 
-
 	public static byte? stringToByte(string boolValue) {
 		if (boolValue == null)
 			return null;

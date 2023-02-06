@@ -66,9 +66,7 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public void Post([FromBody] string value) {

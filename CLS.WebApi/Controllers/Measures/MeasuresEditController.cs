@@ -13,9 +13,7 @@ public class EditController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public EditController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasuresOwnerObject values) {

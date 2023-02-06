@@ -14,9 +14,7 @@ public class EditController : ControllerBase
 	private readonly List<int> addedHierarchies = new();
 	private UserObject? _user = new();
 
-	public EditController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet("{id}")]
 	public ActionResult<JsonResult> Get(int id) {

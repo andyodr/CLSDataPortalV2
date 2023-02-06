@@ -13,9 +13,7 @@ public class IntervalsController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public IntervalsController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public IntervalsController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
@@ -79,9 +77,7 @@ public class IntervalsController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public void Post([FromBody] string value) {

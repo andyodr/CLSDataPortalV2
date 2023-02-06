@@ -13,9 +13,7 @@ public class FilterController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public FilterController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public FilterController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> GetAll() {

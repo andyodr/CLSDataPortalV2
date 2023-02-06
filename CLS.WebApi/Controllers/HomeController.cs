@@ -10,9 +10,7 @@ public class HomeController : Controller
 	private readonly ConfigurationObject _config;
 	private UserObject? _user = new();
 
-	public HomeController(IOptions<ConfigurationObject> config) {
-		_config = config.Value;
-	}
+	public HomeController(IOptions<ConfigurationObject> config) => _config = config.Value;
 
 	[Authorize]
 	[HttpGet("", Name = "default")]
@@ -49,7 +47,5 @@ public class HomeController : Controller
 	}
 
 	[Route("{*catchall}", Name = "Error")]
-	public IActionResult Error() {
-		return RedirectToAction(nameof(HomeController.Index), "Home");
-	}
+	public IActionResult Error() => RedirectToAction(nameof(HomeController.Index), "Home");
 }

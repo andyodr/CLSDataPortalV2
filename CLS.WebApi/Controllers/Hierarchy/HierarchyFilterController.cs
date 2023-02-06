@@ -8,7 +8,6 @@ namespace CLS.WebApi.Controllers.Hierarchy;
 [ApiController]
 public class FilterController : ControllerBase
 {
-	// GET: api/values
 	[HttpGet]
 	public void Get() {
 	}

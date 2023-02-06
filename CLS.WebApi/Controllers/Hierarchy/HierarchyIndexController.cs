@@ -13,9 +13,7 @@ public class IndexController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public IndexController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public IndexController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
@@ -82,9 +80,7 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] RegionsDataViewModelAdd value) {

@@ -12,19 +12,13 @@ public class AddController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public AddController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public AddController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public IEnumerable<string> Get() {
-		return new string[] { "value1", "value2" };
-	}
+	public IEnumerable<string> Get() => new string[] { "value1", "value2" };
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] MeasureTypeObject value) {

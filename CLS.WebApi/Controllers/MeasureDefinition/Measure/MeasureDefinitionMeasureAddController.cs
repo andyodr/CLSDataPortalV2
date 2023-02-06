@@ -12,11 +12,8 @@ public class AddController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public AddController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public AddController(ApplicationDbContext context) => _context = context;
 
-	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
@@ -56,9 +53,7 @@ public class AddController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
 	[HttpPost]
 	public ActionResult<JsonResult> Post([FromBody] MeasureDefinitionViewModel value) {

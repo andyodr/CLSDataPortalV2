@@ -13,9 +13,7 @@ public class IndexController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public IndexController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public IndexController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasuresIndexGetRecieveObject values) {

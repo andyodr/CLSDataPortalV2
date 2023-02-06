@@ -12,13 +12,10 @@ public class EditController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public EditController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet("{id}")]
 	public ActionResult<JsonResult> Get(int id) {
-
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {

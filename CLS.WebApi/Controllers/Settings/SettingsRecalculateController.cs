@@ -12,9 +12,7 @@ public class RecalculateController : Controller
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public RecalculateController(ApplicationDbContext context) {
-		_context = context;
-	}
+	public RecalculateController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
 	public IEnumerable<string> Get() {
