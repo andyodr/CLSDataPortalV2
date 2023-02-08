@@ -27,6 +27,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<AuditTrail>().Metadata.SetIsTableExcludedFromMigrations(true);
 
 		modelBuilder.Entity<Calendar>().HasKey(c => c.Id);
+		modelBuilder.Entity<Calendar>().Property(t => t.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<Calendar>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Calendar>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<CustomerHierarchy>().ToTable("CustomerHierarchy").HasKey(c => c.Id);
 		modelBuilder.Entity<CustomerHierarchy>().Metadata.SetIsTableExcludedFromMigrations(true);
@@ -35,14 +37,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<Interval>().HasKey(i => i.Id);
 		modelBuilder.Entity<Interval>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureData>().HasKey(m => m.Id);
+		modelBuilder.Entity<MeasureData>().Property(t => t.IsProcessed).HasDefaultValue(1);
+		modelBuilder.Entity<MeasureData>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<MeasureData>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureDefinition>().HasKey(m => m.Id);
+		modelBuilder.Entity<MeasureDefinition>().Property(t => t.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<MeasureDefinition>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<MeasureDefinition>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Measure>().HasKey(m => m.Id);
+		modelBuilder.Entity<Measure>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Measure>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<MeasureType>().HasKey(m => m.Id);
 		modelBuilder.Entity<MeasureType>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Hierarchy>().HasKey(h => h.Id);
+		modelBuilder.Entity<Hierarchy>().Property(t => t.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<Hierarchy>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Hierarchy>()
 			.HasOne(h => h.Parent)
 			.WithMany(h => h.Children)
@@ -54,12 +63,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<HierarchyLevel>().HasKey(h => h.Id);
 		modelBuilder.Entity<HierarchyLevel>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Target>().HasKey(t => t.Id);
+		modelBuilder.Entity<Target>().Property(t => t.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<Target>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Target>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<User>().HasKey(u => u.Id);
+		modelBuilder.Entity<User>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<UserCalendarLock>().HasKey(u => u.Id);
+		modelBuilder.Entity<UserCalendarLock>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<UserHierarchy>().HasKey(u => u.Id);
+		modelBuilder.Entity<UserHierarchy>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<UserRole>().HasKey(u => u.Id);
 		modelBuilder.Entity<Setting>().HasKey(s => s.Id);
+		modelBuilder.Entity<Setting>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Setting>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Unit>().HasKey(u => u.Id);
 		modelBuilder.Entity<Unit>().Metadata.SetIsTableExcludedFromMigrations(true);

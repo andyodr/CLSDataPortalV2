@@ -1,12 +1,9 @@
-using System.Reflection;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 using CLS.WebApi.Data;
-using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CLS.WebApi;
@@ -827,9 +824,9 @@ public class Helper
 		try {
 			_ = dbc.MeasureData
 				.Where(md => md.Measure!.MeasureDefinition!.Id == measureDefId)
-				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, md => (byte)Helper.IsProcessed.measureData)
-					.SetProperty(md => md.UserId, md => userId)
-					.SetProperty(md => md.LastUpdatedOn, md => lastUpdatedOn));
+				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)Helper.IsProcessed.measureData)
+					.SetProperty(md => md.UserId, userId)
+					.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
 			return true;
 		}
 		catch {
@@ -841,9 +838,9 @@ public class Helper
 		try {
 			_ = dbc.MeasureData
 					.Where(md => md.Measure!.Id == measureId)
-					.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, md => (byte)isProcessed)
-						.SetProperty(md => md.UserId, md => userId)
-						.SetProperty(md => md.LastUpdatedOn, md => lastUpdatedOn));
+					.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)isProcessed)
+						.SetProperty(md => md.UserId, userId)
+						.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
 			return true;
 		}
 		catch {

@@ -82,7 +82,8 @@ Show your appreciation to those who have contributed to the project.
 For open source projects, say how it is licensed.
 
 ## Project repository
-[Gitlab.com](https://gitlab.com/itg-tech/jjv-cls-data-portal)
+- [Gitlab](https://gitlab.com/itg-tech/jjv-cls-data-portal)
+- [Github](https://github.com/andyodr/CLSDataPortalV2)
 
 ## Visual Studio keyboard shortcuts
 

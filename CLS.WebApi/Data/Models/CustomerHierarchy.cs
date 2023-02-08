@@ -5,37 +5,57 @@ public class CustomerHierarchy
 	/// <summary>
 	/// The unique id and primary key for this CustomerHierarchy
 	/// </summary>
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public Hierarchy? Hierarchy { set; get; } = null;
+	public int HierarchyId { get; set; }
 
-	public Calendar? Calendar { set; get; } = null;
+	public Hierarchy? Hierarchy { get; set; }
 
-	public string CustomerGroup { set; get; } = null!;
+	public int CalendarId { get; set; }
 
-	public string CustomerSubGroup { set; get; } = null!;
+	public Calendar? Calendar { get; set; }
 
-	public string PurchaseType { set; get; } = null!;
+	public string CustomerGroup { get; set; } = null!;
 
-	public string TradeChannel { set; get; } = null!;
+	public string CustomerSubGroup { get; set; } = null!;
 
-	public string TradeChannelGroup { set; get; } = null!;
+	public string PurchaseType { get; set; } = null!;
 
-	public double? Sales { set; get; } = null;
+	public string TradeChannel { get; set; } = null!;
 
-	public double? NumOrders { set; get; } = null;
+	public string TradeChannelGroup { get; set; } = null!;
 
-	public double? NumLines { set; get; } = null;
+	public double? Sales { get; set; }
+
+	public double? NumOrders { get; set; }
+
+	public double? NumLines { get; set; }
 
 	public string OrderType { get; set; } = null!;
 
-	public double? NumLateOrders { set; get; } = null;
+	public double? NumLateOrders { get; set; }
 
-	public double? NumLateLines { set; get; } = null;
+	public double? NumLateLines { get; set; }
 
-	public double? NumOrdLens { set; get; } = null;
+	public double? NumOrdLens { get; set; }
 
-	public double? OrdQty { set; get; } = null;
+	public double? OrdQty { get; set; }
 
 	public byte IsProcessed { get; set; }
+
+	public string? HeaderStatusCode { get; set; }
+
+	public string? HeaderStatus { get; set; }
+
+	public string? BlockCode { get; set; }
+
+	public string? BlockText { get; set; }
+
+	public string? RejectionCode { get; set; }
+
+	public string? RejectionText { get; set; }
+
+	public string? CreditStatusCheck { get; set; }
+
+	public string? CreditCode { get; set; }
 }
