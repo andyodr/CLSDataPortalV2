@@ -6,6 +6,8 @@ public class MeasureData
 
 	public Measure? Measure { get; set; }
 
+	public int CalendarId { get; set; }
+
 	public Calendar? Calendar { get; set; }
 
 	public long TargetId { get; set; }

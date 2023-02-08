@@ -1,79 +1,70 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CLS.WebApi.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
-[Authorize]
 [Route("api/dataimports/[controller]")]
+[Authorize]
+[ApiController]
 public class IndexController : ControllerBase
 {
-	private IIntervalRepository _intervalRepository;
-	private ICalendarRepository _calendarRepository;
-	private IAuditTrailRepository _auditTrailRepository;
-	private IMeasureDataRepository _measureDataRepository;
-	private IMeasureRepository _measureRepository;
-	private ISettingRepository _settingRepository;
-	private UserObject _user = new UserObject();
+	private readonly ConfigurationObject _config;
+	private readonly ApplicationDbContext _context;
+	private UserObject? _user = new();
 
-	public IndexController(IIntervalRepository intervalRepository
-						 , ICalendarRepository calendarRepository
-						 , IAuditTrailRepository auditTrailRepository
-						 , IMeasureDataRepository measureDataRepository
-						 , IMeasureRepository measureRepository
-						 , ISettingRepository settingRepository) {
-		_intervalRepository = intervalRepository;
-		_calendarRepository = calendarRepository;
-		_auditTrailRepository = auditTrailRepository;
-		_measureDataRepository = measureDataRepository;
-		_measureRepository = measureRepository;
-		_settingRepository = settingRepository;
+	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+		_config = config.Value;
+		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
-	public string Get() {
+	public ActionResult<JsonResult> Get() {
 
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
-			DataImportsMainObject returnObject = new DataImportsMainObject {
-				years = new List<ViewModel.FilterObjects.YearsObject>(),
+			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId)) {
+				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
+
+			var returnObject = new DataImportsMainObject {
+				years = new(),
 				//calculationTime = new CalculationTimeObject(),
 				calculationTime = "00:01:00",
 				dataImport = new List<DataImportObject>(),
-				intervals = new List<intervalsObject>()
+				intervals = new List<IntervalsObject>(),
+				intervalId = Helper.defaultIntervalId,
+				calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId)
 			};
 
-			returnObject.intervalId = Helper.defaultIntervalId;
-			returnObject.calendarId = Helper.FindPreviousCalendarId(_calendarRepository, Helper.defaultIntervalId);
-
 			//returnObject.calculationTime.current = DateTime.Now;
-			string sCalculationTime = _settingRepository.All().FirstOrDefault().CalculateSchedule;
+			string sCalculationTime = _context.Setting.First().CalculateSchedule ?? string.Empty;
 			returnObject.calculationTime = Helper.CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
 										   Helper.CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
 										   Helper.CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
 			//years
-			var years = _calendarRepository.All()
+			var years = _context.Calendar
 						.Where(c => c.Interval.Id == (int)Helper.intervals.yearly)
 						.OrderByDescending(y => y.Year);
 
 			foreach (var year in years) {
-				returnObject.years.Add(new ViewModel.FilterObjects.YearsObject { year = year.Year, id = year.Id });
+				returnObject.years.Add(new() { year = year.Year, id = year.Id });
 			}
 
 			// Find Current Year from previuos default interval
-			var calendarId = Helper.FindPreviousCalendarId(_calendarRepository, Helper.defaultIntervalId);
-			returnObject.currentYear = _calendarRepository.All().Where(c => c.Id == calendarId).FirstOrDefault().Year;
+			var calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId);
+			returnObject.currentYear = _context.Calendar.Where(c => c.Id == calendarId).First().Year;
 
 			//intervals
-			var intervals = _intervalRepository.All();
+			var intervals = _context.Interval;
 			foreach (var interval in intervals) {
-				returnObject.intervals.Add(new intervalsObject {
+				returnObject.intervals.Add(new IntervalsObject {
 					id = interval.Id,
 					name = interval.Name
 				});
@@ -88,39 +79,32 @@ public class IndexController : ControllerBase
 				returnObject.dataImport.Add(targetData);
 
 				// This is for kris only
-				if (Startup.ConfigurationJson.usesCustomer) {
+				if (_config.usesCustomer) {
 					DataImportObject customerRegionData = Helper.DataImportHeading(Helper.dataImports.customer);
 					returnObject.dataImport.Add(customerRegionData);
 				}
 
 			}
 
-			return Newtonsoft.Json.JsonConvert.SerializeObject(returnObject);
+			return new JsonResult(returnObject);
 		}
 		catch (Exception e) {
-			return Helper.errorProcessing(e, _auditTrailRepository, HttpContext, _user);
+			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
 	}
 
-	// GET api/values/5
 	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
+	public string Get(int id) => "value";
 
-	// POST api/values
 	[HttpPost]
 	public void Post([FromBody] string value) {
 	}
 
-	// PUT api/values/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value) {
 	}
 
-	// DELETE api/values/5
 	[HttpDelete("{id}")]
 	public void Delete(int id) {
 	}
-
 }

@@ -212,8 +212,9 @@ public class Helper
 
 	internal static bool IsMeasureCalculated(ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
 		// Expression calculated overrides calculated from MeasureDefinition if true only
-		if (isCalculatedExpression)
+		if (isCalculatedExpression) {
 			return true;
+		}
 
 		// If children are a rollup
 		if (dbc.Measure.Where(m => m.MeasureDefinitionId == measureDefId
@@ -812,6 +813,7 @@ public class Helper
 						break;
 				}
 			}
+
 			return sReturn;
 		}
 		catch (Exception) {

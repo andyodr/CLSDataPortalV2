@@ -1,37 +1,34 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CLS.WebApi.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
-[Authorize]
 [Route("api/[controller]")]
+[Authorize]
+[ApiController]
 public class FilterController : ControllerBase
 {
-	private IMeasureTypeRepository _measureTypeRepository;
-	private ICalendarRepository _calendarRepository;
-	private IErrorLogRepository _errorLogRepository;
-	private UserObject _user = new UserObject();
+	private readonly ApplicationDbContext _context;
+	private UserObject? _user = new();
 
-	public FilterController(IMeasureTypeRepository measureTypeRepository, ICalendarRepository calendarRepository, IErrorLogRepository errorLogRepository) {
-		_measureTypeRepository = measureTypeRepository;
-		_calendarRepository = calendarRepository;
-		_errorLogRepository = errorLogRepository;
-	}
+	public FilterController(ApplicationDbContext context) => _context = context;
 
-	// GET: api/values
 	[HttpGet]
 	public IEnumerable<DataImportFilterGetAllObject> Get(int intervalId, int year) {
-		int errorId = 0;
 		string errorMessage = string.Empty;
 		try {
 			_user = Helper.UserAuthorization(User);
-			if (_user == null)
+			if (_user == null) {
 				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
 
-			var calendarRecords = _calendarRepository.All().Where(c => c.Interval.Id == intervalId && c.Year == year);
+			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId)) {
+				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			}
+
+			var calendarRecords = _context.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year);
 			if (intervalId == (int)Helper.intervals.weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
@@ -56,19 +53,33 @@ public class FilterController : ControllerBase
 					number = c.Month,
 					startDate = null,
 					endDate = null,
-					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName((int)c.Month)
+					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
 				});
 			}
 			else throw new Exception(Resource.DI_FILTER_INVALID_INTERVAL);
 		}
 		catch (Exception e) {
-			errorId = _errorLogRepository.logError(e.Message, e.InnerException, e.StackTrace);
+			var errorId = LogError(_context, e.Message, e.InnerException, e.StackTrace);
 			errorMessage = e.Message;
-			DataImportFilterGetAllObject returnObject = new DataImportFilterGetAllObject();
+			var returnObject = new DataImportFilterGetAllObject();
 			returnObject.error.id = errorId;
 			returnObject.error.message = errorMessage;
 			return (IEnumerable<DataImportFilterGetAllObject>)returnObject;
 		}
 	}
 
+	public int LogError(ApplicationDbContext dbc, string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
+		try {
+			var entity = dbc.ErrorLog.Add(new() {
+				ErrorMessage = errorMessage,
+				ErrorMessageDetailed = detailedErrorMessage?.ToString() ?? string.Empty,
+				StackTrace = stacktrace ?? string.Empty
+			}).Entity;
+			_ = dbc.SaveChanges();
+			return entity.Id;
+		}
+		catch {
+			return -1;
+		}
+	}
 }

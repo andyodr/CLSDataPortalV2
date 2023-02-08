@@ -2,8 +2,9 @@
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Runtime.Versioning;
+using CLS.WebApi.Data;
 
-namespace CLS.WebApi.Data;
+namespace CLS.WebApi;
 
 [SupportedOSPlatform("windows")]
 public class LdapAuthentication
@@ -41,7 +42,7 @@ public class LdapAuthentication
 			_filterAttribute = (string)result.Properties["cn"][0];
 
 			// Success
-			return String.Empty;
+			return string.Empty;
 		}
 		catch (Exception ex) {
 			//throw new Exception("Error authenticating user. " + ex.Message);
@@ -59,7 +60,7 @@ public class LdapAuthentication
 				}
 			}
 
-			return String.Empty;  // Success
+			return string.Empty;  // Success
 		}
 		catch (Exception ex) {
 			//throw new Exception("Error authenticating user. " + ex.Message);
@@ -88,13 +89,14 @@ public class LdapAuthentication
 					return null;
 				}
 
-				groupNames.Append(dn.Substring((equalsIndex + 1), (commaIndex - equalsIndex) - 1));
+				groupNames.Append(dn.AsSpan(equalsIndex + 1, commaIndex - equalsIndex - 1));
 				groupNames.Append('|');
 			}
 		}
 		catch (Exception ex) {
 			throw new Exception("Error obtaining group names. " + ex.Message);
 		}
+
 		return groupNames.ToString();
 	}
 }

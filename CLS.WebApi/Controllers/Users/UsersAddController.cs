@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CLS.WebApi.Controllers.Users;
 
 [Route("api/users/[controller]")]
-[Authorize]
+[Authorize(Roles = "Admin")]
 [ApiController]
 public class AddController : ControllerBase
 {

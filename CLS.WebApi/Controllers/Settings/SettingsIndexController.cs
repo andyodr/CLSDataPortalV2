@@ -74,17 +74,17 @@ public class IndexController : ControllerBase
 
 			foreach (var user in users) {
 				var currentUser = new UserSettingObject {
-					locks = new(),
-					id = user.id,
-					userName = user.userName
+					Locks = new(),
+					Id = user.id,
+					UserName = user.userName
 				};
 				foreach (var calRecord in calendarRecords) {
-					var userCalRecord = _context.UserCalendarLock.Where(c => c.User.Id == user.id && c.Calendar!.Id == calRecord.Id);
+					var userCalRecord = _context.UserCalendarLock.Where(c => c.User.Id == user.id && c.CalendarId == calRecord.Id);
 					if (userCalRecord == null || userCalRecord.Count() == 0 || userCalRecord.First().LockOverride == false) {
-						currentUser.locks.Add(new Lock { lo = false });
+						currentUser.Locks.Add(new Lock { lo = false });
 					}
 					else {
-						currentUser.locks.Add(new Lock { lo = true });
+						currentUser.Locks.Add(new Lock { lo = true });
 					}
 				}
 

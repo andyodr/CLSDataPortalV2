@@ -2,7 +2,7 @@
 
 public class UserSettingObject
 {
-	public int id { set; get; }
-	public string userName { set; get; }
-	public List<Lock> locks { set; get; }
+	public int Id { set; get; }
+	public string UserName { set; get; } = null!;
+	public ICollection<Lock> Locks { set; get; } = new List<Lock>();
 }

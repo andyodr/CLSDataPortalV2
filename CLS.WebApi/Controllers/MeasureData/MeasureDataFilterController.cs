@@ -66,7 +66,7 @@ public class FilterController : ControllerBase
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTrackingWithIdentityResolution()) {
-				filter.measureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				filter.measureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
 			var regions = _context.Hierarchy.AsNoTrackingWithIdentityResolution().Single(m => m.HierarchyLevel!.Id == 1);

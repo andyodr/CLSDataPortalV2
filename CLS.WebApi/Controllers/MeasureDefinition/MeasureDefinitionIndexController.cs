@@ -113,7 +113,6 @@ public class IndexController : ControllerBase
 		catch (Exception e) {
 			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
 		}
-
 	}
 
 	[HttpPost]

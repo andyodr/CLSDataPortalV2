@@ -72,7 +72,7 @@ public class IndexController : ControllerBase
 						   from md in t.MeasureData
 						   where m.Active == true && m.Hierarchy.Id == value.hierarchyId
 						   && mdef.MeasureType.Id == value.measureTypeId
-						   && md.Calendar!.Id == returnObject.calendarId
+						   && md.CalendarId == returnObject.calendarId
 						   select new {
 							   lastUpdatedOn = md.LastUpdatedOn,
 							   md.User,

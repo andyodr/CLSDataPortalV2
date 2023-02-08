@@ -310,7 +310,7 @@ public class IndexController : ControllerBase
 			// Find current calendar Ids from confirmIntervals.
 			if (confirmIntervals.weekly ?? false) {
 				int cWeekly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.Calendar!.Id == cWeekly);
+				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -321,7 +321,7 @@ public class IndexController : ControllerBase
 
 			if (confirmIntervals.monthly ?? false) {
 				int cMonthly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.Calendar!.Id == cMonthly);
+				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -332,7 +332,7 @@ public class IndexController : ControllerBase
 
 			if (confirmIntervals.quarterly ?? false) {
 				int cQuarterly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.Calendar!.Id == cQuarterly);
+				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -343,7 +343,7 @@ public class IndexController : ControllerBase
 
 			if (confirmIntervals.yearly ?? false) {
 				int cYearly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.Calendar!.Id == cYearly);
+				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
