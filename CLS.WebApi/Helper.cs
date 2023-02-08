@@ -160,7 +160,7 @@ public class Helper
 			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 4)
 			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
-			.ToList();
+			.ToArray();
 		foreach (var rfo in children) {
 			rfo.sub = GetSubsLevel(dbc, rfo.id);
 			rfo.count = rfo.sub.Count;
@@ -169,12 +169,12 @@ public class Helper
 		return children;
 	}
 
-	internal static List<RegionFilterObject> GetSubsAll(ApplicationDbContext dbc, int id) {
+	internal static ICollection<RegionFilterObject> GetSubsAll(ApplicationDbContext dbc, int id) {
 		var children = dbc.Hierarchy
 			.Where(h => h.HierarchyParentId == id)
 			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
-			.ToList();
+			.ToArray();
 		foreach (var rfo in children) {
 			rfo.sub = GetSubsAll(dbc, rfo.id);
 			rfo.count = rfo.sub.Count;
@@ -184,12 +184,12 @@ public class Helper
 	}
 
 	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext context, int id, UserObject user) {
-		List<RegionFilterObject> children = new();
+		var children = new List<RegionFilterObject>();
 		var hierarchyList = context.Hierarchy
 			.Where(h => h.HierarchyParentId == id && h.Active == true)
 			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
-			.ToList();
+			.ToArray();
 		foreach (var rfo in hierarchyList) {
 			rfo.sub = GetSubs(context, rfo.id, user);
 			rfo.count = rfo.sub.Count;
@@ -198,7 +198,8 @@ public class Helper
 				var child = context.Hierarchy
 					.Where(c => c.HierarchyParentId == rfo.id)
 					.Select(c => c.Id)
-					.ToList();
+					.Distinct()
+					.ToArray();
 				rfo.found = user.hierarchyIds.Any(i => child.Contains(i));
 			}
 
@@ -635,8 +636,8 @@ public class Helper
 	}
 
 	internal static void UserDeleteHierarchy(int userId, ApplicationDbContext context) {
-		var deleteRecords = context.UserHierarchy.Where(u => u.User.Id == userId).ToList();
-		if (deleteRecords.Count > 0) {
+		var deleteRecords = context.UserHierarchy.Where(u => u.User.Id == userId).ToArray();
+		if (deleteRecords.Length > 0) {
 			foreach (var record in deleteRecords) {
 				context.UserHierarchy.Remove(record);
 			}
@@ -659,7 +660,7 @@ public class Helper
 
 	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {
 		List<RegionFilterObject> children = new();
-		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId).ToList();
+		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId).ToArray();
 
 		foreach (var record in hierarchies) {
 			if (!addedHierarchies.Contains(record.Id) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Any()) {

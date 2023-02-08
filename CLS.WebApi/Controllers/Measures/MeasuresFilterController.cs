@@ -39,7 +39,7 @@ public class FilterController : ControllerBase
 			var regionList = _context.Hierarchy.Where(m => m.HierarchyLevel!.Id == 1)
 				.OrderBy(r => r.Id)
 				.AsNoTrackingWithIdentityResolution()
-				.ToList();
+				.ToArray();
 			foreach (var region in regionList) {
 				var subs = Helper.GetSubs(_context, region.Id, _user);
 				if (subs.Count > 0) {

@@ -38,7 +38,7 @@ public class FilterController : ControllerBase
 				filter.measureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var regions = _context.Hierarchy.Where(m => m.HierarchyLevel!.Id == 1).OrderBy(r => r.Id).ToList();
+			var regions = _context.Hierarchy.Where(m => m.HierarchyLevel!.Id == 1).OrderBy(r => r.Id).ToArray();
 			filter.hierarchy.Add(new() {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,

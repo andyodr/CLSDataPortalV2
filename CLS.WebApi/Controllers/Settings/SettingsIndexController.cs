@@ -74,7 +74,7 @@ public class IndexController : ControllerBase
 
 			foreach (var user in users) {
 				var currentUser = new UserSettingObject {
-					Locks = new(),
+					Locks = new List<Lock>(),
 					Id = user.id,
 					UserName = user.userName
 				};

@@ -4,5 +4,5 @@ public class UserSettingObject
 {
 	public int Id { set; get; }
 	public string UserName { set; get; } = null!;
-	public ICollection<Lock> Locks { set; get; } = new List<Lock>();
+	public ICollection<Lock>? Locks { set; get; }
 }

@@ -61,14 +61,14 @@ public class UsersController : ControllerBase
 					.Where(u => u.User.Id == value.users.First().Id && u.CalendarId == record.Id);
 				if (calendarLock.Any()) {
 					var c = calendarLock.First();
-					c.LockOverride = value.users.First().Locks.ElementAt((int)record.Month! - 1).lo;
+					c.LockOverride = value.users.First().Locks?.ElementAt((int)record.Month! - 1).lo;
 					c.LastUpdatedOn = lastUpdatedOn;
 				}
 				else {
 					_context.UserCalendarLock.Add(new() {
 						Calendar = record,
 						LastUpdatedOn = lastUpdatedOn,
-						LockOverride = value.users.First().Locks.ElementAt((int)record.Month! - 1).lo
+						LockOverride = value.users.First().Locks?.ElementAt((int)record.Month! - 1).lo
 					}).Property("UserId").CurrentValue = value.users.First().Id;
 				}
 			}

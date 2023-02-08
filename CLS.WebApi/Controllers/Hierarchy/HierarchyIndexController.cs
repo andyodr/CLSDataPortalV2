@@ -35,8 +35,8 @@ public class IndexController : ControllerBase
 				returnObject.levels.Add(new() { id = level.id, name = level.name });
 			}
 
-			var regions = _context.Hierarchy.OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject {
+			var regions = _context.Hierarchy.OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().ToArray();
+			returnObject.hierarchy.Add(new() {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,
 				sub = Helper.GetSubsAll(_context, regions.First().Id),
@@ -142,8 +142,13 @@ public class IndexController : ControllerBase
 				_user.userId
 			);
 
-			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0 });
+			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToArray();
+			returnObject.hierarchy.Add(new() {
+				hierarchy = regions.First().Name,
+				id = regions.First().Id,
+				sub = Helper.GetSubsAll(_context, regions.First().Id),
+				count = 0
+			});
 
 			return new JsonResult(returnObject);
 		}
@@ -237,11 +242,11 @@ public class IndexController : ControllerBase
 			}
 			else {
 				// Find measures and Targets
-				var measures = _context.Measure.Where(m => m.HierarchyId == id).ToList();
-				var targets = _context.Target.Where(t => measures.Any(m => m.Id == t.MeasureId)).ToList();
+				var measures = _context.Measure.Where(m => m.HierarchyId == id).ToArray();
+				var targets = _context.Target.Where(t => measures.Any(m => m.Id == t.MeasureId)).ToArray();
 
 				// delete Targets
-				if (targets.Count > 0) {
+				if (targets.Length > 0) {
 					foreach (var item in targets) {
 						_context.Target.Remove(item);
 					}
@@ -250,7 +255,7 @@ public class IndexController : ControllerBase
 				}
 
 				// delete Measures
-				if (measures.Count > 0) {
+				if (measures.Length > 0) {
 					foreach (var item in measures) {
 						_context.Measure.Remove(item);
 					}
@@ -258,7 +263,7 @@ public class IndexController : ControllerBase
 					_context.SaveChanges();
 				}
 
-				// Find Hierarhy Name before deletion
+				// Find Hierarchy Name before deletion
 				hierarchyName = _context.Hierarchy.Where(h => h.Id == id).First().Name;
 
 				// delete Hierarchy
@@ -287,9 +292,12 @@ public class IndexController : ControllerBase
 				_user.userId
 			);
 
-			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new RegionFilterObject { hierarchy = regions.ElementAt(0).Name, id = regions.ElementAt(0).Id, sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0 });
-
+			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToArray();
+			returnObject.hierarchy.Add(new() {
+				hierarchy = regions.First().Name,
+				id = regions.First().Id,
+				sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0
+			});
 			return new JsonResult(returnObject);
 		}
 		catch (Exception e) {

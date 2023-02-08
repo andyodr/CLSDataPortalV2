@@ -29,7 +29,7 @@ public class EditController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToList();
+			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
 			result.hierarchy.Add(new() {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,

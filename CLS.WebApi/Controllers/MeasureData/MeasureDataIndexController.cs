@@ -49,8 +49,10 @@ public class IndexController : ControllerBase
 			}
 			else {
 				date = Convert.ToDateTime(value.day);
-				var cal = _context.Calendar.Where(c => c.StartDate == date).AsNoTracking().ToList();
-				if (cal.Count > 0) {
+				var cal = _context.Calendar
+					.Where(c => c.StartDate == date)
+					.AsNoTrackingWithIdentityResolution().ToArray();
+				if (cal.Length > 0) {
 					returnObject.calendarId = cal.First().Id;
 				}
 			}
@@ -144,10 +146,14 @@ public class IndexController : ControllerBase
 					if (varNames.Count > 0) {
 						string sExpression = newObject.expression;
 						foreach (var item in varNames) {
-							var measure = _context.Measure.Where(m => m.MeasureDefinition.Id == item.id && m.Hierarchy.Id == value.hierarchyId).AsNoTracking().ToList();
-							if (measure.Count > 0) {
-								var measureData = _context.MeasureData.Where(md => md.Measure.Id == measure.First().Id && md.Calendar.Id == returnObject.calendarId).AsNoTracking().ToList();
-								if (measureData.Count > 0) {
+							var measure = _context.Measure
+								.Where(m => m.MeasureDefinition.Id == item.id && m.Hierarchy.Id == value.hierarchyId)
+								.AsNoTracking().ToArray();
+							if (measure.Length > 0) {
+								var measureData = _context.MeasureData
+									.Where(md => md.Measure.Id == measure.First().Id && md.Calendar.Id == returnObject.calendarId)
+									.AsNoTracking().ToArray();
+								if (measureData.Length > 0) {
 									if (measureData.First().Value != null) {
 										sExpression = sExpression.Replace("Data[\"" + item.varName + "\"]", measureData.First().Value.ToString());
 									}

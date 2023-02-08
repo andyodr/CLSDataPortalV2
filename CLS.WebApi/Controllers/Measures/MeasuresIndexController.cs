@@ -55,8 +55,8 @@ public class IndexController : ControllerBase
 				foreach (var hierarchy in hierarchies) {
 					var measure = _context.Measure
 						.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy!.Id == hierarchy.Id)
-						.AsNoTracking().ToList();
-					if (measure.Count > 0) {
+						.AsNoTracking().ToArray();
+					if (measure.Length > 0) {
 						var newRegion = new RegionActiveCalculatedObject {
 							id = measure.First().Id,
 							active = measure.First().Active ?? false,

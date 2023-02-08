@@ -28,8 +28,12 @@ public class AddController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToList();
-			returnObject.hierarchy.Add(new() { hierarchy = regions.First().Name, id = regions.First().Id, sub = Helper.GetSubsLevel(_context, regions.First().Id), count = 0 });
+			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToArray();
+			returnObject.hierarchy.Add(new() {
+				hierarchy = regions.First().Name,
+				id = regions.First().Id,
+				sub = Helper.GetSubsLevel(_context, regions.First().Id),
+				count = 0 });
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
 				returnObject.roles.Add(new() { id = role.Id, name = role.Name });

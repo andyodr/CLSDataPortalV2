@@ -104,14 +104,14 @@ public class AccountController : Controller
 	}
 
 	public async Task<IActionResult> Logoff() {
-		var user = User.Claims.Where(c => c.Type == "userId").ToList();
-		if (user.Count > 0) {
+		var user = User.Claims.Where(c => c.Type == "userId").ToArray();
+		if (user.Length > 0) {
 			string userId = user.First().Value;
 			if (Helper.userCookies.ContainsKey(userId)) {
 				Helper.userCookies.Remove(userId);
 			}
 
-			int nUserId = Int32.Parse(userId);
+			int nUserId = int.Parse(userId);
 			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
 			if (userRepo != null) {
 				Helper.AddAuditTrail(_context,
@@ -125,7 +125,6 @@ public class AccountController : Controller
 			}
 
 			await HttpContext.SignOutAsync("Cookies");
-
 		}
 
 		return RedirectToAction(nameof(AccountController.Login), "Account");
