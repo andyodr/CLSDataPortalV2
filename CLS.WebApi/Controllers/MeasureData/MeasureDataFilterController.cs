@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace CLS.WebApi.Controllers.MeasureData;
@@ -11,19 +12,23 @@ namespace CLS.WebApi.Controllers.MeasureData;
 [ApiController]
 public class FilterController : ControllerBase
 {
+	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new ();
+	private UserObject? _user = new();
 
-	public FilterController(ApplicationDbContext context) => _context = context;
+	public FilterController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+		_config = config.Value;
+		_context = context;
+	}
 
 	// GET: api/values
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
-		if (values.year == null) {
-			return new JsonResult(Filter());
+		if (values.year is null) {
+			return Filter();
 		}
 		else {
-			return new JsonResult(Filter(values));
+			return Filter(values);
 		}
 	}
 
@@ -110,20 +115,26 @@ public class FilterController : ControllerBase
 
 			//set filter values
 			// Get Previous Calendar Id
-			if (_user.savedFilters[Helper.pages.measureData].calendarId == null)
-				_user.savedFilters[Helper.pages.measureData].calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId);
-			if (_user.savedFilters[Helper.pages.measureData].hierarchyId == null)
+			if (_user.savedFilters[Helper.pages.measureData].calendarId is null) {
+				_user.savedFilters[Helper.pages.measureData].calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval);
+			}
+
+			if (_user.savedFilters[Helper.pages.measureData].hierarchyId is null) {
 				_user.savedFilters[Helper.pages.measureData].hierarchyId = 1;
-			if (_user.savedFilters[Helper.pages.measureData].intervalId == null)
-				_user.savedFilters[Helper.pages.measureData].intervalId = Helper.defaultIntervalId;
-			if (_user.savedFilters[Helper.pages.measureData].measureTypeId == null) {
+			}
+
+			if (_user.savedFilters[Helper.pages.measureData].intervalId is null) {
+				_user.savedFilters[Helper.pages.measureData].intervalId = _config.DefaultInterval;
+			}
+
+			if (_user.savedFilters[Helper.pages.measureData].measureTypeId is null) {
 				_user.savedFilters[Helper.pages.measureData].measureTypeId = _context.MeasureType.FirstOrDefault()?.Id;
 			}
 
 			//if( _user.savedFilters[Helper.pages.measureData].year == null )
 			//  _user.savedFilters[Helper.pages.measureData].year = 
 			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Year;
-			if (_user.savedFilters[Helper.pages.measureData].year == null) {
+			if (_user.savedFilters[Helper.pages.measureData].year is null) {
 				_user.savedFilters[Helper.pages.measureData].year = _context.Calendar.Find(_user.savedFilters[Helper.pages.measureData].calendarId)?.Year;
 			}
 

@@ -80,7 +80,7 @@ public class IndexController : ControllerBase
 				};
 				foreach (var calRecord in calendarRecords) {
 					var userCalRecord = _context.UserCalendarLock.Where(c => c.User.Id == user.id && c.CalendarId == calRecord.Id);
-					if (userCalRecord == null || userCalRecord.Count() == 0 || userCalRecord.First().LockOverride == false) {
+					if (userCalRecord is null || !userCalRecord.Any() || userCalRecord.First().LockOverride == false) {
 						currentUser.Locks.Add(new Lock { lo = false });
 					}
 					else {
@@ -127,7 +127,7 @@ public class IndexController : ControllerBase
 			}
 
 			var settings = _context.Setting.FirstOrDefault();
-			if (settings == null) {
+			if (settings is null) {
 				throw new Exception(Resource.SETTINGS_NO_RECORDS);
 			}
 

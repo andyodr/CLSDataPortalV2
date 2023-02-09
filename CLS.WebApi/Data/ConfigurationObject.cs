@@ -7,27 +7,27 @@ public class ConfigurationObject
 {
 	public const string Section = "Config";
 
-	public string connectionString { get; set; }
+	public string activeDiretoryPath { get; set; } = null!;
 
-	public string activeDiretoryPath { get; set; }
+	public string activeDiretoryDomain { get; set; } = null!;
 
-	public string activeDiretoryDomain { get; set; }
+	public string byPassUserName { get; set; } = null!;
 
-	public string byPassUserName { get; set; }
+	public string byPassUserPassword { get; set; } = null!;
 
-	public string byPassUserPassword { get; set; }
-
-	public List<int> specialHierarhies { get; set; }
+	public List<int> specialHierarhies { get; set; } = new();
 
 	public bool usesSpecialHieararhies { get; set; }
 
 	public bool usesCustomer { get; set; }
 
-	public string tableauLink { get; set; }
+	public short DefaultInterval { get; set; }
+
+	public string tableauLink { get; set; } = null!;
 
 	public int hierarchyGlobal { get; set; }
 
 	public int timeoutInactivity { get; set; }
 
-	public string sQLJobSSIS { get; set; }
+	public string sQLJobSSIS { get; set; } = null!;
 }

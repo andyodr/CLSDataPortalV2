@@ -64,12 +64,12 @@ public class IndexController : ControllerBase
 							}
 						};
 
-						if (t.Value != null) {
-							mdr.target = Math.Round((double)t.Value, def.Precision, MidpointRounding.AwayFromZero);
+						if (t.Value is double v) {
+							mdr.target = Math.Round(v, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
-						if (t.YellowValue != null) {
-							mdr.yellow = Math.Round((double)t.YellowValue, def.Precision, MidpointRounding.AwayFromZero);
+						if (t.YellowValue is double y) {
+							mdr.yellow = Math.Round(y, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
 						returnObject.data.Add(mdr);
@@ -117,7 +117,7 @@ public class IndexController : ControllerBase
 
 			double? targetValue = null, targetYellow = null;
 			var measureDef = target.Measure!.MeasureDefinition;
-			if (value.target != null) {
+			if (value.target is not null) {
 				if (measureDef!.UnitId == 1 && (value.target < 0d || value.target > 1d)) {
 					throw new Exception(Resource.VAL_VALUE_UNIT);
 				}
@@ -125,7 +125,7 @@ public class IndexController : ControllerBase
 				targetValue = Math.Round((double)value.target, measureDef.Precision, MidpointRounding.AwayFromZero);
 			}
 
-			if (value.yellow != null) {
+			if (value.yellow is not null) {
 				if (measureDef!.UnitId == 1 && (value.yellow < 0d || value.yellow > 1d)) {
 					throw new Exception(Resource.VAL_VALUE_UNIT);
 				}
@@ -138,10 +138,10 @@ public class IndexController : ControllerBase
 
 			target.IsProcessed = (byte)Helper.IsProcessed.complete;
 			target.LastUpdatedOn = lastUpdatedOn;
-			target.Active = targetCount == 1 && target.Value == null && target.YellowValue == null;
+			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
 
 			// Create new target and save if there are multiple targets for the same measure  
-			if ((targetCount > 1 || !target.Active) && value.measureId != null) {
+			if ((targetCount > 1 || !target.Active) && value.measureId is not null) {
 				// Create new target and save      
 				var newTarget = _context.Target.Add(new() {
 					Active = true,
@@ -242,7 +242,7 @@ public class IndexController : ControllerBase
 					target.IsProcessed = (byte)Helper.IsProcessed.complete;
 					target.LastUpdatedOn = lastUpdatedOn;
 
-					if (targetCount == 1 && target.Value == null && target.YellowValue == null) {
+					if (targetCount == 1 && target.Value is null && target.YellowValue is null) {
 						target.Active = true;
 						target.Value = pTarget.First().Value;
 						target.YellowValue = pTarget.First().YellowValue;
@@ -306,7 +306,7 @@ public class IndexController : ControllerBase
 
 	private void UpdateCurrentTargets(long newTargetId, TargetConfirmInterval confirmIntervals, long measureId, int userId, DateTime lastUpdatedOn) {
 		// Update Target Id for all Measure Data records for current intervals
-		if (confirmIntervals != null) {
+		if (confirmIntervals is not null) {
 			// Find current calendar Ids from confirmIntervals.
 			if (confirmIntervals.weekly ?? false) {
 				int cWeekly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;

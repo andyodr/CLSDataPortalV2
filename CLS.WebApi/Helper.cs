@@ -8,20 +8,24 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CLS.WebApi;
 
-public class Helper
+public static class Helper
 {
 	public enum pages { measureData, target, measure, measureDefinition, hierarchy, dataImports, settings, users }
+
 	public enum intervals { daily = 1, weekly = 2, monthly = 3, quarterly = 4, yearly = 5 };
+
 	public enum userRoles { powerUser = 1, regionalAdministrator = 2, systemAdministrator = 3 }
+
 	public enum dataImports { measureData = 1, target = 2, customer = 3 }
+
 	public enum IsProcessed { no, measureData, complete }
-	public static int defaultIntervalId { get; set; }
-	public static int hierarchyGlobalId { get; set; }
+
+	public static int hierarchyGlobalId { get; set; } = 1;
 
 	public static Dictionary<string, UserObject> userCookies = new Dictionary<string, UserObject>();
 
 	public static byte? stringToByte(string boolValue) {
-		if (boolValue == null)
+		if (boolValue is null)
 			return null;
 		else if (boolValue.ToLower() == "true")
 			return 1;
@@ -31,7 +35,7 @@ public class Helper
 	}
 
 	public static string byteToString(byte? value) {
-		if (value == null)
+		if (value is null)
 			return "null";
 		else if (value == 1)
 			return "true";
@@ -41,7 +45,7 @@ public class Helper
 	}
 
 	public static bool? stringToBool(string boolValue) {
-		if (boolValue == null)
+		if (boolValue is null)
 			return null;
 		else if (boolValue.ToLower() == "true")
 			return true;
@@ -60,7 +64,7 @@ public class Helper
 
 	public static bool nullBoolToBool(bool? value) {
 		bool result = false;
-		if (value != null) {
+		if (value is not null) {
 			result = (bool)value;
 		}
 
@@ -91,16 +95,12 @@ public class Helper
 	}
 
 	internal static MeasureTypeModel? ErrorProcessing(Exception e, ApplicationDbContext db, HttpContext httpContext, UserObject? user) {
-		if (user == null) {
+		if (user is null) {
 			httpContext.SignOutAsync("Cookies");
 			return null;
 		}
 
-		int? userId = null;
-		if (user != null)
-			userId = user.userId;
-
-
+		int? userId = user?.userId;
 		bool authError = false;
 		string errorMessage = e.Message;
 
@@ -220,16 +220,16 @@ public class Helper
 			return true;
 		}
 
-		if (measureCalculated == null) {
+		if (measureCalculated is null) {
 			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).First();
 			measureCalculated = new MeasureCalculatedObject {
 				reportIntervalId = measureDef.ReportIntervalId,
-				calculated = (measureDef.Calculated == null) ? false : (bool)measureDef.Calculated,
-				aggDaily = (measureDef.AggDaily == null) ? false : (bool)measureDef.AggDaily,
-				aggWeekly = (measureDef.AggWeekly == null) ? false : (bool)measureDef.AggWeekly,
-				aggMonthly = (measureDef.AggMonthly == null) ? false : (bool)measureDef.AggMonthly,
-				aggQuarterly = (measureDef.AggQuarterly == null) ? false : (bool)measureDef.AggQuarterly,
-				aggYearly = (measureDef.AggYearly == null) ? false : (bool)measureDef.AggYearly
+				calculated = measureDef.Calculated ?? false,
+				aggDaily = measureDef.AggDaily ?? false,
+				aggWeekly = measureDef.AggWeekly ?? false,
+				aggMonthly = measureDef.AggMonthly ?? false,
+				aggQuarterly = measureDef.AggQuarterly ?? false,
+				aggYearly = measureDef.AggYearly ?? false
 			};
 		}
 
@@ -320,7 +320,7 @@ public class Helper
 	internal static bool CanEditValueFromSpecialHierarchy(ConfigurationObject config, int hierarchyId) {
 		//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
 		bool result = true;
-		if (config.specialHierarhies != null) {
+		if (config.specialHierarhies is not null) {
 			if (config.specialHierarhies.Contains(hierarchyId)) {
 				result = false;
 			}
@@ -621,7 +621,7 @@ public class Helper
 		}
 
 		var userId = userClaim.Claims.Where(c => c.Type == "userId").FirstOrDefault();
-		if (userId == null) {
+		if (userId is null) {
 			return null;
 		}
 
@@ -747,24 +747,17 @@ public class Helper
 	}
 
 	internal static int? CalculateScheduleInt(string? value, string pattern1, string pattern2) {
-		if (value == null) { return null; }
+		if (value is null) { return null; }
 		int? iReturn = 0;
 		try {
-			String[] schedule = Regex.Split(value, pattern2);
+			string[] schedule = Regex.Split(value, pattern2);
 			if (schedule.Length == 3) {
-				switch (pattern1) {
-					case "HH":
-						iReturn = Int32.Parse(schedule[0]);
-						break;
-					case "MM":
-						iReturn = Int32.Parse(schedule[1]);
-						break;
-					case "SS":
-						iReturn = Int32.Parse(schedule[2]);
-						break;
-					default:
-						break;
-				}
+				return pattern1 switch {
+					"HH" => int.Parse(schedule[0]),
+					"MM" => int.Parse(schedule[1]),
+					"SS" => int.Parse(schedule[2]),
+					_ => iReturn
+				};
 			}
 
 			return iReturn;
@@ -774,42 +767,19 @@ public class Helper
 		}
 	}
 
-	internal static string CalculateSchedule(int? HH, int? MM, int? SS) {
-		string sReturn = "00:01:00";
-		try {
-			string sHH = "00";
-			string sMM = "01";
-			string sSS = "00";
-
-			if (HH != null) sHH = string.Format("{0:00}", HH);
-			if (MM != null) sMM = string.Format("{0:00}", MM);
-			if (SS != null) sSS = string.Format("{0:00}", SS);
-
-			return sHH + ":" + sMM + ":" + sSS;
-		}
-		catch (Exception) {
-			return sReturn;
-		}
-	}
+	internal static string CalculateSchedule(int? HH, int? MM, int? SS) => $"{HH ?? 0:D2}:{MM ?? 1:D2}:{SS ?? 0:D2}";
 
 	internal static string CalculateScheduleStr(string value, string pattern1, string pattern2) {
 		string sReturn = "00";
 		try {
-			String[] schedule = Regex.Split(value, pattern2);
-			if (schedule.Count() == 3) {
-				switch (pattern1) {
-					case "HH":
-						sReturn = schedule[0];
-						break;
-					case "MM":
-						sReturn = schedule[1];
-						break;
-					case "SS":
-						sReturn = schedule[2];
-						break;
-					default:
-						break;
-				}
+			string[] schedule = Regex.Split(value, pattern2);
+			if (schedule.Length == 3) {
+				return pattern1 switch {
+					"HH" => schedule[0],
+					"MM" => schedule[1],
+					"SS" => schedule[2],
+					_ => sReturn
+				};
 			}
 
 			return sReturn;
@@ -872,5 +842,12 @@ public class Helper
 		catch {
 			return false;
 		}
+	}
+
+	public static double? RoundNullable(this double? value, int digits) {
+		return value switch {
+			double v => Math.Round(v, digits, MidpointRounding.AwayFromZero),
+			null => null
+		};
 	}
 }

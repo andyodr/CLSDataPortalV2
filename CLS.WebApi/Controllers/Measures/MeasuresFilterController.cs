@@ -52,14 +52,8 @@ public class FilterController : ControllerBase
 				}
 			}
 
-			if (_user.savedFilters[Helper.pages.measure].hierarchyId == null) {
-				_user.savedFilters[Helper.pages.measure].hierarchyId = 1;
-			}
-
-			if (_user.savedFilters[Helper.pages.measure].measureTypeId == null) {
-				_user.savedFilters[Helper.pages.measure].measureTypeId = _context.MeasureType.First().Id;
-			}
-
+			_user.savedFilters[Helper.pages.measure].hierarchyId ??= 1;
+			_user.savedFilters[Helper.pages.measure].measureTypeId ??= _context.MeasureType.First().Id;
 			returnObject.filter = _user.savedFilters[Helper.pages.measure];
 			return new JsonResult(returnObject);
 		}

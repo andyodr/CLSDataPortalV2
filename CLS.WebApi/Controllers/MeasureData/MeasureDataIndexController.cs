@@ -44,7 +44,7 @@ public class IndexController : ControllerBase
 			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, value.hierarchyId);
 
 			returnObject.calendarId = value.calendarId;
-			if (value.day == null || value.day.Equals("")) {
+			if (string.IsNullOrEmpty(value.day)) {
 				date = null;
 			}
 			else {
@@ -100,7 +100,7 @@ public class IndexController : ControllerBase
 			foreach (var record in measures.AsNoTracking()) {
 				var newObject = new MeasureDataReturnObject();
 
-				if (record.User == null) {
+				if (record.User is null) {
 					newObject.updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, Resource.SYSTEM);
 				}
 				else {
@@ -118,15 +118,15 @@ public class IndexController : ControllerBase
 				newObject.yellow = record.yellow;
 				newObject.value = record.value;
 
-				if (record.target != null) {
+				if (record.target is not null) {
 					newObject.target = Math.Round((double)record.target, record.precision, MidpointRounding.AwayFromZero);
 				}
 
-				if (record.yellow != null) {
+				if (record.yellow is not null) {
 					newObject.yellow = Math.Round((double)record.yellow, record.precision, MidpointRounding.AwayFromZero);
 				}
 
-				if (record.value != null) {
+				if (record.value is not null) {
 					newObject.value = Math.Round((double)record.value, record.precision, MidpointRounding.AwayFromZero);
 				}
 
@@ -154,7 +154,7 @@ public class IndexController : ControllerBase
 									.Where(md => md.Measure.Id == measure.First().Id && md.Calendar.Id == returnObject.calendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
-									if (measureData.First().Value != null) {
+									if (measureData.First().Value is not null) {
 										sExpression = sExpression.Replace("Data[\"" + item.varName + "\"]", measureData.First().Value.ToString());
 									}
 								}
@@ -205,7 +205,7 @@ public class IndexController : ControllerBase
 			}
 
 			//apply precision and validate unit if value != null 
-			if (value.measureValue != null) {
+			if (value.measureValue is not null) {
 				var precision = from md in _context.MeasureData.Where(md => md.Id == value.measureDataId)
 								join m in _context.Measure
 								on md.Measure!.Id equals m.Id
@@ -280,7 +280,7 @@ public class IndexController : ControllerBase
 	private string BuildRangeString(int? calendarID) {
 		int interval = -1;
 		var cal = _context.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
-		if (calendarID == null) {
+		if (calendarID is null) {
 			interval = (int)Helper.intervals.daily;
 		}
 		else {

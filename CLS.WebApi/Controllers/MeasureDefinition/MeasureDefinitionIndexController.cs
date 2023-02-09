@@ -69,7 +69,7 @@ public class IndexController : ControllerBase
 					units = md.Unit.Short
 				};
 
-				if (md.calculated == null) {
+				if (md.calculated is null) {
 					currentMD.calculated = null;
 				}
 				else {

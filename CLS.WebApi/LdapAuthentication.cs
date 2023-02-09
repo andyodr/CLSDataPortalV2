@@ -33,7 +33,7 @@ public class LdapAuthentication
 			};
 			search.PropertiesToLoad.Add("cn");
 			SearchResult? result = search.FindOne();
-			if (result == null) {
+			if (result is null) {
 				return sReturn;
 			}
 

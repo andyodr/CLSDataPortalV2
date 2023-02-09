@@ -21,7 +21,6 @@ public class IndexController : ControllerBase
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get() {
-
 		try {
 			_user = Helper.UserAuthorization(User);
 			if (_user == null) {
@@ -38,8 +37,8 @@ public class IndexController : ControllerBase
 				calculationTime = "00:01:00",
 				dataImport = new List<DataImportObject>(),
 				intervals = new List<IntervalsObject>(),
-				intervalId = Helper.defaultIntervalId,
-				calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId)
+				intervalId = _config.DefaultInterval,
+				calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval)
 			};
 
 			//returnObject.calculationTime.current = DateTime.Now;
@@ -58,13 +57,13 @@ public class IndexController : ControllerBase
 			}
 
 			// Find Current Year from previuos default interval
-			var calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId);
+			var calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval);
 			returnObject.currentYear = _context.Calendar.Where(c => c.Id == calendarId).First().Year;
 
 			//intervals
 			var intervals = _context.Interval;
 			foreach (var interval in intervals) {
-				returnObject.intervals.Add(new IntervalsObject {
+				returnObject.intervals.Add(new() {
 					id = interval.Id,
 					name = interval.Name
 				});

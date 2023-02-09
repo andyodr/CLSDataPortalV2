@@ -107,7 +107,7 @@ public class IndexController : ControllerBase
 
 			foreach (var measureHierarchy in value.hierarchy) {
 				var measure = _context.Measure.Where(m => m.Id == measureHierarchy.id).FirstOrDefault();
-				if (measure != null) {
+				if (measure is not null) {
 					bool updateMeasureData = measure.Active != measureHierarchy.active ||
 											 measure.Expression != measureHierarchy.expression ||
 											 measure.Rollup != measureHierarchy.rollup;

@@ -108,7 +108,7 @@ public class EditController : ControllerBase
 				var measure = _context.Measure
 							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId).FirstOrDefault();
 
-				if (measure != null) {
+				if (measure is not null) {
 					measure.Owner = values.owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;

@@ -93,11 +93,11 @@ public class ApiResult<T>
 			BindingFlags.Public |
 			BindingFlags.Static |
 			BindingFlags.Instance);
-		if (prop == null && throwExceptionIfNotFound) {
+		if (prop is null && throwExceptionIfNotFound) {
 			throw new NotSupportedException($"ERROR: Property '{propertyName}' does not exist.");
 		}
 
-		return prop != null;
+		return prop is not null;
 	}
 
 	/// <summary>

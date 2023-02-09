@@ -41,7 +41,7 @@ public class AccountController : Controller
 		// Checks if userName exists in database
 		if (continueLogin) {
 			user = Helper.GetUserObject(_context, userName);
-			if (user == null) {
+			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
 			}
@@ -113,7 +113,7 @@ public class AccountController : Controller
 
 			int nUserId = int.Parse(userId);
 			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
-			if (userRepo != null) {
+			if (userRepo is not null) {
 				Helper.AddAuditTrail(_context,
 					Resource.SECURITY,
 					"SEC-02",

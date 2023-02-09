@@ -131,7 +131,7 @@ public class EditController : ControllerBase
 			if (user.Id == _user.userId) {
 				//Helper.setUserTemp(user.UserName);
 				var tempUser = Helper.GetUserObject(_context, _user.userName);
-				if (tempUser != null) {
+				if (tempUser is not null) {
 					if (Helper.userCookies.ContainsKey(tempUser.userId.ToString())) {
 						Helper.userCookies.Remove(tempUser.userId.ToString());
 					}

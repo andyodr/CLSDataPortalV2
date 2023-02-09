@@ -143,7 +143,7 @@ public class EditController : ControllerBase
 
 
 			// Get Values from Page
-			if (value.expression == null) {
+			if (value.expression is null) {
 				value.calculated = false;
 			}
 			else {
@@ -177,7 +177,7 @@ public class EditController : ControllerBase
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
-			if (value.id != null) {
+			if (value.id is not null) {
 				mDef.Id = (long)value.id;
 			}
 

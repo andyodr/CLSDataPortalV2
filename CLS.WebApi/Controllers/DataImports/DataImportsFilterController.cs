@@ -1,6 +1,7 @@
 ﻿using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace CLS.WebApi.Controllers.DataImports;
@@ -16,7 +17,7 @@ public class FilterController : ControllerBase
 	public FilterController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public IEnumerable<DataImportFilterGetAllObject> Get(int intervalId, int year) {
+	public ActionResult<JsonResult> Get(int intervalId, int year) {
 		string errorMessage = string.Empty;
 		try {
 			_user = Helper.UserAuthorization(User);
@@ -28,54 +29,57 @@ public class FilterController : ControllerBase
 				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
 			}
 
-			var calendarRecords = _context.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year);
+			var calendarRecords = _context.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
+				.AsNoTrackingWithIdentityResolution();
 			if (intervalId == (int)Helper.intervals.weekly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				return new JsonResult(calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					number = c.WeekNumber,
 					startDate = c.StartDate,
 					endDate = c.EndDate,
 					month = null
-				});
+				}).ToArray());
 			}
 			else if (intervalId == (int)Helper.intervals.quarterly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				return new JsonResult(calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					number = c.Quarter,
 					startDate = c.StartDate,
 					endDate = c.EndDate,
 					month = null
-				});
+				}).ToArray());
 			}
 			else if (intervalId == (int)Helper.intervals.monthly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				return new JsonResult(calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					number = c.Month,
 					startDate = null,
 					endDate = null,
 					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
-				});
+				}).ToArray());
 			}
-			else throw new Exception(Resource.DI_FILTER_INVALID_INTERVAL);
+			else {
+				throw new Exception(Resource.DI_FILTER_INVALID_INTERVAL);
+			}
 		}
 		catch (Exception e) {
-			var errorId = LogError(_context, e.Message, e.InnerException, e.StackTrace);
+			var errorId = LogError(e.Message, e.InnerException, e.StackTrace);
 			errorMessage = e.Message;
 			var returnObject = new DataImportFilterGetAllObject();
 			returnObject.error.id = errorId;
 			returnObject.error.message = errorMessage;
-			return (IEnumerable<DataImportFilterGetAllObject>)returnObject;
+			return new JsonResult(returnObject);
 		}
 	}
 
-	public int LogError(ApplicationDbContext dbc, string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
+	protected int LogError(string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
 		try {
-			var entity = dbc.ErrorLog.Add(new() {
+			var entity = _context.ErrorLog.Add(new() {
 				ErrorMessage = errorMessage,
 				ErrorMessageDetailed = detailedErrorMessage?.ToString() ?? string.Empty,
 				StackTrace = stacktrace ?? string.Empty
 			}).Entity;
-			_ = dbc.SaveChanges();
+			_ = _context.SaveChanges();
 			return entity.Id;
 		}
 		catch {

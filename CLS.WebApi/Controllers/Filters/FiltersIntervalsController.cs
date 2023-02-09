@@ -1,6 +1,7 @@
 ﻿using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace CLS.WebApi.Controllers.Filters;
@@ -10,10 +11,14 @@ namespace CLS.WebApi.Controllers.Filters;
 [ApiController]
 public class IntervalsController : ControllerBase
 {
+	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
 	private UserObject? _user = new();
 
-	public IntervalsController(ApplicationDbContext context) => _context = context;
+	public IntervalsController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+		_config = config.Value;
+		_context = context;
+	}
 
 	[HttpGet]
 	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
@@ -60,11 +65,7 @@ public class IntervalsController : ControllerBase
 					break;
 			}
 
-			int intervalId = Helper.defaultIntervalId;
-			if (values.intervalId != null) {
-				intervalId = (int)values.intervalId;
-			}
-
+			int intervalId = values.intervalId ?? _config.DefaultInterval;
 			returnObject.calendarId = _context.Calendar
 				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)

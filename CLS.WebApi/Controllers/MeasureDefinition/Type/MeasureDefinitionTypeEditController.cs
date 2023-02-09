@@ -67,7 +67,7 @@ public class EditController : ControllerBase
 			}
 
 			var measureType = _context.MeasureType.Where(m => m.Id == value.id).FirstOrDefault();
-			if (measureType != null) {
+			if (measureType is not null) {
 				var lastUpdatedOn = DateTime.Now;
 
 				measureType.Description = value.description;

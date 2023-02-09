@@ -289,8 +289,8 @@ public class UploadController : ControllerBase
 				intervals = new()
 			};
 
-			returnObject.intervalId = Helper.defaultIntervalId;
-			returnObject.calendarId = Helper.FindPreviousCalendarId(_context.Calendar, Helper.defaultIntervalId);
+			returnObject.intervalId = _config.DefaultInterval;
+			returnObject.calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval);
 
 			//returnObject.calculationTime.current = DateTime.Now;
 			string sCalculationTime = _context.Setting.First().CalculateSchedule ?? string.Empty;
@@ -372,14 +372,14 @@ public class UploadController : ControllerBase
 	// --------------------------------------------------------
 	private void ValidateMeasureDataRows(SheetDataMeasureData row, int intervalId, int calendarId, int userId) {
 		//check for null values
-		if (row.MeasureID == null || row.HierarchyID == null) {
-			if (row.MeasureID == null) {
-				returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_MEASURE_NULL });
-			}
+		if (row.MeasureID is null) {
+			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_MEASURE_NULL });
+			return;
+		}
 
-			if (row.HierarchyID == null) {
-				returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
-			}
+		if (row.HierarchyID is null) {
+			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
+			return;
 		}
 
 		//check userHierarchy
@@ -393,7 +393,7 @@ public class UploadController : ControllerBase
 		}
 
 		//check Measure Definition Unit
-		if (row.Value != null && row.unitId == 1 && (row.Value < 0 || row.Value > 1)) {
+		if (row.Value is double v && row.unitId == 1 && (v < 0 || v > 1)) {
 			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.VAL_VALUE_UNIT });
 		}
 
@@ -429,18 +429,18 @@ public class UploadController : ControllerBase
 	}
 
 	private void ImportMeasureDataRecords(SheetDataMeasureData row, int userId) {
-		double? value = null;
 		try {
-			if (row.Value != null) {
-				value = Math.Round((double)row.Value, row.precision, MidpointRounding.AwayFromZero);
-			}
+			double? sheetValue = row.Value switch {
+				double value => Math.Round(value, row.precision, MidpointRounding.AwayFromZero),
+				_ => null
+			};
 
 			_ = _context.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
 				&& md.Measure.MeasureDefinitionId == row.MeasureID && md.CalendarId == calendarId)
 				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, 1)
 					.SetProperty(md => md.UserId, userId)
 					.SetProperty(md => md.LastUpdatedOn, DateTime.Now)
-					.SetProperty(md => md.Value, md => value ?? md.Value)
+					.SetProperty(md => md.Value, md => sheetValue ?? md.Value)
 					.SetProperty(md => md.Explanation, md => row.Explanation ?? md.Explanation)
 					.SetProperty(md => md.Action, md => row.Action ?? md.Action));
 		}
@@ -454,17 +454,13 @@ public class UploadController : ControllerBase
 	// --------------------------------------------------------
 	private void ValidateTargetRows(SheetDataTarget row, int userId) {
 		//check for null values
-		if (row.MeasureID == null || row.HierarchyID == null /*|| row.Target == null*/ ) {
-			if (row.MeasureID == null) {
-				returnObject.error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_MEASURE_NULL });
-			}
+		if (row.MeasureID is null) {
+			returnObject.error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_MEASURE_NULL });
+			return;
+		}
 
-			if (row.HierarchyID == null) {
-				returnObject.error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
-			}
-			//if ( row.Target == null )
-			//  returnObject.error.Add(new DataImportErrorReturnObject { row = row.rowNumber, message = Resource.DI_ERR_TARGET_NULL });
-
+		if (row.HierarchyID is null) {
+			returnObject.error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
 			return;
 		}
 
@@ -498,16 +494,14 @@ public class UploadController : ControllerBase
 			.Select(t => new { t.MeasureId, t.Value })
 			.FirstOrDefault();
 		long measureId = q1?.MeasureId ?? -1;
-		double? v = q1?.Value == null ? null : Math.Round((double)q1.Value!, row.Precision, MidpointRounding.AwayFromZero);
-		double? y = row.Yellow == null ? null : Math.Round((double)row.Yellow!, row.Precision, MidpointRounding.AwayFromZero);
 		if (measureId > 0) {
 			try {
-				if (v == null) {
+				if (q1?.Value is null) {
 					_ = _context.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 						&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Active == true)
 						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, 2)
 							.SetProperty(t => t.Value, row.Target)
-							.SetProperty(t => t.YellowValue, y)
+							.SetProperty(t => t.YellowValue, row.Yellow.RoundNullable(row.Precision))
 							.SetProperty(t => t.UserId, userId));
 				}
 				else {
@@ -519,7 +513,7 @@ public class UploadController : ControllerBase
 					_ = _context.Target.Add(new() {
 						MeasureId = measureId,
 						Value = row.Target,
-						YellowValue = y,
+						YellowValue = row.Yellow.RoundNullable(row.Precision),
 						Active = true,
 						UserId = userId
 					});
@@ -537,12 +531,12 @@ public class UploadController : ControllerBase
 	// --------------------------------------------------------
 	private void ValidateCustomerRows(SheetDataCustomer row, int userId) {
 		//check for null values
-		if (row.HierarchyId == null) {
+		if (row.HierarchyId is null) {
 			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
 			return;
 		}
 
-		if (row.CalendarId == null) {
+		if (row.CalendarId is null) {
 			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_CALENDAR_NULL });
 			return;
 		}
@@ -551,7 +545,7 @@ public class UploadController : ControllerBase
 		_ = IsHierarchyValidated(row.rowNumber, (int)row.HierarchyId, null, userId);
 
 		//check if CalendarId exists
-		if (_context.Calendar.Find(row.CalendarId) == null) {
+		if (_context.Calendar.Find(row.CalendarId) is null) {
 			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_CALENDAR_NO_EXIST });
 		}
 	}

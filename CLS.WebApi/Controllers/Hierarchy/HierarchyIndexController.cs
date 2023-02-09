@@ -111,14 +111,8 @@ public class IndexController : ControllerBase
 			};
 
 			var parent = _context.Hierarchy.Where(h => h.Id == updatedHierarchy.HierarchyParentId).FirstOrDefault();
-			if (parent == null) {
-				newHierarchy.parentId = null;
-				newHierarchy.parentName = "";
-			}
-			else {
-				newHierarchy.parentId = parent.Id;
-				newHierarchy.parentName = parent.Name;
-			}
+			newHierarchy.parentId = parent?.Id;
+			newHierarchy.parentName = parent?.Name ?? string.Empty;
 
 			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, newHierarchy.id);
 			_context.SaveChanges();
@@ -168,7 +162,7 @@ public class IndexController : ControllerBase
 
 			DateTime updatedOn = DateTime.Now;
 			var updateHierarchy = _context.Hierarchy.Find(value.id);
-			if (updateHierarchy == null) {
+			if (updateHierarchy is null) {
 				return new JsonResult(returnObject);
 			}
 
@@ -197,14 +191,8 @@ public class IndexController : ControllerBase
 						  select md.Id).Any();
 			newHierarchy.remove = !exists;
 			var parent = _context.Hierarchy.Where(h => h.Id == value.parentId).FirstOrDefault();
-			if (parent == null) {
-				newHierarchy.parentId = null;
-				newHierarchy.parentName = "";
-			}
-			else {
-				newHierarchy.parentId = parent.Id;
-				newHierarchy.parentName = parent.Name;
-			}
+			newHierarchy.parentId = parent?.Id;
+			newHierarchy.parentName = parent?.Name ?? string.Empty;
 
 			Helper.AddAuditTrail(_context,
 				Resource.WEB_PAGES,

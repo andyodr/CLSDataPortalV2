@@ -100,8 +100,9 @@ public class AddController : ControllerBase
 			}
 
 			// Get Values from Page
-			if (value.expression == null)
+			if (value.expression is null) {
 				value.calculated = false;
+			}
 			else {
 				value.calculated = value.expression.Trim().Length > 0;
 				value.expression = value.expression.Replace(" \"", "\"").Replace("\" ", "\"");
