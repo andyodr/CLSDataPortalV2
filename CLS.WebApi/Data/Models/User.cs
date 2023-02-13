@@ -6,13 +6,13 @@ public class User
 
 	public string UserName { get; set; } = null!;
 
-	public string LastName { get; set; } = null!;
+	public string? LastName { get; set; }
 
-	public string FirstName { get; set; } = null!;
+	public string? FirstName { get; set; }
 
-	public string Department { get; set; } = null!;
+	public string? Department { get; set; }
 
-	public UserRole? UserRole { get; set; }
+	public UserRole UserRole { get; set; } = null!;
 
 	public bool? Active { get; set; } = true;
 

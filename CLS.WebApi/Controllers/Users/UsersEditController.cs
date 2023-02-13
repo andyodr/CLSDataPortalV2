@@ -130,18 +130,6 @@ public class EditController : ControllerBase
 				_user.userId
 			);
 
-			if (user.Id == _user.userId) {
-				//Helper.setUserTemp(user.UserName);
-				var tempUser = Helper.CreateUserObject(_context, _user.userName);
-				if (tempUser is not null) {
-					if (Helper.userCookies.ContainsKey(tempUser.userId.ToString())) {
-						Helper.userCookies.Remove(tempUser.userId.ToString());
-					}
-
-					Helper.userCookies.Add(tempUser.userId.ToString(), tempUser);
-				}
-			}
-
 			return returnObject;
 		}
 		catch (Exception e) {

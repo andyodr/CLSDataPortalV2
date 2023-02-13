@@ -542,6 +542,7 @@ public static class Helper
 				.Include(u => u.UserRole)
 				.Include(u => u.UserCalendarLocks)
 				.Include(u => u.UserHierarchies)
+				.AsSplitQuery()
 				.AsNoTrackingWithIdentityResolution().Single();
 			var localUser = new UserObject {
 				userId = entity.Id,

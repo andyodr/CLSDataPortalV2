@@ -8,7 +8,7 @@ public class UserCalendarLock
 
 	public int CalendarId { get; set; }
 
-	public Calendar? Calendar { get; set; } = null!;
+	public Calendar Calendar { get; set; } = null!;
 
 	public bool? LockOverride { get; set; }
 

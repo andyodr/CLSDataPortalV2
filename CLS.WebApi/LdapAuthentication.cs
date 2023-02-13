@@ -51,7 +51,7 @@ public class LdapAuthentication
 	}
 
 	public string IsAuthenticated2(string userName, string pwd) {
-		string sReturn = "Error authenticating user.";
+		string sReturn = "Active Directory domain authentication failed.";
 		try {
 			using (var context = new PrincipalContext(ContextType.Domain, _path, userName, pwd)) {
 				var options = ContextOptions.Negotiate | ContextOptions.Signing | ContextOptions.Sealing;

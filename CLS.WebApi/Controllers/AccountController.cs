@@ -13,11 +13,11 @@ namespace CLS.WebApi.Controllers;
 public class AccountController : Controller
 {
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 
 	public AccountController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	[HttpPost("[action]")]
@@ -30,20 +30,12 @@ public class AccountController : Controller
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
 		UserObject? user = null;
 
-		if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password)) {
-			msgErr = Resource.VAL_USERNAME_PASSWORD;
-			continueLogin = false;
-		}
-
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = Helper.CreateUserObject(_context, userName);
+			user = Helper.CreateUserObject(_dbc, userName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
-			}
-			else {
-				Helper.userCookies[user.userId.ToString()] = user;
 			}
 		}
 
@@ -80,11 +72,10 @@ public class AccountController : Controller
 				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
 
-			await HttpContext.SignInAsync(
-				new ClaimsPrincipal(new ClaimsIdentity(claims, "windows")),
-				new AuthenticationProperties { IsPersistent = persistent });
-
-			Helper.AddAuditTrail(_context,
+			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "windows"));
+			var properties = new AuthenticationProperties { IsPersistent = persistent };
+			await HttpContext.SignInAsync(principal, properties);
+			Helper.AddAuditTrail(_dbc,
 				Resource.SECURITY,
 				"SEC-01",
 				"Login",
@@ -94,44 +85,38 @@ public class AccountController : Controller
 			);
 
 			// Start Task for login Active
-			return new JsonResult(new {
-				Success = true,
-				Id = user.userId,
-				Name = user.userName,
-				Role = user.userRole,
-				TableauLink = _config.tableauLink
-			});
+			return SignIn(principal, properties);
+			//return new JsonResult(new {
+			//	Success = true,
+			//	Id = user.userId,
+			//	Name = user.userName,
+			//	Role = user.userRole,
+			//	TableauLink = _config.tableauLink
+			//});
 		}
 
 		// Failure
-		return new JsonResult(new {
-			Success = false,
-			Message = msgErr
-		});
+		return BadRequest(msgErr);
 	}
 
-	[HttpGet("[action]")]
-	public async Task<IActionResult> Logoff() {
-		string? claimUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-		if (claimUserId is string userId) {
-			var user = User.Claims.Where(c => c.Type == "userId").ToArray();
-			Helper.userCookies.Remove(userId);
-
-			int nUserId = int.Parse(userId);
-			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
+	[HttpGet("SignOut")]
+	public async Task<IActionResult> GetSignOut() {
+		if (User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string userId) {
+			int claimUserId = int.Parse(userId);
+			var userRepo = _dbc.User.Where(u => u.Id == claimUserId).FirstOrDefault();
 			if (userRepo is not null) {
-				Helper.AddAuditTrail(_context,
+				Helper.AddAuditTrail(_dbc,
 					Resource.SECURITY,
 					"SEC-02",
 					"Logout",
 					@"User Logout / ID=" + userId + " / Username=" + userRepo.UserName,
 					DateTime.Now,
-					nUserId
+					claimUserId
 				);
 			}
 		}
 
 		await HttpContext.SignOutAsync();
-		return RedirectToAction(nameof(AccountController.SignIn), "Account");
+		return SignOut();
 	}
 }

@@ -10,7 +10,7 @@ public class UserHierarchy
 
 	public int HierarchyId { get; set; }
 
-	public Hierarchy? Hierarchy { get; set; } = null!;
+	public Hierarchy Hierarchy { get; set; } = null!;
 
 	public DateTime LastUpdatedOn { get; set; }
 }
