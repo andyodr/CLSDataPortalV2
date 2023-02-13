@@ -1,3 +1,4 @@
+using CLS.WebApi;
 using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,16 @@ builder.Services
 	.AddSwaggerGen()
 	.Configure<ConfigurationObject>(builder.Configuration.GetSection(ConfigurationObject.Section))
 	.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"))
+	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
 	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(options => {
 		options.ExpireTimeSpan = TimeSpan.FromHours(2);
 		options.SlidingExpiration = true;
+		options.AccessDeniedPath = "/Account/SignIn";
+		options.EventsType = typeof(CLS.WebApi.CustomCookieAuthenticationEvents);
 	});
+
+builder.Services.AddScoped<CustomCookieAuthenticationEvents>();
 
 var app = builder.Build();
 
@@ -28,9 +34,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
