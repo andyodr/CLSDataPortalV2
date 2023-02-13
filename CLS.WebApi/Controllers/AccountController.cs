@@ -65,7 +65,7 @@ public class AccountController : Controller
 			var claims = new List<Claim> {
 				new(ClaimTypes.NameIdentifier, user!.userId.ToString()),
 				new(ClaimTypes.Name, user.userName),
-				new(ClaimTypes.Role, user.userRoleId.ToString()),
+				new(ClaimTypes.Role, user.userRole),
 				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
 
@@ -90,7 +90,7 @@ public class AccountController : Controller
 			});
 		}
 
-		return BadRequest(msgErr);
+		return ValidationProblem(msgErr);
 	}
 
 	[HttpGet("SignOut")]
