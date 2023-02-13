@@ -2,23 +2,23 @@
 
 public class UserIndexDto
 {
-	public int? id { set; get; }
+	public int? id { get; set; }
 
-	public string userName { set; get; }
+	public string userName { get; set; } = null!;
 
-	public string lastName { set; get; }
+	public string? lastName { get; set; }
 
-	public string firstName { set; get; }
+	public string? firstName { get; set; }
 
-	public string department { set; get; }
+	public string? department { get; set; }
 
-	public string roleName { set; get; }
+	public string roleName { get; set; } = null!;
 
-	public int roleId { set; get; }
+	public int roleId { get; set; }
 
-	public List<int> hierarchiesId { set; get; }
+	public List<int> hierarchiesId { get; set; } = null!;
 
-	public string hierarchyName { set; get; }
+	public string? hierarchyName { get; set; }
 
-	public string active { set; get; }
+	public string? active { get; set; }
 }

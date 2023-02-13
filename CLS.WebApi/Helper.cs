@@ -44,7 +44,7 @@ public static class Helper
 		else throw new Exception(Resource.ERR_BYTE_TO_STRING);
 	}
 
-	public static bool? stringToBool(string boolValue) {
+	public static bool? StringToBool(string? boolValue) {
 		if (boolValue is null)
 			return null;
 		else if (boolValue.ToLower() == "true")

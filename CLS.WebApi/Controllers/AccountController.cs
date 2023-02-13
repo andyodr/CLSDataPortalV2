@@ -20,6 +20,13 @@ public class AccountController : Controller
 		_dbc = context;
 	}
 
+	/// <summary>
+	/// Authenticate the user and sign in to the application.
+	/// </summary>
+	/// <param name="userName"></param>
+	/// <param name="password"></param>
+	/// <param name="persistent"></param>
+	/// <returns>An authentication cookie</returns>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
 	public async Task<IActionResult> SignIn(
@@ -93,6 +100,10 @@ public class AccountController : Controller
 		return ValidationProblem(msgErr);
 	}
 
+	/// <summary>
+	/// Sign out of the application, removing the authentication cookie.
+	/// </summary>
+	/// <returns></returns>
 	[HttpGet("SignOut")]
 	public async Task<IActionResult> GetSignOut() {
 		if (User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string userId) {

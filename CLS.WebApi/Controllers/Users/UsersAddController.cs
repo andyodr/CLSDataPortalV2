@@ -15,6 +15,10 @@ public class AddController : ControllerBase
 
 	public AddController(ApplicationDbContext context) => _context = context;
 
+	/// <summary>
+	/// Get hierarchy and role data from the database.
+	/// </summary>
+	/// <returns>An instance of UserIndexGetObject</returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
@@ -44,11 +48,8 @@ public class AddController : ControllerBase
 		}
 	}
 
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
 	[HttpPost]
-	public ActionResult<UserIndexGetObject> Post([FromBody] UserIndexDto value) {
+	public ActionResult<UserIndexGetObject> Post(UserIndexDto value) {
 		var returnObject = new UserIndexGetObject { data = new() };
 		try {
 			if (Helper.UserAuthorization(User) is UserObject u) {
@@ -69,7 +70,7 @@ public class AddController : ControllerBase
 				LastName = value.lastName,
 				FirstName = value.firstName,
 				Department = value.department,
-				Active = Helper.stringToBool(value.active),
+				Active = Helper.StringToBool(value.active),
 				LastUpdatedOn = lastUpdatedOn
 			});
 
@@ -95,13 +96,5 @@ public class AddController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpPut("{id}")]
-	public void Put(int id, [FromBody] string value) {
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }

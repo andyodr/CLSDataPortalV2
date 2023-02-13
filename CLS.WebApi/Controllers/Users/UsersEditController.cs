@@ -110,7 +110,7 @@ public class EditController : ControllerBase
 			user.LastName = value.lastName;
 			user.FirstName = value.firstName;
 			user.Department = value.department;
-			user.Active = Helper.stringToBool(value.active);
+			user.Active = Helper.StringToBool(value.active);
 			user.LastUpdatedOn = lastUpdatedOn;
 			_context.Entry(user).Property("UserRoleId").CurrentValue = value.roleId;
 

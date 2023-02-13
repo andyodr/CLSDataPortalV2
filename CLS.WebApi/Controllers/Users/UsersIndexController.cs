@@ -20,6 +20,10 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
+	/// <summary>
+	/// Get complete listing of authorized users.
+	/// </summary>
+	/// <returns></returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { data = new(), hierarchy = null, roles = new() };
@@ -62,7 +66,4 @@ public class IndexController : ControllerBase
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
-
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
 }

@@ -2,11 +2,11 @@
 
 public class UserIndexGetObject
 {
-	public List<IntervalsObject> roles { set; get; }
+	public List<IntervalsObject> roles { get; set; } = null!;
 
-	public ErrorModel error { set; get; }
+	public ErrorModel error { get; set; } = null!;
 
-	public List<RegionFilterObject>? hierarchy { set; get; }
+	public List<RegionFilterObject>? hierarchy { get; set; } = null!;
 
-	public List<UserIndexDto> data { set; get; }
+	public List<UserIndexDto> data { get; set; } = null!;
 }
