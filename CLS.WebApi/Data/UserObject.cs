@@ -6,7 +6,7 @@ public class UserObject
 
 	public string userName { get; set; }
 
-	public string firstName { get; set; }
+	public string? firstName { get; set; }
 
 	public int userRoleId { get; set; }
 

@@ -42,12 +42,9 @@ public class AccountController : Controller
 		// Validates against Active Directory
 		if (continueLogin) {
 			bool bIsByPass = false;
-			// **************** DELETE ***********************************
-			//bIsByPass = true;
-			// **************** DELETE ***********************************
 
 			//Validates ByPass user
-			if ((userName == _config.byPassUserName) &&
+			if ((user!.userName == _config.byPassUserName) &&
 				(password == _config.byPassUserPassword)) {
 				bIsByPass = true;
 			}
@@ -84,18 +81,15 @@ public class AccountController : Controller
 				user.userId
 			);
 
-			// Start Task for login Active
-			return SignIn(principal, properties);
-			//return new JsonResult(new {
-			//	Success = true,
-			//	Id = user.userId,
-			//	Name = user.userName,
-			//	Role = user.userRole,
-			//	TableauLink = _config.tableauLink
-			//});
+			return Ok(new {
+				Id = user.userId,
+				Name = user.userName,
+				Role = user.userRole,
+				TableauLink = _config.tableauLink,
+				Persist = persistent
+			});
 		}
 
-		// Failure
 		return BadRequest(msgErr);
 	}
 
