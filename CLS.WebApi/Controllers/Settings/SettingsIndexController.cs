@@ -7,14 +7,14 @@ using System.Globalization;
 
 namespace CLS.WebApi.Controllers.Settings;
 
-[Route("api/settings/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/settings/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -22,22 +22,20 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(SettingsGetRecieveObject value) {
+	public ActionResult<SettingsGetReturnObject> Get(SettingsGetRecieveObject value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.settings, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new SettingsGetReturnObject { locked = new(), users = new(), years = new() };
 			var calendarRecords = _context.Calendar.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly);
 			var settings = _context.Setting;
 			if (!settings.Any()) {
-				throw new Exception(Resource.SETTINGS_NO_RECORDS);
+				return BadRequest(Resource.SETTINGS_NO_RECORDS);
 			}
 
 			var users = from user in _context.User
@@ -96,10 +94,10 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -108,10 +106,14 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] SettingsGetRecieveObject value) {
+	public ActionResult<SettingsGetReturnObject> Put(SettingsGetRecieveObject value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) { throw new Exception(); }
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
+			}
 
 			var lastUpdatedOn = DateTime.Now;
 			var returnObject = new SettingsGetReturnObject { locked = new(), years = new() };
@@ -128,7 +130,7 @@ public class IndexController : ControllerBase
 
 			var settings = _context.Setting.FirstOrDefault();
 			if (settings is null) {
-				throw new Exception(Resource.SETTINGS_NO_RECORDS);
+				return BadRequest(Resource.SETTINGS_NO_RECORDS);
 			}
 
 			//settings.NumberOfDays = (Int16)value.numberOfDays;
@@ -169,10 +171,10 @@ public class IndexController : ControllerBase
 				});
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

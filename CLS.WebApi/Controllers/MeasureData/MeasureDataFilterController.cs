@@ -7,14 +7,14 @@ using System.Globalization;
 
 namespace CLS.WebApi.Controllers.MeasureData;
 
+[ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-[ApiController]
 public class FilterController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public FilterController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -23,7 +23,11 @@ public class FilterController : ControllerBase
 
 	// GET: api/values
 	[HttpGet]
-	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
+	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(FilterReturnObject))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(List<GetIntervalsObject>))]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	public IActionResult Get(MeasureDataFilterReceiveObject values) {
 		if (values.year is null) {
 			return Filter();
 		}
@@ -33,23 +37,21 @@ public class FilterController : ControllerBase
 	}
 
 	// Used first time Measure Data page is open.
-	private ActionResult<JsonResult> Filter() {
+	private IActionResult Filter() {
 		var filter = new FilterReturnObject {
-			intervals = new List<IntervalsObject>(),
-			measureTypes = new List<MeasureTypeFilterObject>(),
-			hierarchy = new List<RegionFilterObject>(),
-			years = new List<YearsObject>(),
-			currentCalendarIds = new CurrentCalendars()
+			intervals = new(),
+			measureTypes = new(),
+			hierarchy = new(),
+			years = new(),
+			currentCalendarIds = new()
 		};
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			//USE SAVED FILTER
@@ -140,24 +142,22 @@ public class FilterController : ControllerBase
 
 			filter.filter = _user.savedFilters[Helper.pages.measureData];
 
-			return new JsonResult(filter);
+			return Ok(filter);
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
 	// Used after Measure Data page has been open already.
-	private ActionResult<JsonResult> Filter(MeasureDataFilterReceiveObject values) {
+	private IActionResult Filter(MeasureDataFilterReceiveObject values) {
 		var returnObject = new List<GetIntervalsObject>();
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			_user.savedFilters[Helper.pages.measureData].intervalId = values.intervalId;
@@ -201,13 +201,13 @@ public class FilterController : ControllerBase
 			}
 			else {
 				var intervalObject = new GetIntervalsObject();
-				intervalObject.error.message = Resource.VAL_VALID_INTERVAL_ID;
+				intervalObject.error.Message = Resource.VAL_VALID_INTERVAL_ID;
 				returnObject.Add(intervalObject);
 			}
-			return new JsonResult(returnObject);
+			return Ok(returnObject);
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 }

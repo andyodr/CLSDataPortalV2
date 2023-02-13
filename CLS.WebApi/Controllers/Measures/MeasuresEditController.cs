@@ -5,28 +5,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.Measures;
 
-[Route("api/measures/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/measures/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(MeasuresOwnerObject values) {
-		var returnObject = new MeasureIDReturnObject { data = new() };
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	public ActionResult<MeasureIDReturnObject> Get(MeasuresOwnerObject values) {
+		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measure, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var measureDef = _context.MeasureDefinition
@@ -34,9 +33,8 @@ public class EditController : ControllerBase
 				.Where(md => md.Id == values.measureDefinitionId)
 				.AsNoTrackingWithIdentityResolution().First();
 			var data = new MeasureTypeDataObject {
-				measureName = measureDef.Name,
-				measureTypeName = measureDef.MeasureType!.Name,
-				hierarchy = new()
+				MeasureName = measureDef.Name,
+				MeasureTypeName = measureDef.MeasureType!.Name
 			};
 
 			var hierarchies = from h in _context.Hierarchy
@@ -53,32 +51,29 @@ public class EditController : ControllerBase
 					id = hierarchy.Id,
 					name = hierarchy.Name
 				};
-				data.hierarchy.Add(hierarchyOwner);
-				data.owner = measure.Owner;
+				data.Hierarchy.Add(hierarchyOwner);
+				data.Owner = measure.Owner;
 			}
 
 			returnObject.data.Add(data);
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] MeasuresOwnerObject values) {
-		MeasureIDReturnObject returnObject = new MeasureIDReturnObject {
-			data = new List<MeasureTypeDataObject>()
-		};
+	[ProducesResponseType(StatusCodes.Status202Accepted)]
+	public ActionResult<MeasureIDReturnObject> Put([FromBody] MeasuresOwnerObject values) {
+		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measure, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var measureDef = _context.MeasureDefinition
@@ -86,8 +81,8 @@ public class EditController : ControllerBase
 				.Where(md => md.Id == values.measureDefinitionId)
 				.First();
 			var data = new MeasureTypeDataObject {
-				measureName = measureDef.Name,
-				measureTypeName = _context.MeasureType.Find(measureDef.MeasureTypeId)?.Name
+				MeasureName = measureDef.Name,
+				MeasureTypeName = _context.MeasureType.Find(measureDef.MeasureTypeId)?.Name
 			};
 
 			var hierarchies = from h in _context.Hierarchy
@@ -96,11 +91,11 @@ public class EditController : ControllerBase
 							  select h;
 
 			bool any = false;
-			data.hierarchy = new List<RegionOwnerObject>();
-			data.owner = values.owner;
+			data.Hierarchy = new List<RegionOwnerObject>();
+			data.Owner = values.owner;
 			var lastUpdatedOn = DateTime.Now;
 			foreach (var hierarchy in hierarchies) {
-				data.hierarchy.Add(new() {
+				data.Hierarchy.Add(new() {
 					id = hierarchy.Id,
 					name = hierarchy.Name
 				});
@@ -131,10 +126,10 @@ public class EditController : ControllerBase
 			}
 
 			returnObject.data.Add(data);
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 }

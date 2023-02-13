@@ -2,9 +2,13 @@
 
 public class MeasureTypeDataObject
 {
-	public long measureDefinitionId { set; get; }
-	public string measureName { set; get; }
-	public string? measureTypeName { set; get; }
-	public string? owner { set; get; }
-	public List<RegionOwnerObject> hierarchy { get; set; }
+	public long MeasureDefinitionId { set; get; }
+
+	public string MeasureName { set; get; } = null!;
+
+	public string? MeasureTypeName { set; get; }
+
+	public string? Owner { set; get; }
+
+	public ICollection<RegionOwnerObject> Hierarchy { get; set; } = new List<RegionOwnerObject>();
 }

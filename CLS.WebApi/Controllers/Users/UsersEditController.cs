@@ -2,31 +2,30 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CLS.WebApi.Controllers.Users;
 
-[Route("api/users/[controller]")]
-[Authorize(Roles = "Admin")]
 [ApiController]
+[Route("api/users/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
 	private readonly List<int> addedHierarchies = new();
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet("{id}")]
-	public ActionResult<JsonResult> Get(int id) {
+	public ActionResult<UserIndexGetObject> Get(int id) {
 		var result = new UserIndexGetObject { data = new(), hierarchy = new(), roles = new() };
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.users, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
@@ -76,10 +75,11 @@ public class EditController : ControllerBase
 				}
 			}
 
-			return new JsonResult(result);
+			return result;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -88,18 +88,20 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] UserIndexDto value) {
+	public ActionResult<UserIndexGetObject> Put(UserIndexDto value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new UserIndexGetObject { data = new() };
 			var user = _context.User.Where(u => u.Id == value.id).First();
 			if (value.userName != user.UserName) {
 				if (_context.User.Where(u => u.UserName == value.userName).Any()) {
-					throw new Exception(Resource.USERS_EXIST);
+					return BadRequest(Resource.USERS_EXIST);
 				}
 			}
 
@@ -130,7 +132,7 @@ public class EditController : ControllerBase
 
 			if (user.Id == _user.userId) {
 				//Helper.setUserTemp(user.UserName);
-				var tempUser = Helper.GetUserObject(_context, _user.userName);
+				var tempUser = Helper.CreateUserObject(_context, _user.userName);
 				if (tempUser is not null) {
 					if (Helper.userCookies.ContainsKey(tempUser.userId.ToString())) {
 						Helper.userCookies.Remove(tempUser.userId.ToString());
@@ -140,10 +142,10 @@ public class EditController : ControllerBase
 				}
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

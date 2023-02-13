@@ -4,28 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.Users;
 
-[Route("api/users/[controller]")]
-[Authorize(Roles = "Admin")]
 [ApiController]
+[Route("api/users/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
 	private readonly List<int> addedHierarchies = new();
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get() {
+	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.users, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToArray();
@@ -39,10 +37,10 @@ public class AddController : ControllerBase
 				returnObject.roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -50,16 +48,18 @@ public class AddController : ControllerBase
 	public string Get(int id) => "value";
 
 	[HttpPost]
-	public ActionResult<JsonResult> Post([FromBody] UserIndexDto value) {
+	public ActionResult<UserIndexGetObject> Post([FromBody] UserIndexDto value) {
 		var returnObject = new UserIndexGetObject { data = new() };
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			if (_context.User.Where(u => u.UserName == value.userName).Any()) {
-				throw new Exception(Resource.USERS_EXIST);
+				return BadRequest(Resource.USERS_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
@@ -90,10 +90,10 @@ public class AddController : ControllerBase
 			   _user.userId
 			);
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

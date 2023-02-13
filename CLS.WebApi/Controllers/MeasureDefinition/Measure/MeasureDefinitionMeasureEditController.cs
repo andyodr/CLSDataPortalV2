@@ -5,19 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 
-[Route("api/measureDefinition/measure/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/measureDefinition/measure/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
-	// GET: api/values
 	[HttpGet]
-	public ActionResult<JsonResult> Get(int measureDefinitionId) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new List<UnitsObject>(),
 			intervals = new(),
@@ -27,10 +26,11 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) { throw new Exception(); }
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var units = _context.Unit.OrderBy(u => u.Id);
@@ -83,10 +83,10 @@ public class EditController : ControllerBase
 				currentMD.aggFunctionId = md.AggFunction;
 				returnObject.data.Add(currentMD);
 			}
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -95,7 +95,7 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put(int id2, [FromBody] MeasureDefinitionViewModel value) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, [FromBody] MeasureDefinitionViewModel value) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new List<UnitsObject>(),
 			intervals = new(),
@@ -105,11 +105,12 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null)
-				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
+			}
 
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 
@@ -242,10 +243,10 @@ public class EditController : ControllerBase
 				_user.userId
 			);
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

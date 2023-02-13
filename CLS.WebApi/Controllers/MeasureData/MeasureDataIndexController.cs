@@ -7,14 +7,14 @@ using System.Text.Json.Nodes;
 
 namespace CLS.WebApi.Controllers.MeasureData;
 
+[ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-[ApiController]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -22,20 +22,18 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(MeasureDataReceiveObject value) {
+	public ActionResult<MeasureDataIndexListObject> Get(MeasureDataReceiveObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 		DateTime? date = new();
 		List<long> id = new();
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureData, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			returnObject.allow = _user.hierarchyIds.Contains(value.hierarchyId);
@@ -179,10 +177,10 @@ public class IndexController : ControllerBase
 			_user.savedFilters[Helper.pages.measureData].hierarchyId = value.hierarchyId;
 			returnObject.filter = _user.savedFilters[Helper.pages.measureData];
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -194,14 +192,16 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonObject> Put([FromBody] MeasureDataReceiveObject value) {
+	public ActionResult<MeasureDataIndexListObject> Put([FromBody] MeasureDataReceiveObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			//apply precision and validate unit if value != null 
@@ -253,7 +253,7 @@ public class IndexController : ControllerBase
 			  }
 			);
 			returnObject.data = measureDataList;
-			return new JsonResult(returnObject);
+			return returnObject;
 
 			//var measureData = _measureDataRepository.All().Where(m => m.Id == value.measureDataId);
 			//foreach (var metricData in measureData)
@@ -269,7 +269,7 @@ public class IndexController : ControllerBase
 
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

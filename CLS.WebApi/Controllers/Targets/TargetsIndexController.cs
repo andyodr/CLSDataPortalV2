@@ -6,14 +6,14 @@ using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers.Targets;
 
-[Route("api/targets/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/targets/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -21,18 +21,16 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> Get(TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject { data = new() };
 		var id = new List<long>();
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.target, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var defs = from measuredef in _context.MeasureDefinition
@@ -86,10 +84,10 @@ public class IndexController : ControllerBase
 			_user.savedFilters[Helper.pages.target].hierarchyId = value.hierarchyId;
 			_user.savedFilters[Helper.pages.target].measureTypeId = value.measureTypeId;
 			returnObject.filter = _user.savedFilters[Helper.pages.target];
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -98,13 +96,15 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> Put([FromBody] TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var lastUpdatedOn = DateTime.Now;
@@ -119,7 +119,7 @@ public class IndexController : ControllerBase
 			var measureDef = target.Measure!.MeasureDefinition;
 			if (value.target is not null) {
 				if (measureDef!.UnitId == 1 && (value.target < 0d || value.target > 1d)) {
-					throw new Exception(Resource.VAL_VALUE_UNIT);
+					return BadRequest(Resource.VAL_VALUE_UNIT);
 				}
 
 				targetValue = Math.Round((double)value.target, measureDef.Precision, MidpointRounding.AwayFromZero);
@@ -127,7 +127,7 @@ public class IndexController : ControllerBase
 
 			if (value.yellow is not null) {
 				if (measureDef!.UnitId == 1 && (value.yellow < 0d || value.yellow > 1d)) {
-					throw new Exception(Resource.VAL_VALUE_UNIT);
+					return BadRequest(Resource.VAL_VALUE_UNIT);
 				}
 
 				targetYellow = Math.Round((double)value.yellow, measureDef.Precision, MidpointRounding.AwayFromZero);
@@ -183,26 +183,27 @@ public class IndexController : ControllerBase
 			});
 
 			returnObject.data = measureDataList;
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
 	[HttpPut("{id}")]
-	public ActionResult<JsonResult> applytochildren([FromBody] TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> applytochildren([FromBody] TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		var lastUpdatedOn = DateTime.Now;
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
-			List<int> hierarchyIds = new();
-			hierarchyIds = GetAllChildren(value.hierarchyId);
+			var hierarchyIds = GetAllChildren(value.hierarchyId);
 
 			// getAllChildren will add the parent and the children to the list
 			if (hierarchyIds.Count > 1) {
@@ -284,10 +285,10 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

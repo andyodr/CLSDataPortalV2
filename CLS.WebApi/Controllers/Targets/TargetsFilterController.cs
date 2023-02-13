@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.Targets;
 
-[Route("api/targets/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/targets/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public FilterController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get() {
+	public ActionResult<FilterReturnObject> Get() {
 		var filter = new FilterReturnObject {
 			intervals = null,
 			measureTypes = new List<MeasureTypeFilterObject>(),
@@ -24,13 +24,11 @@ public class FilterController : ControllerBase
 		};
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.target, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
@@ -50,11 +48,11 @@ public class FilterController : ControllerBase
 			_user.savedFilters[Helper.pages.target].hierarchyId ??= 1;
 			filter.filter = _user.savedFilters[Helper.pages.target];
 
-			return new JsonResult(filter);
+			return filter;
 		}
 
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 }

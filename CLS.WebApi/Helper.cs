@@ -94,13 +94,7 @@ public static class Helper
 		}
 	}
 
-	internal static MeasureTypeModel? ErrorProcessing(Exception e, ApplicationDbContext db, HttpContext httpContext, UserObject? user) {
-		if (user is null) {
-			httpContext.SignOutAsync("Cookies");
-			return null;
-		}
-
-		int? userId = user?.userId;
+	internal static ErrorModel ErrorProcessing(ApplicationDbContext db, Exception e, int? userId) {
 		bool authError = false;
 		string errorMessage = e.Message;
 
@@ -120,13 +114,11 @@ public static class Helper
 		);
 		db.SaveChanges();
 
-		var errorObject = new ErrorModel {
-			id = auditTrail.Entity.Id,
-			message = errorMessage,
-			authError = authError
+		return new ErrorModel {
+			Id = auditTrail.Entity.Id,
+			Message = errorMessage,
+			AuthError = authError
 		};
-
-		return new MeasureTypeModel() { error = errorObject };
 	}
 
 	internal static MeasureTypeModel ErrorProcessingDataImport(ApplicationDbContext dbc, Exception e, int userId) {
@@ -145,8 +137,8 @@ public static class Helper
 		errorId = (int)record.Id;
 		errorMessage = e.Message;
 		var errorObject = new ErrorModel {
-			id = errorId,
-			message = errorMessage
+			Id = errorId,
+			Message = errorMessage
 		};
 		returnModel.error = errorObject;
 		return returnModel;
@@ -543,7 +535,7 @@ public static class Helper
 		return update;
 	}
 
-	public static UserObject? GetUserObject(ApplicationDbContext dbc, string userName) {
+	public static UserObject? CreateUserObject(ApplicationDbContext dbc, string userName) {
 		try {
 			var entity = dbc.User
 				.Where(u => u.UserName == userName)
@@ -556,24 +548,14 @@ public static class Helper
 				userRoleId = entity.UserRole!.Id,
 				userName = entity.UserName,
 				firstName = entity.FirstName,
-				userRole = entity.UserRole.Name
+				userRole = entity.UserRole.Name,
+				LastModified = entity.LastUpdatedOn
 			};
 			localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
 				CalendarId = c.CalendarId,
 				LockOverride = c.LockOverride
 			}));
 			localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
-
-			// Sets page authorization based on roles
-			localUser.Authorized[pages.measureData] = true;
-			localUser.Authorized[pages.target] = (localUser.userRoleId > (int)userRoles.powerUser);
-			localUser.Authorized[pages.measure] = (localUser.userRoleId == (int)userRoles.systemAdministrator);
-			localUser.Authorized[pages.measureDefinition] = (localUser.userRoleId > (int)userRoles.powerUser);
-			localUser.Authorized[pages.hierarchy] = (localUser.userRoleId == (int)userRoles.systemAdministrator);
-			localUser.Authorized[pages.dataImports] = true;
-			localUser.Authorized[pages.settings] = (localUser.userRoleId == (int)userRoles.systemAdministrator);
-			localUser.Authorized[pages.users] = (localUser.userRoleId == (int)userRoles.systemAdministrator);
-
 			return localUser;
 		}
 		catch {
@@ -581,55 +563,17 @@ public static class Helper
 		}
 	}
 
-	public static bool IsUserPageAuthorized(pages page, int roleId) {
-
-		bool bReturn = false;
-		switch (page) {
-			case pages.measureData:
-				bReturn = true;
-				break;
-			case pages.target:
-				bReturn = (roleId > (int)userRoles.powerUser);
-				break;
-			case pages.measure:
-				bReturn = (roleId == (int)userRoles.systemAdministrator);
-				break;
-			case pages.measureDefinition:
-				bReturn = (roleId > (int)userRoles.powerUser);
-				break;
-			case pages.hierarchy:
-				bReturn = (roleId == (int)userRoles.systemAdministrator);
-				break;
-			case pages.dataImports:
-				bReturn = true;
-				break;
-			case pages.settings:
-				bReturn = (roleId == (int)userRoles.systemAdministrator);
-				break;
-			case pages.users:
-				bReturn = (roleId == (int)userRoles.systemAdministrator);
-				break;
-			default:
-				break;
-		}
-		return bReturn;
-	}
-
 	public static UserObject? UserAuthorization(ClaimsPrincipal userClaim) {
-		if (!userClaim.Identity?.IsAuthenticated ?? true) {
+		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		if (claimUserId is string userId) {
+			return new UserObject {
+				userId = int.Parse(userId),
+				userName = userClaim.Identity!.Name!
+			};
+		}
+		else {
 			return null;
 		}
-
-		var userId = userClaim.Claims.Where(c => c.Type == "userId").FirstOrDefault();
-		if (userId is null) {
-			return null;
-		}
-
-		if (!userCookies.ContainsKey(userId.Value)) {
-			return null;
-		}
-
-		return userCookies[userId.Value];
 	}
 
 	internal static void UserDeleteHierarchy(int userId, ApplicationDbContext context) {

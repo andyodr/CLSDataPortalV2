@@ -2,6 +2,6 @@
 
 public class MeasureIDReturnObject
 {
-	public List<MeasureTypeDataObject> data { set; get; }
+	public ICollection<MeasureTypeDataObject> data { set; get; } = new List<MeasureTypeDataObject>();
 	public ErrorModel error { set; get; }
 }

@@ -6,14 +6,14 @@ using System.Text.Json.Nodes;
 
 namespace CLS.WebApi.Controllers.Settings;
 
+[ApiController]
 [Route("api/settings/[controller]")]
 [Authorize]
-[ApiController]
 public class UsersController : ControllerBase
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public UsersController(ApplicationDbContext context) => _context = context;
 
@@ -36,7 +36,7 @@ public class UsersController : ControllerBase
 
 	// PUT api/values/5
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] string json) {
+	public ActionResult<SettingsGetReturnObject> Put([FromBody] string json) {
 		try {
 			var node = JsonNode.Parse(json);
 			var value = new SettingsGetReturnObject { users = new() };
@@ -45,9 +45,11 @@ public class UsersController : ControllerBase
 			value.year = (int)node["year"]!;
 			value.users.Add(user);
 
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var calendarRecords = _context.Calendar
@@ -84,10 +86,10 @@ public class UsersController : ControllerBase
 				_user.userId
 			);
 
-			return new JsonResult(value);
+			return value;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace CLS.WebApi.Controllers;
 
+[ApiController]
 [AllowAnonymous]
 public class AccountController : Controller
 {
@@ -19,28 +20,24 @@ public class AccountController : Controller
 		_context = context;
 	}
 
-	[HttpGet]
-	public IActionResult Login(string returnUrl) {
-		HttpContext.SignOutAsync("Cookies");
-		return View();
-	}
-
-	[HttpPost]
+	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> Login(string userName, string password, string returnUrl) {
+	public async Task<IActionResult> SignIn(
+			[FromForm] string userName,
+			[FromForm] string password,
+			[FromForm] bool persistent = false) {
 		bool continueLogin = true;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
-
 		UserObject? user = null;
 
-		if (String.IsNullOrWhiteSpace(userName) || String.IsNullOrWhiteSpace(password)) {
+		if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password)) {
 			msgErr = Resource.VAL_USERNAME_PASSWORD;
 			continueLogin = false;
 		}
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = Helper.GetUserObject(_context, userName);
+			user = Helper.CreateUserObject(_context, userName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
@@ -67,7 +64,7 @@ public class AccountController : Controller
 			if (!bIsByPass) {
 				var AD = new LdapAuthentication(_config);
 				string sADReturn = AD.IsAuthenticated2(userName, password);
-				if (!String.IsNullOrWhiteSpace(sADReturn)) {
+				if (!string.IsNullOrWhiteSpace(sADReturn)) {
 					msgErr = sADReturn;
 					continueLogin = false;
 				}
@@ -77,12 +74,15 @@ public class AccountController : Controller
 		// Success
 		if (continueLogin) {
 			var claims = new List<Claim> {
-				new("userId", user!.userId.ToString()),
-				new("name", user.userName)
+				new(ClaimTypes.NameIdentifier, user!.userId.ToString()),
+				new(ClaimTypes.Name, user.userName),
+				new(ClaimTypes.Role, user.userRoleId.ToString()),
+				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
-			var identity = new ClaimsIdentity(claims, "local", "name", "role");
 
-			await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(identity));
+			await HttpContext.SignInAsync(
+				new ClaimsPrincipal(new ClaimsIdentity(claims, "windows")),
+				new AuthenticationProperties { IsPersistent = persistent });
 
 			Helper.AddAuditTrail(_context,
 				Resource.SECURITY,
@@ -94,22 +94,28 @@ public class AccountController : Controller
 			);
 
 			// Start Task for login Active
-
-			return RedirectToAction(nameof(HomeController.Index), "Home");
+			return new JsonResult(new {
+				Success = true,
+				Id = user.userId,
+				Name = user.userName,
+				Role = user.userRole,
+				TableauLink = _config.tableauLink
+			});
 		}
 
 		// Failure
-		ViewBag.Error = msgErr;
-		return View();
+		return new JsonResult(new {
+			Success = false,
+			Message = msgErr
+		});
 	}
 
+	[HttpGet("[action]")]
 	public async Task<IActionResult> Logoff() {
-		var user = User.Claims.Where(c => c.Type == "userId").ToArray();
-		if (user.Length > 0) {
-			string userId = user.First().Value;
-			if (Helper.userCookies.ContainsKey(userId)) {
-				Helper.userCookies.Remove(userId);
-			}
+		string? claimUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		if (claimUserId is string userId) {
+			var user = User.Claims.Where(c => c.Type == "userId").ToArray();
+			Helper.userCookies.Remove(userId);
 
 			int nUserId = int.Parse(userId);
 			var userRepo = _context.User.Where(u => u.Id == nUserId).FirstOrDefault();
@@ -123,10 +129,9 @@ public class AccountController : Controller
 					nUserId
 				);
 			}
-
-			await HttpContext.SignOutAsync("Cookies");
 		}
 
-		return RedirectToAction(nameof(AccountController.Login), "Account");
+		await HttpContext.SignOutAsync();
+		return RedirectToAction(nameof(AccountController.SignIn), "Account");
 	}
 }

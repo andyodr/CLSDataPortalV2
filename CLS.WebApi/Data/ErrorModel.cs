@@ -2,9 +2,9 @@
 
 public class ErrorModel
 {
-	public long id { get; set; }
+	public long Id { get; set; }
 
-	public string message = null;
+	public string Message = null!;
 
-	public bool authError = false;
+	public bool AuthError = false;
 }

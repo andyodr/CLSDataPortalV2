@@ -5,26 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition;
 
-[Route("api/measureDefinition/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/measureDefinition/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(int measureTypeId) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new MeasureDefinitionIndexReturnObject { data = new() };
@@ -108,10 +106,10 @@ public class IndexController : ControllerBase
 			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId = measureTypeId;
 			//returnObject.filter = _user.savedFilters[Helper.pages.measureDefinition];
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

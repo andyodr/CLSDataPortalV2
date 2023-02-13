@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers;
 
+[ApiController]
+[Authorize]
 public class HomeController : Controller
 {
 	private readonly ConfigurationObject _config;
@@ -12,22 +14,21 @@ public class HomeController : Controller
 
 	public HomeController(IOptions<ConfigurationObject> config) => _config = config.Value;
 
-	[Authorize]
 	[HttpGet("", Name = "default")]
 	[HttpGet("[controller]")]
-	[HttpGet("[controller]/[action]")]
 	[HttpGet("[controller]/[action]/{id?}")]
 	public IActionResult Index() {
 		_user = Helper.UserAuthorization(User);
-		if (_user == null)
-			return RedirectToAction(nameof(AccountController.Login), "Account");
+		if (_user is null) {
+			return RedirectToAction(nameof(AccountController.SignIn), "Account");
+		}
 
 		ViewBag.UserName = "Guess";
 		ViewBag.ShowMenu = false.ToString().ToLower();
 		ViewBag.ShowMenuSub = false.ToString().ToLower();
 		ViewBag.TableauLink = _config.tableauLink;
 
-		if (String.IsNullOrWhiteSpace(_user.firstName)) {
+		if (string.IsNullOrWhiteSpace(_user.firstName)) {
 			ViewBag.UserName = _user.userName;
 		}
 		else {
@@ -45,7 +46,4 @@ public class HomeController : Controller
 
 		return View();
 	}
-
-	[Route("{*catchall}", Name = "Error")]
-	public IActionResult Error() => RedirectToAction(nameof(HomeController.Index), "Home");
 }

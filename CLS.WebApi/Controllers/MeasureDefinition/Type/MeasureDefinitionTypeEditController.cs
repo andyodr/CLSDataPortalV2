@@ -4,26 +4,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
-[Route("/api/measuredefinition/type/[controller]")]
-[Authorize]
 [ApiController]
+[Route("/api/measuredefinition/type/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet("{id}")]
-	public ActionResult<JsonResult> Get(int id) {
+	public ActionResult<MeasureTypeModel> Get(int id) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new MeasureTypeModel { data = new() };
@@ -33,10 +31,10 @@ public class EditController : ControllerBase
 				returnObject.data.description = measType.Description;
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -45,15 +43,13 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] MeasureTypeObject value) {
+	public ActionResult<MeasureTypeModel> Put([FromBody] MeasureTypeObject value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new MeasureTypeModel { data = new() };
@@ -63,7 +59,7 @@ public class EditController : ControllerBase
 			  .Where(m => m.Id != value.id && m.Name.Trim().ToLower() == value.name.Trim().ToLower())
 			  .Count();
 			if (validateCount > 0) {
-				throw new Exception(Resource.VAL_MEASURE_TYPE_EXIST);
+				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
 			var measureType = _context.MeasureType.Where(m => m.Id == value.id).FirstOrDefault();
@@ -86,10 +82,10 @@ public class EditController : ControllerBase
 			}
 
 			returnObject.data = value;
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 
-[Route("api/measureDefinition/measure/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/measureDefinition/measure/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get() {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Get() {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new(),
 			intervals = new(),
@@ -24,11 +24,12 @@ public class AddController : ControllerBase
 		};
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null)
-				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
+			}
 
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals) {
@@ -45,10 +46,10 @@ public class AddController : ControllerBase
 				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = mt.Id, Name = mt.Name });
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
@@ -56,15 +57,13 @@ public class AddController : ControllerBase
 	public string Get(int id) => "value";
 
 	[HttpPost]
-	public ActionResult<JsonResult> Post([FromBody] MeasureDefinitionViewModel value) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionViewModel value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var result = new MeasureDefinitionIndexReturnObject {
@@ -178,10 +177,10 @@ public class AddController : ControllerBase
 				_user.userId
 			);
 
-			return new JsonResult(result);
+			return result;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

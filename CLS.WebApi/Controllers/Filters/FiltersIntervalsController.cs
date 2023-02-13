@@ -6,14 +6,14 @@ using System.Globalization;
 
 namespace CLS.WebApi.Controllers.Filters;
 
+[ApiController]
 [Route("api/filters/[controller]")]
 [Authorize]
-[ApiController]
 public class IntervalsController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IntervalsController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -21,12 +21,14 @@ public class IntervalsController : ControllerBase
 	}
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get(MeasureDataFilterReceiveObject values) {
+	public ActionResult<IntervalListObject> Get(MeasureDataFilterReceiveObject values) {
 		var returnObject = new IntervalListObject();
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var cal = _context.Calendar.Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
@@ -60,7 +62,7 @@ public class IntervalsController : ControllerBase
 					break;
 				default:
 					var intervalObject = new GetIntervalsObject();
-					intervalObject.error.message = Resource.VAL_VALID_INTERVAL_ID;
+					intervalObject.error.Message = Resource.VAL_VALID_INTERVAL_ID;
 					returnObject.data.Add(intervalObject);
 					break;
 			}
@@ -70,10 +72,10 @@ public class IntervalsController : ControllerBase
 				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.First().Id;
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.Hierarchy;
 
+[ApiController]
 [Route("api/hierarchy/[controller]")]
 [Authorize]
-[ApiController]
 public class FilterController : ControllerBase
 {
 	[HttpGet]

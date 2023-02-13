@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using CLS.WebApi.Data;
 using ConsoleApp1;
 using Microsoft.EntityFrameworkCore;

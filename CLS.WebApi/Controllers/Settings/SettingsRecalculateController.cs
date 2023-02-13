@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.Settings;
 
-[Route("api/settings/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/settings/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class RecalculateController : Controller
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public RecalculateController(ApplicationDbContext context) => _context = context;
 
@@ -29,22 +29,19 @@ public class RecalculateController : Controller
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] dynamic jsonString) {
-
+	public ActionResult Put([FromBody] dynamic jsonString) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
-			if (!Helper.IsUserPageAuthorized(Helper.pages.settings, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
-			}
-
-			return new JsonResult(null);
+			return Ok();
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

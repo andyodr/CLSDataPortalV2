@@ -5,14 +5,14 @@ using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers.Settings;
 
-[Route("api/settings/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/settings/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class TransferController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public TransferController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -20,13 +20,14 @@ public class TransferController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] dynamic jsonString) {
+	public ActionResult Put([FromBody] dynamic jsonString) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null)
-				throw new Exception();
-			if (!Helper.IsUserPageAuthorized(Helper.pages.settings, _user.userRoleId))
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
+			}
 
 			// Runs SQL Job
 			if (Helper.StartSQLJob(_context, _config.sQLJobSSIS)) {
@@ -39,14 +40,14 @@ public class TransferController : ControllerBase
 					_user.userId
 				);
 
-				return new JsonResult(null);
+				return Ok();
 			}
 			else {
-				throw new Exception(string.Format($"Transfer / {Resource.SQL_JOB_ERR}", _config.sQLJobSSIS));
+				return BadRequest(string.Format($"Transfer / {Resource.SQL_JOB_ERR}", _config.sQLJobSSIS));
 			}
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 }

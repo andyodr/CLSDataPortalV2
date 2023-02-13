@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
+[ApiController]
 [Route("api/dataimports/[controller]")]
 [Authorize]
-[ApiController]
 public class UploadController : ControllerBase
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
@@ -19,7 +19,7 @@ public class UploadController : ControllerBase
 	private readonly ApplicationDbContext _context;
 	private DataImportReturnObject returnObject = new() { data = new(), error = new() };
 	private int calendarId = -1;
-	private UserObject? _user = new();
+	private UserObject _user = new();
 
 	public UploadController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -28,18 +28,15 @@ public class UploadController : ControllerBase
 
 	// POST api/values
 	[HttpPost]
-	public ActionResult<JsonResult> Post([FromBody] dynamic jsonString) {
+	public ActionResult<DataImportReturnObject> Post([FromBody] dynamic jsonString) {
 		int rowNumber = 1;
 
 		try {
-			_user = Helper.UserAuthorization(User);
-
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			List<Task> TaskList = new();
@@ -86,7 +83,7 @@ public class UploadController : ControllerBase
 				if (returnObject.error.Count != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 
 				// Find duplicates
@@ -107,7 +104,7 @@ public class UploadController : ControllerBase
 
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 
 				var task = Task.Factory.StartNew(() => Parallel.ForEach(
@@ -119,7 +116,7 @@ public class UploadController : ControllerBase
 				if (returnObject.error.Count() != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 				else {
 					TaskList.Clear();
@@ -141,7 +138,7 @@ public class UploadController : ControllerBase
 						_user.userId
 					);
 
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 			}
 			// --------------------------------------------------------
@@ -164,7 +161,7 @@ public class UploadController : ControllerBase
 				if (returnObject.error.Count != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 				else {
 					TaskList.Clear();
@@ -186,7 +183,7 @@ public class UploadController : ControllerBase
 						_user.userId
 					);
 
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 			}
 			// --------------------------------------------------------
@@ -224,7 +221,7 @@ public class UploadController : ControllerBase
 				if (returnObject.error.Count != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 
 
@@ -238,7 +235,7 @@ public class UploadController : ControllerBase
 				if (returnObject.error.Count != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 				else {
 					TaskList.Clear();
@@ -267,15 +264,15 @@ public class UploadController : ControllerBase
 						_user.userId
 					);
 
-					return new JsonResult(returnObject);
+					return returnObject;
 				}
 			}
 		}
 		catch (Exception e) {
 			returnObject = new() { error = new() };
 			var newReturn = Helper.ErrorProcessingDataImport(_context, e, _user!.userId);
-			returnObject.error.Add(new() { id = newReturn.error.id, row = null, message = newReturn.error.message });
-			return new JsonResult(returnObject);
+			returnObject.error.Add(new() { id = newReturn.error.Id, row = null, message = newReturn.error.Message });
+			return returnObject;
 		}
 	}
 
@@ -286,11 +283,10 @@ public class UploadController : ControllerBase
 				//calculationTime = new CalculationTimeObject(), 
 				calculationTime = "00:01:00",
 				dataImport = new(),
-				intervals = new()
+				intervals = new(),
+				intervalId = _config.DefaultInterval,
+				calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval)
 			};
-
-			returnObject.intervalId = _config.DefaultInterval;
-			returnObject.calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval);
 
 			//returnObject.calculationTime.current = DateTime.Now;
 			string sCalculationTime = _context.Setting.First().CalculateSchedule ?? string.Empty;
@@ -334,7 +330,7 @@ public class UploadController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			Helper.ErrorProcessing(e, _context, HttpContext, user);
+			Helper.ErrorProcessing(_context, e, _user.userId);
 			return null;
 		}
 	}

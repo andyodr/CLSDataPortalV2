@@ -5,14 +5,14 @@ using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
+[ApiController]
 [Route("api/dataimports/[controller]")]
 [Authorize]
-[ApiController]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -20,15 +20,13 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get() {
+	public ActionResult<DataImportsMainObject> Get() {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.dataImports, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new DataImportsMainObject {
@@ -85,10 +83,10 @@ public class IndexController : ControllerBase
 
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 

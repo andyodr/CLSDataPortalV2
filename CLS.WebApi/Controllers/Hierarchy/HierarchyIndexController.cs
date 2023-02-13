@@ -5,26 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.Hierarchy;
 
-[Route("api/hierarchy/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/hierarchy/[controller]")]
+[Authorize(Roles = "System Administrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public IndexController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	public ActionResult<JsonResult> Get() {
+	public ActionResult<RegionMetricsFilterObject> Get() {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.hierarchy, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new(), levels = new() };
@@ -71,10 +69,10 @@ public class IndexController : ControllerBase
 				returnObject.data.Add(newData);
 			}
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 
 	}
@@ -83,13 +81,15 @@ public class IndexController : ControllerBase
 	public string Get(int id) => "value";
 
 	[HttpPost]
-	public ActionResult<JsonResult> Post([FromBody] RegionsDataViewModelAdd value) {
+	public ActionResult<RegionMetricsFilterObject> Post([FromBody] RegionsDataViewModelAdd value) {
 		var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
 
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var updatedHierarchy = _context.Hierarchy.Add(new() {
@@ -144,26 +144,28 @@ public class IndexController : ControllerBase
 				count = 0
 			});
 
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
 	[HttpPut]
-	public ActionResult<JsonResult> Put([FromBody] RegionsDataViewModel value) {
+	public ActionResult<RegionMetricsFilterObject> Put([FromBody] RegionsDataViewModel value) {
 		var returnObject = new RegionMetricsFilterObject { data = new() };
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			DateTime updatedOn = DateTime.Now;
 			var updateHierarchy = _context.Hierarchy.Find(value.id);
 			if (updateHierarchy is null) {
-				return new JsonResult(returnObject);
+				return returnObject;
 			}
 
 			updateHierarchy.Name = value.name;
@@ -204,19 +206,21 @@ public class IndexController : ControllerBase
 			);
 
 			returnObject.data.Add(newHierarchy);
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
 	[HttpDelete("{id}")]
-	public ActionResult<JsonResult> Delete(int id) {
+	public ActionResult<RegionMetricsFilterObject> Delete(int id) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
+			}
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
@@ -286,10 +290,10 @@ public class IndexController : ControllerBase
 				id = regions.First().Id,
 				sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0
 			});
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user)); ;
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId)); ;
 		}
 	}
 }

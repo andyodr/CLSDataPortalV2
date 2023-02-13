@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
-[Route("api/measureDefinition/type/[controller]")]
-[Authorize]
 [ApiController]
+[Route("api/measureDefinition/type/[controller]")]
+[Authorize(Roles = "Regional Administrator, System Administrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject? _user = new();
+	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _context = context;
 
@@ -21,15 +21,13 @@ public class AddController : ControllerBase
 	public string Get(int id) => "value";
 
 	[HttpPost]
-	public ActionResult<JsonResult> Post([FromBody] MeasureTypeObject value) {
+	public ActionResult<MeasureTypeModel> Post([FromBody] MeasureTypeObject value) {
 		try {
-			_user = Helper.UserAuthorization(User);
-			if (_user == null) {
-				throw new Exception();
+			if (Helper.UserAuthorization(User) is UserObject u) {
+				_user = u;
 			}
-
-			if (!Helper.IsUserPageAuthorized(Helper.pages.measureDefinition, _user.userRoleId)) {
-				throw new Exception(Resource.PAGE_AUTHORIZATION_ERR);
+			else {
+				return Unauthorized();
 			}
 
 			var returnObject = new MeasureTypeModel { data = new() };
@@ -37,7 +35,7 @@ public class AddController : ControllerBase
 			// Validates name
 			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.name.Trim().ToLower()).Count();
 			if (validateCount > 0) {
-				throw new Exception(Resource.VAL_MEASURE_TYPE_EXIST);
+				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
@@ -60,10 +58,10 @@ public class AddController : ControllerBase
 			);
 
 			returnObject.data = value;
-			return new JsonResult(returnObject);
+			return returnObject;
 		}
 		catch (Exception e) {
-			return new JsonResult(Helper.ErrorProcessing(e, _context, HttpContext, _user));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
 
