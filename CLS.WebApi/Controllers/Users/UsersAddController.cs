@@ -48,6 +48,11 @@ public class AddController : ControllerBase
 		}
 	}
 
+	/// <summary>
+	/// Create a new user in the User table and return its userId.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	[HttpPost]
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto value) {
 		var returnObject = new UserIndexGetObject { data = new() };

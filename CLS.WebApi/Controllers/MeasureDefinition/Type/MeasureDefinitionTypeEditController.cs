@@ -88,8 +88,4 @@ public class EditController : ControllerBase
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
-	}
 }

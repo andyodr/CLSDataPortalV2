@@ -101,10 +101,6 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(SettingsGetRecieveObject value) {
 		try {
@@ -176,9 +172,5 @@ public class IndexController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }

@@ -68,5 +68,5 @@ public class Resource
 	public const string SETTINGS_NO_RECORDS = "Setting table does not have any records.";
 
 	// Users
-	public const string USERS_EXIST = "This UserName already exist.";
+	public const string USERS_EXIST = "UserName already exists.";
 }

@@ -183,12 +183,4 @@ public class AddController : ControllerBase
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
-
-	[HttpPut("{id}")]
-	public void Put(int id, [FromBody] string value) {
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
-	}
 }

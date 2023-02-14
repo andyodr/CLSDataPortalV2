@@ -78,19 +78,4 @@ public class IntervalsController : ControllerBase
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
 	}
-
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
-	[HttpPut("{id}")]
-	public void Put(int id, [FromBody] string value) {
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
-	}
 }

@@ -91,10 +91,6 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
 	[HttpPut]
 	public ActionResult<MeasureDataIndexListObject> Put([FromBody] TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
@@ -353,9 +349,5 @@ public class IndexController : ControllerBase
 				}
 			}
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }

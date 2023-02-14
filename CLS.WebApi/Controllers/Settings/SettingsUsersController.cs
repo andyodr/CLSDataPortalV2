@@ -17,24 +17,6 @@ public class UsersController : ControllerBase
 
 	public UsersController(ApplicationDbContext context) => _context = context;
 
-	// GET: api/values
-	[HttpGet]
-	public IEnumerable<string> Get() {
-		return new string[] { "value1", "value2" };
-	}
-
-	// GET api/values/5
-	[HttpGet("{id}")]
-	public string Get(int id) {
-		return "value";
-	}
-
-	// POST api/values
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
-	// PUT api/values/5
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put([FromBody] string json) {
 		try {
@@ -91,9 +73,5 @@ public class UsersController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }

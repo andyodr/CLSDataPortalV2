@@ -17,6 +17,11 @@ public class EditController : ControllerBase
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
+	/// <summary>
+	/// Get hierarchy and role data, and user data for a subset of users.
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
 	[HttpGet("{id}")]
 	public ActionResult<UserIndexGetObject> Get(int id) {
 		var result = new UserIndexGetObject { data = new(), hierarchy = new(), roles = new() };
@@ -83,10 +88,11 @@ public class EditController : ControllerBase
 		}
 	}
 
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
+	/// <summary>
+	/// Modify user details for a specified user ID.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	[HttpPut]
 	public ActionResult<UserIndexGetObject> Put(UserIndexDto value) {
 		try {
@@ -98,10 +104,14 @@ public class EditController : ControllerBase
 			}
 
 			var returnObject = new UserIndexGetObject { data = new() };
-			var user = _context.User.Where(u => u.Id == value.id).First();
+			var user = _context.User.Find(value.id);
+			if (user == null) {
+				return ValidationProblem("User ID not found.");
+			}
+
 			if (value.userName != user.UserName) {
 				if (_context.User.Where(u => u.UserName == value.userName).Any()) {
-					return BadRequest(Resource.USERS_EXIST);
+					return ValidationProblem(Resource.USERS_EXIST);
 				}
 			}
 
@@ -135,9 +145,5 @@ public class EditController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }

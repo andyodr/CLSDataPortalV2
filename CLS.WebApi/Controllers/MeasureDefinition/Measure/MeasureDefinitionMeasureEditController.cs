@@ -90,10 +90,6 @@ public class EditController : ControllerBase
 		}
 	}
 
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
 	[HttpPut]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, [FromBody] MeasureDefinitionViewModel value) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
@@ -248,9 +244,5 @@ public class EditController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 }
