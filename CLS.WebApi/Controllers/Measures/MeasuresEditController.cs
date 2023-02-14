@@ -16,12 +16,11 @@ public class EditController : ControllerBase
 	public EditController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet]
-	[ProducesResponseType(StatusCodes.Status200OK)]
 	public ActionResult<MeasureIDReturnObject> Get(MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -64,12 +63,11 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut]
-	[ProducesResponseType(StatusCodes.Status202Accepted)]
-	public ActionResult<MeasureIDReturnObject> Put([FromBody] MeasuresOwnerObject values) {
+	public ActionResult<MeasureIDReturnObject> Put(MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -101,7 +99,8 @@ public class EditController : ControllerBase
 				});
 
 				var measure = _context.Measure
-							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId).FirstOrDefault();
+					.Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.measureDefinitionId)
+					.FirstOrDefault();
 
 				if (measure is not null) {
 					measure.Owner = values.owner;

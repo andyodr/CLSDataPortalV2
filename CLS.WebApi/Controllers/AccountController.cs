@@ -39,7 +39,7 @@ public class AccountController : Controller
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = Helper.CreateUserObject(_dbc, userName);
+			user = Helper.CreateDetailedUserObject(_dbc, userName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;

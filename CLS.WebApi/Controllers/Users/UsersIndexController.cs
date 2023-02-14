@@ -28,7 +28,7 @@ public class IndexController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { data = new(), hierarchy = null, roles = new() };
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

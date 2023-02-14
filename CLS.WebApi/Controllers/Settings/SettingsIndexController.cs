@@ -24,7 +24,7 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<SettingsGetReturnObject> Get(SettingsGetRecieveObject value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -104,7 +104,7 @@ public class IndexController : ControllerBase
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(SettingsGetRecieveObject value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

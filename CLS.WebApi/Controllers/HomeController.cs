@@ -18,7 +18,7 @@ public class HomeController : Controller
 	[HttpGet("[controller]")]
 	[HttpGet("[controller]/[action]/{id?}")]
 	public IActionResult Index() {
-		_user = Helper.UserAuthorization(User);
+		_user = Helper.CreateUserObject(User);
 		if (_user is null) {
 			return RedirectToAction(nameof(AccountController.SignIn), "Account");
 		}

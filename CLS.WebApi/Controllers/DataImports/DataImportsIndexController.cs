@@ -22,7 +22,7 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<DataImportsMainObject> Get() {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

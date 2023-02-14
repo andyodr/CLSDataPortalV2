@@ -17,7 +17,7 @@ public class EditController : ControllerBase
 	[HttpGet("{id}")]
 	public ActionResult<MeasureTypeModel> Get(int id) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -38,14 +38,10 @@ public class EditController : ControllerBase
 		}
 	}
 
-	[HttpPost]
-	public void Post([FromBody] string value) {
-	}
-
 	[HttpPut]
-	public ActionResult<MeasureTypeModel> Put([FromBody] MeasureTypeObject value) {
+	public ActionResult<MeasureTypeModel> Put(MeasureTypeObject value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

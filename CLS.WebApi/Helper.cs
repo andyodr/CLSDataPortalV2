@@ -4,7 +4,6 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 using CLS.WebApi.Data;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CLS.WebApi;
 
@@ -535,7 +534,7 @@ public static class Helper
 		return update;
 	}
 
-	public static UserObject? CreateUserObject(ApplicationDbContext dbc, string userName) {
+	public static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
 		try {
 			var entity = dbc.User
 				.Where(u => u.UserName == userName)
@@ -564,7 +563,7 @@ public static class Helper
 		}
 	}
 
-	public static UserObject? UserAuthorization(ClaimsPrincipal userClaim) {
+	public static UserObject? CreateUserObject(ClaimsPrincipal userClaim) {
 		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 		if (claimUserId is string userId) {
 			return new UserObject {

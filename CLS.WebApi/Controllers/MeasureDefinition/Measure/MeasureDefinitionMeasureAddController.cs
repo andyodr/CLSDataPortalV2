@@ -24,7 +24,7 @@ public class AddController : ControllerBase
 		};
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -53,13 +53,10 @@ public class AddController : ControllerBase
 		}
 	}
 
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
 	[HttpPost]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionViewModel value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

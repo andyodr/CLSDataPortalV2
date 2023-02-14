@@ -32,7 +32,7 @@ public class UploadController : ControllerBase
 		int rowNumber = 1;
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

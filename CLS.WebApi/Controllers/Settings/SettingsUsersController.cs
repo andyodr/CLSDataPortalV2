@@ -1,8 +1,8 @@
 ﻿using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace CLS.WebApi.Controllers.Settings;
 
@@ -17,17 +17,29 @@ public class UsersController : ControllerBase
 
 	public UsersController(ApplicationDbContext context) => _context = context;
 
+	public class Model
+	{
+		[Required]
+		public UserSettingObject Users { get; set; } = null!;
+
+		[Required]
+		public int Year { get; set; }
+	}
+
+	/// <summary>
+	/// Update UserCalendarLock table
+	/// </summary>
+	/// <param name="model"></param>
+	/// <returns></returns>
 	[HttpPut]
-	public ActionResult<SettingsGetReturnObject> Put([FromBody] string json) {
+	public ActionResult<SettingsGetReturnObject> Put(Model model) {
 		try {
-			var node = JsonNode.Parse(json);
 			var value = new SettingsGetReturnObject { users = new() };
-			var test = node!["users"];
-			var user = test.Deserialize<UserSettingObject>(webDefaults)!;
-			value.year = (int)node["year"]!;
+			var user = model.Users;
+			value.year = model.Year;
 			value.users.Add(user);
 
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -35,14 +47,13 @@ public class UsersController : ControllerBase
 			}
 
 			var calendarRecords = _context.Calendar
-				.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly)
+				.Where(c => c.Year == model.Year && c.Interval.Id == (int)Helper.intervals.monthly)
 				.OrderBy(c => c.Month);
-			//var userLocks = _userRepository.All().Where(u => u.Id == value.users.First().id).First();
 
 			var lastUpdatedOn = DateTime.Now;
 			foreach (var record in calendarRecords) {
 				var calendarLock = _context.UserCalendarLock
-					.Where(u => u.User.Id == value.users.First().Id && u.CalendarId == record.Id);
+					.Where(u => u.User.Id == model.Users.Id && u.CalendarId == record.Id);
 				if (calendarLock.Any()) {
 					var c = calendarLock.First();
 					c.LockOverride = value.users.First().Locks?.ElementAt((int)record.Month! - 1).lo;

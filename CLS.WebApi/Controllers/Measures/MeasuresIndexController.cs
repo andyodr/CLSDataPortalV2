@@ -23,7 +23,7 @@ public class IndexController : ControllerBase
 		};
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -84,7 +84,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject value) {
-		if (Helper.UserAuthorization(User) is UserObject u) {
+		if (Helper.CreateUserObject(User) is UserObject u) {
 			_user = u;
 		}
 		else {

@@ -26,7 +26,7 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -91,7 +91,7 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, [FromBody] MeasureDefinitionViewModel value) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, MeasureDefinitionViewModel value) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			units = new List<UnitsObject>(),
 			intervals = new(),
@@ -101,7 +101,7 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

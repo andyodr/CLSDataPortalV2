@@ -29,7 +29,7 @@ public class IndexController : ControllerBase
 		List<long> id = new();
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -184,20 +184,13 @@ public class IndexController : ControllerBase
 		}
 	}
 
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
-	[HttpPost]
-	public void Post([FromBody] MeasureDataReceiveObject value) {
-	}
-
 	[HttpPut]
-	public ActionResult<MeasureDataIndexListObject> Put([FromBody] MeasureDataReceiveObject value) {
+	public ActionResult<MeasureDataIndexListObject> Put(MeasureDataReceiveObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -271,10 +264,6 @@ public class IndexController : ControllerBase
 		catch (Exception e) {
 			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
 		}
-	}
-
-	[HttpDelete("{id}")]
-	public void Delete(int id) {
 	}
 
 	private string BuildRangeString(int? calendarID) {

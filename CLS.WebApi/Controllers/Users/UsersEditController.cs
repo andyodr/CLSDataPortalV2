@@ -26,7 +26,7 @@ public class EditController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get(int id) {
 		var result = new UserIndexGetObject { data = new(), hierarchy = new(), roles = new() };
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -96,7 +96,7 @@ public class EditController : ControllerBase
 	[HttpPut]
 	public ActionResult<UserIndexGetObject> Put(UserIndexDto value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

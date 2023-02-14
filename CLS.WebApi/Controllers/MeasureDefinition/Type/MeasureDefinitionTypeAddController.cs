@@ -14,16 +14,10 @@ public class AddController : ControllerBase
 
 	public AddController(ApplicationDbContext context) => _context = context;
 
-	[HttpGet]
-	public IEnumerable<string> Get() => new string[] { "value1", "value2" };
-
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
 	[HttpPost]
-	public ActionResult<MeasureTypeModel> Post([FromBody] MeasureTypeObject value) {
+	public ActionResult<MeasureTypeModel> Post(MeasureTypeObject value) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

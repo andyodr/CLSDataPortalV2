@@ -23,7 +23,7 @@ public class AddController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -57,7 +57,7 @@ public class AddController : ControllerBase
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto value) {
 		var returnObject = new UserIndexGetObject { data = new() };
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

@@ -18,7 +18,7 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<RegionMetricsFilterObject> Get() {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -81,11 +81,11 @@ public class IndexController : ControllerBase
 	public string Get(int id) => "value";
 
 	[HttpPost]
-	public ActionResult<RegionMetricsFilterObject> Post([FromBody] RegionsDataViewModelAdd value) {
+	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd value) {
 		var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -152,10 +152,10 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<RegionMetricsFilterObject> Put([FromBody] RegionsDataViewModel value) {
+	public ActionResult<RegionMetricsFilterObject> Put(RegionsDataViewModel value) {
 		var returnObject = new RegionMetricsFilterObject { data = new() };
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -216,7 +216,7 @@ public class IndexController : ControllerBase
 	[HttpDelete("{id}")]
 	public ActionResult<RegionMetricsFilterObject> Delete(int id) {
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {

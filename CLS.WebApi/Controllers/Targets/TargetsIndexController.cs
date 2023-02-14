@@ -26,7 +26,7 @@ public class IndexController : ControllerBase
 		var id = new List<long>();
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -92,11 +92,11 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<MeasureDataIndexListObject> Put([FromBody] TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> Put(TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		List<MeasureDataReturnObject> measureDataList = new();
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
@@ -187,12 +187,12 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public ActionResult<MeasureDataIndexListObject> applytochildren([FromBody] TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> applytochildren(TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		var lastUpdatedOn = DateTime.Now;
 
 		try {
-			if (Helper.UserAuthorization(User) is UserObject u) {
+			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
 			}
 			else {
