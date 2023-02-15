@@ -25,7 +25,7 @@ builder.Services
 		options.ExpireTimeSpan = TimeSpan.FromHours(2);
 		options.SlidingExpiration = true;
 		options.AccessDeniedPath = "/Account/SignIn";
-		options.EventsType = typeof(CLS.WebApi.CustomCookieAuthenticationEvents);
+		options.EventsType = typeof(CustomCookieAuthenticationEvents);
 	});
 
 builder.Services.AddScoped<CustomCookieAuthenticationEvents>();
@@ -40,6 +40,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseCookiePolicy(new() { MinimumSameSitePolicy = SameSiteMode.Strict });
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

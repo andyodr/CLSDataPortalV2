@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -26,7 +27,26 @@ public class UploadController : ControllerBase
 		_context = context;
 	}
 
-	// POST api/values
+	public class Model
+	{
+		[Required]
+		public int DataImport { get; set; }
+
+		[Required]
+		public string Sheet { get; set; } = null!;
+
+		public IReadOnlyDictionary<string, IEnumerable<SheetDataTarget>> Data { get; set; } = null!;
+
+		public IReadOnlyDictionary<string, IEnumerable<SheetDataTarget>> Targets { get; set; } = null!;
+
+		public IReadOnlyDictionary<string, IEnumerable<SheetDataCustomer>> Customers { get; set; } = null!;
+
+		public IReadOnlyDictionary<string, IEnumerable<SheetDataMeasureData>> MeasureData { get; set; } = null!;
+
+		[Required]
+		public int CalendarId { get; set; }
+	}
+
 	[HttpPost]
 	public ActionResult<DataImportReturnObject> Post([FromBody] dynamic jsonString) {
 		int rowNumber = 1;
@@ -58,7 +78,6 @@ public class UploadController : ControllerBase
 			int dataImport = int.Parse(jsonObject!["dataImport"]?.ToString() ?? "0");
 
 			string sheetName = jsonObject["sheet"]?.ToString() ?? string.Empty;
-			//var columnHeaders = jsonObject["columns"].ToList();
 			var array = jsonObject["data"]![sheetName];
 
 			// --------------------------------------------------------
@@ -545,7 +564,7 @@ public class UploadController : ControllerBase
 			returnObject.error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_CALENDAR_NO_EXIST });
 		}
 	}
- 
+
 	private void ImportCustomerRecords(SheetDataCustomer row) {
 		try {
 			_ = _context.CustomerRegion.Add(new() {
