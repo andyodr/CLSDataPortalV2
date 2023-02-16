@@ -21,7 +21,6 @@ public class FilterController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
 	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(FilterReturnObject))]
 	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(List<GetIntervalsObject>))]
