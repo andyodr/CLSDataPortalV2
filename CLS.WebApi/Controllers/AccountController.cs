@@ -35,6 +35,7 @@ public class AccountController : Controller
 			[FromForm] string password,
 			[FromForm] bool persistent = false) {
 		bool continueLogin = true;
+		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
 		UserObject? user = null;
 
@@ -49,16 +50,12 @@ public class AccountController : Controller
 
 		// Validates against Active Directory
 		if (continueLogin) {
-			bool bIsByPass = false;
-
-			//Validates ByPass user
-			if ((user!.userName == _config.byPassUserName) &&
-				(password == _config.byPassUserPassword)) {
-				bIsByPass = true;
+			if (user!.userName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
+					&& password == _config.byPassUserPassword) {
+				authenticationType = "bypass";
 			}
-
-			// Check Active Directory if User is NOT ByPassUser 
-			if (!bIsByPass) {
+			else {
+				authenticationType = "windows";
 				var AD = new LdapAuthentication(_config);
 				string sADReturn = AD.IsAuthenticated2(userName, password);
 				if (!string.IsNullOrWhiteSpace(sADReturn)) {
@@ -77,7 +74,7 @@ public class AccountController : Controller
 				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
 
-			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "windows"));
+			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
 			var properties = new AuthenticationProperties { IsPersistent = persistent };
 			await HttpContext.SignInAsync(principal, properties);
 			Helper.AddAuditTrail(_dbc,
