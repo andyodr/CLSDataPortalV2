@@ -1,7 +1,7 @@
 const PROXY_CONFIG = [
   {
     context: [
-      "/api",
+      "/api", "/swagger"
     ],
     target: "https://localhost:40443",
     secure: false

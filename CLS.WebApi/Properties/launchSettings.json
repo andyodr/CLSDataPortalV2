@@ -12,7 +12,7 @@
     "CLS.WebApi": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:40443;http://localhost:40080",
       "environmentVariables": {

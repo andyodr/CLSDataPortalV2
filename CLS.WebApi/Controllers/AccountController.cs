@@ -9,6 +9,7 @@ using System.Security.Claims;
 namespace CLS.WebApi.Controllers;
 
 [ApiController]
+[Route("api")]
 [AllowAnonymous]
 public class AccountController : Controller
 {
