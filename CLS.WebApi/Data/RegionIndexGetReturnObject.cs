@@ -2,8 +2,11 @@
 
 public class RegionIndexGetReturnObject
 {
-	public ErrorModel error { set; get; }
-	public List<string> hierarchy { set; get; }
-	public bool allow { set; get; }
-	public List<MeasureTypeRegionsObject> data { set; get; }
+	public ErrorModel? Error { get; set; }
+
+	public IList<string> Hierarchy { get; set; } = new List<string>();
+
+	public bool Allow { get; set; }
+
+	public IList<MeasureTypeRegionsObject> Data { get; set; } = new List<MeasureTypeRegionsObject>();
 }

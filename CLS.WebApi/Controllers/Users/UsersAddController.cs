@@ -1,6 +1,7 @@
 ﻿using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.Users;
 
@@ -30,11 +31,12 @@ public class AddController : ControllerBase
 				return Unauthorized();
 			}
 
-			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).ToArray();
+			var region = _context.Hierarchy
+				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
 			returnObject.hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubsLevel(_context, regions.First().Id),
+				hierarchy = region.Name,
+				id = region.Id,
+				sub = Helper.GetSubsLevel(_context, region.Id),
 				count = 0 });
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {

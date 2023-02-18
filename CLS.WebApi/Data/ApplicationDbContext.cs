@@ -40,9 +40,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<MeasureData>().Property(t => t.IsProcessed).HasDefaultValue(1);
 		modelBuilder.Entity<MeasureData>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<MeasureData>().Metadata.SetIsTableExcludedFromMigrations(true);
-		modelBuilder.Entity<MeasureDefinition>().HasKey(m => m.Id);
-		modelBuilder.Entity<MeasureDefinition>().Property(t => t.IsProcessed).HasDefaultValue(2);
-		modelBuilder.Entity<MeasureDefinition>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
+		modelBuilder.Entity<MeasureDefinition>().HasKey(d => d.Id);
+		modelBuilder.Entity<MeasureDefinition>().HasOne(d => d.Unit).WithMany().HasForeignKey(d => d.UnitId).IsRequired(true);
+		modelBuilder.Entity<MeasureDefinition>().Property(d => d.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<MeasureDefinition>().Property(d => d.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<MeasureDefinition>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Measure>().HasKey(m => m.Id);
 		modelBuilder.Entity<Measure>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
@@ -50,14 +51,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<MeasureType>().HasKey(m => m.Id);
 		modelBuilder.Entity<MeasureType>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Hierarchy>().HasKey(h => h.Id);
-		modelBuilder.Entity<Hierarchy>().Property(t => t.IsProcessed).HasDefaultValue(2);
-		modelBuilder.Entity<Hierarchy>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Hierarchy>()
 			.HasOne(h => h.Parent)
 			.WithMany(h => h.Children)
 			.HasForeignKey(h => h.HierarchyParentId)
 			.IsRequired(false)
 			.OnDelete(DeleteBehavior.Restrict);
+		modelBuilder.Entity<Hierarchy>().Property(t => t.IsProcessed).HasDefaultValue(2);
+		modelBuilder.Entity<Hierarchy>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<Hierarchy>().Metadata.SetIsTableExcludedFromMigrations(true);
 
 		modelBuilder.Entity<HierarchyLevel>().HasKey(h => h.Id);
@@ -78,9 +79,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<Setting>().Metadata.SetIsTableExcludedFromMigrations(true);
 		modelBuilder.Entity<Unit>().HasKey(u => u.Id);
 		modelBuilder.Entity<Unit>().Metadata.SetIsTableExcludedFromMigrations(true);
-		modelBuilder.Ignore<Unit>();
-
-		//modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 	}
 
 	public DbSet<AuditTrail> AuditTrail { get; set; }

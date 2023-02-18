@@ -20,8 +20,11 @@ public class IntervalsController : ControllerBase
 		_context = context;
 	}
 
+	/// <summary>
+	/// Get interval data from Calendar table for the specified year
+	/// </summary>
 	[HttpGet]
-	public ActionResult<IntervalListObject> Get(MeasureDataFilterReceiveObject values) {
+	public ActionResult<IntervalListObject> Get([FromQuery] MeasureDataFilterReceiveObject values) {
 		var returnObject = new IntervalListObject();
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {

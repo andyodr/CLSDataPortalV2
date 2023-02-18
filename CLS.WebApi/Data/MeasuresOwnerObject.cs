@@ -2,9 +2,13 @@
 
 public class MeasuresOwnerObject
 {
-	public long measureDefinitionId { get; set; }
-	public int measureTypeId { get; set; }
-	public int hierarchyId { get; set; }
-	public List<RegionOwnerObject> hierarchy { get; set; }
-	public string owner { get; set; }
+	public long MeasureDefinitionId { get; set; }
+
+	public int MeasureTypeId { get; set; }
+
+	public int HierarchyId { get; set; }
+
+	public List<RegionOwnerObject>? Hierarchy { get; set; }
+
+	public string Owner { get; set; } = null!;
 }

@@ -2,11 +2,11 @@
 
 public class MeasureType
 {
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public string Name { set; get; } = null!;
+	public string Name { get; set; } = null!;
 
-	public string Description { set; get; } = null!;
+	public string? Description { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public DateTime LastUpdatedOn { get; set; }
 }

@@ -20,10 +20,12 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
+	/// <summary>
+	/// Get Measure data
+	/// </summary>
 	[HttpGet]
-	public ActionResult<MeasureDataIndexListObject> Get(TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> Get(int hierarchyId, int measureTypeId) {
 		var returnObject = new MeasureDataIndexListObject { data = new() };
-		var id = new List<long>();
 
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -33,18 +35,18 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var defs = from measuredef in _context.MeasureDefinition
-					   where measuredef.MeasureType!.Id == value.measureTypeId
-					   orderby measuredef.FieldNumber ascending, measuredef.Name
-					   select measuredef;
+			var defs = from mdef in _context.MeasureDefinition
+					   where mdef.MeasureTypeId == measureTypeId
+					   orderby mdef.FieldNumber, mdef.Name
+					   select mdef;
 
-			var msr = from m in _context.Measure
-					  from t in m.Targets!
-					  where t.Active == true && m.Hierarchy!.Id == value.hierarchyId
-					  select t;
+			var targets = from m in _context.Measure
+						  from t in m.Targets!
+						  where t.Active == true && m.Hierarchy!.Id == hierarchyId
+						  select t;
 
-			foreach (var def in defs.Include(d => d.Unit)) {
-				foreach (var t in msr.Include(t => t.User)) {
+			foreach (var def in defs.Include(d => d.Unit).AsNoTrackingWithIdentityResolution()) {
+				foreach (var t in targets.Include(t => t.Measure).Include(t => t.User).AsNoTrackingWithIdentityResolution()) {
 					if (def.Id == t.Measure!.MeasureDefinitionId) {
 						var mdr = new MeasureDataReturnObject {
 							id = t.Measure.Id,
@@ -54,7 +56,7 @@ public class IndexController : ControllerBase
 							targetCount = t.Measure.Targets!.Count,
 							expression = def.Expression,
 							description = def.Description,
-							units = def.Unit!.Short,
+							units = def.Unit.Short,
 							targetId = t.Id,
 							updated = t.UserId switch {
 								null => Helper.LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
@@ -79,10 +81,10 @@ public class IndexController : ControllerBase
 
 			returnObject.allow = false;
 			if (_user.userRoleId == (int)Helper.userRoles.systemAdministrator)
-				returnObject.allow = _user.hierarchyIds.Contains(value.hierarchyId);
+				returnObject.allow = _user.hierarchyIds.Contains(hierarchyId);
 
-			_user.savedFilters[Helper.pages.target].hierarchyId = value.hierarchyId;
-			_user.savedFilters[Helper.pages.target].measureTypeId = value.measureTypeId;
+			_user.savedFilters[Helper.pages.target].hierarchyId = hierarchyId;
+			_user.savedFilters[Helper.pages.target].measureTypeId = measureTypeId;
 			returnObject.filter = _user.savedFilters[Helper.pages.target];
 			return returnObject;
 		}
