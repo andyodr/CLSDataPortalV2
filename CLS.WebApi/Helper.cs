@@ -534,35 +534,6 @@ public static class Helper
 		return update;
 	}
 
-	public static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
-		try {
-			var entity = dbc.User
-				.Where(u => u.UserName == userName)
-				.Include(u => u.UserRole)
-				.Include(u => u.UserCalendarLocks)
-				.Include(u => u.UserHierarchies)
-				.AsSplitQuery()
-				.AsNoTrackingWithIdentityResolution().Single();
-			var localUser = new UserObject {
-				userId = entity.Id,
-				userRoleId = entity.UserRole!.Id,
-				userName = entity.UserName,
-				firstName = entity.FirstName,
-				userRole = entity.UserRole.Name,
-				LastModified = entity.LastUpdatedOn
-			};
-			localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
-				CalendarId = c.CalendarId,
-				LockOverride = c.LockOverride
-			}));
-			localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
-			return localUser;
-		}
-		catch {
-			return null;
-		}
-	}
-
 	public static UserObject? CreateUserObject(ClaimsPrincipal userClaim) {
 		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 		if (claimUserId is string userId) {

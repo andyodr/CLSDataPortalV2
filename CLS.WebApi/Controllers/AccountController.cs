@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Runtime.Versioning;
 using System.Security.Claims;
@@ -24,10 +25,6 @@ public class AccountController : Controller
 	/// <summary>
 	/// Authenticate the user and sign in to the application.
 	/// </summary>
-	/// <param name="userName"></param>
-	/// <param name="password"></param>
-	/// <param name="persistent"></param>
-	/// <returns>An authentication cookie</returns>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
 	public async Task<IActionResult> SignIn(
@@ -41,7 +38,7 @@ public class AccountController : Controller
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = Helper.CreateDetailedUserObject(_dbc, userName);
+			user = CreateDetailedUserObject(_dbc, userName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
@@ -121,5 +118,30 @@ public class AccountController : Controller
 
 		await HttpContext.SignOutAsync();
 		return SignOut();
+	}
+
+	[NonAction]
+	public static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
+		var entity = dbc.User
+			.Where(u => u.UserName == userName)
+			.Include(u => u.UserRole)
+			.Include(u => u.UserCalendarLocks)
+			.Include(u => u.UserHierarchies)
+			.AsSplitQuery()
+			.AsNoTrackingWithIdentityResolution().Single();
+		var localUser = new UserObject {
+			userId = entity.Id,
+			userRoleId = entity.UserRole!.Id,
+			userName = entity.UserName,
+			firstName = entity.FirstName,
+			userRole = entity.UserRole.Name,
+			LastModified = entity.LastUpdatedOn
+		};
+		localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
+			CalendarId = c.CalendarId,
+			LockOverride = c.LockOverride
+		}));
+		localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
+		return localUser;
 	}
 }

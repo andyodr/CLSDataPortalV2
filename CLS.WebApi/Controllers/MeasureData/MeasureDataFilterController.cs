@@ -108,7 +108,9 @@ public class FilterController : ControllerBase
 				filter.currentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.quarterly);
 				filter.currentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.yearly);
 			}
-			catch { }
+			catch (Exception e) {
+				filter.error = Helper.ErrorProcessing(_context, e, _user.userId);
+			}
 
 
 			//set filter values
