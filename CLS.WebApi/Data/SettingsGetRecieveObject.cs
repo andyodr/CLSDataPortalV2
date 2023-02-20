@@ -2,19 +2,19 @@
 
 public class SettingsGetRecieveObject
 {
-	public int year { set; get; }
+	public int Year { get; set; }
 
-	public int? numberOfDays { set; get; }
+	public int? NumberOfDays { get; set; }
 
-	public int? calculateHH { get; set; }
+	public int? CalculateHH { get; set; }
 
-	public int? calculateMM { get; set; }
+	public int? CalculateMM { get; set; }
 
-	public int? calculateSS { get; set; }
+	public int? CalculateSS { get; set; }
 
-	public bool? active { set; get; }
+	public bool? Active { get; set; }
 
-	public List<CalendarLock> locked { set; get; }
+	public List<CalendarLock>? Locked { get; set; }
 
-	public UserSettingObject users { set; get; }
+	public UserSettingObject? Users { get; set; }
 }

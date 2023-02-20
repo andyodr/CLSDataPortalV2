@@ -77,9 +77,6 @@ public class IndexController : ControllerBase
 
 	}
 
-	[HttpGet("{id}")]
-	public string Get(int id) => "value";
-
 	[HttpPost]
 	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd value) {
 		var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };

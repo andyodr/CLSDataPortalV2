@@ -22,9 +22,8 @@ builder.Services
 	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
 	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(options => {
-		options.ExpireTimeSpan = TimeSpan.FromHours(2);
+		options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 		options.SlidingExpiration = true;
-		options.AccessDeniedPath = "/Account/SignIn";
 		options.EventsType = typeof(CustomCookieAuthenticationEvents);
 	});
 

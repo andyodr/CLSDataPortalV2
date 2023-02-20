@@ -6,19 +6,19 @@ public class MeasureDefinition
 
 	public int MeasureTypeId { get; set; }
 
-	public MeasureType? MeasureType { get; set; }
+	public MeasureType MeasureType { get; set; } = null!;
 
 	public int ReportIntervalId { get; set; }
 
-	public Interval? ReportInterval { get; set; }
+	public Interval ReportInterval { get; set; } = null!;
 
-	public List<Measure>? Measures { get; } = new();
+	public List<Measure>? Measures { get; set; } = new();
 
 	public string Name { get; set; } = string.Empty;
 
 	public string VariableName { get; set; } = string.Empty;
 
-	public string? Description { get; set; } = null!;
+	public string? Description { get; set; }
 
 	public string? Expression { get; set; }
 
@@ -30,7 +30,7 @@ public class MeasureDefinition
 
 	public int UnitId { get; set; }
 
-	public Unit? Unit { get; set; }
+	public Unit Unit { get; set; } = null!;
 
 	public bool? Calculated { get; set; }
 

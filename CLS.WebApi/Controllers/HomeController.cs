@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 namespace CLS.WebApi.Controllers;
 
 [ApiController]
+[Route("api/[controller]")]
 [Authorize]
 public class HomeController : Controller
 {
@@ -14,13 +15,11 @@ public class HomeController : Controller
 
 	public HomeController(IOptions<ConfigurationObject> config) => _config = config.Value;
 
-	[HttpGet("", Name = "default")]
-	[HttpGet("[controller]")]
-	[HttpGet("[controller]/[action]/{id?}")]
+	[HttpGet("[action]/{id?}")]
 	public IActionResult Index() {
 		_user = Helper.CreateUserObject(User);
 		if (_user is null) {
-			return RedirectToAction(nameof(AccountController.SignIn), "Account");
+			return Unauthorized();
 		}
 
 		ViewBag.UserName = "Guess";

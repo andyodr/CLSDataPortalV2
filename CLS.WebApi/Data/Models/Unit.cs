@@ -2,9 +2,9 @@
 
 public class Unit
 {
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public string Name { set; get; } = null!;
+	public string Name { get; set; } = null!;
 
-	public string Short { set; get; } = null!;
+	public string Short { get; set; } = null!;
 }

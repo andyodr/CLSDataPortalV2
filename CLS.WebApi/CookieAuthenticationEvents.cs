@@ -23,6 +23,22 @@ public class CustomCookieAuthenticationEvents : CookieAuthenticationEvents
 			await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 		}
 	}
+
+	/// <summary>
+	/// Changes the default challenge behavior from a redirect to /Account/Login to a 401 Unauthorized
+	/// </summary>
+	public override Task RedirectToLogin(RedirectContext<CookieAuthenticationOptions> context) {
+		context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Changes default redirect behavior to 403 Forbidden
+	/// </summary>
+	public override Task RedirectToAccessDenied(RedirectContext<CookieAuthenticationOptions> context) {
+		context.Response.StatusCode = StatusCodes.Status403Forbidden;
+		return Task.CompletedTask;
+	}
 }
 
 public static class CustomClaimTypes {

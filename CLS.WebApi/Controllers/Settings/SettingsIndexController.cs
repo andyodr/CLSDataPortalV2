@@ -21,8 +21,11 @@ public class IndexController : ControllerBase
 		_context = context;
 	}
 
+	/// <summary>
+	/// Get settings for selected year
+	/// </summary>
 	[HttpGet]
-	public ActionResult<SettingsGetReturnObject> Get(SettingsGetRecieveObject value) {
+	public ActionResult<SettingsGetReturnObject> Get(int year) {
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -32,7 +35,7 @@ public class IndexController : ControllerBase
 			}
 
 			var returnObject = new SettingsGetReturnObject { locked = new(), users = new(), years = new() };
-			var calendarRecords = _context.Calendar.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly);
+			var calendarRecords = _context.Calendar.Where(c => c.Year == year && c.Interval.Id == (int)Helper.intervals.monthly);
 			var settings = _context.Setting;
 			if (!settings.Any()) {
 				return BadRequest(Resource.SETTINGS_NO_RECORDS);
@@ -50,7 +53,7 @@ public class IndexController : ControllerBase
 				returnObject.years.Add(yyear.Year);
 			}
 
-			returnObject.year = value.year;
+			returnObject.year = year;
 			//returnObject.numberOfDays = settings.First().NumberOfDays;
 			var setting = settings.AsNoTracking().First();
 			returnObject.active = !setting.Active;
@@ -114,13 +117,13 @@ public class IndexController : ControllerBase
 			var lastUpdatedOn = DateTime.Now;
 			var returnObject = new SettingsGetReturnObject { locked = new(), years = new() };
 			var calendarRecords = _context.Calendar
-				.Where(c => c.Year == value.year && c.Interval.Id == (int)Helper.intervals.monthly)
+				.Where(c => c.Year == value.Year && c.Interval.Id == (int)Helper.intervals.monthly)
 				.OrderBy(c => c.Month);
 			var years = _context.Calendar
 				.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.Year >= DateTime.Now.Year - 3)
 				.OrderBy(c => c.Month);
 			foreach (var record in calendarRecords.Where(c => c.Month != null)) {
-				record.Locked = value.locked.ElementAt((int)record.Month! - 1).locked ?? false;
+				record.Locked = value.Locked?.ElementAt((int)record.Month! - 1)?.locked ?? false;
 				record.LastUpdatedOn = lastUpdatedOn;
 			}
 
@@ -130,8 +133,8 @@ public class IndexController : ControllerBase
 			}
 
 			//settings.NumberOfDays = (Int16)value.numberOfDays;
-			settings.CalculateSchedule = Helper.CalculateSchedule(value.calculateHH, value.calculateMM, value.calculateSS);
-			settings.Active = !value.active;
+			settings.CalculateSchedule = Helper.CalculateSchedule(value.CalculateHH, value.CalculateMM, value.CalculateSS);
+			settings.Active = !value.Active;
 			settings.LastUpdatedOn = lastUpdatedOn;
 			_context.SaveChanges();
 
@@ -148,7 +151,7 @@ public class IndexController : ControllerBase
 				returnObject.years.Add(yyear.Year);
 			}
 
-			returnObject.year = value.year;
+			returnObject.year = value.Year;
 			//returnObject.numberOfDays = settings.NumberOfDays;
 			returnObject.active = !settings.Active;
 			returnObject.lastCalculatedOn = settings.LastCalculatedOn.ToString();

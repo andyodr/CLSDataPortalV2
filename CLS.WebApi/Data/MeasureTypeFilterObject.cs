@@ -2,9 +2,9 @@
 
 public class MeasureTypeFilterObject
 {
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public string Name { set; get; } = string.Empty;
+	public string Name { get; set; } = string.Empty;
 
-	public string Description { set; get; } = string.Empty;
+	public string? Description { get; set; }
 }

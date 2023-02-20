@@ -132,7 +132,7 @@ public class UploadController : ControllerBase
 					item => ValidateTargetRows(item, _user.userId)));
 				TaskList.Add(task);
 				Task.WaitAll(TaskList.ToArray());
-				if (returnObject.error.Count() != 0) {
+				if (returnObject.error.Count != 0) {
 					var temp = returnObject.error.OrderBy(e => e.row);
 					returnObject.error = temp.ToList();
 					return returnObject;
@@ -295,7 +295,7 @@ public class UploadController : ControllerBase
 		}
 	}
 
-	private DataImportsMainObject? dataReturn(UserObject user) {
+	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
 			var returnObject = new DataImportsMainObject {
 				years = new(),

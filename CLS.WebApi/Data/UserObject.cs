@@ -4,13 +4,13 @@ public class UserObject
 {
 	public int userId { get; set; }
 
-	public string userName { get; set; }
+	public string userName { get; set; } = null!;
 
 	public string? firstName { get; set; }
 
 	public int userRoleId { get; set; }
 
-	public string userRole { get; set; }
+	public string userRole { get; set; } = null!;
 
 	public DateTimeOffset? expiresUtc { get; set; }
 

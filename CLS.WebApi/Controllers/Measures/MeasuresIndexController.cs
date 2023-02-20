@@ -15,12 +15,12 @@ public class IndexController : ControllerBase
 
 	public IndexController(ApplicationDbContext context) => _context = context;
 
+	/// <summary>
+	/// Gets hierarchy and measuredefinition data
+	/// </summary>
 	[HttpGet]
-	public ActionResult<RegionIndexGetReturnObject> Get(MeasuresIndexGetRecieveObject values) {
-		var returnObject = new RegionIndexGetReturnObject {
-			hierarchy = new(),
-			data = new()
-		};
+	public ActionResult<RegionIndexGetReturnObject> Get(int hierarchyId, int measureTypeId) {
+		var returnObject = new RegionIndexGetReturnObject();
 
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -31,19 +31,19 @@ public class IndexController : ControllerBase
 			}
 
 			//returnObject.allow = _user.hierarchyIds.Contains(values.hierarchyId);
-			returnObject.allow = true;
+			returnObject.Allow = true;
 
 			var hierarchies = from hierarchy in _context.Hierarchy
-							  where hierarchy.HierarchyParentId == values.hierarchyId || hierarchy.Id == values.hierarchyId
+							  where hierarchy.HierarchyParentId == hierarchyId || hierarchy.Id == hierarchyId
 							  orderby hierarchy.Id
 							  select hierarchy;
 
 			foreach (var hierarchy in hierarchies) {
-				returnObject.hierarchy.Add(hierarchy.Name);
+				returnObject.Hierarchy.Add(hierarchy.Name);
 			}
 
 			var measureDefinitions = from measureDef in _context.MeasureDefinition
-									 where measureDef.MeasureType!.Id == values.measureTypeId
+									 where measureDef.MeasureType!.Id == measureTypeId
 									 orderby measureDef.FieldNumber ascending, measureDef.Name
 									 select measureDef;
 
@@ -68,12 +68,12 @@ public class IndexController : ControllerBase
 				}
 
 				if (currentDataObject.hierarchy.Count > 0) {
-					returnObject.data.Add(currentDataObject);
+					returnObject.Data.Add(currentDataObject);
 				}
 			}
 
-			_user.savedFilters[Helper.pages.measure].hierarchyId = values.hierarchyId;
-			_user.savedFilters[Helper.pages.measure].measureTypeId = values.measureTypeId;
+			_user.savedFilters[Helper.pages.measure].hierarchyId = hierarchyId;
+			_user.savedFilters[Helper.pages.measure].measureTypeId = measureTypeId;
 
 			return returnObject;
 		}
@@ -91,7 +91,7 @@ public class IndexController : ControllerBase
 			return Unauthorized();
 		}
 
-		var returnObject = new RegionIndexGetReturnObject { data = new() };
+		var returnObject = new RegionIndexGetReturnObject();
 		var lastUpdatedOn = DateTime.Now;
 		try {
 			var currentMeasure = new MeasureTypeRegionsObject {
@@ -138,7 +138,7 @@ public class IndexController : ControllerBase
 				currentMeasure.hierarchy.Add(measureHierarchy);
 			}
 
-			returnObject.data.Add(currentMeasure);
+			returnObject.Data.Add(currentMeasure);
 			return returnObject;
 		}
 		catch (Exception e) {

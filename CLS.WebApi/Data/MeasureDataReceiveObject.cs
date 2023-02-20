@@ -2,13 +2,19 @@
 
 public class MeasureDataReceiveObject
 {
-	public int? calendarId { set; get; }
-	public string day { set; get; }
-	public int hierarchyId { set; get; }
-	public int measureTypeId { set; get; }
-	public long? measureDataId { set; get; }
-	public double? measureValue { set; get; }
-	public string explanation { set; get; }
-	public string action { set; get; }
-	//public ErrorModel error { set; get; }
+	public int? CalendarId { get; set; }
+
+	public string Day { get; set; } = null!;
+
+	public int HierarchyId { get; set; }
+
+	public int MeasureTypeId { get; set; }
+
+	public long? MeasureDataId { get; set; }
+
+	public double? MeasureValue { get; set; }
+
+	public string Explanation { get; set; } = null!;
+
+	public string Action { get; set; } = null!;
 }

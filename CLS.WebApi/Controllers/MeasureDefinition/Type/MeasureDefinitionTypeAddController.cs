@@ -27,20 +27,20 @@ public class AddController : ControllerBase
 			var returnObject = new MeasureTypeModel { data = new() };
 
 			// Validates name
-			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.name.Trim().ToLower()).Count();
+			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.Name.Trim().ToLower()).Count();
 			if (validateCount > 0) {
 				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
 			var measureType = _context.MeasureType.Add(new() {
-				Description = value.description,
-				Name = value.name,
+				Description = value.Description,
+				Name = value.Name,
 				LastUpdatedOn = lastUpdatedOn
 			}).Entity;
 			_context.SaveChanges();
 			//value.id = _measureTypeRepository.All().Where(m => m.Name == value.name).First().Id;
-			value.id = measureType.Id;
+			value.Id = measureType.Id;
 
 			Helper.AddAuditTrail(_context,
 				Resource.WEB_PAGES,

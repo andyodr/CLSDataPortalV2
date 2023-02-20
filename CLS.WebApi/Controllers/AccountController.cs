@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Runtime.Versioning;
 using System.Security.Claims;
@@ -24,23 +25,17 @@ public class AccountController : Controller
 	/// <summary>
 	/// Authenticate the user and sign in to the application.
 	/// </summary>
-	/// <param name="userName"></param>
-	/// <param name="password"></param>
-	/// <param name="persistent"></param>
-	/// <returns>An authentication cookie</returns>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> SignIn(
-			[FromForm] string userName,
-			[FromForm] string password,
-			[FromForm] bool persistent = false) {
+	public async Task<IActionResult> SignIn(string userName, string password, bool persistent = false) {
 		bool continueLogin = true;
+		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
 		UserObject? user = null;
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = Helper.CreateDetailedUserObject(_dbc, userName);
+			user = CreateDetailedUserObject(_dbc, userName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
@@ -49,16 +44,12 @@ public class AccountController : Controller
 
 		// Validates against Active Directory
 		if (continueLogin) {
-			bool bIsByPass = false;
-
-			//Validates ByPass user
-			if ((user!.userName == _config.byPassUserName) &&
-				(password == _config.byPassUserPassword)) {
-				bIsByPass = true;
+			if (user!.userName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
+					&& password == _config.byPassUserPassword) {
+				authenticationType = "bypass";
 			}
-
-			// Check Active Directory if User is NOT ByPassUser 
-			if (!bIsByPass) {
+			else {
+				authenticationType = "windows";
 				var AD = new LdapAuthentication(_config);
 				string sADReturn = AD.IsAuthenticated2(userName, password);
 				if (!string.IsNullOrWhiteSpace(sADReturn)) {
@@ -77,7 +68,7 @@ public class AccountController : Controller
 				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
 
-			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "windows"));
+			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
 			var properties = new AuthenticationProperties { IsPersistent = persistent };
 			await HttpContext.SignInAsync(principal, properties);
 			Helper.AddAuditTrail(_dbc,
@@ -124,5 +115,30 @@ public class AccountController : Controller
 
 		await HttpContext.SignOutAsync();
 		return SignOut();
+	}
+
+	[NonAction]
+	public static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
+		var entity = dbc.User
+			.Where(u => u.UserName == userName)
+			.Include(u => u.UserRole)
+			.Include(u => u.UserCalendarLocks)
+			.Include(u => u.UserHierarchies)
+			.AsSplitQuery()
+			.AsNoTrackingWithIdentityResolution().Single();
+		var localUser = new UserObject {
+			userId = entity.Id,
+			userRoleId = entity.UserRole!.Id,
+			userName = entity.UserName,
+			firstName = entity.FirstName,
+			userRole = entity.UserRole.Name,
+			LastModified = entity.LastUpdatedOn
+		};
+		localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
+			CalendarId = c.CalendarId,
+			LockOverride = c.LockOverride
+		}));
+		localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
+		return localUser;
 	}
 }

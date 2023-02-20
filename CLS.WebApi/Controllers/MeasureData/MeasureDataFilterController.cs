@@ -21,13 +21,12 @@ public class FilterController : ControllerBase
 		_context = context;
 	}
 
-	// GET: api/values
 	[HttpGet]
-	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(FilterReturnObject))]
-	[ProducesResponseType(StatusCodes.Status200OK, Type=typeof(List<GetIntervalsObject>))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FilterReturnObject))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetIntervalsObject>))]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public IActionResult Get(MeasureDataFilterReceiveObject values) {
+	public IActionResult Get([FromQuery] MeasureDataFilterReceiveObject values) {
 		if (values.year is null) {
 			return Filter();
 		}
@@ -60,15 +59,12 @@ public class FilterController : ControllerBase
 				filter.intervals.Add(new() { id = interval.Id, name = interval.Name });
 			}
 
-			var years = _context.Calendar
+			var cals = _context.Calendar
 						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Helper.intervals.yearly)
 						.OrderByDescending(y => y.Year);
 
-			foreach (var year in years.AsNoTrackingWithIdentityResolution()) {
-				var newYear = new YearsObject();
-				newYear.id = year.Id;
-				newYear.year = year.Year;
-				filter.years.Add(newYear);
+			foreach (var cal in cals.AsNoTrackingWithIdentityResolution()) {
+				filter.years.Add(new YearsObject { id = cal.Id, year = cal.Year });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
@@ -112,7 +108,9 @@ public class FilterController : ControllerBase
 				filter.currentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.quarterly);
 				filter.currentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.yearly);
 			}
-			catch { }
+			catch (Exception e) {
+				filter.error = Helper.ErrorProcessing(_context, e, _user.userId);
+			}
 
 
 			//set filter values

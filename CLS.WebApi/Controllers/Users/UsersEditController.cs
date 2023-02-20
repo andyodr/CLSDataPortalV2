@@ -91,8 +91,6 @@ public class EditController : ControllerBase
 	/// <summary>
 	/// Modify user details for a specified user ID.
 	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
 	[HttpPut]
 	public ActionResult<UserIndexGetObject> Put(UserIndexDto value) {
 		try {
