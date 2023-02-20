@@ -18,6 +18,8 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { SideComponent } from './side/side.component';
+import { LoginComponent } from './login/login.component';
 import { MeasureDataComponent } from './measuredata/measuredata.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { TargetsComponent } from './targets/targets.component';
@@ -43,7 +45,9 @@ import { HierarchyComponent } from './hierarchy/hierarchy.component';
     DataImportsComponent,
     TestErrorComponent,
     NotFoundComponent,
-    ServerErrorComponent
+    ServerErrorComponent,
+    SideComponent,
+    LoginComponent
   ],
   imports: [
     BrowserAnimationsModule,

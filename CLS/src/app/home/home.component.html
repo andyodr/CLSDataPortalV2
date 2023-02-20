@@ -1,7 +1,7 @@
 <div class="container mt-5">
     <div *ngIf="!registerMode" style="text-align: center;">
         <h1>CLS Data Portal Deliveries</h1>
-        <p class="lead">placeholder for the table...</p>
+        <p class="lead">placeholder for the line...</p>
         <div class="text-center">
             <button (click)="registerToggle()" class="btn btn-primary btn-lg me-2">Register</button>
             <button class="btn btn-primary btn-info btn-lg">Learn more</button>
@@ -13,9 +13,8 @@
             <div class="div col-4">
                 <!--<p>Register form goes here</p>-->
                 <app-register (cancelRegister)="cancelRegisterMode($event)"></app-register>
+                <app-login></app-login>
             </div>
         </div>
     </div>
-
-
 </div>

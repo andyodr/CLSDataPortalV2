@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,7 @@ export class HomeComponent implements OnInit {
   }
 
   getUsers(){
-    this.http.get('https://localhost:5001/api/users').subscribe({
+    this.http.get(environment.baseUrl + 'api/users').subscribe({
       next: response => this.users = response,
       error: err => console.log(err),
       complete: () => console.log('Resquest Completed')
