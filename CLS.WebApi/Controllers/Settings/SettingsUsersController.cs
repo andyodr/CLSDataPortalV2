@@ -11,7 +11,6 @@ namespace CLS.WebApi.Controllers.Settings;
 [Authorize]
 public class UsersController : ControllerBase
 {
-	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
 	private readonly ApplicationDbContext _context;
 	private UserObject _user = null!;
 

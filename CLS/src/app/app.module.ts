@@ -18,6 +18,12 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { MeasureDataComponent } from './measuredata/measuredata.component';
+import { DataImportsComponent } from './dataimports/dataimports.component';
+import { TargetsComponent } from './targets/targets.component';
+import { MeasuresComponent } from './measures/measures.component';
+import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
+import { HierarchyComponent } from './hierarchy/hierarchy.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +35,12 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
     MemberDetailComponent,
     ListsComponent,
     MessagesComponent,
+    MeasureDataComponent,
+    TargetsComponent,
+    MeasuresComponent,
+    MeasureDefinitionComponent,
+    HierarchyComponent,
+    DataImportsComponent,
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent

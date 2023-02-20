@@ -26,9 +26,9 @@ public class EditController : ControllerBase
 
 			var returnObject = new MeasureTypeModel { data = new() };
 			foreach (var measType in _context.MeasureType.Where(m => m.Id == id)) {
-				returnObject.data.id = measType.Id;
-				returnObject.data.name = measType.Name;
-				returnObject.data.description = measType.Description;
+				returnObject.data.Id = measType.Id;
+				returnObject.data.Name = measType.Name;
+				returnObject.data.Description = measType.Description;
 			}
 
 			return returnObject;
@@ -52,18 +52,18 @@ public class EditController : ControllerBase
 
 			// Validates name
 			int validateCount = _context.MeasureType
-			  .Where(m => m.Id != value.id && m.Name.Trim().ToLower() == value.name.Trim().ToLower())
+			  .Where(m => m.Id != value.Id && m.Name.Trim().ToLower() == value.Name.Trim().ToLower())
 			  .Count();
 			if (validateCount > 0) {
 				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
-			var measureType = _context.MeasureType.Where(m => m.Id == value.id).FirstOrDefault();
+			var measureType = _context.MeasureType.Where(m => m.Id == value.Id).FirstOrDefault();
 			if (measureType is not null) {
 				var lastUpdatedOn = DateTime.Now;
 
-				measureType.Description = value.description;
-				measureType.Name = value.name;
+				measureType.Description = value.Description;
+				measureType.Name = value.Name;
 				measureType.LastUpdatedOn = lastUpdatedOn;
 				_context.SaveChanges();
 

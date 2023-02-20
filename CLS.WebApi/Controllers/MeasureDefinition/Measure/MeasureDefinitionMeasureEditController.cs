@@ -18,11 +18,11 @@ public class EditController : ControllerBase
 	[HttpGet]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
-			units = new List<UnitsObject>(),
+			units = new(),
 			intervals = new(),
 			measureTypes = new(),
 			aggFunctions = AggregationFunctions.list,
-			data = new List<MeasureDefinitionViewModel>()
+			data = new()
 		};
 
 		try {
@@ -93,11 +93,11 @@ public class EditController : ControllerBase
 	[HttpPut]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, MeasureDefinitionViewModel value) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
-			units = new List<UnitsObject>(),
+			units = new(),
 			intervals = new(),
 			measureTypes = new(),
 			aggFunctions = AggregationFunctions.list,
-			data = new List<MeasureDefinitionViewModel>()
+			data = new()
 		};
 
 		try {

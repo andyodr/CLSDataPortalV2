@@ -1,5 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { MeasureDataComponent } from './measuredata/measuredata.component';
+import { TargetsComponent } from './targets/targets.component';
+import { MeasuresComponent } from './measures/measures.component';
+import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
+import { HierarchyComponent } from './hierarchy/hierarchy.component';
+import { DataImportsComponent } from './dataimports/dataimports.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
@@ -19,8 +25,14 @@ const routes: Routes = [
       {path: 'members/:id', component: MemberDetailComponent},
       {path: 'lists', component: ListsComponent},
       {path: 'messages', component: MessagesComponent},
-  ]
-},
+    ]
+  },
+  {path: 'measuredata', component: MeasureDataComponent},
+  {path: 'targets', component: TargetsComponent},
+  {path: 'measures', component: MeasuresComponent},
+  {path: 'measuredefinition', component: MeasureDefinitionComponent},
+  {path: 'hierarchy', component: HierarchyComponent},
+  {path: 'dataimports', component: DataImportsComponent},
   {path: 'errors', component: TestErrorComponent},
   {path: 'not-found', component: NotFoundComponent},
   {path: 'server-error', component: ServerErrorComponent},

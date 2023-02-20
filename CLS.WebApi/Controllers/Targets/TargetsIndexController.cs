@@ -189,7 +189,7 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public ActionResult<MeasureDataIndexListObject> applytochildren(TargetGetAllObject value) {
+	public ActionResult<MeasureDataIndexListObject> ApplyToChildren(TargetGetAllObject value) {
 		var returnObject = new MeasureDataIndexListObject();
 		var lastUpdatedOn = DateTime.Now;
 
