@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Versioning;
 using System.Security.Claims;
 
@@ -22,12 +23,23 @@ public class AccountController : Controller
 		_dbc = context;
 	}
 
+	public class RequestModel
+	{
+		[Required]
+		public string UserName { get; set; } = null!;
+
+		[Required]
+		public string Password { get; set; } = null!;
+
+		public bool? Persistent { get; set; }
+	}
+
 	/// <summary>
 	/// Authenticate the user and sign in to the application.
 	/// </summary>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> SignIn(string userName, string password, bool persistent = false) {
+	public async Task<IActionResult> SignIn([FromForm] RequestModel form) {
 		bool continueLogin = true;
 		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
@@ -35,7 +47,7 @@ public class AccountController : Controller
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = CreateDetailedUserObject(_dbc, userName);
+			user = CreateDetailedUserObject(_dbc, form.UserName);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
@@ -45,13 +57,13 @@ public class AccountController : Controller
 		// Validates against Active Directory
 		if (continueLogin) {
 			if (user!.userName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
-					&& password == _config.byPassUserPassword) {
+					&& form.Password == _config.byPassUserPassword) {
 				authenticationType = "bypass";
 			}
 			else {
 				authenticationType = "windows";
 				var AD = new LdapAuthentication(_config);
-				string sADReturn = AD.IsAuthenticated2(userName, password);
+				string sADReturn = AD.IsAuthenticated2(form.UserName, form.Password);
 				if (!string.IsNullOrWhiteSpace(sADReturn)) {
 					msgErr = sADReturn;
 					continueLogin = false;
@@ -69,7 +81,7 @@ public class AccountController : Controller
 			};
 
 			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
-			var properties = new AuthenticationProperties { IsPersistent = persistent };
+			var properties = new AuthenticationProperties { IsPersistent = form.Persistent ?? false };
 			await HttpContext.SignInAsync(principal, properties);
 			Helper.AddAuditTrail(_dbc,
 				Resource.SECURITY,
@@ -85,7 +97,7 @@ public class AccountController : Controller
 				Name = user.userName,
 				Role = user.userRole,
 				TableauLink = _config.tableauLink,
-				Persist = persistent
+				Persist = form.Persistent
 			});
 		}
 
