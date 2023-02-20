@@ -27,10 +27,7 @@ public class AccountController : Controller
 	/// </summary>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> SignIn(
-			[FromForm] string userName,
-			[FromForm] string password,
-			[FromForm] bool persistent = false) {
+	public async Task<IActionResult> SignIn(string userName, string password, bool persistent = false) {
 		bool continueLogin = true;
 		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
