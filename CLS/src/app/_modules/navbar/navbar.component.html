@@ -5,6 +5,14 @@
     <div class="nav-toggle">
         <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
     </div>
+    <!--<div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
+        <a class="dropdown-toggle text-light tex-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+        <div class="dropdown-menu mt-3" *dropdownMenu>
+          <a class="dropdown-item" routerLink="/users">User Management</a>
+          <a class="dropdown-item">Settings</a>
+          <a class="dropdown-item" (click)="logout()">Logout</a>
+        </div>
+    </div>-->
 </div>
 <div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar">
     <div class="text-center sidebar-title" *ngIf="opened">CLS Data Portal</div>
