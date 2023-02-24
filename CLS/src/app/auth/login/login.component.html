@@ -1,0 +1,42 @@
+<!--<p>login works!</p>-->
+<div class="login-page">
+    <div class="login-box-inner">
+        <div class="login-box">
+            <div class="login-logo">
+                <img class="center" src="../assets/images/JnJ2.png">
+            </div>
+            <form #loginForm="ngForm" (ngSubmit)="login()" autocomplete="off" class="login-form">
+                <div class="text-center login-form-title">CLS Data Portal</div>
+                <div>
+                    <input type="text" 
+                        class="login-form-control" 
+                        name="username" 
+                        [(ngModel)]="model.username" 
+                        placeholder="Username"
+                        >
+                </div>
+                <div>
+                    <input type="password" 
+                        class="login-form-control" 
+                        name="password" 
+                        [(ngModel)]="model.password" 
+                        placeholder="password"
+                        >
+                </div>
+                <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+                </div>
+                <div class="text-right">
+                    <button class="login-form-btn" type="submit">Sign In</button>
+                    <!-- <button class="btn btn-default" type="button" (click)="cancel()">Cancel</button> -->
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    
+</div>
+  
+  

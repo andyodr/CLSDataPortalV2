@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
@@ -19,13 +18,12 @@ import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { SideComponent } from './side/side.component';
-import { LoginComponent } from './login/login.component';
-import { MeasureDataComponent } from './measuredata/measuredata.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { HierarchyComponent } from './hierarchy/hierarchy.component';
+import { UserListComponent } from './users/user-list/user-list.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +35,6 @@ import { HierarchyComponent } from './hierarchy/hierarchy.component';
     MemberDetailComponent,
     ListsComponent,
     MessagesComponent,
-    MeasureDataComponent,
     TargetsComponent,
     MeasuresComponent,
     MeasureDefinitionComponent,
@@ -47,7 +44,7 @@ import { HierarchyComponent } from './hierarchy/hierarchy.component';
     NotFoundComponent,
     ServerErrorComponent,
     SideComponent,
-    LoginComponent
+    UserListComponent
   ],
   imports: [
     BrowserAnimationsModule,
