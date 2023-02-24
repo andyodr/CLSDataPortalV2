@@ -1,7 +1,8 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AccountService } from '../_services/account.service';
+import { AccountService } from '../../_services/account.service';
+
 
 @Component({
   selector: 'app-login',
@@ -38,8 +39,8 @@ export class LoginComponent implements OnInit {
   login() {
     console.log(this.model);
     this.accountService.login(this.model).subscribe({
-      next: _ => this.router.navigateByUrl('/home'),
-      error: error => this.toastr.error(error.error)
+      next: _ => this.router.navigateByUrl('/measuredata'),
+      error: error => this.toastr.error(error.message)
     });
   }
 
