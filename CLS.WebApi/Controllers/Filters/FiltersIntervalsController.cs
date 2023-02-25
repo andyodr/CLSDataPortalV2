@@ -71,10 +71,10 @@ public class IntervalsController : ControllerBase
 			}
 
 			int intervalId = values.intervalId ?? _config.DefaultInterval;
-			returnObject.calendarId = _context.Calendar
+			returnObject.CalendarId = _context.Calendar
 				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
-				.First().Id;
+				.FirstOrDefault()?.Id ?? -1;
 			return returnObject;
 		}
 		catch (Exception e) {

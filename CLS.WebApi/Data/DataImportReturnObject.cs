@@ -2,7 +2,7 @@
 
 public class DataImportReturnObject
 {
-	public DataImportsMainObject? data { get; set; }
+	public DataImportsMainObject? Data { get; set; }
 
-	public List<DataImportErrorReturnObject> error { get; set; }
+	public List<DataImportErrorReturnObject> Error { get; set; } = null!;
 }
