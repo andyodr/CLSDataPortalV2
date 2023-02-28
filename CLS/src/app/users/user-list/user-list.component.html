@@ -1,29 +1,33 @@
-<p>user-list works!</p>
-<app-nav></app-nav>
-<h2>User List</h2>
-<table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.id }}</td>
-        <td>{{ user.firstName }}</td>
-        <td>{{ user.lastName }}</td>
-        <td>{{ user.userName }}</td>
-        <td>{{ user.department }}</td>
-        <td>
-          <a routerLink="/users/{{ user.id }}">View</a>
-          <a routerLink="/update-user/{{ user.id }}">Edit</a>
-          <!--<button (click)="deleteUser(user)">Delete</button>-->
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<!-- <p>user-list works!</p>
+<app-nav></app-nav> -->
+<app-navbar></app-navbar>
+<div class="user-list-container" [ngClass]="{'expanded': toggle, 'collapsed': !toggle}">
+  <h2>User List</h2>
+  <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>{{ user.lastName }}</td>
+          <td>{{ user.userName }}</td>
+          <td>{{ user.department }}</td>
+          <td>
+            <a routerLink="/users/{{ user.id }}">View</a>
+            <a routerLink="/update-user/{{ user.id }}">Edit</a>
+            <!--<button (click)="deleteUser(user)">Delete</button>-->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+

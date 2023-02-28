@@ -20,11 +20,15 @@ import { UserListComponent } from './users/user-list/user-list.component';
 const routes: Routes = [
   {path: '',  loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)},
   {path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule)},
+  {path: 'users', component: UserListComponent},
+  //{path: 'users', loadChildren: () => import('./users/users.module').then(m => m.MeasureDataModule)},
+  {path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule)},
+  {path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule)},
   {path: '', 
     runGuardsAndResolvers: 'always', 
     canActivate: [AuthGuard], children: [
       {path: 'home', component: HomeComponent},
-      {path: 'users', component: UserListComponent},
+      //{path: 'users', component: UserListComponent},
       {path: 'members', component: MemberListComponent},
       {path: 'members/:id', component: MemberDetailComponent},
       {path: 'lists', component: ListsComponent},
@@ -32,8 +36,8 @@ const routes: Routes = [
     ]
   },
 
-  {path: 'targets', component: TargetsComponent},
-  {path: 'measures', component: MeasuresComponent},
+  //{path: 'targets', component: TargetsComponent},
+  //{path: 'measures', component: MeasuresComponent},
   {path: 'measuredefinition', component: MeasureDefinitionComponent},
   {path: 'hierarchy', component: HierarchyComponent},
   {path: 'dataimports', component: DataImportsComponent},

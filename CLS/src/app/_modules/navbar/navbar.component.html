@@ -5,35 +5,35 @@
     <div class="nav-toggle">
         <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
     </div>
-    <!--<div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
-        <a class="dropdown-toggle text-light tex-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+    <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
+        <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
         <div class="dropdown-menu mt-3" *dropdownMenu>
           <a class="dropdown-item" routerLink="/users">User Management</a>
           <a class="dropdown-item">Settings</a>
           <a class="dropdown-item" (click)="logout()">Logout</a>
         </div>
-    </div>-->
+    </div>
 </div>
 <div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar">
     <div class="text-center sidebar-title" *ngIf="opened">CLS Data Portal</div>
     <ul>
         <li>
-           <i class="fa fa-calendar"></i><span class="text-li"  *ngIf="opened">Measure Data</span>
+           <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>
         </li>
         <li>
-            <i class="fa fa-pencil"></i><span class="text-li"  *ngIf="opened">Targets</span>
+            <i class="fa fa-pencil" routerLink="/targets"></i><span class="text-li" routerLink="/targets" *ngIf="opened">Targets</span>
         </li>
         <li>
-            <i class="fa fa-list"></i><span class="text-li"  *ngIf="opened">Measures</span>
+            <i class="fa fa-list" routerLink="/measures"></i><span class="text-li" routerLink="/measures" *ngIf="opened">Measures</span>
         </li>
         <li>
-            <i class="fa fa-file"></i><span class="text-li"  *ngIf="opened">Measure Definition</span>
+            <i class="fa fa-file" routerLink="/measuredefinition"></i><span class="text-li" routerLink="/measuredefinition" *ngIf="opened">Measure Definition</span>
         </li>
         <li>
-            <i class="fa fa-map"></i><span class="text-li"  *ngIf="opened">Hierarchy</span>
+            <i class="fa fa-map" routerLink="/hierarchy"></i><span class="text-li" routerLink="/hierarchy" *ngIf="opened">Hierarchy</span>
         </li>
         <li>
-            <i class="fa fa-upload"></i><span class="text-li"  *ngIf="opened">Data Imports</span>
+            <i class="fa fa-upload" routerLink="/dataimports"></i><span class="text-li" routerLink="/dataimports" *ngIf="opened">Data Imports</span>
         </li>
         <li>
             <i class="fa fa-link"></i><span class="text-li"  *ngIf="opened">Tableau</span>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';
 import { User } from 'src/app/_models/user';
+import { ToggleService } from 'src/app/_services/toggle.service';
 import { UserService } from 'src/app/_services/user.service';
 
 @Component({
@@ -14,8 +15,9 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   users?: User[] | undefined;
   private userSubscription = new Subscription();
+  toggle: any = true;
 
-  constructor(private userService: UserService, private router: Router, private toastr: ToastrService) { }
+  constructor(private userService: UserService, private router: Router, private toastr: ToastrService, private toggleService: ToggleService) { }
   
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
@@ -23,6 +25,9 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getUsers()
+    this.toggleService.toggle$.subscribe(toggle => {
+      this.toggle = toggle;
+    });
   }
 
   //Get Users from service ----------------------------------------------------------------

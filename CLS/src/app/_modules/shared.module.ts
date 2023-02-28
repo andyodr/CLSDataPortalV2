@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ToastrModule } from 'ngx-toastr';
 import { NavbarComponent } from './navbar/navbar.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
     NavbarComponent
   ],
   imports: [
+    RouterModule,
     CommonModule,
     BsDropdownModule.forRoot(),
     ToastrModule.forRoot({
