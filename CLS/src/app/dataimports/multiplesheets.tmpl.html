@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>Multiple Sheets</h1>
+<div mat-dialog-content class="padL20 padL20 padB20">
+  <div class="form-group">
+    <h4>Multiple Spreadsheet Confirmation</h4>
+    <p>
+      There are multiple spreadsheets.<br />
+      Pick the right one to continue.
+    </p>
+    <div layout layout-sm="column">
+      <mat-radio-group [(ngModel)]="sheetSel" class="md-primary">
+        <mat-radio-button *ngFor="let sheet of data" [value]="sheet.name" class="disBlock">
+          {{ sheet.name }}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </div>
+</div>
+<mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>
+    <span class="glyphicon glyphicon-remove"></span> Cancel
+  </button>
+  <button mat-raised-button class="btn-w-xs md-accent btn-save marT0 marB0 marR15" aria-label="Continue"
+          [disabled]="!sheetSel" [mat-dialog-close]="sheetSel">
+    <span class="glyphicon glyphicon-ok"></span> Continue
+  </button>
+</mat-dialog-actions>
