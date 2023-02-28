@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ToggleService } from '../../_services/toggle.service';
+import { ToggleService } from 'src/app/_services/toggle.service';
 
 @Component({
-  selector: 'app-measuredata',
-  templateUrl: './measuredata.component.html',
-  styleUrls: ['./measuredata.component.css']
+  selector: 'app-target',
+  templateUrl: './target.component.html',
+  styleUrls: ['./target.component.css']
 })
-export class MeasureDataComponent implements OnInit {
-  
+export class TargetComponent implements OnInit {
+
   toggle: any = true;
 
   constructor(private toggleService: ToggleService) { }
