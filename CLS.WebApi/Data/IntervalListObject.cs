@@ -2,6 +2,7 @@
 
 public class IntervalListObject
 {
-	public int calendarId { get; set; }
+	public int CalendarId { get; set; }
+
 	public List<GetIntervalsObject> data { get; } = new();
 }

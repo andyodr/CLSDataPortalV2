@@ -1,1 +1,210 @@
-<p>dataimports works!</p>
+<div class="page page-table" id="idDataImportsCtrl">
+  <div class="row ui-section">
+    <div class="col-lg-8 clearfix">
+      <h2 class="section-header2">{{title}}</h2>
+    </div>
+    <div class="col-md-12 itgMinH">
+      <div class="panel panel-default">
+        <!-- Progress Section-->
+        <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
+        <!-- Table Section-->
+        <div class="panel-body padT0">
+          <div class="panel panel-default marT15">
+            <!-- Heading and Buttons Section-->
+            <div class="panel-heading" [hidden]="!showContentPage">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-inline">
+                    <dl class="form-group mar0 marT10 padL15 textTransformNone">
+                      <dt class="f12">Calculation Update Every</dt>
+                      <dd>{{calculationTime}}</dd>
+                    </dl>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-inline textAlignR">
+                    <div class="form-group">
+                      <mat-form-field class="mar0 marR20" style="min-width:140px; width:180px;">
+                        <label for="import" class="posRelative w100Ex textAlignL pad0 padB2">Data Import Type</label>
+                        <mat-select id="import" class="textAlignL" [(ngModel)]="selImportSelected" aria-label="Select"
+                                    [disabled]="disImportSel" (ngModelChange)="onSelImportChange()">
+                          <mat-option *ngFor="let import of selImport; trackBy: identity" [value]="import">
+                            {{import.name}}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <button mat-raised-button class="btn-w-lg md-accent bg-save marB10 marL15 btnUpload" aria-label="Upload"
+                                  [disabled]="disUpload" (click)="processUpload()">
+                        <span class="glyphicon glyphicon-upload padR10"></span> Upload
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel-body padB0" [hidden]="!showContentPage">
+              <div class="row">
+                <!-- Intervals Selection -->
+                <div class="col-sm-4 ng-hide" [hidden]="!showIntervals">
+                  <div class="panel panel-default" style="min-height:280px;">
+                    <div class="panel-heading"><span class="glyphicon glyphicon-th"></span> Select Interval</div>
+                    <div class="panel-body no-padding padL15 padR15">
+                      <!-- Intervals -->
+                      <div layout layout-sm="column" class="marT20">
+                        <mat-form-field flex>
+                          <label for="intervals">Intervals</label>
+                          <mat-select id="intervals" [(ngModel)]="fIntervalSelected" aria-label="Intervals"
+                              (ngModelChange)="intervalChange()" [disabled]="disFilters">
+                            <mat-option *ngFor="let interval of fIntervals; trackBy: identity" [value]="interval">
+                              {{interval.name}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Yearly -->
+                      <div layout layout-sm="column" class="ng-hide" [hidden]="fIntervalSelected?.id == Intervals.Daily">
+                        <mat-form-field flex>
+                          <label for="yr">Year</label>
+                          <mat-select id="yr" [(ngModel)]="fYearSelected" aria-label="Year"
+                                     (ngModelChange)="yearChange()" [disabled]="disFilters">
+                            <mat-option *ngFor="let year of fYears; trackBy: identity" [value]="year">
+                              {{year.year}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Weekly -->
+                      <div layout layout-sm="column" class="ng-hide" [hidden]="fIntervalSelected?.id != Intervals.Weekly">
+                        <mat-form-field flex>
+                          <label for="wk">Week</label>
+                          <mat-select id="wk" [(ngModel)]="fWeekSelected" aria-label="Week" [disabled]="disFilters" (ngModelChange)="weekChange()">
+                            <mat-option *ngFor="let week of fWeeks; trackBy: identity" [value]="week">
+                              {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Monthly -->
+                      <div layout layout-sm="column" class="ng-hide" [hidden]="fIntervalSelected?.id != Intervals.Monthly">
+                        <mat-form-field flex>
+                          <label for="mo">Month</label>
+                          <mat-select id="mo" [(ngModel)]="fMonthSelected" aria-label="Month" [disabled]="disFilters" (ngModelChange)="monthChange()">
+                            <mat-option *ngFor="let month of fMonths; trackBy: identity" [value]="month">
+                              {{month.month}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- quarterly -->
+                      <div layout layout-sm="column" class="ng-hide" [hidden]="fIntervalSelected?.id != Intervals.Quarterly">
+                        <mat-form-field flex>
+                          <label for="qtr">Quarter</label>
+                          <mat-select id="qtr" [(ngModel)]="fQuarterSelected" aria-label="Quarter" [disabled]="disFilters" (ngModelChange)="quarterChange()">
+                            <mat-option *ngFor="let quarter of fQuarters; trackBy: identity" [value]="quarter">
+                              Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate | date:'mediumDate'}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-8">
+                  <div class="panel panel-default" style="min-height:280px;">
+                    <div class="panel-body">
+                      <div class="form-inline">
+                        <div class="form-group">
+                          <form #uploadForm class="pad0 mar0 disInlineBlock">
+                            <input type="file" (change)="onFileSelected($event)" hidden #fileUpload>
+                            <button mat-raised-button (click)="fileUpload.click()" class="btn-w-lg md-accent bg-info2" aria-label="Select File" [disabled]="disFile">
+                              <span class="glyphicon glyphicon-open-file padR5"></span> Select File
+                            </button>
+                          </form>
+                          <button mat-raised-button class="btn-w-sm md-primary bg-cancel marL15 btnClear" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                            <span class="glyphicon glyphicon-refresh"></span> Clear
+                          </button>
+                        </div>
+                      </div>
+                      <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
+                      <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
+                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">or Drag and Drop an XLSX / XLS file here</div>
+                      <div [hidden]="!dropDis">
+                        <div class="callout callout-warning">
+                          <p>{{msgUpload}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Section-->
+            <div class="panel-body padT0">
+
+              <!-- Error Section-->
+              <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
+              <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showUploadError">
+                <div class="panel-body padB0 marB0 noBorder">
+                  <ngb-alert type="danger" (closed)="closeUploadError()">
+                    <p>{{errorUploadMsg.heading}}</p>
+                    <section class="table-flip-scroll table-dynamic overflowAuto">
+                      <table class="table table-bordered table-striped cf no-margin">
+                        <thead class="cf">
+                          <tr>
+                            <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                            <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                            <td class="alert-danger">{{errorRows.row}}</td>
+                            <td class="alert-danger">{{errorRows.message}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </section>
+                  </ngb-alert>
+                </div>
+              </div>
+              <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
+                <div class="panel-body padB0 marB0 noBorder">
+                  <ngb-alert type="danger" (closed)="closeUploadError()">
+                    <p>{{errorUploadMsg.heading}}</p>
+                    <section class="table-flip-scroll table-dynamic overflowAuto">
+                      <table class="table table-bordered table-striped cf no-margin">
+                        <thead class="cf">
+                          <tr>
+                            <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                            <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                            <td class="alert-danger">{{errorRows.row}}</td>
+                            <td class="alert-danger">{{errorRows.message}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </section>
+                  </ngb-alert>
+                </div>
+              </div>
+              <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
+                <!-- Table Section-->
+                <app-table [data]="tableData" [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
+                </app-table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

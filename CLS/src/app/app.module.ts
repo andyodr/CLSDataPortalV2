@@ -23,40 +23,62 @@ import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { HierarchyComponent } from './hierarchy/hierarchy.component';
+import { ErrorsComponent } from './errors/errors.component';
+import { TableComponent } from './table/table.component';
+import { FilterPipe } from './filter.pipe';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatSelectModule } from '@angular/material/select'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component'
+import { AppDialog } from './app-dialog.component'
 import { UserListComponent } from './users/user-list/user-list.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NavComponent,
-    HomeComponent,
-    RegisterComponent,
-    MemberListComponent,
-    MemberDetailComponent,
-    ListsComponent,
-    MessagesComponent,
-    TargetsComponent,
-    MeasuresComponent,
-    MeasureDefinitionComponent,
-    HierarchyComponent,
-    DataImportsComponent,
-    TestErrorComponent,
-    NotFoundComponent,
-    ServerErrorComponent,
-    SideComponent,
-    UserListComponent
-  ],
-  imports: [
-    BrowserAnimationsModule,
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    FormsModule,
-    SharedModule
-  ],
-  providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        NavComponent,
+        HomeComponent,
+        RegisterComponent,
+        MemberListComponent,
+        MemberDetailComponent,
+        ListsComponent,
+        MessagesComponent,
+        MeasureDataComponent,
+        TargetsComponent,
+        MeasuresComponent,
+        MeasureDefinitionComponent,
+        HierarchyComponent,
+        DataImportsComponent,
+        TestErrorComponent,
+        NotFoundComponent,
+        ServerErrorComponent,
+        SideComponent,
+        LoginComponent,
+        ErrorsComponent,
+        TableComponent,
+        FilterPipe,
+        MultipleSheetsDialog,
+        AppDialog,
+        UserListComponent
+    ],
+    imports: [
+        BrowserAnimationsModule,
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        FormsModule,
+        SharedModule,
+        NgbModule,
+        MatDialogModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatProgressBarModule
+    ],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,14 +1,685 @@
-import { Component, OnInit } from '@angular/core';
+import { formatDate } from "@angular/common"
+import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
+import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
+import { tick } from "@angular/core/testing"
+import { FormControl } from "@angular/forms"
+import { MatDialog } from "@angular/material/dialog"
+import { MatSnackBar } from "@angular/material/snack-bar"
+import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
+import { environment } from "../environments/environment"
+import { FilterPipe } from "../filter.pipe"
+import { TableComponent } from "../table/table.component"
+import { AppDialog } from "../app-dialog.component"
+import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
+import { WorkBook, WorkSheet, read, utils } from 'xlsx'
+import { ProgressBarMode } from "@angular/material/progress-bar"
+
+type DataOut = {
+    dataImport: any
+    calendarId: number | null
+    sheet: any
+    data: any
+}
+
+type ErrorModel = {
+    id: number
+    message: string
+    authError: boolean
+}
+
+type FiltersIntervalsData = {
+    error?: ErrorModel
+    id: number
+    number?: number | null
+    startDate?: string
+    endDate?: string
+    month?: string
+    locked?: boolean
+}
+
+type FiltersIntervalsBody = {
+    calendarId: number
+    data: FiltersIntervalsData[]
+}
+
+type DataImportItem = {
+    id: number
+    name: string
+    heading: {
+        title: string
+        required: boolean
+    }[]
+}
+
+type DataImportsMainObject = {
+    error: ErrorModel
+    calculationTime: string
+    intervals: { id: number, name: string }[]
+    years: { id: number, year: number }[]
+    dataImport: DataImportItem[]
+    intervalId?: number
+    calendarId?: number
+    currentYear?: number
+}
+
+type UploadsBody = {
+    data?: DataImportsMainObject
+    error: { id?: number, row?: number, message: string }[]
+}
 
 @Component({
-  selector: 'app-dataimports',
-  templateUrl: './dataimports.component.html',
-  styleUrls: ['./dataimports.component.css']
+    selector: "app-dataimports",
+    templateUrl: "./dataimports.component.html",
+    styleUrls: ["./dataimports.component.css"]
 })
 export class DataImportsComponent implements OnInit {
+    title = "Data Imports"
+    showContentPage = true
+    dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
 
-  constructor() { }
+    @ViewChild("uploadForm")
+    private uploadForm!: FormControl
+    @ViewChild(TableComponent)
+    private table!: TableComponent
 
-  ngOnInit(): void {
-  }
+    selImport: DataImportItem[] = []
+    jsonObj: { [name: string]: string | number }[] = []
+    sheetNames: { id: number, name: string }[] = []
+    sheetName = ""
+    colNames: string[] = []
+    tableData: {[name: string]: string | number }[] = []
+    fileName = ""
+    msgUpload = ""
+
+    showIntervals = false
+    selImportSelected!: DataImportItem
+    Intervals = Intervals
+    fIntervals: { id: number, name: string }[] = []
+    fIntervalSelected?: { id: number, name: string }
+    fYears: { id: number, year: number }[] = []
+    fYearSelected: any = []
+    fMonths: FiltersIntervalsData[] = []
+    fMonthSelected!: FiltersIntervalsData
+    fQuarters: FiltersIntervalsData[] = []
+    fQuarterSelected!: FiltersIntervalsData
+    fWeeks: FiltersIntervalsData[] = []
+    fWeekSelected!: FiltersIntervalsData
+    calendarId!: number
+    currentYear!: number
+    intervalId = -1
+    calculationTime: any
+    disImportSel = false
+    disFilters = false
+    disFile = false
+    disClear = false
+    msgConfirm = ""
+
+    disUpload = true
+    dropDis: boolean = false
+    errorUploadMsg!: { heading: string, errorRows: { id?: number, row?: number, message: string}[] }
+    showUploadError = false
+    progress = {
+        mode: "determinate" as ProgressBarMode,
+        value: 0
+    }
+
+    errorMsg: any = ""
+    showError = false
+    hideTable = true
+
+    constructor(public dialog: MatDialog,
+        public filterPipe: FilterPipe,
+        private http: HttpClient,
+        private logger: MatSnackBar,
+        @Inject(LOCALE_ID) private locale: string) { }
+
+    ngOnInit(): void {
+        this.disAll(false)
+        this.getData()
+    }
+
+    dataOutReset() {
+        this.dataOut = {
+            dataImport: null,
+            calendarId: null,
+            sheet: null,
+            data: null
+        }
+    }
+
+    setProgress(enable: boolean) {
+        if (enable) {
+            this.progress.mode = "indeterminate"
+            this.progress.value += 1
+        }
+        else {
+            this.progress.mode = "determinate"
+            this.progress.value = 0
+        }
+    }
+
+    closeError() {  // called by uib-alert
+        this.errorMsg = ""
+        this.showError = false
+    }
+
+    processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
+        this.errorMsg = processError(name, message, id, status)
+        this.disUpload = true
+        this.setProgress(false)
+        this.showError = true
+        this.showContentPage = (authError != true)
+    }
+
+    closeUploadError() {
+        this.errorUploadMsg.heading = ""
+        this.errorUploadMsg.errorRows = []
+        this.showUploadError = false
+    }
+
+    processUploadError(error: { id?: number, row?: number, message: string }[]) {
+        if ((error != null && "length" in error && error.length > 0)) {
+            this.msgUpload = MESSAGES.uploadFailure
+            this.disUpload = true
+
+            var msg = error[0]
+            if (msg.id != null) {
+                this.processLocalError(this.title, msg.message, msg.id, null, null)
+            }
+            else {
+                this.errorUploadMsg = {
+                    heading: MESSAGES.uploadFailure,
+                    errorRows: error
+                }
+
+                this.setProgress(false)
+                this.showUploadError = true
+            }
+        }
+    }
+
+    showSheetDialog() {
+        return this.dialog
+            .open(MultipleSheetsDialog, { data: this.sheetNames })
+            .afterClosed()
+    }
+
+    disAll(disable: boolean) {
+        this.disImportSel = disable
+        this.disFilters = disable
+        this.disFile = disable
+        this.disClear = disable
+        this.dropDis = disable
+        this.setMsgUpload()
+        this.setProgress(disable)
+    }
+
+    setMsgUpload() {
+        this.msgUpload = MESSAGES.processing
+        if (!this.disUpload) {
+            this.msgUpload = MESSAGES.verify
+        }
+    }
+
+    afterLoadTable() {
+        this.disImportSel = true
+        this.disFile = true
+        this.disUpload = false
+        this.disClear = false
+        this.disFilters = false
+        this.setProgress(false)
+        this.setMsgUpload()
+    }
+
+    clear() {
+        this.disUpload = true
+        this.disAll(false)
+        this.uploadForm.reset()
+        this.fileName = ""
+        this.jsonObj = []
+        this.tableData = []
+        this.table.populate()
+        this.hideTable = true
+        this.closeError()
+        this.closeUploadError()
+    }
+
+    clearLocked() {
+        this.disUpload = true
+        this.disAll(false)
+        this.closeError()
+        if (Array.isArray(this.tableData) && this.tableData.length > 0) {
+            this.disImportSel = true
+            this.disFile = true
+            this.disUpload = false
+            this.disClear = false
+            this.disFilters = false
+            this.setProgress(false)
+            this.dropDis = true
+            this.setMsgUpload()
+        }
+    }
+
+    disLocked(msg: string) {
+        this.disFile = true
+        this.disClear = true
+        this.dropDis = true
+        this.msgUpload = MESSAGES.locked2
+        var msg2 = MESSAGES.locked + " " + msg
+        this.processLocalError(this.title, msg2, null, null, null)
+    }
+
+    // Intervals Filter
+    filtersInit() {
+        // Intervals
+        this.fIntervalSelected = this.fIntervals.filter(it => it.id == this.intervalId)[0]
+
+        // Years
+        //vm.fYearSelected = vm.fYears[0];
+        if (this.currentYear == null) {
+            this.fYearSelected = this.fYears[0]
+        }
+        else {
+            this.fYearSelected = this.fYears.filter(it => it.year == this.currentYear)[0]
+        }
+
+        this.intervalChange()
+    }
+
+    loadInterval(data: FiltersIntervalsData[]) {
+        switch (Number(this.fIntervalSelected?.id)) {
+            case Intervals.Weekly:
+                this.fWeeks = data
+                this.fWeekSelected = data.filter(it => it.id = this.calendarId)[0]
+                if (this.fWeekSelected == null) {
+                    this.fWeekSelected = data[0]
+                }
+
+                this.weekChange()
+                break
+            case Intervals.Monthly:
+                this.fMonths = data
+                this.fMonthSelected = data.filter(it => it.id = this.calendarId)[0]
+                if (this.fMonthSelected == null) {
+                    this.fMonthSelected = data[0]
+                }
+
+                this.monthChange()
+                break
+            case Intervals.Quarterly:
+                this.fQuarters = data
+                this.fQuarterSelected = data.filter(it => it.id = this.calendarId)[0]
+                if (this.fQuarterSelected == null) {
+                    this.fQuarterSelected = data[0]
+                }
+
+                this.quarterChange()
+                break
+            case Intervals.Yearly:
+                break
+        }
+    }
+
+    intervalChange() {
+        switch (Number(this.fIntervalSelected?.id)) {
+            case Intervals.Yearly:
+                break
+            default:
+                this.getFilter()
+                break
+        }
+    }
+
+    weekChange() {
+        if (this.fWeekSelected.locked) {
+            var msg = "Week " + this.fWeekSelected.number
+            this.disLocked(msg)
+        } else {
+            this.clearLocked()
+        }
+    }
+
+    monthChange() {
+        if (this.fMonthSelected.locked) {
+            var msg = this.fMonthSelected.month ?? "Unknown"
+            this.disLocked(msg)
+        } else {
+            this.clearLocked()
+        }
+    }
+
+    quarterChange() {
+        if (this.fQuarterSelected.locked) {
+            var msg = "Quarter " + this.fQuarterSelected.number
+            this.disLocked(msg)
+        } else {
+            this.clearLocked()
+        }
+    }
+
+    yearChange() {
+        this.intervalChange()
+    }
+
+    getFilter() {
+        // Call Server
+        let params = new HttpParams()
+            .set("intervalID", this.fIntervalSelected?.id ?? 0)
+            .set("year", this.fYearSelected.year)
+            .set("isDataImport", true)
+        this.http.get<FiltersIntervalsBody>(environment.baseUrl + "api/filters/intervals", { params })
+            .subscribe({
+                next: body => {
+                    if (body.data) {
+                        this.calendarId = body.calendarId
+                        this.loadInterval(body.data)
+                    }
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.processLocalError("Filters", err.error, null, err.status, null)
+                }
+            })
+    }
+
+    // -----------------------------------------------------------------------------
+    // Buttons
+    // -----------------------------------------------------------------------------
+
+    clearClick() {
+        this.hideTable = true
+        this.msgUpload = MESSAGES.clear
+        this.disUpload = true
+        tick()
+        this.clear()
+    }
+
+    processDialogAlertFromXls(size: any) {
+        let dialogOptions = {
+            title: this.title,
+            message: MESSAGES.fileSize + size,
+            alert: true
+        }
+        this.dialog.open(AppDialog, { data: dialogOptions })
+            .afterClosed().subscribe(_ => this.clear())
+        return false
+    }
+
+    processDialogAlert(title: string, message: string) {
+        this.dialog.open(AppDialog, { data: { title, message, alert: true } })
+            .afterClosed().subscribe(_ => this.clear())
+        return false
+    }
+
+    // Selection Import Types    
+    onSelImportChange() {
+        if (this.selImportSelected != null) {
+            this.showIntervals = this.selImportSelected.id == 1
+            if (this.showIntervals) {
+                this.filtersInit()
+            }
+        }
+
+        this.clear()
+    }
+
+    onFileSelected(event: FileList | Event) {
+        this.disAll(true)
+        /* wire up file reader */
+        //const target: DataTransfer = <DataTransfer>(evt.target);
+        //if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+        const reader: FileReader = new FileReader()
+        const files = event as FileList
+        reader.onload = (ev: any) => {
+            const ab: ArrayBuffer = ev.target.result
+            const wb: WorkBook = read(ab)
+
+            if (wb.SheetNames.length > 1) {
+                this.sheetNames = Array.from(wb.SheetNames, (it, i) => ({ id: i, name: it }))
+                this.showSheetDialog().subscribe(result => {
+                    if (result) {
+                        this.calculateJson(files[0].name, wb, result)
+                    }
+                    else {
+                        this.clear()
+                    }
+                })
+            }
+            else {
+                this.disAll(true)
+                this.calculateJson(files[0].name, wb, wb.SheetNames[0])
+            }
+        }
+
+        reader.readAsArrayBuffer(files[0])
+    }
+
+    calculateJson(fileName: string, wb: WorkBook, sheetName: string) {
+        this.fileName = ""
+        this.sheetName = sheetName  // "Sheet1"
+        let ws = wb.Sheets[sheetName]
+        this.colNames = utils.sheet_to_json(ws, { header: 1 })[0] as string[]  // ['Region ID', 'MetricID', 'value']
+        this.jsonObj = utils.sheet_to_json(ws) as { [hdr: string]: string | number }[]
+        var colNamesTrim = []
+
+        // Validates for empty or undefined column names
+        var bcontinue = true
+        for (let name of this.colNames) {
+            let _ = colNamesTrim.push(name.replace(/\s/, "").toLowerCase())
+            if (!name) {
+                this.processDialogAlert("Column Validation", "Columns with values cannot be blank or empty.")
+                return
+            }
+        }
+
+        // Validates non matching and required column names
+        var dataImport = this.selImport.filter(it => it.id == this.selImportSelected?.id)
+        if (dataImport.length > 0) {
+            // Validates non matching column names
+            for (let name of this.colNames) {
+                let headingTitle = name.replace(/\s/, "").toLowerCase()
+                let bFound = dataImport[0].heading.some(h => h.title == headingTitle)
+
+                // Could not find name
+                if (!bFound) {
+                    this.processDialogAlert("Column Validation", `Column '${headingTitle}' is not part of the import.`)
+                    return
+                }
+            }
+
+            // Validates required column names
+            for (let heading of dataImport[0].heading) {
+                if (heading == null) {
+                    this.processDialogAlert("Column Validation", "Columns are required.")
+                    return
+                }
+
+                if (heading.required && colNamesTrim.indexOf(heading.title) < 0) {
+                    this.processDialogAlert("Column Validation", `Column '${heading.title}' is required.`)
+                    return
+                }
+            }
+        }
+
+        // Success
+        this.fileName = fileName
+        if (this.loadTable()) {
+            this.afterLoadTable()
+        }
+    }
+
+    loadFromRequest(value: DataImportsMainObject) {
+        this.calculationTime = value.calculationTime
+
+        this.fIntervals = value.intervals
+        this.fYears = value.years
+
+        // Default Interval and Calendar Id
+        this.intervalId = value.intervalId ?? 0
+        this.calendarId = value.calendarId ?? 0
+        this.currentYear = value.currentYear ?? 2000
+
+        this.selImport = value.dataImport
+        this.selImportSelected = this.selImport[0]
+
+        this.onSelImportChange()
+        this.disImportSel = this.selImport.length == 1
+    }
+
+    processUpload() {
+        this.dataOutReset()
+        this.dataOut.dataImport = this.selImportSelected.id
+        this.dataOut.sheet = this.sheetName
+        if (this.dataOut.dataImport == 1) {
+            var msgCalendar = ""
+            var msgInterval = "<strong>Interval:</strong> " + this.fIntervalSelected?.name + LINE1
+
+            switch (Number(this.fIntervalSelected?.id)) {
+                case Intervals.Weekly:
+                    this.dataOut.calendarId = this.fWeekSelected.id
+                    msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
+                        + "<strong>Week:</strong> " + this.fWeekSelected.number + ": "
+                        + formatDate(this.fWeekSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
+                        + formatDate(this.fWeekSelected.endDate ?? 0, "mediumDate", this.locale)
+                    break
+                case Intervals.Monthly:
+                    this.dataOut.calendarId = this.fMonthSelected.id
+                    msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
+                        + "<strong>Month:</strong> " + this.fMonthSelected.month
+                    break
+                case Intervals.Quarterly:
+                    this.dataOut.calendarId = this.fQuarterSelected.id
+                    msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
+                        + "<strong>Quarter:</strong> "
+                        + formatDate(this.fQuarterSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
+                        + formatDate(this.fQuarterSelected.endDate ?? 0, "mediumDate", this.locale)
+                    break
+                case Intervals.Yearly:
+                    this.dataOut.calendarId = this.fYearSelected.id
+                    msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year
+                    break
+            }
+
+            msgCalendar = msgInterval + msgCalendar
+
+            var title = "Confirmation Upload"
+            var message = "Are these values correct?" + LINE2 + msgCalendar
+            this.dialog.open(AppDialog, { data: { title, message } })
+                .afterClosed().subscribe(result => {
+                    if (result) this.upload()
+                })
+        }
+        else {
+            this.upload()
+        }
+    }
+
+    upload() {
+        //vm.dataOut.data = angular.toJson(jsonObj);
+        this.msgUpload = MESSAGES.upload
+
+        // Call Server
+        this.setProgress(true)
+        let body = {
+            dataImport: this.dataOut.dataImport,
+            calendarId: (this.dataOut.calendarId ?? 0).toString(),
+            sheet: this.dataOut.sheet,
+            data: this.jsonObj
+        }
+        this.http.post<UploadsBody>(environment.baseUrl + "api/dataimports/upload", body)
+            .subscribe({
+                next: body => {
+                    if (body.error == null) {
+                        this.processLocalError(this.title, JSON.stringify(body), null, null, null)
+                    }
+                    else {
+                        if (body.error.length > 0) {
+                            this.processUploadError(body.error)
+                        }
+                        else {
+                            this.logger.open(
+                                `✔️ ${MESSAGES.uploadSuccess}`,
+                                undefined,
+                                {
+                                    duration: 5000,
+                                    panelClass: ["snackbar-success"],
+                                    horizontalPosition: "right",
+                                    verticalPosition: "bottom"
+                                })
+                            this.setProgress(false)
+                            this.clearClick()
+                        }
+                    }
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.processLocalError(this.title, err.error, null, err.status, null)
+                }
+            })
+    }
+
+    // Called from FilterCtrl only
+    getData() {
+        this.showError = false
+        this.disAll(true)
+
+        // Call Server
+        this.setProgress(true)
+        this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
+            .subscribe({
+                next: body => {
+                    if (body.error == null) {
+                        this.loadFromRequest(body)
+                        this.setProgress(false)
+                    }
+                    else {
+                        this.processLocalError(this.title, body.error.message, body.error.id, null, body.error.authError)
+                    }
+                    this.disAll(false)
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.processLocalError(this.title, err.error, null, err.status, null)
+                }
+            })
+    }
+
+    loadTable() {
+        try {
+            // Validates data       
+            if (this.jsonObj == null) {
+                this.errorMsg = "There is an error with the file."
+                return
+            }
+
+            this.disAll(true)
+            this.hideTable = false
+            this.tableData = []
+            // Only for Customers
+            if (this.selImportSelected.id == 3) {
+                for (let i = 0, len = this.jsonObj.length; i < 100; i++) {
+                    if (i < len) {
+                        let item = this.jsonObj[i]
+                        let obj: { [key: string]: any } = {}
+                        for (var k in item) {
+                            obj[k] = item[k]
+                        }
+
+                        let _ = this.tableData.push(obj)
+                    }
+                }
+            }
+            else {
+                this.tableData = this.jsonObj
+            }
+
+            this.table.populate()
+            return true
+        }
+        catch (err: any) {
+            this.errorMsg = `Error ${err.name} ${err.message}`
+            return false
+        }
+    }
+
+    identity(_: number, item: { id: number }) {
+        return item.id
+    }
 }
