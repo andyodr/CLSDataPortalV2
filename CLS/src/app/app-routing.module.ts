@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TargetsComponent } from './targets/targets.component';
-import { MeasuresComponent } from './measures/measures.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { HierarchyComponent } from './hierarchy/hierarchy.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
@@ -18,37 +16,33 @@ import { AuthGuard } from './_guards/auth.guard';
 import { UserListComponent } from './users/user-list/user-list.component';
 
 const routes: Routes = [
-  {path: '',  loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)},
-  {path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule)},
-  {path: 'users', component: UserListComponent},
-  //{path: 'users', loadChildren: () => import('./users/users.module').then(m => m.MeasureDataModule)},
-  {path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule)},
-  {path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule)},
-  {path: '', 
-    runGuardsAndResolvers: 'always', 
-    canActivate: [AuthGuard], children: [
-      {path: 'home', component: HomeComponent},
-      //{path: 'users', component: UserListComponent},
-      {path: 'members', component: MemberListComponent},
-      {path: 'members/:id', component: MemberDetailComponent},
-      {path: 'lists', component: ListsComponent},
-      {path: 'messages', component: MessagesComponent},
-    ]
-  },
-
-  //{path: 'targets', component: TargetsComponent},
-  //{path: 'measures', component: MeasuresComponent},
-  {path: 'measuredefinition', component: MeasureDefinitionComponent},
-  {path: 'hierarchy', component: HierarchyComponent},
-  {path: 'dataimports', component: DataImportsComponent},
-  {path: 'errors', component: TestErrorComponent},
-  {path: 'not-found', component: NotFoundComponent},
-  {path: 'server-error', component: ServerErrorComponent},
-  {path: '**', component: NotFoundComponent, pathMatch: 'full'}
+	{ path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
+	{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
+	{ path: 'users', component: UserListComponent },
+    { path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule) },
+    { path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule) },
+	{
+		path: '',
+		runGuardsAndResolvers: 'always',
+		canActivate: [AuthGuard], children: [
+			{ path: 'home', component: HomeComponent },
+			{ path: 'members', component: MemberListComponent },
+			{ path: 'members/:id', component: MemberDetailComponent },
+			{ path: 'lists', component: ListsComponent },
+			{ path: 'messages', component: MessagesComponent },
+		]
+	},
+	{ path: 'measuredefinition', component: MeasureDefinitionComponent },
+	{ path: 'hierarchy', component: HierarchyComponent },
+	{ path: "dataimports", title: "Distributor - Data Imports", component: DataImportsComponent },
+	{ path: 'errors', component: TestErrorComponent },
+	{ path: 'not-found', component: NotFoundComponent },
+	{ path: 'server-error', component: ServerErrorComponent },
+	{ path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+	imports: [RouterModule.forRoot(routes)],
+	exports: [RouterModule]
 })
 export class AppRoutingModule { }

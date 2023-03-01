@@ -3,30 +3,24 @@ import { User } from './_models/user';
 import { AccountService } from './_services/account.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
+	title = 'CLSDataPortalV2';
 
-  title = 'CLSDataPortalV2';
+	constructor(private accountService: AccountService) { }
 
-  constructor(private accountService: AccountService) {}
-  
-  ngOnInit(): void {
-    this.setCurrentUser();
-  }
+	ngOnInit(): void {
+		this.setCurrentUser();
+	}
 
-
-  setCurrentUser() {
-    //const user: User = JSON.parse(localStorage.getItem('user')!);
-    const userString = localStorage.getItem('user');
-    if (!userString) return;
-    const user: User = JSON.parse(userString!);
-    this.accountService.setCurrentUser(user);
-  
-  }
-
-
-  
+	setCurrentUser() {
+		//const user: User = JSON.parse(localStorage.getItem('user')!);
+		const userString = localStorage.getItem('user');
+		if (!userString) return;
+		const user: User = JSON.parse(userString!);
+		this.accountService.setCurrentUser(user);
+	}
 }

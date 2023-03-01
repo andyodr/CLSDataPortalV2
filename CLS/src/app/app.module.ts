@@ -5,6 +5,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -70,7 +71,8 @@ import { SharedModule } from './_modules/shared.module';
 		MatDialogModule,
 		MatProgressBarModule,
 		MatRadioModule,
-		MatSelectModule,
+        MatSelectModule,
+        MatSnackBarModule,
 		NgbModule,
 		SharedModule
 	],

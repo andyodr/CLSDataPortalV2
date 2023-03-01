@@ -35,5 +35,4 @@ export class NavbarComponent implements OnInit {
     this.opened = !this.opened;
     this.toogleService.setToggle(this.opened);
   }
-
 }
