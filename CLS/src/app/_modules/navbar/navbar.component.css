@@ -11,6 +11,9 @@
     display: inline;
     margin: 5px 20px;
 }
+.nav-logo-collapsed {
+    display: none;
+}
 .nav-toggle {
     flex: auto;
     cursor: pointer;

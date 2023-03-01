@@ -1,0 +1,30 @@
+<!-- <p>hierarchy-list works!</p> -->
+<div class="hierarchy-list-container">
+    <h2>Hierarchy List</h2>
+    <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Hierarchy</th>
+            <th>Parent</th>
+            <th>Level</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hierarchy of hierarchies">
+            <td>{{ hierarchy.id }}</td>
+            <td>{{ hierarchy.levelId }}</td>
+            <td>{{ hierarchy.parentId }}</td>
+            <td>{{ hierarchy.level }}</td>
+            <td>{{ hierarchy.active }}</td>
+            <td>
+              <a routerLink="/users/{{ hierarchy.id }}">View</a>
+              <a routerLink="/update-user/{{ hierarchy.id }}">Edit</a>
+              <!--<button (click)="deleteUser(user)">Delete</button>-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
