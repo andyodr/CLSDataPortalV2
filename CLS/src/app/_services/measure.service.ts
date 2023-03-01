@@ -15,7 +15,7 @@ export class MeasureService {
 
   // Get Measure from API
 
-  getMeasureData(): Observable<Measure[]>{
+  getMeasure(): Observable<Measure[]>{
     //return this.http.get<MeasureData[]>(environment.baseUrl + 'api/measuredata/index');
     return this.http.get<Measure[]>(this.baseUrl + '/index').pipe(
       map((response: Measure[]) => {
