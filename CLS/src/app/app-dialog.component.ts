@@ -7,8 +7,8 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 <h1 mat-dialog-title>{{data.title}}</h1>
 <p mat-dialog-content>{{data.message}}</p>
 <form mat-dialog-actions>
-<button *ngIf="data.alert" mat-raised-button>Close</button>
-<button *ngIf="!data.alert" mat-raised-button>Cancel</button>
+<button *ngIf="data.alert" mat-raised-button mat-dialog-close>Close</button>
+<button *ngIf="!data.alert" mat-raised-button mat-dialog-close>Cancel</button>
 <button *ngIf="!data.alert" mat-raised-button [mat-dialog-close]="true">OK</button>
 </form>`
 })

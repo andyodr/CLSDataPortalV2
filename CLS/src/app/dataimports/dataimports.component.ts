@@ -193,7 +193,7 @@ export class DataImportsComponent implements OnInit {
             .afterClosed()
     }
 
-    disAll(disable: boolean) {
+    disAll(disable = true) {
         this.disImportSel = disable
         this.disFilters = disable
         this.disFile = disable
@@ -223,7 +223,6 @@ export class DataImportsComponent implements OnInit {
     clear() {
         this.disUpload = true
         this.disAll(false)
-        this.uploadForm.reset()
         this.fileName = ""
         this.sheetName = ""
         this.jsonObj = []
@@ -368,7 +367,6 @@ export class DataImportsComponent implements OnInit {
     // -----------------------------------------------------------------------------
 
     clearClick() {
-        this.hideTable = true
         this.msgUpload = MESSAGES.clear
         this.clear()
     }
@@ -403,7 +401,7 @@ export class DataImportsComponent implements OnInit {
     }
 
     onFileSelected(event: any) {
-        this.disAll(true)
+        this.disAll()
         /* wire up file reader */
         //const target: DataTransfer = <DataTransfer>(evt.target);
         //if (target.files.length !== 1) throw new Error('Cannot use multiple files');
@@ -425,7 +423,7 @@ export class DataImportsComponent implements OnInit {
                 })
             }
             else {
-                this.disAll(true)
+                this.disAll()
                 this.calculateJson(files[0].name, wb, wb.SheetNames[0])
             }
         }
@@ -605,7 +603,7 @@ export class DataImportsComponent implements OnInit {
     // Called from FilterCtrl only
     getData() {
         this.showError = false
-        this.disAll(true)
+        this.disAll()
 
         // Call Server
         this.setProgress(true)
@@ -635,7 +633,7 @@ export class DataImportsComponent implements OnInit {
                 return
             }
 
-            this.disAll(true)
+            this.disAll()
             this.hideTable = false
             this.tableData = []
             // Only for Customers
