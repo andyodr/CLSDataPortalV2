@@ -1,8 +1,7 @@
-import { Pipe, PipeTransform } from "@angular/core"
+import { Injectable, Pipe, PipeTransform } from "@angular/core"
 
-@Pipe({
-    name: "filter"
-})
+@Injectable({ providedIn: "root" })
+@Pipe({ name: "filter" })
 export class FilterPipe implements PipeTransform {
     transform(items: string[], searchText: string) {
         if (!items) {

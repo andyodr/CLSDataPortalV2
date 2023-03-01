@@ -2,7 +2,7 @@ import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
 import { tick } from "@angular/core/testing"
-import { FormControl } from "@angular/forms"
+import { NgForm } from "@angular/forms"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSnackBar } from "@angular/material/snack-bar"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
@@ -74,14 +74,13 @@ type UploadsBody = {
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
-    showContentPage = true
-    dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
-
-    @ViewChild("uploadForm")
-    private uploadForm!: FormControl
     @ViewChild(TableComponent)
     private table!: TableComponent
+    @ViewChild(NgForm)
+    private uploadForm!: NgForm
 
+    showContentPage = true
+    dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
     selImport: DataImportItem[] = []
     jsonObj: { [name: string]: string | number }[] = []
     sheetNames: { id: number, name: string }[] = []
@@ -116,7 +115,7 @@ export class DataImportsComponent implements OnInit {
 
     disUpload = true
     dropDis: boolean = false
-    errorUploadMsg!: { heading: string, errorRows: { id?: number, row?: number, message: string}[] }
+    errorUploadMsg = { heading: "", errorRows: [] as { id?: number, row?: number, message: string }[] }
     showUploadError = false
     progress = {
         mode: "determinate" as ProgressBarMode,
@@ -422,13 +421,13 @@ export class DataImportsComponent implements OnInit {
         this.clear()
     }
 
-    onFileSelected(event: FileList | Event) {
+    onFileSelected(event: any) {
         this.disAll(true)
         /* wire up file reader */
         //const target: DataTransfer = <DataTransfer>(evt.target);
         //if (target.files.length !== 1) throw new Error('Cannot use multiple files');
         const reader: FileReader = new FileReader()
-        const files = event as FileList
+        const files = event.target.files as FileList
         reader.onload = (ev: any) => {
             const ab: ArrayBuffer = ev.target.result
             const wb: WorkBook = read(ab)
