@@ -33,7 +33,7 @@
                           </mat-option>
                         </mat-select>
                       </mat-form-field>
-                      <button mat-raised-button class="btn-w-lg md-accent bg-save marB10 marL15 btnUpload" aria-label="Upload"
+                      <button mat-raised-button color="primary" aria-label="Upload"
                                   [disabled]="disUpload" (click)="processUpload()">
                         <span class="glyphicon glyphicon-upload padR10"></span> Upload
                       </button>
@@ -67,7 +67,7 @@
                         <mat-form-field flex>
                           <label for="yr">Year</label>
                           <mat-select id="yr" [(ngModel)]="fYearSelected" aria-label="Year"
-                                     (ngModelChange)="yearChange()" [disabled]="disFilters">
+                                     (ngModelChange)="intervalChange()" [disabled]="disFilters">
                             <mat-option *ngFor="let year of fYears; trackBy: identity" [value]="year">
                               {{year.year}}
                             </mat-option>
@@ -122,18 +122,20 @@
                         <div class="form-group">
                           <form #uploadForm class="pad0 mar0 disInlineBlock">
                             <input type="file" (change)="onFileSelected($event)" hidden #fileUpload>
-                            <button mat-raised-button (click)="fileUpload.click()" class="btn-w-lg md-accent bg-info2" aria-label="Select File" [disabled]="disFile">
+                            <button mat-raised-button (click)="fileUpload.click()" color="primary" aria-label="Select File" [disabled]="disFile">
                               <span class="glyphicon glyphicon-open-file padR5"></span> Select File
                             </button>
                           </form>
-                          <button mat-raised-button class="btn-w-sm md-primary bg-cancel marL15 btnClear" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                          <button mat-raised-button color="primary" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
                             <span class="glyphicon glyphicon-refresh"></span> Clear
                           </button>
                         </div>
                       </div>
                       <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
                       <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
-                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">or Drag and Drop an XLSX / XLS file here</div>
+                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">
+                        or Drag and Drop an XLSX / XLS file here
+                      </div>
                       <div [hidden]="!dropDis">
                         <div class="callout callout-warning">
                           <p>{{msgUpload}}</p>
@@ -198,7 +200,7 @@
               </div>
               <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
                 <!-- Table Section-->
-                <app-table [data]="tableData" [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
+                <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
                 </app-table>
               </div>
             </div>

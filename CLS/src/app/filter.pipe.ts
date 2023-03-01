@@ -3,17 +3,19 @@ import { Injectable, Pipe, PipeTransform } from "@angular/core"
 @Injectable({ providedIn: "root" })
 @Pipe({ name: "filter" })
 export class FilterPipe implements PipeTransform {
-    transform(items: string[], searchText: string) {
+    transform(items: any[], searchText: string) {
         if (!items) {
             return []
         }
 
-        if (!searchText) {
+        if (!searchText.trim()) {
             return items
         }
 
         searchText = searchText.toLocaleLowerCase()
 
-        return items.filter(it => it.toLocaleLowerCase().includes(searchText))
+        return items.filter(it => (it != null && (typeof it == "object" ?
+            it.values().join("") :
+            it.toString()).toLocaleLowerCase().includes(searchText)))
     }
 }

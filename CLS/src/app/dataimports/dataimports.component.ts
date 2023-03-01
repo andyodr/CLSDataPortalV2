@@ -1,17 +1,16 @@
 import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
-import { tick } from "@angular/core/testing"
 import { NgForm } from "@angular/forms"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSnackBar } from "@angular/material/snack-bar"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
 import { environment } from "../environments/environment"
 import { FilterPipe } from "../filter.pipe"
-import { TableComponent } from "../table/table.component"
+import { TableComponent, JsonValue } from "../table/table.component"
 import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
-import { WorkBook, WorkSheet, read, utils } from 'xlsx'
+import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
 
 type DataOut = {
@@ -70,7 +69,7 @@ type UploadsBody = {
 @Component({
     selector: "app-dataimports",
     templateUrl: "./dataimports.component.html",
-    styleUrls: ["./dataimports.component.css"]
+    styleUrls: ["../../../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
@@ -82,11 +81,11 @@ export class DataImportsComponent implements OnInit {
     showContentPage = true
     dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
     selImport: DataImportItem[] = []
-    jsonObj: { [name: string]: string | number }[] = []
+    jsonObj: { [name: string]: JsonValue }[] = []
     sheetNames: { id: number, name: string }[] = []
     sheetName = ""
     colNames: string[] = []
-    tableData: {[name: string]: string | number }[] = []
+    tableData: {[name: string]: JsonValue }[] = []
     fileName = ""
     msgUpload = ""
 
@@ -135,15 +134,6 @@ export class DataImportsComponent implements OnInit {
     ngOnInit(): void {
         this.disAll(false)
         this.getData()
-    }
-
-    dataOutReset() {
-        this.dataOut = {
-            dataImport: null,
-            calendarId: null,
-            sheet: null,
-            data: null
-        }
     }
 
     setProgress(enable: boolean) {
@@ -235,9 +225,10 @@ export class DataImportsComponent implements OnInit {
         this.disAll(false)
         this.uploadForm.reset()
         this.fileName = ""
+        this.sheetName = ""
         this.jsonObj = []
         this.tableData = []
-        this.table.populate()
+        this.table.populate([], [])
         this.hideTable = true
         this.closeError()
         this.closeUploadError()
@@ -285,6 +276,12 @@ export class DataImportsComponent implements OnInit {
         this.intervalChange()
     }
 
+    intervalChange() {
+        if (this.fIntervalSelected?.id != Intervals.Yearly) {
+            this.getFilter()
+        }
+    }
+
     loadInterval(data: FiltersIntervalsData[]) {
         switch (Number(this.fIntervalSelected?.id)) {
             case Intervals.Weekly:
@@ -319,16 +316,6 @@ export class DataImportsComponent implements OnInit {
         }
     }
 
-    intervalChange() {
-        switch (Number(this.fIntervalSelected?.id)) {
-            case Intervals.Yearly:
-                break
-            default:
-                this.getFilter()
-                break
-        }
-    }
-
     weekChange() {
         if (this.fWeekSelected.locked) {
             var msg = "Week " + this.fWeekSelected.number
@@ -354,10 +341,6 @@ export class DataImportsComponent implements OnInit {
         } else {
             this.clearLocked()
         }
-    }
-
-    yearChange() {
-        this.intervalChange()
     }
 
     getFilter() {
@@ -387,8 +370,6 @@ export class DataImportsComponent implements OnInit {
     clearClick() {
         this.hideTable = true
         this.msgUpload = MESSAGES.clear
-        this.disUpload = true
-        tick()
         this.clear()
     }
 
@@ -457,7 +438,7 @@ export class DataImportsComponent implements OnInit {
         this.sheetName = sheetName  // "Sheet1"
         let ws = wb.Sheets[sheetName]
         this.colNames = utils.sheet_to_json(ws, { header: 1 })[0] as string[]  // ['Region ID', 'MetricID', 'value']
-        this.jsonObj = utils.sheet_to_json(ws) as { [hdr: string]: string | number }[]
+        this.jsonObj = utils.sheet_to_json(ws) as { [hdr: string]: JsonValue }[]
         var colNamesTrim = []
 
         // Validates for empty or undefined column names
@@ -509,7 +490,7 @@ export class DataImportsComponent implements OnInit {
     loadFromRequest(value: DataImportsMainObject) {
         this.calculationTime = value.calculationTime
 
-        this.fIntervals = value.intervals
+        this.fIntervals = value.intervals  // 2: "Weekly", 3: "Monthly", 4: "Quarterly", 5: "Yearly"
         this.fYears = value.years
 
         // Default Interval and Calendar Id
@@ -525,7 +506,13 @@ export class DataImportsComponent implements OnInit {
     }
 
     processUpload() {
-        this.dataOutReset()
+        this.dataOut = {
+            dataImport: null,
+            calendarId: null,
+            sheet: null,
+            data: null
+        }
+
         this.dataOut.dataImport = this.selImportSelected.id
         this.dataOut.sheet = this.sheetName
         if (this.dataOut.dataImport == 1) {
@@ -669,7 +656,7 @@ export class DataImportsComponent implements OnInit {
                 this.tableData = this.jsonObj
             }
 
-            this.table.populate()
+            this.table.populate(this.colNames, this.tableData)
             return true
         }
         catch (err: any) {

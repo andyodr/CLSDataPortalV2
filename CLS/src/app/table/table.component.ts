@@ -1,6 +1,8 @@
-import { Component, Input } from '@angular/core';
-import { SelCal } from '../app-constants';
-import { FilterPipe } from '../filter.pipe';
+import { Component, Input } from '@angular/core'
+import { SelCal } from '../app-constants'
+import { FilterPipe } from '../filter.pipe'
+
+export type JsonValue = string | number | boolean | null
 
 @Component({
     selector: 'app-table',
@@ -9,9 +11,9 @@ import { FilterPipe } from '../filter.pipe';
     providers: [FilterPipe]
 })
 export class TableComponent {
-    @Input() data!: any[]
+    @Input() searchKeywords = ""
+    dataSource!: { [name: string]: JsonValue }[]
     colNames!: string[]
-    searchKeywords = ""
     filteredData: any[] = []
     currentPageData: any[] = []
     row = ""
@@ -47,22 +49,24 @@ export class TableComponent {
         this.currentPage = 1
     }
 
-    search(selCal: SelCal) {
+    populate(colNames: string[], dataSource: { [name: string]: JsonValue }[], selCal = SelCal.All) {
         // All pages including Measures Data
         if (selCal == SelCal.All) {  
-            this.filteredData = this.filterPipe.transform(this.data, this.searchKeywords)
+            this.filteredData = this.filterPipe.transform(dataSource, this.searchKeywords)
         }
         else {  // This is only for Measures Data
             this.skMeasureData = ""
 
             if (selCal == SelCal.Calculated) {
-                this.filteredData = this.data.filter(item => item.calculated == true)
+                this.filteredData = dataSource.filter(item => item["calculated"] == true)
             }
             else if (selCal == SelCal.Manual) {
-                this.filteredData = this.data.filter(item => item.calculated == false)
+                this.filteredData = dataSource.filter(item => item["calculated"] == false)
             }
         }
 
+        this.colNames = colNames
+        this.dataSource = dataSource
         this.onFilterChange()
     }
 
@@ -73,23 +77,13 @@ export class TableComponent {
 
         this.row = rowName
         if (this.filteredData == null) {
-            this.filteredData = this.filterPipe.transform(this.data, rowName)
+            this.filteredData = this.filterPipe.transform(this.dataSource, rowName)
         }
         else {
             this.filteredData = this.filterPipe.transform(this.filteredData, rowName)
         }
 
         this.onOrderChange()
-    }
-
-    // formerly $broadcast: mmTableEvent, targetTableEvent, measuresTableEvent, hierarchyTableEvent
-    // measureDefinitionTableEvent, dataImportsTableEvent, usersTableEvent, settingsTableEvent
-    populate(searchKeywords?: string, selCal?: any) {
-        if (searchKeywords != null) {
-            this.searchKeywords = searchKeywords
-        }
-
-        this.search(selCal ?? SelCal.All)
     }
 
     indexTracking(index: number, _: any) {
