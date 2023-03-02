@@ -1,1 +1,31 @@
-<p>measure-data-list works!</p>
+<!-- <p>measure-data-list works!</p> -->
+<!-- <p>hierarchy-list works!</p> -->
+<div class="measure-data-list-container">
+    <h2>Measure Data</h2>
+    <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Hierarchy</th>
+            <th>Parent</th>
+            <th>Level</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let measureData of measureDataList">
+            <td>{{ measureData.id }}</td>
+            <td>{{ measureData.levelId }}</td>
+            <td>{{ measureData.parentId }}</td>
+            <td>{{ measureData.level }}</td>
+            <td>{{ measureData.active }}</td>
+            <td>
+              <a routerLink="/users/{{ measureData.id }}">View</a>
+              <a routerLink="/update-user/{{ measureData.id }}">Edit</a>
+              <!--<button (click)="deleteUser(user)">Delete</button>-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>

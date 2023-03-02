@@ -12,6 +12,7 @@ import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
+import { ToggleService } from "../_services/toggle.service"
 
 type DataOut = {
     dataImport: any
@@ -69,7 +70,8 @@ type UploadsBody = {
 @Component({
     selector: "app-dataimports",
     templateUrl: "./dataimports.component.html",
-    styleUrls: ["../../../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"]
+    styleUrls: ["./dataimports.component.css"],
+    //styleUrls: ["../../../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
@@ -125,15 +127,22 @@ export class DataImportsComponent implements OnInit {
     showError = false
     hideTable = true
 
+    //toggle
+    toggle: any = true;
+
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
         private http: HttpClient,
         private logger: MatSnackBar,
+        private toggleService: ToggleService,
         @Inject(LOCALE_ID) private locale: string) { }
 
     ngOnInit(): void {
         this.disAll(false)
         this.getData()
+        this.toggleService.toggle$.subscribe(toggle => {
+            this.toggle = toggle;
+          });
     }
 
     setProgress(enable: boolean) {

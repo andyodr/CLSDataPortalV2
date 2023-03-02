@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -9,14 +9,27 @@ import { MeasureData } from '../_models/measureData';
 })
 export class MeasureDataService {
 
-  private baseUrl = environment.baseUrl + 'api/measuredata';
+  private baseUrl = environment.baseUrl + 'api/measuredata/';
   
   constructor(private http: HttpClient) { }
 
   // Get Measure Data from API
   getMeasureData(): Observable<MeasureData[]>{
-    //return this.http.get<MeasureData[]>(environment.baseUrl + 'api/measuredata/index');
-    return this.http.get<MeasureData[]>(this.baseUrl + '/index').pipe(
+    
+    const callId = 711
+    const date = Date.now();
+    console.log("Date : ", date);
+    const explanation = null;
+    //query params
+    let params = new HttpParams();
+    params = params.append('CalendarId', callId);
+    params = params.append('Day', date);
+    //params = params.append('Explanation', explanation);
+    //params = params.append('Action', null);
+    console.log("Params : ", params);
+    
+    
+    return this.http.get<MeasureData[]>(this.baseUrl + '/Index',{params:params}).pipe(
       map((response: MeasureData[]) => {
         const measureDataOnService = response
         console.log("Measure Data On Service : ", measureDataOnService);

@@ -1,0 +1,24 @@
+.data-import-container {
+    
+}
+.expanded {
+    margin: 40px 20px 20px 300px;
+}
+.collapsed {
+    margin: 40px 20px 20px 135px;
+}
+
+.page-container {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+}
+.expanded {
+    margin: 40px 20px 20px 300px;
+}
+.collapsed {
+    margin: 40px 20px 20px 135px;
+}
