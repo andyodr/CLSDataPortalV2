@@ -133,7 +133,7 @@
                       </div>
                       <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
                       <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
-                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">
+                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">
                         or Drag and Drop an XLSX / XLS file here
                       </div>
                       <div [hidden]="!dropDis">

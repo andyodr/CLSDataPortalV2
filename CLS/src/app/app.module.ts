@@ -14,6 +14,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
+import { UploadDirective } from "./dataimports/upload.directive"
 import { ErrorsComponent } from './errors/errors.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
@@ -39,7 +40,8 @@ import { SharedModule } from './_modules/shared.module';
 		NotFoundComponent,
 		ServerErrorComponent,
 		TableComponent,
-		TestErrorComponent,
+        TestErrorComponent,
+        UploadDirective,
 		UserListComponent
 	],
 	imports: [

@@ -401,13 +401,19 @@ export class DataImportsComponent implements OnInit {
         this.clear()
     }
 
-    onFileSelected(event: any) {
+    onFileSelected(event: Event) {
+        const files = (event.currentTarget as HTMLInputElement).files
+        if (files != null) {
+            this.onFileDropped(files)
+        }
+    }
+
+    onFileDropped(files: FileList) {
         this.disAll()
         /* wire up file reader */
         //const target: DataTransfer = <DataTransfer>(evt.target);
         //if (target.files.length !== 1) throw new Error('Cannot use multiple files');
         const reader: FileReader = new FileReader()
-        const files = event.target.files as FileList
         reader.onload = (ev: any) => {
             const ab: ArrayBuffer = ev.target.result
             const wb: WorkBook = read(ab)
