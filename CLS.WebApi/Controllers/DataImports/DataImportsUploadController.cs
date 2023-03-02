@@ -137,13 +137,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listTarget,
-															/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-															item => ImportTargetRecords(item, _user.userId)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach (var row in listTarget) {
+						ImportTargetRecords(row, _user.userId);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
@@ -178,13 +175,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listCustomer,
-															//new ParallelOptions {MaxDegreeOfParallelism = 2},
-															item => ImportCustomerRecords(item)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach (var row in listCustomer) {
+						ImportCustomerRecords(row);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
@@ -248,13 +242,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listMeasureData,
-															/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-															item => ImportMeasureDataRecords(item, _user.userId)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach(var row in listMeasureData) {
+						ImportMeasureDataRecords(row, _user.userId);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
