@@ -1,6 +1,6 @@
 import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
-import { Component, Inject, LOCALE_ID, OnInit, SecurityContext, ViewChild } from "@angular/core"
+import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
 import { NgForm } from "@angular/forms"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSnackBar } from "@angular/material/snack-bar"
@@ -12,7 +12,6 @@ import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
-import { DomSanitizer } from "@angular/platform-browser"
 
 type DataOut = {
     dataImport: number
@@ -129,7 +128,6 @@ export class DataImportsComponent implements OnInit {
         public filterPipe: FilterPipe,
         private http: HttpClient,
         private logger: MatSnackBar,
-        private dom: DomSanitizer,
         @Inject(LOCALE_ID) private locale: string) { }
 
     ngOnInit(): void {
@@ -383,8 +381,8 @@ export class DataImportsComponent implements OnInit {
         return false
     }
 
-    processDialogAlert(title: string, message: string) {
-        this.dialog.open(AppDialog, { data: { title, message, alert: true } })
+    processDialogAlert(title: string, htmlContent: string) {
+        this.dialog.open(AppDialog, { data: { title, htmlContent, alert: true } })
             .afterClosed().subscribe(_ => this.clear())
         return false
     }
@@ -447,7 +445,6 @@ export class DataImportsComponent implements OnInit {
         var colNamesTrim = []
 
         // Validates for empty or undefined column names
-        var bcontinue = true
         for (let name of this.colNames) {
             let _ = colNamesTrim.push(name.replace(/\s/, "").toLowerCase())
             if (!name) {
@@ -550,7 +547,7 @@ export class DataImportsComponent implements OnInit {
             msgCalendar = msgInterval + msgCalendar
 
             var title = "Confirmation Upload"
-            var htmlContent = this.dom.sanitize(SecurityContext.HTML, "Are these values correct?" + LINE2 + msgCalendar)
+            var htmlContent = "Are these values correct?" + LINE2 + msgCalendar
             this.dialog.open(AppDialog, { data: { title, htmlContent } })
                 .afterClosed().subscribe(result => {
                     if (result) {
