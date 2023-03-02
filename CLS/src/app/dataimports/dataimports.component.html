@@ -3,7 +3,7 @@
     <div class="col-lg-8 clearfix">
       <h2 class="section-header2">{{title}}</h2>
     </div>
-    <div class="col-md-12 itgMinH">
+    <div class="col-lg-12 itgMinH">
       <div class="panel panel-default">
         <!-- Progress Section-->
         <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
@@ -13,7 +13,7 @@
             <!-- Heading and Buttons Section-->
             <div class="panel-heading" [hidden]="!showContentPage">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-lg-6">
                   <div class="form-inline">
                     <dl class="form-group mar0 marT10 padL15 textTransformNone">
                       <dt class="f12">Calculation Update Every</dt>
@@ -21,7 +21,7 @@
                     </dl>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-lg-6">
                   <div class="form-inline textAlignR">
                     <div class="form-group">
                       <mat-form-field class="mar0 marR20" style="min-width:140px; width:180px;">
@@ -34,7 +34,7 @@
                         </mat-select>
                       </mat-form-field>
                       <button mat-raised-button color="primary" aria-label="Upload"
-                                  [disabled]="disUpload" (click)="processUpload()">
+                              [disabled]="disUpload" (click)="processUpload()">
                         <span class="glyphicon glyphicon-upload padR10"></span> Upload
                       </button>
                     </div>
@@ -54,7 +54,7 @@
                         <mat-form-field flex>
                           <label for="intervals">Intervals</label>
                           <mat-select id="intervals" [(ngModel)]="fIntervalSelected" aria-label="Intervals"
-                              (ngModelChange)="intervalChange()" [disabled]="disFilters">
+                                      (ngModelChange)="intervalChange()" [disabled]="disFilters">
                             <mat-option *ngFor="let interval of fIntervals; trackBy: identity" [value]="interval">
                               {{interval.name}}
                             </mat-option>
@@ -67,7 +67,7 @@
                         <mat-form-field flex>
                           <label for="yr">Year</label>
                           <mat-select id="yr" [(ngModel)]="fYearSelected" aria-label="Year"
-                                     (ngModelChange)="intervalChange()" [disabled]="disFilters">
+                                      (ngModelChange)="intervalChange()" [disabled]="disFilters">
                             <mat-option *ngFor="let year of fYears; trackBy: identity" [value]="year">
                               {{year.year}}
                             </mat-option>
@@ -122,7 +122,7 @@
                         <div class="form-group">
                           <form #uploadForm class="pad0 mar0 disInlineBlock">
                             <input type="file" (change)="onFileSelected($event)" hidden #fileUpload>
-                            <button mat-raised-button (click)="fileUpload.click()" color="primary" aria-label="Select File" [disabled]="disFile">
+                            <button mat-raised-button (click)="fileUpload.click()" class="select-file-button" aria-label="Select File" [disabled]="disFile">
                               <span class="glyphicon glyphicon-open-file padR5"></span> Select File
                             </button>
                           </form>
@@ -133,7 +133,7 @@
                       </div>
                       <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
                       <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
-                      <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">
+                      <div class="drop" [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">
                         or Drag and Drop an XLSX / XLS file here
                       </div>
                       <div [hidden]="!dropDis">
