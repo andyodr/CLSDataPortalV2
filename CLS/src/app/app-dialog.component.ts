@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
     selector: "app-dialog",
     template: `
 <h1 mat-dialog-title>{{data.title}}</h1>
-<p mat-dialog-content>{{data.message}}</p>
+<div [innerHtml]="data.htmlContent" mat-dialog-content>{{data.message}}</div>
 <form mat-dialog-actions>
 <button *ngIf="data.alert" mat-raised-button mat-dialog-close>Close</button>
 <button *ngIf="!data.alert" mat-raised-button mat-dialog-close>Cancel</button>
@@ -15,5 +15,5 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 export class AppDialog {
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        public data: { title: string, message: string, alert?: boolean }) { }
+        public data: { title: string, message?: string, htmlContent?: string, alert?: boolean }) { }
 }

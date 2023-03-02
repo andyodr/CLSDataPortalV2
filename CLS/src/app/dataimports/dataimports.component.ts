@@ -1,6 +1,6 @@
 import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
-import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
+import { Component, Inject, LOCALE_ID, OnInit, SecurityContext, ViewChild } from "@angular/core"
 import { NgForm } from "@angular/forms"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSnackBar } from "@angular/material/snack-bar"
@@ -12,12 +12,13 @@ import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
+import { DomSanitizer } from "@angular/platform-browser"
 
 type DataOut = {
-    dataImport: any
-    calendarId: number | null
-    sheet: any
-    data: any
+    dataImport: number
+    calendarId?: number
+    sheet: string
+    data: { [name: string]: JsonValue }[]
 }
 
 type ErrorModel = {
@@ -79,7 +80,6 @@ export class DataImportsComponent implements OnInit {
     private uploadForm!: NgForm
 
     showContentPage = true
-    dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
     selImport: DataImportItem[] = []
     jsonObj: { [name: string]: JsonValue }[] = []
     sheetNames: { id: number, name: string }[] = []
@@ -129,6 +129,7 @@ export class DataImportsComponent implements OnInit {
         public filterPipe: FilterPipe,
         private http: HttpClient,
         private logger: MatSnackBar,
+        private dom: DomSanitizer,
         @Inject(LOCALE_ID) private locale: string) { }
 
     ngOnInit(): void {
@@ -504,41 +505,38 @@ export class DataImportsComponent implements OnInit {
     }
 
     processUpload() {
-        this.dataOut = {
-            dataImport: null,
-            calendarId: null,
-            sheet: null,
-            data: null
+        let dataOut: DataOut = {
+            dataImport: this.selImportSelected.id,
+            sheet: this.sheetName,
+            data: this.jsonObj
         }
 
-        this.dataOut.dataImport = this.selImportSelected.id
-        this.dataOut.sheet = this.sheetName
-        if (this.dataOut.dataImport == 1) {
+        if (dataOut.dataImport == 1) {  // measure data
             var msgCalendar = ""
             var msgInterval = "<strong>Interval:</strong> " + this.fIntervalSelected?.name + LINE1
 
             switch (Number(this.fIntervalSelected?.id)) {
                 case Intervals.Weekly:
-                    this.dataOut.calendarId = this.fWeekSelected.id
+                    dataOut.calendarId = this.fWeekSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Week:</strong> " + this.fWeekSelected.number + ": "
                         + formatDate(this.fWeekSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
                         + formatDate(this.fWeekSelected.endDate ?? 0, "mediumDate", this.locale)
                     break
                 case Intervals.Monthly:
-                    this.dataOut.calendarId = this.fMonthSelected.id
+                    dataOut.calendarId = this.fMonthSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Month:</strong> " + this.fMonthSelected.month
                     break
                 case Intervals.Quarterly:
-                    this.dataOut.calendarId = this.fQuarterSelected.id
+                    dataOut.calendarId = this.fQuarterSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Quarter:</strong> "
                         + formatDate(this.fQuarterSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
                         + formatDate(this.fQuarterSelected.endDate ?? 0, "mediumDate", this.locale)
                     break
                 case Intervals.Yearly:
-                    this.dataOut.calendarId = this.fYearSelected.id
+                    dataOut.calendarId = this.fYearSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year
                     break
             }
@@ -546,29 +544,29 @@ export class DataImportsComponent implements OnInit {
             msgCalendar = msgInterval + msgCalendar
 
             var title = "Confirmation Upload"
-            var message = "Are these values correct?" + LINE2 + msgCalendar
-            this.dialog.open(AppDialog, { data: { title, message } })
+            var htmlContent = this.dom.sanitize(SecurityContext.HTML, "Are these values correct?" + LINE2 + msgCalendar)
+            this.dialog.open(AppDialog, { data: { title, htmlContent } })
                 .afterClosed().subscribe(result => {
-                    if (result) this.upload()
+                    if (result) {
+                        console.log("Uploading measure data")
+                        this.upload(dataOut)
+                    }
+                    else {
+                        console.log("User canceled upload")
+                    }
                 })
         }
         else {
-            this.upload()
+            this.upload(dataOut)
         }
     }
 
-    upload() {
+    upload(body: DataOut) {
         //vm.dataOut.data = angular.toJson(jsonObj);
         this.msgUpload = MESSAGES.upload
 
         // Call Server
         this.setProgress(true)
-        let body = {
-            dataImport: this.dataOut.dataImport,
-            calendarId: (this.dataOut.calendarId ?? 0).toString(),
-            sheet: this.dataOut.sheet,
-            data: this.jsonObj
-        }
         this.http.post<UploadsBody>(environment.baseUrl + "api/dataimports/upload", body)
             .subscribe({
                 next: body => {
