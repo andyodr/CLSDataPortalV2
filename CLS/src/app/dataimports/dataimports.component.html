@@ -35,7 +35,7 @@
                       </mat-form-field>
                       <button mat-raised-button color="primary" aria-label="Upload"
                               [disabled]="disUpload" (click)="processUpload()">
-                        <span class="glyphicon glyphicon-upload padR10"></span> Upload
+                        <mat-icon class="padR10">upload</mat-icon> Upload
                       </button>
                     </div>
                   </div>
@@ -47,7 +47,7 @@
                 <!-- Intervals Selection -->
                 <div class="col-sm-4 ng-hide" [hidden]="!showIntervals">
                   <div class="panel panel-default" style="min-height:280px;">
-                    <div class="panel-heading"><span class="glyphicon glyphicon-th"></span> Select Interval</div>
+                    <div class="panel-heading"><mat-icon>apps</mat-icon> Select Interval</div>
                     <div class="panel-body no-padding padL15 padR15">
                       <!-- Intervals -->
                       <div layout layout-sm="column" class="marT20">
@@ -120,14 +120,14 @@
                     <div class="panel-body">
                       <div class="form-inline">
                         <div class="form-group">
-                          <form #uploadForm class="pad0 mar0 disInlineBlock">
+                          <form #uploadForm class="pad0 mar0 display-i-b">
                             <input type="file" (change)="onFileSelected($event)" hidden #fileUpload>
-                            <button mat-raised-button (click)="fileUpload.click()" class="select-file-button" aria-label="Select File" [disabled]="disFile">
-                              <span class="glyphicon glyphicon-open-file padR5"></span> Select File
+                            <button mat-raised-button (click)="fileUpload.click()" color="primary" aria-label="Select File" [disabled]="disFile">
+                              <mat-icon>file_open</mat-icon> Select File
                             </button>
                           </form>
-                          <button mat-raised-button color="primary" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
-                            <span class="glyphicon glyphicon-refresh"></span> Clear
+                          <button mat-raised-button class="margin-L15" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                            <mat-icon>refresh</mat-icon> Clear
                           </button>
                         </div>
                       </div>
