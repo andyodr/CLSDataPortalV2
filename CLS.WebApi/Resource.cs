@@ -47,12 +47,12 @@ public class Resource
 	public const string DI_ERR_UPLOADING = "ERROR UPLOADING THIS ROW";
 	public const string DI_ERR_USER_DATE = "This user cannot input data for this date.";
 	public const string DI_ERR_TARGET_NO_EXIST = "Target does not exist.";
-	public const string DI_ERR_HIEARCHY_NO_EXIST = "Hierarchy does not exist.";
-	public const string DI_ERR_HIEARCHY_VALUE = "A Value for this Hierarchy cannot be entered.";
-	public const string DI_ERR_HIEARCHY_NO_ACTIVE = "Hierarchy is not Active. Please contact the Administrator.";
-	public const string DI_ERR_HIEARCHY_NO_ACCESS = "User does not have access to this Hierarchy.";
+	public const string DI_ERR_HIERARCHY_NO_EXIST = "Hierarchy does not exist.";
+	public const string DI_ERR_HIERARCHY_VALUE = "A Value for this Hierarchy cannot be entered.";
+	public const string DI_ERR_HIERARCHY_NO_ACTIVE = "Hierarchy is not Active. Please contact the Administrator.";
+	public const string DI_ERR_HIERARCHY_NO_ACCESS = "User does not have access to this Hierarchy.";
 	public const string DI_ERR_MEASURE_NULL = "MeasureID cannot be NULL.";
-	public const string DI_ERR_HIEARCHY_NULL = "HierarchyID cannot be NULL.";
+	public const string DI_ERR_HIERARCHY_NULL = "HierarchyID cannot be NULL.";
 	public const string DI_ERR_TARGET_NULL = "Target cannot be NULL.";
 	public const string DI_ERR_CALENDAR_NULL = "CalendarId cannot be NULL.";
 	public const string DI_ERR_CALENDAR_NO_EXIST = "CalendarId does not exist.";

@@ -271,7 +271,7 @@ public class IndexController : ControllerBase
 			interval = (int)Helper.intervals.daily;
 		}
 		else {
-			interval = cal.Where(c => c.Id == calendarID).First().Interval.Id;
+			interval = cal.Where(c => c.Id == calendarID).Include(c => c.Interval).First().Interval.Id;
 		}
 
 		if (interval == (int)Helper.intervals.daily) {

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
-import { HierarchyComponent } from './hierarchy/hierarchy.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
@@ -21,14 +20,9 @@ const routes: Routes = [
 		runGuardsAndResolvers: 'always',
 		canActivate: [AuthGuard], children: [
 			{ path: 'home', component: HomeComponent },
-			{ path: 'members', component: MemberListComponent },
-			{ path: 'members/:id', component: MemberDetailComponent },
-			{ path: 'lists', component: ListsComponent },
-			{ path: 'messages', component: MessagesComponent },
 		]
 	},
 	{ path: 'measuredefinition', component: MeasureDefinitionComponent },
-	{ path: 'hierarchy', component: HierarchyComponent },
 	{ path: "dataimports", title: "Distributor - Data Imports", component: DataImportsComponent },
 	{ path: 'errors', component: TestErrorComponent },
 	{ path: 'not-found', component: NotFoundComponent },

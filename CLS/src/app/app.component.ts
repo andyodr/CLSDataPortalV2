@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from './_models/user';
 import { AccountService } from './_services/account.service';
+import { ToggleService } from './_services/toggle.service';
 
 @Component({
 	selector: 'app-root',
@@ -10,10 +11,15 @@ import { AccountService } from './_services/account.service';
 export class AppComponent implements OnInit {
 	title = 'CLSDataPortalV2';
 
-	constructor(private accountService: AccountService) { }
+	toggle: any = true;
+
+	constructor(private accountService: AccountService, private toggleService: ToggleService) { }
 
 	ngOnInit(): void {
 		this.setCurrentUser();
+		this.toggleService.toggle$.subscribe(toggle => {
+			this.toggle = toggle;
+		});
 	}
 
 	setCurrentUser() {

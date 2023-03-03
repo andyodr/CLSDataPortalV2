@@ -12,12 +12,13 @@ import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
+import { ToggleService } from "../_services/toggle.service"
 
 type DataOut = {
-    dataImport: any
-    calendarId: number | null
-    sheet: any
-    data: any
+    dataImport: number
+    calendarId?: number
+    sheet: string
+    data: { [name: string]: JsonValue }[]
 }
 
 type ErrorModel = {
@@ -69,17 +70,14 @@ type UploadsBody = {
 @Component({
     selector: "app-dataimports",
     templateUrl: "./dataimports.component.html",
-    styleUrls: ["../../../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"]
+    styleUrls: ["./dataimports.component.css"]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
     @ViewChild(TableComponent)
     private table!: TableComponent
-    @ViewChild(NgForm)
-    private uploadForm!: NgForm
 
     showContentPage = true
-    dataOut: DataOut = { dataImport: null, calendarId: null, sheet: null, data: null }
     selImport: DataImportItem[] = []
     jsonObj: { [name: string]: JsonValue }[] = []
     sheetNames: { id: number, name: string }[] = []
@@ -125,15 +123,22 @@ export class DataImportsComponent implements OnInit {
     showError = false
     hideTable = true
 
+    //toggle
+    toggle: any = true;
+
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
         private http: HttpClient,
         private logger: MatSnackBar,
+        private toggleService: ToggleService,
         @Inject(LOCALE_ID) private locale: string) { }
 
     ngOnInit(): void {
         this.disAll(false)
         this.getData()
+        this.toggleService.toggle$.subscribe(toggle => {
+            this.toggle = toggle;
+          });
     }
 
     setProgress(enable: boolean) {
@@ -193,7 +198,7 @@ export class DataImportsComponent implements OnInit {
             .afterClosed()
     }
 
-    disAll(disable: boolean) {
+    disAll(disable = true) {
         this.disImportSel = disable
         this.disFilters = disable
         this.disFile = disable
@@ -223,7 +228,6 @@ export class DataImportsComponent implements OnInit {
     clear() {
         this.disUpload = true
         this.disAll(false)
-        this.uploadForm.reset()
         this.fileName = ""
         this.sheetName = ""
         this.jsonObj = []
@@ -368,7 +372,6 @@ export class DataImportsComponent implements OnInit {
     // -----------------------------------------------------------------------------
 
     clearClick() {
-        this.hideTable = true
         this.msgUpload = MESSAGES.clear
         this.clear()
     }
@@ -384,8 +387,8 @@ export class DataImportsComponent implements OnInit {
         return false
     }
 
-    processDialogAlert(title: string, message: string) {
-        this.dialog.open(AppDialog, { data: { title, message, alert: true } })
+    processDialogAlert(title: string, htmlContent: string) {
+        this.dialog.open(AppDialog, { data: { title, htmlContent, alert: true } })
             .afterClosed().subscribe(_ => this.clear())
         return false
     }
@@ -402,13 +405,19 @@ export class DataImportsComponent implements OnInit {
         this.clear()
     }
 
-    onFileSelected(event: any) {
-        this.disAll(true)
+    onFileSelected(event: Event) {
+        const files = (event.currentTarget as HTMLInputElement).files
+        if (files != null) {
+            this.onFileDropped(files)
+        }
+    }
+
+    onFileDropped(files: FileList) {
+        this.disAll()
         /* wire up file reader */
         //const target: DataTransfer = <DataTransfer>(evt.target);
         //if (target.files.length !== 1) throw new Error('Cannot use multiple files');
         const reader: FileReader = new FileReader()
-        const files = event.target.files as FileList
         reader.onload = (ev: any) => {
             const ab: ArrayBuffer = ev.target.result
             const wb: WorkBook = read(ab)
@@ -425,7 +434,7 @@ export class DataImportsComponent implements OnInit {
                 })
             }
             else {
-                this.disAll(true)
+                this.disAll()
                 this.calculateJson(files[0].name, wb, wb.SheetNames[0])
             }
         }
@@ -442,7 +451,6 @@ export class DataImportsComponent implements OnInit {
         var colNamesTrim = []
 
         // Validates for empty or undefined column names
-        var bcontinue = true
         for (let name of this.colNames) {
             let _ = colNamesTrim.push(name.replace(/\s/, "").toLowerCase())
             if (!name) {
@@ -506,41 +514,38 @@ export class DataImportsComponent implements OnInit {
     }
 
     processUpload() {
-        this.dataOut = {
-            dataImport: null,
-            calendarId: null,
-            sheet: null,
-            data: null
+        let dataOut: DataOut = {
+            dataImport: this.selImportSelected.id,
+            sheet: this.sheetName,
+            data: this.jsonObj
         }
 
-        this.dataOut.dataImport = this.selImportSelected.id
-        this.dataOut.sheet = this.sheetName
-        if (this.dataOut.dataImport == 1) {
+        if (dataOut.dataImport == 1) {  // measure data
             var msgCalendar = ""
             var msgInterval = "<strong>Interval:</strong> " + this.fIntervalSelected?.name + LINE1
 
             switch (Number(this.fIntervalSelected?.id)) {
                 case Intervals.Weekly:
-                    this.dataOut.calendarId = this.fWeekSelected.id
+                    dataOut.calendarId = this.fWeekSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Week:</strong> " + this.fWeekSelected.number + ": "
                         + formatDate(this.fWeekSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
                         + formatDate(this.fWeekSelected.endDate ?? 0, "mediumDate", this.locale)
                     break
                 case Intervals.Monthly:
-                    this.dataOut.calendarId = this.fMonthSelected.id
+                    dataOut.calendarId = this.fMonthSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Month:</strong> " + this.fMonthSelected.month
                     break
                 case Intervals.Quarterly:
-                    this.dataOut.calendarId = this.fQuarterSelected.id
+                    dataOut.calendarId = this.fQuarterSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year + LINE1
                         + "<strong>Quarter:</strong> "
                         + formatDate(this.fQuarterSelected.startDate ?? 0, "mediumDate", this.locale) + " to "
                         + formatDate(this.fQuarterSelected.endDate ?? 0, "mediumDate", this.locale)
                     break
                 case Intervals.Yearly:
-                    this.dataOut.calendarId = this.fYearSelected.id
+                    dataOut.calendarId = this.fYearSelected.id
                     msgCalendar = "<strong>Year:</strong> " + this.fYearSelected.year
                     break
             }
@@ -548,29 +553,25 @@ export class DataImportsComponent implements OnInit {
             msgCalendar = msgInterval + msgCalendar
 
             var title = "Confirmation Upload"
-            var message = "Are these values correct?" + LINE2 + msgCalendar
-            this.dialog.open(AppDialog, { data: { title, message } })
+            var htmlContent = "Are these values correct?" + LINE2 + msgCalendar
+            this.dialog.open(AppDialog, { data: { title, htmlContent } })
                 .afterClosed().subscribe(result => {
-                    if (result) this.upload()
+                    if (result) {
+                        this.upload(dataOut)
+                    }
                 })
         }
         else {
-            this.upload()
+            this.upload(dataOut)
         }
     }
 
-    upload() {
+    upload(body: DataOut) {
         //vm.dataOut.data = angular.toJson(jsonObj);
         this.msgUpload = MESSAGES.upload
 
         // Call Server
         this.setProgress(true)
-        let body = {
-            dataImport: this.dataOut.dataImport,
-            calendarId: (this.dataOut.calendarId ?? 0).toString(),
-            sheet: this.dataOut.sheet,
-            data: this.jsonObj
-        }
         this.http.post<UploadsBody>(environment.baseUrl + "api/dataimports/upload", body)
             .subscribe({
                 next: body => {
@@ -605,7 +606,7 @@ export class DataImportsComponent implements OnInit {
     // Called from FilterCtrl only
     getData() {
         this.showError = false
-        this.disAll(true)
+        this.disAll()
 
         // Call Server
         this.setProgress(true)
@@ -635,7 +636,7 @@ export class DataImportsComponent implements OnInit {
                 return
             }
 
-            this.disAll(true)
+            this.disAll()
             this.hideTable = false
             this.tableData = []
             // Only for Customers

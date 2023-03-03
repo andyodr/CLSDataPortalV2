@@ -78,7 +78,7 @@ public class UploadController : ControllerBase
 			int dataImport = int.Parse(jsonObject!["dataImport"]?.ToString() ?? "0");
 
 			string sheetName = jsonObject["sheet"]?.ToString() ?? string.Empty;
-			var array = jsonObject["data"]![sheetName];
+			var array = jsonObject["data"];
 
 			// --------------------------------------------------------
 			// Process Target
@@ -126,12 +126,10 @@ public class UploadController : ControllerBase
 					return returnObject;
 				}
 
-				var task = Task.Factory.StartNew(() => Parallel.ForEach(
-					listTarget,
-					/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-					item => ValidateTargetRows(item, _user.userId)));
-				TaskList.Add(task);
-				Task.WaitAll(TaskList.ToArray());
+				foreach (var row in listTarget) {
+					ValidateTargetRows(row, _user.userId);
+				}
+
 				if (returnObject.Error.Count != 0) {
 					var temp = returnObject.Error.OrderBy(e => e.row);
 					returnObject.Error = temp.ToList();
@@ -139,13 +137,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listTarget,
-															/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-															item => ImportTargetRecords(item, _user.userId)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach (var row in listTarget) {
+						ImportTargetRecords(row, _user.userId);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
@@ -167,16 +162,12 @@ public class UploadController : ControllerBase
 				var listCustomer = new List<SheetDataCustomer>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
+					if (value == null) {  continue; }
+					ValidateCustomerRows(value, _user.userId);
 					value!.rowNumber = rowNumber++;
 					listCustomer.Add(value);
 				}
 
-				var task = Task.Factory.StartNew(() => Parallel.ForEach(
-					listCustomer,
-					/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-					item => ValidateCustomerRows(item, _user.userId)));
-				TaskList.Add(task);
-				Task.WaitAll(TaskList.ToArray());
 				if (returnObject.Error.Count != 0) {
 					var temp = returnObject.Error.OrderBy(e => e.row);
 					returnObject.Error = temp.ToList();
@@ -184,13 +175,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listCustomer,
-															//new ParallelOptions {MaxDegreeOfParallelism = 2},
-															item => ImportCustomerRecords(item)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach (var row in listCustomer) {
+						ImportCustomerRecords(row);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
@@ -243,14 +231,10 @@ public class UploadController : ControllerBase
 					return returnObject;
 				}
 
+				foreach (var row in listMeasureData) {
+					ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.userId);
+				}
 
-				var task = Task.Factory.StartNew(() => Parallel.ForEach(
-													   listMeasureData,
-													   /*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-													   item => ValidateMeasureDataRows(item, calendar.Interval.Id, calendar.Id, _user.userId)));
-				TaskList.Add(task);
-
-				Task.WaitAll(TaskList.ToArray());
 				if (returnObject.Error.Count != 0) {
 					var temp = returnObject.Error.OrderBy(e => e.row);
 					returnObject.Error = temp.ToList();
@@ -258,13 +242,10 @@ public class UploadController : ControllerBase
 				}
 				else {
 					TaskList.Clear();
-					var task2 = Task.Factory.StartNew(() => Parallel.ForEach(
-															listMeasureData,
-															/*new ParallelOptions {MaxDegreeOfParallelism = 1},*/
-															item => ImportMeasureDataRecords(item, _user.userId)));
-					TaskList.Add(task2);
-					Task.WaitAll(TaskList.ToArray());
-					//returnObject.data = dataReturn(_user);
+					foreach(var row in listMeasureData) {
+						ImportMeasureDataRecords(row, _user.userId);
+					}
+
 					returnObject.Data = null;
 
 					Helper.AddAuditTrail(_context,
@@ -367,15 +348,15 @@ public class UploadController : ControllerBase
 		//}
 		var hierarchy = _context.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
 		if (!hierarchy.Any()) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIEARCHY_NO_EXIST });
+			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_EXIST });
 			return false;
 		}
 		else if (!hierarchy.Any(x => x)) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIEARCHY_NO_ACTIVE });
+			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_ACTIVE });
 			return false;
 		}
 		else if (!_context.UserHierarchy.Where(u => u.Id == userId && u.HierarchyId == hierarchyId).Any()) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIEARCHY_NO_ACCESS });
+			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_ACCESS });
 			return false;
 		}
 
@@ -393,7 +374,7 @@ public class UploadController : ControllerBase
 		}
 
 		if (row.HierarchyID is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
+			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
@@ -475,7 +456,7 @@ public class UploadController : ControllerBase
 		}
 
 		if (row.HierarchyID is null) {
-			returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
+			returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
@@ -547,7 +528,7 @@ public class UploadController : ControllerBase
 	private void ValidateCustomerRows(SheetDataCustomer row, int userId) {
 		//check for null values
 		if (row.HierarchyId is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIEARCHY_NULL });
+			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 

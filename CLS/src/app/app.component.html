@@ -2,5 +2,8 @@
 <!--<app-nav></app-nav>-->
 <div class="full-container">
   <app-navbar></app-navbar>
-  <router-outlet></router-outlet>
+  <div class="general-container" [ngClass]="{'expanded': toggle, 'collapsed': !toggle}">
+    <router-outlet></router-outlet>
+  </div>
+  
 </div>

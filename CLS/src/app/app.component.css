@@ -1,3 +1,14 @@
 body   {
     font-family: Arial, Helvetica, sans-serif !important;
 }
+
+.general-container {
+}
+
+.expanded {
+  margin: 40px 20px 20px 300px;
+}
+
+.collapsed {
+  margin: 40px 20px 20px 135px;
+}

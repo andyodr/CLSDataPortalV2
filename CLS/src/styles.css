@@ -1,19 +1,86 @@
 /* You can add global styles to this file, and also import other style files */
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-.snackbar-success {
-    background-color: #1c680d
-}
-.snackbar-info {
-    background-color: #074080
-}
-.snackbar-warning {
-    background-color: #d3ca00
-}
-.snackbar-error {
-    background-color: #ba1212
+@font-face {
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: 400;
+  src: url(/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local("Material Icons"),
+      local("MaterialIcons-Regular"),
+      /*url(/assets/fonts/MaterialIcons-Regular.woff2) format("woff2"),*/
+      url(/assets/fonts/MaterialIcons-Regular.ttf) format("truetype");
 }
 
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: "liga";
+}
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body { margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f0f0f0;
+}
+
+.panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+.panel .panel { box-shadow: none; }
+
+.panel-body { padding: 15px; }
+
+.panel-heading {
+  color: #3d4051;
+  background-color: #f2f7f7;
+  border-color: #e2edeb;
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 1px;
+  border-top-left-radius: 1px;
+}
+
+.panel-default { border-color: #e2edeb; }
+
+.row {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.section-header2 {
+  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+  font-size: 26px;
+  color: #0a8caa;
+  letter-spacing: normal;
+  margin: 0 0 16px;
+}
+
+.snackbar-success { background-color: #1c680d }
+
+.snackbar-info { background-color: #074080 }
+
+.snackbar-warning { background-color: #d3ca00 }
+
+.snackbar-error { background-color: #ba1212 }
