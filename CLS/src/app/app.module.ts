@@ -69,13 +69,5 @@ import { SharedModule } from './_modules/shared.module';
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     ],
     bootstrap: [AppComponent]
-		NgbModule,
-		SharedModule,
-		AuthModule
-	],
-	providers: [
-		{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-	],
-	bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -60,10 +60,6 @@
                             </mat-option>
                           </mat-select>
                         </mat-form-field>
-                        <button mat-raised-button color="primary" aria-label="Upload"
-                                    [disabled]="disUpload" (click)="processUpload()">
-                          <span class="glyphicon glyphicon-upload padR10"></span> Upload
-                        </button>
                       </div>
 
                       <!-- Yearly -->
@@ -142,15 +138,6 @@
                         <div class="callout callout-warning">
                           <p>{{msgUpload}}</p>
                         </div>
-                        <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
-                        <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
-                        <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">
-                          or Drag and Drop an XLSX / XLS file here
-                        </div>
-                        <div [hidden]="!dropDis">
-                          <div class="callout callout-warning">
-                            <p>{{msgUpload}}</p>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -221,4 +208,3 @@
       </div>
     </div>
   </div>  
-<!-- </div> -->
