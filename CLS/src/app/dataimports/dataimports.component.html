@@ -33,7 +33,7 @@
                           </mat-option>
                         </mat-select>
                       </mat-form-field>
-                      <button mat-raised-button color="primary" aria-label="Upload"
+                      <button mat-raised-button color="accent" aria-label="Upload"
                               [disabled]="disUpload" (click)="processUpload()">
                         <mat-icon class="padR10">upload</mat-icon> Upload
                       </button>
@@ -125,7 +125,7 @@
                               <mat-icon class="icon-prefix">file_open</mat-icon> Select File
                             </button>
                           </form>
-                          <button mat-raised-button aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                          <button mat-raised-button color="warn" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
                             <mat-icon class="icon-prefix">refresh</mat-icon> Clear
                           </button>
                         </div>
