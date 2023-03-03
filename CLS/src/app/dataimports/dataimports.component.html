@@ -47,7 +47,7 @@
                 <!-- Intervals Selection -->
                 <div class="col-sm-4 ng-hide" [hidden]="!showIntervals">
                   <div class="panel panel-default" style="min-height:280px;">
-                    <div class="panel-heading"><mat-icon>apps</mat-icon> Select Interval</div>
+                    <div class="panel-heading"><mat-icon class="interval-icon">apps</mat-icon> Select Interval</div>
                     <div class="panel-body no-padding padL15 padR15">
                       <!-- Intervals -->
                       <div layout layout-sm="column" class="marT20">
@@ -118,19 +118,17 @@
                 <div class="col-sm-8">
                   <div class="panel panel-default" style="min-height:280px;">
                     <div class="panel-body">
-                      <div class="form-inline">
-                        <div class="form-group">
-                          <form #uploadForm class="pad0 mar0 display-i-b">
-                            <input type="file" (change)="onFileSelected($event)" hidden #fileUpload>
-                            <button mat-raised-button (click)="fileUpload.click()" color="primary" aria-label="Select File" [disabled]="disFile">
-                              <mat-icon>file_open</mat-icon> Select File
+                        <div class="select-file-buttons">
+                          <form class="pad0 mar0">
+                            <input type="file" (change)="onFileSelected($event)" hidden #fileSelect>
+                            <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">
+                              <mat-icon class="icon-prefix">file_open</mat-icon> Select File
                             </button>
                           </form>
-                          <button mat-raised-button class="margin-L15" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
-                            <mat-icon>refresh</mat-icon> Clear
+                          <button mat-raised-button aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                            <mat-icon class="icon-prefix">refresh</mat-icon> Clear
                           </button>
                         </div>
-                      </div>
                       <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
                       <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
                       <div class="drop" [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">

@@ -76,8 +76,6 @@ export class DataImportsComponent implements OnInit {
     title = "Data Imports"
     @ViewChild(TableComponent)
     private table!: TableComponent
-    @ViewChild(NgForm)
-    private uploadForm!: NgForm
 
     showContentPage = true
     selImport: DataImportItem[] = []
