@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { NavSettingsService } from 'src/app/_services/nav-settings.service';
 import { AccountService } from '../../_services/account.service';
 
 
@@ -15,9 +16,11 @@ export class LoginComponent implements OnInit {
   model: any = {};
 
 
-  constructor(private accountService: AccountService, private router: Router, private toastr: ToastrService) { }
+  constructor(private accountService: AccountService, private router: Router, private toastr: ToastrService, 
+              public _navSettingsService: NavSettingsService) { }
 
   ngOnInit(): void {
+    this._navSettingsService.hideNavBar();
   }
 
   /*register() {
@@ -39,7 +42,10 @@ export class LoginComponent implements OnInit {
   login() {
     console.log(this.model);
     this.accountService.login(this.model).subscribe({
-      next: _ => this.router.navigateByUrl('/measuredata'),
+      next: _ => {
+        this._navSettingsService.showNavBar();
+        this.router.navigateByUrl('/measuredata');
+      },
       error: error => this.toastr.error(error.message)
     });
   }

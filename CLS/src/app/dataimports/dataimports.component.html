@@ -60,6 +60,10 @@
                             </mat-option>
                           </mat-select>
                         </mat-form-field>
+                        <button mat-raised-button color="primary" aria-label="Upload"
+                                    [disabled]="disUpload" (click)="processUpload()">
+                          <span class="glyphicon glyphicon-upload padR10"></span> Upload
+                        </button>
                       </div>
 
                       <!-- Yearly -->
@@ -138,73 +142,83 @@
                         <div class="callout callout-warning">
                           <p>{{msgUpload}}</p>
                         </div>
+                        <h5 class="padT10"><strong>File name:</strong> {{fileName}}</h5>
+                        <h5 class="padT10"><strong>Sheet name:</strong> {{sheetName}}</h5>
+                        <div [hidden]="dropDis" fileUpload (onFileDropped)="onFileSelected($event)">
+                          or Drag and Drop an XLSX / XLS file here
+                        </div>
+                        <div [hidden]="!dropDis">
+                          <div class="callout callout-warning">
+                            <p>{{msgUpload}}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Table Section-->
-            <div class="panel-body padT0">
-
-              <!-- Error Section-->
-              <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
-              <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showUploadError">
-                <div class="panel-body padB0 marB0 noBorder">
-                  <ngb-alert type="danger" (closed)="closeUploadError()">
-                    <p>{{errorUploadMsg.heading}}</p>
-                    <section class="table-flip-scroll table-dynamic overflowAuto">
-                      <table class="table table-bordered table-striped cf no-margin">
-                        <thead class="cf">
-                          <tr>
-                            <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                            <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
-                            <td class="alert-danger">{{errorRows.row}}</td>
-                            <td class="alert-danger">{{errorRows.message}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </section>
-                  </ngb-alert>
+  
+              <!-- Table Section-->
+              <div class="panel-body padT0">
+  
+                <!-- Error Section-->
+                <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
+                <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showUploadError">
+                  <div class="panel-body padB0 marB0 noBorder">
+                    <ngb-alert type="danger" (closed)="closeUploadError()">
+                      <p>{{errorUploadMsg.heading}}</p>
+                      <section class="table-flip-scroll table-dynamic overflowAuto">
+                        <table class="table table-bordered table-striped cf no-margin">
+                          <thead class="cf">
+                            <tr>
+                              <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                              <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                              <td class="alert-danger">{{errorRows.row}}</td>
+                              <td class="alert-danger">{{errorRows.message}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </section>
+                    </ngb-alert>
+                  </div>
                 </div>
-              </div>
-              <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
-                <div class="panel-body padB0 marB0 noBorder">
-                  <ngb-alert type="danger" (closed)="closeUploadError()">
-                    <p>{{errorUploadMsg.heading}}</p>
-                    <section class="table-flip-scroll table-dynamic overflowAuto">
-                      <table class="table table-bordered table-striped cf no-margin">
-                        <thead class="cf">
-                          <tr>
-                            <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                            <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
-                            <td class="alert-danger">{{errorRows.row}}</td>
-                            <td class="alert-danger">{{errorRows.message}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </section>
-                  </ngb-alert>
+                <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
+                  <div class="panel-body padB0 marB0 noBorder">
+                    <ngb-alert type="danger" (closed)="closeUploadError()">
+                      <p>{{errorUploadMsg.heading}}</p>
+                      <section class="table-flip-scroll table-dynamic overflowAuto">
+                        <table class="table table-bordered table-striped cf no-margin">
+                          <thead class="cf">
+                            <tr>
+                              <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                              <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                              <td class="alert-danger">{{errorRows.row}}</td>
+                              <td class="alert-danger">{{errorRows.message}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </section>
+                    </ngb-alert>
+                  </div>
                 </div>
-              </div>
-              <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
-                <!-- Table Section-->
-                <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
-                </app-table>
+                <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
+                  <!-- Table Section-->
+                  <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
+                  </app-table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </div>  
+<!-- </div> -->

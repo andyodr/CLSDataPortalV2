@@ -1,8 +1,9 @@
+/* position: sticky;  */
 .navbar {
     height: 70px;
     background-color: #0A8CAA;
     color: white;
-    position: sticky;
+    position: fixed; /*position: sticky; */
     top: 0px;
     z-index: 4;
     width: 100%;
@@ -12,7 +13,8 @@
     margin: 5px 20px;
 }
 .nav-logo-collapsed {
-    display: none;
+    display: inline;
+    margin: 5px 5px 5px 20px;
 }
 .nav-toggle {
     flex: auto;
@@ -58,4 +60,12 @@
     position: relative;
     display: inline-block;
     margin: 20px 100px;
+}
+
+.help-button{
+    margin: 20px 20px;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    border-radius: 50%;
 }

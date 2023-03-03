@@ -43,6 +43,10 @@ export class AccountService {
     this.currentUserSource.next(user);
   }
 
+  getCurrentUser() {
+    return this.currentUserSource.value;
+  }
+
   logout() {
     this.http.get(environment.baseUrl + "api/SignOut", { observe: "response" })
       .subscribe(result => {

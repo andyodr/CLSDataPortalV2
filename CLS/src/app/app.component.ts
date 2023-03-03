@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from './_models/user';
 import { AccountService } from './_services/account.service';
+import { NavSettingsService } from './_services/nav-settings.service';
 import { ToggleService } from './_services/toggle.service';
 
 @Component({
@@ -13,7 +14,8 @@ export class AppComponent implements OnInit {
 
 	toggle: any = true;
 
-	constructor(private accountService: AccountService, private toggleService: ToggleService) { }
+	constructor(private accountService: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) {
+	 }
 
 	ngOnInit(): void {
 		this.setCurrentUser();
@@ -28,5 +30,9 @@ export class AppComponent implements OnInit {
 		if (!userString) return;
 		const user: User = JSON.parse(userString!);
 		this.accountService.setCurrentUser(user);
+	}
+
+	getCurrentUser() {
+		return this.accountService.getCurrentUser();
 	}
 }

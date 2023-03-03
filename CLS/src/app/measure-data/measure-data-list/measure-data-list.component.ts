@@ -21,12 +21,12 @@ export class MeasureDataListComponent implements OnInit {
 
   //Get Measure Data from service ----------------------------------------------------------------
   getMeasureData() {
-    //throw new Error('Method not implemented.');
-    this.measureDataService.getMeasureData().subscribe({
+    throw new Error('Method not implemented.');
+    /*this.measureDataService.getMeasureData(measureDataReceiveObject: MeasureData).subscribe({
       next: (response: any) => {
         this.measureDataList = response.data
         console.log("Measure Data On Component: ", this.measureDataList)}
-    });
+    });*/
   }
 
 }

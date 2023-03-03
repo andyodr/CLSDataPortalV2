@@ -14,21 +14,25 @@ export class MeasureDataService {
   constructor(private http: HttpClient) { }
 
   // Get Measure Data from API
-  getMeasureData(): Observable<MeasureData[]>{
+  getMeasureData(measureDataReceiveObject: MeasureData): Observable<MeasureData[]>{
     
     const callId = 711
-    const date = Date.now();
-    console.log("Date : ", date);
-    const explanation = null;
+    const day = 3;
+    // const hierarchyId = 4;
+    // const measureTypeId = 2;
+    const explanation = 'explanation-value';
+    const action = 'action-value';
     //query params
     let params = new HttpParams();
-    params = params.append('CalendarId', callId);
-    params = params.append('Day', date);
-    //params = params.append('Explanation', explanation);
-    //params = params.append('Action', null);
+    params = params.append('CalendarId', measureDataReceiveObject.calendarId!);
+    params = params.append('Day', day);
+    // params = params.append('Day', day);
+    // params = params.append('Day', day);
+    params = params.append('Explanation', explanation);
+    params = params.append('Action', action);
     console.log("Params : ", params);
     
-    
+
     return this.http.get<MeasureData[]>(this.baseUrl + '/Index',{params:params}).pipe(
       map((response: MeasureData[]) => {
         const measureDataOnService = response
