@@ -12,6 +12,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppDialog } from './app-dialog.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AuthModule } from "./auth/auth.module";
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
 import { ErrorsComponent } from './errors/errors.component';
@@ -54,7 +55,8 @@ import { SharedModule } from './_modules/shared.module';
         MatSelectModule,
         MatSnackBarModule,
 		NgbModule,
-		SharedModule
+		SharedModule,
+		AuthModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

@@ -2,6 +2,17 @@ body   {
     font-family: Arial, Helvetica, sans-serif !important;
 }
 
+/*.full-container {
+    margin: 40px 20px 20px 135px;
+    transition: all .3s ease;
+}
+.show {
+    margin: 40px 20px 20px 300px;
+}
+.not-show {
+    margin: 40px 20px 20px 135px;
+}*/
+
 .general-container {
     
 }
