@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
 @import "palette";
 
-$primary: mat.define-palette(mat.$cyan-palette);
+$primary: mat.define-palette($teal-palette);
 $accent: mat.define-palette(mat.$amber-palette);
 $warn: mat.define-palette(mat.$red-palette)

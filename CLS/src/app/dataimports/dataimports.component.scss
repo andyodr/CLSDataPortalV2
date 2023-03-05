@@ -1,3 +1,6 @@
+h1 {
+  margin: 96px 0 16px;
+}
 
 button {
   font-size: larger
@@ -46,11 +49,11 @@ button {
   display: flex;
   gap: 18px;
 
-  .section-1-a {
+  > :first-child {
     width: 17rem;
   }
 
-  .section-1-b {
+  > :last-child {
     display: flex;
     flex-direction: column;
     gap: 12px;

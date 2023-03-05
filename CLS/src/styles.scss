@@ -8,10 +8,9 @@
   font-style: normal;
   font-weight: 400;
   src: url(/MaterialIcons-Regular.eot); /* For IE6-8 */
-  src: local("Material Icons"),
-      local("MaterialIcons-Regular"),
-      /*url(/assets/fonts/MaterialIcons-Regular.woff2) format("woff2"),*/
-      url(/assets/fonts/MaterialIcons-Regular.ttf) format("truetype");
+  src: local("Material Icons"), local("MaterialIcons-Regular"),
+  /*url(/assets/fonts/MaterialIcons-Regular.woff2) format("woff2"),*/
+  url(/assets/fonts/MaterialIcons-Regular.ttf) format("truetype");
 }
 
 .material-icons {
@@ -36,11 +35,18 @@
   font-feature-settings: "liga";
 }
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+}
 
-body { margin: 0;
+body {
+  margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: mat.get-color-from-palette(mat.$blue-grey-palette, 50);
+}
+
+h1, h2 {
+  color: mat.get-color-from-palette($primary, 600);
 }
 
 .panel {
@@ -52,22 +58,26 @@ body { margin: 0;
   box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
 
-.panel .panel { box-shadow: none; }
-
-.panel-default { border-color: #e2edeb; }
-
-.section-header2 {
-  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
-  font-size: 26px;
-  color: #0a8caa;
-  letter-spacing: normal;
-  margin: 0 0 16px;
+.panel .panel {
+  box-shadow: none;
 }
 
-.snackbar-success { background-color: #1c680d }
+.panel-default {
+  border-color: #e2edeb;
+}
 
-.snackbar-info { background-color: #074080 }
+.snackbar-success {
+  background-color: #1c680d
+}
 
-.snackbar-warning { background-color: #d3ca00 }
+.snackbar-info {
+  background-color: #074080
+}
 
-.snackbar-error { background-color: #ba1212 }
+.snackbar-warning {
+  background-color: #d3ca00
+}
+
+.snackbar-error {
+  background-color: #ba1212
+}
