@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@use "sass:map";
+@use "@angular/material" as mat;
+@import "./scss/_variables.scss";
+
 @font-face {
   font-family: "Material Icons";
   font-style: normal;
@@ -36,7 +40,7 @@ html, body { height: 100%; }
 
 body { margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f0f0f0;
+  background-color: mat.get-color-from-palette(mat.$blue-grey-palette, 50);
 }
 
 .panel {
@@ -50,24 +54,7 @@ body { margin: 0;
 
 .panel .panel { box-shadow: none; }
 
-.panel-body { padding: 15px; }
-
-.panel-heading {
-  color: #3d4051;
-  background-color: #f2f7f7;
-  border-color: #e2edeb;
-  padding: 10px 15px;
-  border-bottom: 1px solid transparent;
-  border-top-right-radius: 1px;
-  border-top-left-radius: 1px;
-}
-
 .panel-default { border-color: #e2edeb; }
-
-.row {
-  margin-left: -15px;
-  margin-right: -15px;
-}
 
 .section-header2 {
   font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;

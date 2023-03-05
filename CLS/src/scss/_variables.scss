@@ -1,0 +1,19 @@
+@use "@angular/material" as mat;
+@import "custom";
+
+$theme: mat.define-light-theme((
+    color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn),
+    typography: mat.define-typography-config(),
+    density: 0
+));
+
+@include mat.core-theme($theme);
+@include mat.button-theme($theme);
+@include mat.dialog-theme($theme);
+@include mat.icon-theme($theme);
+@include mat.progress-bar-theme($theme);
+@include mat.radio-theme($theme);
+@include mat.select-theme($theme);

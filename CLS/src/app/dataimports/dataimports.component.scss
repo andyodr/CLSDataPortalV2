@@ -1,0 +1,88 @@
+
+button {
+  font-size: larger
+}
+
+.expanded {
+  margin: 40px 20px 20px 300px;
+}
+
+.collapsed {
+  margin: 40px 20px 20px 135px;
+}
+
+.form-inline .form-group {
+  margin-bottom: 0;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.page-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 24px;
+
+  :first-child {
+    margin-right: auto;
+  }
+}
+
+.panel-heading {
+  color: #3d4051;
+  background-color: #f2f7f7;
+  border-color: #e2edeb;
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 1px;
+  border-top-left-radius: 1px;
+}
+
+.panel-body {
+  padding: 15px;
+}
+
+.section-1 {
+  display: flex;
+  gap: 18px;
+
+  .section-1-a {
+    width: 17rem;
+  }
+
+  .section-1-b {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.button-container {
+  display: flex;
+  gap: 15px;
+}
+
+.drop {
+  border: 4px dashed #bbb;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  height: auto;
+  padding: 50px 25px;
+  font-size: 30px;
+  color: #bbb;
+}
+
+.interval-icon {
+  position: relative;
+  top: 6px;
+}
+
+.icon-prefix {
+  margin-right: 6px;
+}
