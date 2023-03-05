@@ -5,6 +5,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from '@angular/material/icon'
+import { MatInputModule } from "@angular/material/input"
 import { MatProgressBarModule } from '@angular/material/progress-bar'
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -15,7 +16,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppDialog } from './app-dialog.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthModule } from "./auth/auth.module";
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
 import { UploadDirective } from "./dataimports/upload.directive"
@@ -58,6 +58,7 @@ import { SharedModule } from './_modules/shared.module';
         MatDialogModule,
         MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
         MatProgressBarModule,
         MatRadioModule,
         MatSelectModule,

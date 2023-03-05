@@ -70,7 +70,7 @@ type UploadsBody = {
 @Component({
     selector: "app-dataimports",
     templateUrl: "./dataimports.component.html",
-    styleUrls: ["./dataimports.component.css"]
+    styleUrls: ["./dataimports.component.scss"]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
