@@ -1,17 +1,13 @@
 h1 {
-  margin: 96px 0 16px;
+  margin-top: 20px;
 }
 
 button {
   font-size: larger
 }
 
-.expanded {
-  margin: 40px 20px 20px 300px;
-}
-
-.collapsed {
-  margin: 40px 20px 20px 135px;
+.page {
+  margin-left: 20px;
 }
 
 .form-inline .form-group {
@@ -58,14 +54,14 @@ button {
     flex-direction: column;
     gap: 12px;
 
-    form {
+    > form {
       display: flex;
       flex-direction: column;
     }
   }
 }
 
-.button-container {
+.button-row {
   display: flex;
   gap: 15px;
 }

@@ -1,5 +1,5 @@
-<h1 class="section-header2">{{title}}</h1>
-<div class="col-lg-12 itgMinH">
+<div class="page">
+  <h1>{{title}}</h1>
   <div class="panel panel-default">
     <!-- Progress Section-->
     <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
@@ -102,7 +102,7 @@
               </div>
             </div>
             <div class="panel panel-default panel-body">
-              <div class="button-container">
+              <div class="button-row">
                 <form class="pad0 mar0">
                   <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
                   <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">

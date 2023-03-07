@@ -1,68 +1,69 @@
-<div *ngIf="_navSettingsService.enableNavBar">
-  <div class="navbar">
-      <div *ngIf="opened" class="nav-logo-expanded">
-          <img src="../assets/images/JnJ_Logo.png" alt="J&J Logo" class="logo">
+<div class="page">
+  <div class="topbar" *ngIf="_navSettingsService.enableNavBar">
+    <div *ngIf="opened" class="nav-logo-expanded">
+      <img src="../assets/images/JnJ_Logo.png" width="162" height="40" alt="J&J Logo" class="logo">
+    </div>
+    <div *ngIf="!opened" class="nav-logo-collapsed">
+      <img src="../assets/images/JnJ_Logo_sm.png" width="35" height="29" alt="J&J Logo Collapsed" class="logo">
+    </div>
+  </div>
+  <div *ngIf="_navSettingsService.enableNavBar">
+    <i class="nav-toggle fa fa-bars fa-2x" (click)="toggle()"></i>
+  </div>
+  <div *ngIf="_navSettingsService.enableNavBar">
+    <div class="help-button">
+      <a href="../assets/docs/CLS_Data_Portal_User_Guide.pdf" class="fa fa-question-circle"></a>
+    </div>
+    <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
+      <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+      <div class="dropdown-menu mt-3" *dropdownMenu>
+        <a class="dropdown-item" routerLink="/users">User Management</a>
+        <a class="dropdown-item">Settings</a>
+        <a class="dropdown-item" (click)="logout()">Logout</a>
       </div>
-      <div *ngIf="!opened" class="nav-logo-collapsed">
-          <img src="../assets/images/JnJ_Logo_sm.png" alt="J&J Logo Collapsed" class="logo">
-      </div>
-      <div class="nav-toggle">
-          <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
-      </div>
-      <div class="help-button">
-        <a href="../assets/docs/CLS_Data_Portal_User_Guide.pdf" class="fa fa-question-circle"></a>
-      </div>
-      <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
-          <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
-          <div class="dropdown-menu mt-3" *dropdownMenu>
-            <a class="dropdown-item" routerLink="/users">User Management</a>
-            <a class="dropdown-item">Settings</a>
-            <a class="dropdown-item" (click)="logout()">Logout</a>
-          </div>
-      </div>
+    </div>
 
-      <!-- <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
-          <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
-          <div class="dropdown-menu mt-3" *dropdownMenu>
-            <a class="dropdown-item" routerLink="/users">User Management</a>
-            <a class="dropdown-item">Settings</a>
-            <a class="dropdown-item" (click)="logout()">Logout</a>
-          </div>
-      </div> -->
+    <!-- <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
+        <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+        <div class="dropdown-menu mt-3" *dropdownMenu>
+          <a class="dropdown-item" routerLink="/users">User Management</a>
+          <a class="dropdown-item">Settings</a>
+          <a class="dropdown-item" (click)="logout()">Logout</a>
+        </div>
+    </div> -->
   </div>
-  <div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar">
-      <div class="text-center sidebar-title" *ngIf="opened">CLS Data Portal</div>
-      <ul>
-          <li>
-            <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>
-          </li>
-          <li>
-              <i class="fa fa-pencil" routerLink="/targets"></i><span class="text-li" routerLink="/targets" *ngIf="opened">Targets</span>
-          </li>
-          <li>
-              <i class="fa fa-list" routerLink="/measures"></i><span class="text-li" routerLink="/measures" *ngIf="opened">Measures</span>
-          </li>
-          <li>
-              <i class="fa fa-file" routerLink="/measuredefinition"></i><span class="text-li" routerLink="/measuredefinition" *ngIf="opened">Measure Definition</span>
-          </li>
-          <li>
-              <i class="fa fa-map" routerLink="/hierarchy"></i><span class="text-li" routerLink="/hierarchy" *ngIf="opened">Hierarchy</span>
-          </li>
-          <li>
-              <i class="fa fa-upload" routerLink="/dataimports"></i><span class="text-li" routerLink="/dataimports" *ngIf="opened">Data Imports</span>
-          </li>
-          <li>
-              <i class="fa fa-link"></i><span class="text-li"  *ngIf="opened">Tableau</span>
-          </li>
-      </ul>
+  <div *ngIf="_navSettingsService.enableNavBar" [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar">
+    <div class="sidebar-title" *ngIf="opened">CLS Data Portal</div>
+    <ul>
+      <li>
+        <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>
+      </li>
+      <li>
+        <i class="fa fa-pencil" routerLink="/targets"></i><span class="text-li" routerLink="/targets" *ngIf="opened">Targets</span>
+      </li>
+      <li>
+        <i class="fa fa-list" routerLink="/measures"></i><span class="text-li" routerLink="/measures" *ngIf="opened">Measures</span>
+      </li>
+      <li>
+        <i class="fa fa-file" routerLink="/measuredefinition"></i><span class="text-li" routerLink="/measuredefinition" *ngIf="opened">Measure Definition</span>
+      </li>
+      <li>
+        <i class="fa fa-map" routerLink="/hierarchy"></i><span class="text-li" routerLink="/hierarchy" *ngIf="opened">Hierarchy</span>
+      </li>
+      <li>
+        <i class="fa fa-upload" routerLink="/dataimports"></i><span class="text-li" routerLink="/dataimports" *ngIf="opened">Data Imports</span>
+      </li>
+      <li>
+        <i class="fa fa-link"></i><span class="text-li" *ngIf="opened">Tableau</span>
+      </li>
+    </ul>
   </div>
+  <div><router-outlet></router-outlet></div>
 </div>
-
-
 
 <!-- <div class="nav-wrapper">
     <ul id="nav" class="nav" data-slim-scroll data-collapse-nav data-highlight-active>
-      
+
       <li class="nav-title f14 fbold padL5 marT30I"> <span>CLS DATA PORTAL</span> </li>
           <li>
         <a md-button aria-label="meanu" ui-sref="measuredata"><i class="zmdi zmdi-calendar-note"></i><span>Measure Data</span></a>
@@ -84,7 +85,7 @@
       </li>
           <li>
         <a md-button aria-label="meanu"  target="_blank"><i class="zmdi zmdi-link"></i><span>Tableau Dashboard</span></a>
-      </li>		
-          
+      </li>
+
     </ul>
   </div> -->

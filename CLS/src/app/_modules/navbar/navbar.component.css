@@ -1,71 +1,88 @@
 /* position: sticky;  */
-.navbar {
-    height: 70px;
-    background-color: #0A8CAA;
-    color: white;
-    position: fixed; /*position: sticky; */
-    top: 0px;
-    z-index: 4;
-    width: 100%;
+.topbar {
+  color: white;
+  background-color: #0A8CAA;
+  padding: 15px 30px;
 }
-.nav-logo-expanded {
-    display: inline;
-    margin: 5px 20px;
-}
-.nav-logo-collapsed {
-    display: inline;
-    margin: 5px 5px 5px 20px;
-}
-.nav-toggle {
-    flex: auto;
-    cursor: pointer;
-    margin-left: 40px;
 
+  .topbar + div {
+    display: flex;
+    color: white;
+    background-color: #0A8CAA;
+    padding: 20px 20px;
+  }
+
+    .topbar + div + div {
+      color: white;
+      background-color: #0A8CAA;
+      padding: 6px;
+    }
+
+.nav-toggle {
+    cursor: pointer;
 }
+
 .sidebar-expanded {
-    width: 280px;
+  width: 280px;
 }
+
 .sidebar-collapsed {
-    width: 85px;
+  width: 85px;
 }
-.sidebar{
-    position: fixed;
-    top: 70px;
-    left: 0;
-    height: 100%;
-    background-color: #3D4051;
-    box-shadow: 0 0 10px rgba(0,0,0,.5);
-    z-index: 100;
-    /* transition: all .3s ease;
+
+.sidebar {
+  background-color: #3D4051;
+  box-shadow: 0 0 10px rgba(0,0,0,.5);
+  /* transition: all .3s ease;
     transform: translateX(-100%);
     overflow-y: auto; */
-    color: white;
+  color: white;
+  height: 100%;
 }
+
+.sidebar-title {
+  font-size: 24px;
+  margin: 40px auto;
+  text-align: center;
+}
+
 .sidebar li {
   list-style: none;
   margin: 20px auto;
   font-size: 20px;
   cursor: pointer;
 }
-.sidebar li span {
-    margin-left: 20px;
-}
 
-.sidebar-title {
-    font-size: 24px;
-    margin: 40px auto;
+  .sidebar li span {
+    margin-left: 20px;
+  }
+
+.sidebar + div {
+  grid-row: 2;
+  grid-column: 2/span 2;
 }
 
 .dropdown {
-    position: relative;
-    display: inline-block;
-    margin: 20px 100px;
+  display: inline-block;
+  margin: 20px 100px;
 }
 
-.help-button{
-    margin: 20px 20px;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    border-radius: 50%;
+.help-button {
+  display: inline;
+  margin: 20px;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  border-radius: 50%;
+}
+
+.main {
+  display: flex;
+  height: auto;
+}
+
+.page {
+  display: grid;
+  min-height: 100vh;
+  grid-template: 70px 1fr / auto 1fr auto;
 }
