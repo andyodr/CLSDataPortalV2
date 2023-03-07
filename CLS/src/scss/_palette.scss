@@ -1,15 +1,27 @@
 /* For use in src/lib/core/theming/_palette.scss */
+:root {
+  --mat-color-50: hsl(186, 28%, 96%, 1);
+  --mat-color-100: hsl(187, 49%, 81%, 1);
+  --mat-color-200: hsl(188, 60%, 66%, 1);
+  --mat-color-300: hsl(189, 70%, 52%, 1);
+  --mat-color-400: hsl(190, 80%, 44%, 1);
+  --mat-color-500: hsl(191, 85%, 36%, 1);
+  --mat-color-600: hsl(191, 89%, 32%, 1);
+  --mat-color-700: hsl(191, 93%, 28%, 1);
+  --mat-color-800: hsl(191, 97%, 24%, 1);
+  --mat-color-900: hsl(191, 100%, 20%, 1);
+}
 $teal-palette: (
- 50 : hsl(191, 64%, 93%, 1),
-100 : hsl(191, 68%, 80%, 1),
-200 : hsl(191, 72%, 66%, 1),
-300 : hsl(191, 76%, 52%, 1),
-400 : hsl(191, 80%, 44%, 1),
-500 : hsl(191, 84%, 36%, 1),
-600 : hsl(191, 88%, 32%, 1),
-700 : hsl(191, 92%, 28%, 1),
-800 : hsl(191, 96%, 24%, 1),
-900 : hsl(191, 100%, 20%, 1),
+ 50 : var(--mat-color-50),
+100 : var(--mat-color-100),
+200 : var(--mat-color-200),
+300 : var(--mat-color-300),
+400 : var(--mat-color-400),
+500 : var(--mat-color-500),
+600 : var(--mat-color-600),
+700 : var(--mat-color-700),
+800 : var(--mat-color-800),
+900 : var(--mat-color-900),
 A100 : #ade4ff,
 A200 : #7ad3ff,
 A400 : #47c3ff,
