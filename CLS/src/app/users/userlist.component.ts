@@ -1,8 +1,12 @@
-import { Component, OnInit, OnDestroy } from "@angular/core"
+import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core"
+import { ProgressBarMode } from "@angular/material/progress-bar"
+import { MatSort } from "@angular/material/sort"
+import { MatTableDataSource } from "@angular/material/table"
+import { Router } from "@angular/router"
 import { Subscription } from "rxjs"
-import { User } from "src/app/_models/user"
-import { ToggleService } from "src/app/_services/toggle.service"
+import { User, UserData } from "src/app/_models/user"
 import { UserService } from "src/app/_services/user.service"
+import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../app-constants"
 
 @Component({
     selector: "app-user-list",
@@ -10,85 +14,58 @@ import { UserService } from "src/app/_services/user.service"
     styleUrls: ["./userlist.component.css"]
 })
 export class UserListComponent implements OnInit, OnDestroy {
-    users?: User[] | undefined
+    title = "Users"
+    dataSource = new MatTableDataSource([] as User[])
+    displayedColumns = ["userName", "lastName", "firstName", "department", "roleName", "active"]
+    @ViewChild(MatSort) sort!: MatSort
     private userSubscription = new Subscription()
     toggle: any = true
+    disabledAll = false
+    skUsers = ""
+    errorMsg: any = ""
+    showError = false
+    showContentPage = true
+    progress = {
+        mode: "determinate" as ProgressBarMode,
+        value: 0
+    }
 
-    constructor(private userService: UserService, private toggleService: ToggleService) { }
+    constructor(private userService: UserService, public router: Router) { }
 
     ngOnDestroy(): void {
         this.userSubscription.unsubscribe()
     }
 
     ngOnInit(): void {
-        this.getUsers()
-        this.toggleService.toggle$.subscribe(toggle => {
-            this.toggle = toggle
-        })
-    }
-
-    //Get Users from service ----------------------------------------------------------------
-
-    getUsers() {
         this.userSubscription = this.userService.getUsers().subscribe({
             next: (response: any) => {
-                this.users = response.data
-                console.log("Users On Component: ", this.users)
+                this.dataSource = new MatTableDataSource((response as UserData).data)
+                // processLocalError here
             },
-            error: (err: any) => console.log(err),
-            complete: () => console.log("Request Completed")
+            error: (err: any) => {
+                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
+            }
         })
     }
 
+    ngAfterViewInit(): void {
+        this.dataSource.sort = this.sort
+    }
 
-    /*getUsers(){
-      this.http.get(environment.baseUrl + 'api/users').subscribe({
-        next: response => this.users = response,
-        error: err => console.log(err),
-        complete: () => console.log('Resquest Completed')
-       });
-    }*/
+    applyFilter(event: Event) {
+        const filterValue = (event.currentTarget as HTMLInputElement).value
+        this.dataSource.filter = filterValue.trim().toLowerCase()
+    }
 
-    /*getUsers(): void {
-      this.userService.getUsers()
-      .subscribe(users => this.users = users);
-    }*/
+    processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
+        this.errorMsg = processError(name, message, id, status)
+        this.showError = true
+        this.disabledAll = false
+        this.showContentPage = (authError != true)
+    }
 
-
-
-    /*getUsers(){
-      return this.userService.getUsers().subscribe((data: any[]) => {
-        this.users = data;
-      });
-    }*/
-
-
-    /*getUsers(){
-      this.userService.getUsers().subscribe((data: any[]) => {
-        this.users = data;
-      });
-    }*/
-
-    //Get Users from service
-    /*getUsers(){
-      this.userService.getUsers().subscribe((data: any[]) => {
-        this.users = data;
-      });
-    }*/
-
-
-
-
-
-    /*getUsersOnComponent(){
-      return this.userService.getUsers().subscribe(users => {
-        this.users = users
-        console.log("Users on component: ", this.users);
-      }, error => {
-        console.log(error);
-      }, () => {
-        console.log('Resquest Completed');
-      })
-    }*/
-
+    closeError() {
+        this.errorMsg = ""
+        this.showError = false
+    }
 }

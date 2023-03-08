@@ -1,35 +1,30 @@
-/*export interface User {
-    username: string;
-    token: string;
-}*/
+import { ErrorModel } from "./error"
+import { RegionFilter } from "./regionfilter"
 
 //Interface for User Model
 export interface User {
-    id?: string;
-    userName?: string;
-    lastName?: string;
-    firstName?: string;
-    department?: string;
-    roleId?: string;
-    roleName?: string;
-    roleSelected: {},
-    hierarchiesId: [],
-    hierarchyName?: string;
+    id?: string
+    userName: string
+    lastName?: string
+    firstName?: string
+    department?: string
+    roleId: number
+    roleName: string
+    hierarchiesId: number[]
+    hierarchyName?: string
     active?: string
 }
 
-
 //Interface for Used Data Model
 export interface UserData {
-    roles: UserRole[];
-    error: string;
-    hierarchy: string;
-    usersData: User[];
+    roles: UserRole[]
+    error: ErrorModel
+    hierarchy: RegionFilter[]
+    data: User[]
 }
 
-
 //Interface for User Role Model
-export interface UserRole { 
-    id: string;
-    name: string;
+export interface UserRole {
+    id: string
+    name: string
 }

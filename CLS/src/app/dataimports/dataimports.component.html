@@ -1,196 +1,195 @@
 <div class="page">
   <h1>{{title}}</h1>
-  <div class="panel panel-default">
-    <!-- Progress Section-->
-    <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
+  <div class="panel panel-default panel-body">
     <!-- Table Section-->
-    <div class="panel-body padT0">
-      <div class="panel panel-default marT15">
-        <!-- Heading and Buttons Section-->
-        <div class="panel-heading" [hidden]="!showContentPage">
-          <div class="page-header">
-            <div class="form-inline">
-              <dl class="form-group mar0 marT10 padL15 textTransformNone">
-                <dt class="f12">Calculation Update Every</dt>
-                <dd>{{calculationTime}}</dd>
-              </dl>
-            </div>
-            <mat-form-field appearance="fill">
-              <mat-label>Data Import Type</mat-label>
-              <mat-select class="textAlignL" [(ngModel)]="selImportSelected" aria-label="Select"
-                          [disabled]="disImportSel" (ngModelChange)="onSelImportChange()">
-                <mat-option *ngFor="let import of selImport; trackBy: identity" [value]="import">
-                  {{import.name}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="accent" aria-label="Upload"
-                    [disabled]="disUpload" (click)="processUpload()">
-              <mat-icon class="padR10">upload</mat-icon> Upload
-            </button>
+    <div class="panel panel-default">
+      <!-- Heading and Buttons Section-->
+      <div class="panel-header" [hidden]="!showContentPage">
+        <!-- Progress Section-->
+        <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
+        <div class="page-header">
+          <div class="form-inline">
+            <dl class="form-group mar0 marT10 padL15 textTransformNone">
+              <dt class="f12">Calculation Update Every</dt>
+              <dd>{{calculationTime}}</dd>
+            </dl>
           </div>
+          <mat-form-field appearance="fill">
+            <mat-label>Data Import Type</mat-label>
+            <mat-select class="textAlignL" [(ngModel)]="selImportSelected" aria-label="Select"
+                        [disabled]="disImportSel" (ngModelChange)="onSelImportChange()">
+              <mat-option *ngFor="let import of selImport; trackBy: identity" [value]="import">
+                {{import.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-raised-button color="accent" aria-label="Upload"
+                  [disabled]="disUpload" (click)="processUpload()">
+            <mat-icon class="padR10">upload</mat-icon> Upload
+          </button>
         </div>
-        <div class="panel-body padB0" [hidden]="!showContentPage">
-          <div class="section-1">
-            <!-- Intervals Selection -->
-            <div [hidden]="!showIntervals">
-              <div class="panel panel-default" style="min-height:280px;">
-                <div class="panel-heading"><mat-icon class="interval-icon">apps</mat-icon> Select Interval</div>
-                <div class="panel-body no-padding padL15 padR15">
-                  <!-- Intervals -->
-                  <div layout layout-sm="column" class="marT20">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Intervals</mat-label>
-                      <mat-select [(ngModel)]="fIntervalSelected" aria-label="Intervals"
-                                  (ngModelChange)="intervalChange()" [disabled]="disFilters">
-                        <mat-option *ngFor="let interval of fIntervals; trackBy: identity" [value]="interval">
-                          {{interval.name}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
+      </div>
+      <div class="panel-body padB0" [hidden]="!showContentPage">
+        <div class="section-1">
+          <!-- Intervals Selection -->
+          <div [hidden]="!showIntervals">
+            <div class="panel panel-default" style="min-height:280px;">
+              <div class="panel-heading"><mat-icon class="interval-icon">apps</mat-icon> Select Interval</div>
+              <div class="panel-body no-padding padL15 padR15">
+                <!-- Intervals -->
+                <div layout layout-sm="column" class="marT20">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Intervals</mat-label>
+                    <mat-select [(ngModel)]="fIntervalSelected" aria-label="Intervals"
+                                (ngModelChange)="intervalChange()" [disabled]="disFilters">
+                      <mat-option *ngFor="let interval of fIntervals; trackBy: identity" [value]="interval">
+                        {{interval.name}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
 
-                  <!-- Yearly -->
-                  <div layout layout-sm="column" [hidden]="fIntervalSelected?.id == Intervals.Daily">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Year</mat-label>
-                      <mat-select [(ngModel)]="fYearSelected" aria-label="Year"
-                                  (ngModelChange)="intervalChange()" [disabled]="disFilters">
-                        <mat-option *ngFor="let year of fYears; trackBy: identity" [value]="year">
-                          {{year.year}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
+                <!-- Yearly -->
+                <div layout layout-sm="column" [hidden]="fIntervalSelected?.id == Intervals.Daily">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Year</mat-label>
+                    <mat-select [(ngModel)]="fYearSelected" aria-label="Year"
+                                (ngModelChange)="intervalChange()" [disabled]="disFilters">
+                      <mat-option *ngFor="let year of fYears; trackBy: identity" [value]="year">
+                        {{year.year}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
 
-                  <!-- Weekly -->
-                  <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Weekly">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Week</mat-label>
-                      <mat-select [(ngModel)]="fWeekSelected" aria-label="Week" [disabled]="disFilters" (ngModelChange)="weekChange()">
-                        <mat-option *ngFor="let week of fWeeks; trackBy: identity" [value]="week">
-                          {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
+                <!-- Weekly -->
+                <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Weekly">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Week</mat-label>
+                    <mat-select [(ngModel)]="fWeekSelected" aria-label="Week" [disabled]="disFilters" (ngModelChange)="weekChange()">
+                      <mat-option *ngFor="let week of fWeeks; trackBy: identity" [value]="week">
+                        {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
 
-                  <!-- Monthly -->
-                  <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Monthly">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Month</mat-label>
-                      <mat-select [(ngModel)]="fMonthSelected" aria-label="Month" [disabled]="disFilters" (ngModelChange)="monthChange()">
-                        <mat-option *ngFor="let month of fMonths; trackBy: identity" [value]="month">
-                          {{month.month}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
+                <!-- Monthly -->
+                <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Monthly">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Month</mat-label>
+                    <mat-select [(ngModel)]="fMonthSelected" aria-label="Month" [disabled]="disFilters" (ngModelChange)="monthChange()">
+                      <mat-option *ngFor="let month of fMonths; trackBy: identity" [value]="month">
+                        {{month.month}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
 
-                  <!-- quarterly -->
-                  <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Quarterly">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Quarter</mat-label>
-                      <mat-select [(ngModel)]="fQuarterSelected" aria-label="Quarter" [disabled]="disFilters" (ngModelChange)="quarterChange()">
-                        <mat-option *ngFor="let quarter of fQuarters; trackBy: identity" [value]="quarter">
-                          Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate | date:'mediumDate'}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
+                <!-- quarterly -->
+                <div layout layout-sm="column" *ngIf="fIntervalSelected?.id == Intervals.Quarterly">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Quarter</mat-label>
+                    <mat-select [(ngModel)]="fQuarterSelected" aria-label="Quarter" [disabled]="disFilters" (ngModelChange)="quarterChange()">
+                      <mat-option *ngFor="let quarter of fQuarters; trackBy: identity" [value]="quarter">
+                        Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate | date:'mediumDate'}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
                 </div>
               </div>
             </div>
-            <div class="panel panel-default panel-body">
-              <div class="button-row">
-                <form class="pad0 mar0">
-                  <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
-                  <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">
-                    <mat-icon class="icon-prefix">file_open</mat-icon> Select File
-                  </button>
-                </form>
-                <button mat-raised-button color="warn" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
-                  <mat-icon class="icon-prefix">refresh</mat-icon> Clear
+          </div>
+          <div class="panel panel-default panel-body">
+            <div class="button-row">
+              <form class="pad0 mar0">
+                <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
+                <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">
+                  <mat-icon class="icon-prefix">file_open</mat-icon> Select File
                 </button>
-              </div>
-              <form [hidden]="!fileName && !sheetName">
-                <mat-form-field appearance="fill">
-                  <mat-label>File Name</mat-label>
-                  <input matInput disabled [value]="fileName" />
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Sheet Name</mat-label>
-                  <input matInput disabled [value]="sheetName" />
-                </mat-form-field>
               </form>
-              <div class="drop" [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">
-                or Drag and Drop an XLSX / XLS file here
-              </div>
-              <div [hidden]="!dropDis">
-                <div class="callout callout-warning">
-                  <p>{{msgUpload}}</p>
-                </div>
+              <button mat-raised-button color="warn" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
+                <mat-icon class="icon-prefix">refresh</mat-icon> Clear
+              </button>
+            </div>
+            <form [hidden]="!fileName && !sheetName">
+              <mat-form-field appearance="fill">
+                <mat-label>File Name</mat-label>
+                <input matInput disabled [value]="fileName" />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Sheet Name</mat-label>
+                <input matInput disabled [value]="sheetName" />
+              </mat-form-field>
+            </form>
+            <div class="drop" [hidden]="dropDis" fileUpload (onFileDropped)="onFileDropped($event)">
+              or Drag and Drop an XLSX / XLS file here
+            </div>
+            <div [hidden]="!dropDis">
+              <div class="callout callout-warning">
+                <p>{{msgUpload}}</p>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Table Section-->
-        <div class="panel-body padT0">
+      <!-- Table Section-->
+      <div class="panel-body padT0">
 
-          <!-- Error Section-->
-          <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
-          <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showUploadError">
-            <div class="panel-body padB0 marB0 noBorder">
-              <ngb-alert type="danger" (closed)="closeUploadError()">
-                <p>{{errorUploadMsg.heading}}</p>
-                <section class="table-flip-scroll table-dynamic overflowAuto">
-                  <table class="table table-bordered table-striped cf no-margin">
-                    <thead class="cf">
-                      <tr>
-                        <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                        <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
-                        <td class="alert-danger">{{errorRows.row}}</td>
-                        <td class="alert-danger">{{errorRows.message}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </section>
-              </ngb-alert>
-            </div>
+        <!-- Error Section-->
+        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
+        <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showUploadError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeUploadError()">
+              <p>{{errorUploadMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
           </div>
-          <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
-            <div class="panel-body padB0 marB0 noBorder">
-              <ngb-alert type="danger" (closed)="closeUploadError()">
-                <p>{{errorUploadMsg.heading}}</p>
-                <section class="table-flip-scroll table-dynamic overflowAuto">
-                  <table class="table table-bordered table-striped cf no-margin">
-                    <thead class="cf">
-                      <tr>
-                        <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                        <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
-                        <td class="alert-danger">{{errorRows.row}}</td>
-                        <td class="alert-danger">{{errorRows.message}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </section>
-              </ngb-alert>
-            </div>
+        </div>
+        <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeUploadError()">
+              <p>{{errorUploadMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorUploadMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
           </div>
-          <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
-            <!-- Table Section-->
-            <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
-            </app-table>
-          </div>
+        </div>
+
+        <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
+          <!-- Table Section-->
+          <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
+          </app-table>
         </div>
       </div>
     </div>
