@@ -1,6 +1,7 @@
 <div class="user-list-container" [ngClass]="{'expanded': toggle, 'collapsed': !toggle}">
   <h2>User List</h2>
-  <table>
+  <a mat-raised-button color="accent" aria-label="Add" [routerLink]="['add']">Add</a>
+    <table>
       <thead>
         <tr>
           <th>ID</th>
@@ -19,8 +20,7 @@
           <td>{{ user.userName }}</td>
           <td>{{ user.department }}</td>
           <td>
-            <a routerLink="/users/{{ user.id }}">View</a>
-            <a routerLink="/update-user/{{ user.id }}">Edit</a>
+            <a [routerLink]="[user.id]">Edit</a>
             <!--<button (click)="deleteUser(user)">Delete</button>-->
           </td>
         </tr>

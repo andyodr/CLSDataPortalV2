@@ -1,5 +1,5 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
-import { NgModule } from '@angular/core';
+import { NgModule } from "@angular/core"
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from "@angular/material/button"
 import { MatDialogModule } from '@angular/material/dialog'
@@ -27,9 +27,11 @@ import { FilterPipe } from './filter.pipe';
 import { HomeComponent } from './home/home.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { TableComponent } from './table/table.component';
-import { UserListComponent } from './users/user-list/user-list.component';
+import { UserListComponent } from "./users/userlist.component"
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { SharedModule } from './_modules/shared.module';
+import { UserEditComponent } from "./users/useredit.component"
+import { UserAddComponent } from "./users/useradd.component"
 
 @NgModule({
     declarations: [
@@ -46,7 +48,9 @@ import { SharedModule } from './_modules/shared.module';
         TableComponent,
         TestErrorComponent,
         UploadDirective,
-        UserListComponent
+        UserListComponent,
+        UserEditComponent,
+        UserAddComponent
     ],
     imports: [
         AppRoutingModule,
