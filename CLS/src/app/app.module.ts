@@ -30,6 +30,10 @@ import { TableComponent } from './table/table.component';
 import { UserListComponent } from './users/user-list/user-list.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { SharedModule } from './_modules/shared.module';
+import {MatMenuModule} from '@angular/material/menu';
+import { MeasureDataComponent } from './measure-data/measure-data.component';
+import { AddUserComponent } from './users/add-user/add-user.component';
+import { EditUserComponent } from './users/edit-user/edit-user.component';
 
 @NgModule({
     declarations: [
@@ -46,7 +50,10 @@ import { SharedModule } from './_modules/shared.module';
         TableComponent,
         TestErrorComponent,
         UploadDirective,
-        UserListComponent
+        UserListComponent,
+        MeasureDataComponent,
+        AddUserComponent,
+        EditUserComponent
     ],
     imports: [
         AppRoutingModule,
@@ -58,6 +65,7 @@ import { SharedModule } from './_modules/shared.module';
         MatDialogModule,
         MatFormFieldModule,
         MatIconModule,
+        MatMenuModule,
         MatProgressBarModule,
         MatRadioModule,
         MatSelectModule,

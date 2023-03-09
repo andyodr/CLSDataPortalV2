@@ -8,13 +8,20 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './_guards/auth.guard';
 import { UserListComponent } from './users/user-list/user-list.component';
+import { EditUserComponent } from './users/edit-user/edit-user.component';
+import { AddUserComponent } from './users/add-user/add-user.component';
+import { MeasureDataComponent } from './measure-data/measure-data.component';
 
 const routes: Routes = [
 	{ path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-	{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
 	{ path: 'users', component: UserListComponent },
-    { path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule) },
-    { path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule) },
+	{ path: 'users/edit', component: EditUserComponent },
+	{ path: 'users/add', component: AddUserComponent },
+	{ path: 'measuredata', component: MeasureDataComponent },
+	{ path: 'measuredefinition', component: MeasureDefinitionComponent },
+	//{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
+    //{ path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule) },
+    //{ path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule) },
 	{
 		path: '',
 		runGuardsAndResolvers: 'always',

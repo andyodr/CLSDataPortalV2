@@ -42,6 +42,12 @@ export class MeasureDataService {
     );
   }
 
+  getData(){
+    throw new Error('Method not implemented.');
+
+  }
+
+
   
 
 
