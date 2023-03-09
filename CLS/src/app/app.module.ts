@@ -1,15 +1,19 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
-import { NgModule } from '@angular/core';
+import { NgModule } from "@angular/core"
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from "@angular/material/button"
+import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from '@angular/material/icon'
+import { MatIconModule } from "@angular/material/icon"
 import { MatInputModule } from "@angular/material/input"
-import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatSortModule } from "@angular/material/sort"
+import { MatTableModule } from "@angular/material/table"
+import { MatTreeModule } from "@angular/material/tree"
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -27,9 +31,12 @@ import { FilterPipe } from './filter.pipe';
 import { HomeComponent } from './home/home.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { TableComponent } from './table/table.component';
-import { UserListComponent } from './users/user-list/user-list.component';
+import { UserListComponent } from "./users/userlist.component"
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { SharedModule } from './_modules/shared.module';
+import { UserEditComponent } from "./users/useredit.component"
+import { UserAddComponent } from "./users/useradd.component"
+import { NavigateBackDirective } from "./_services/nav.service"
 
 @NgModule({
     declarations: [
@@ -41,12 +48,15 @@ import { SharedModule } from './_modules/shared.module';
         HomeComponent,
         MeasureDefinitionComponent,
         MultipleSheetsDialog,
+        NavigateBackDirective,
         NotFoundComponent,
         ServerErrorComponent,
         TableComponent,
         TestErrorComponent,
         UploadDirective,
-        UserListComponent
+        UserListComponent,
+        UserEditComponent,
+        UserAddComponent
     ],
     imports: [
         AppRoutingModule,
@@ -55,6 +65,7 @@ import { SharedModule } from './_modules/shared.module';
         FormsModule,
         HttpClientModule,
         MatButtonModule,
+        MatCheckboxModule,
         MatDialogModule,
         MatFormFieldModule,
         MatIconModule,
@@ -63,6 +74,9 @@ import { SharedModule } from './_modules/shared.module';
         MatRadioModule,
         MatSelectModule,
         MatSnackBarModule,
+        MatSortModule,
+        MatTableModule,
+        MatTreeModule,
         NgbModule,
         SharedModule
     ],

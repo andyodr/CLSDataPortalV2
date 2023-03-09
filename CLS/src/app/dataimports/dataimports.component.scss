@@ -1,13 +1,5 @@
-h1 {
-  margin-top: 20px;
-}
-
 button {
   font-size: larger
-}
-
-.page {
-  margin-left: 20px;
 }
 
 .form-inline .form-group {
@@ -27,9 +19,8 @@ button {
   }
 }
 
-.panel-heading {
-  color: #3d4051;
-  background-color: #f2f7f7;
+.panel-header {
+  background-color: var(--mat-color-50);
   border-color: #e2edeb;
   padding: 10px 15px;
   border-bottom: 1px solid transparent;

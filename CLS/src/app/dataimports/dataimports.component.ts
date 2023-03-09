@@ -1,7 +1,6 @@
 import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
-import { NgForm } from "@angular/forms"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSnackBar } from "@angular/material/snack-bar"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
@@ -13,18 +12,13 @@ import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
 import { ToggleService } from "../_services/toggle.service"
+import { ErrorModel } from "../_models/error"
 
 type DataOut = {
     dataImport: number
     calendarId?: number
     sheet: string
     data: { [name: string]: JsonValue }[]
-}
-
-type ErrorModel = {
-    id: number
-    message: string
-    authError: boolean
 }
 
 type FiltersIntervalsData = {
