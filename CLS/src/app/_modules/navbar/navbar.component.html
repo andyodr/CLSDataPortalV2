@@ -21,7 +21,30 @@
         <a class="dropdown-item">Settings</a>
         <a class="dropdown-item" (click)="logout()">Logout</a>
       </div>
-    </div>
+      <div *ngIf="!opened" class="nav-logo-collapsed">
+          <img src="../assets/images/JnJ_Logo_sm.png" alt="J&J Logo Collapsed" class="logo">
+      </div>
+      <div class="nav-toggle">
+          <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
+      </div>
+      <div >
+        <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
+      </div>
+      <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
+          <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+          <div class="dropdown-menu mt-3" *dropdownMenu>
+            <a class="dropdown-item" routerLink="/users">User Management</a>
+            <a class="dropdown-item">Settings</a>
+            <a class="dropdown-item" (click)="logout()">Logout</a>
+          </div>
+      </div>
+      <!-- <div>
+        <button mat-button [matMenuTriggerFor]="menu">Menu</button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>Item 1</button>
+          <button mat-menu-item>Item 2</button>
+        </mat-menu>
+      </div> -->
 
     <!-- <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
         <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>

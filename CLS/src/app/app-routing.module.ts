@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { MeasureDataComponent } from './measure-data/measure-data.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
@@ -13,7 +14,7 @@ import { UserEditComponent } from './users/useredit.component';
 
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-    { path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
+	{ path: 'measuredata', component: MeasureDataComponent },
     {
         path: "users", children: [
             { path: "add", title: "Distributor - Add User", component: UserAddComponent },
@@ -37,6 +38,7 @@ const routes: Routes = [
     { path: 'server-error', component: ServerErrorComponent },
     { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
+	//{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],

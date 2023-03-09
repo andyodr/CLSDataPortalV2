@@ -14,26 +14,28 @@ export class MeasureDataService {
   constructor(private http: HttpClient) { }
 
   // Get Measure Data from API
-  getMeasureData(measureDataReceiveObject: MeasureData): Observable<MeasureData[]>{
+  //getMeasureData(measureData: MeasureData): Observable<MeasureData[]>{
+  getMeasureData(): Observable<MeasureData[]>{
     
-    const callId = 711
-    const day = 3;
-    // const hierarchyId = 4;
-    // const measureTypeId = 2;
+    const calId = 649
+    const day = "3/9/2023";
+    const hierarchyId = 1;
+    const measureTypeId = 1;
     const explanation = 'explanation-value';
     const action = 'action-value';
     //query params
     let params = new HttpParams();
-    params = params.append('CalendarId', measureDataReceiveObject.calendarId!);
+    //params = params.append('CalendarId', measureDataReceiveObject.calendarId!);
+    params = params.append('CalendarId', calId);
     params = params.append('Day', day);
-    // params = params.append('Day', day);
-    // params = params.append('Day', day);
+    params = params.append('HierarchyId', hierarchyId);
+    params = params.append('MeasureTypeId', measureTypeId);
     params = params.append('Explanation', explanation);
     params = params.append('Action', action);
     console.log("Params : ", params);
     
 
-    return this.http.get<MeasureData[]>(this.baseUrl + '/Index',{params:params}).pipe(
+    return this.http.get<MeasureData[]>(this.baseUrl + '/index?',{params:params}).pipe(
       map((response: MeasureData[]) => {
         const measureDataOnService = response
         console.log("Measure Data On Service : ", measureDataOnService);
@@ -41,6 +43,12 @@ export class MeasureDataService {
       }),
     );
   }
+
+  getData(){
+    throw new Error('Method not implemented.');
+
+  }
+
 
   
 
