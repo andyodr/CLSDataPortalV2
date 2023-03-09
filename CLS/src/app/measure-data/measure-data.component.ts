@@ -40,8 +40,24 @@ export class MeasureDataComponent implements OnInit {
 
   constructor(private _measureDataService: MeasureDataService, private router: Router/*, private toastr: ToastrService*/) { }
 
+
   ngOnInit(): void {
+    this.getMeasData();
   }
+
+  getMeasData(){
+    this._measureDataService.getMeasureData().subscribe(
+      (response: any) => {
+        console.log("Response : ", response);
+        this.data = response;
+        this.disabledAll = false;
+      },
+      error => {
+        console.log("Error : ", error);
+      }
+    );
+  }
+
 
 
     
