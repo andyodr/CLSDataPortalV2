@@ -22,8 +22,6 @@ const routes: Routes = [
             { path: ":id", title: "Distributor - Edit User", component: UserEditComponent }
         ]
     },
-    { path: 'targets', loadChildren: () => import('./target/target.module').then(m => m.TargetModule) },
-    { path: 'measures', loadChildren: () => import('./measure/measure.module').then(m => m.MeasureModule) },
     {
         path: '',
         runGuardsAndResolvers: 'always',

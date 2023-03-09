@@ -7,6 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog'
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon"
 import { MatInputModule } from "@angular/material/input"
+import { MatMenuModule } from "@angular/material/menu";
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -29,6 +30,7 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { FilterPipe } from './filter.pipe';
 import { HomeComponent } from './home/home.component';
+import { MeasureDataComponent } from "./measure-data/measure-data.component"
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
 import { TableComponent } from './table/table.component';
 import { UserListComponent } from "./users/userlist.component"
