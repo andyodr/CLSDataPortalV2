@@ -4,16 +4,33 @@
 
 .panel-header {
   background-color: var(--mat-color-50);
-  border: 1px solid #e2edeb;
+  margin-top: 10px;
+  border: 1px solid var(--mat-color-100);
   padding: 10px 15px;
-  border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .panel-header > :last-child {
   margin: 10px 22px 22px;
+}
+
+form {
+  margin: 15px 0px;
+
+  div {
+    display: flex;
+    gap: 10px;
+  }
+
+  :first-child :first-child {
+      width: 100%;
+  }
+
+  :nth-child(2) > * {
+      width: 100%;
+  }
 }

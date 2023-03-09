@@ -1,9 +1,13 @@
 <div class="page">
   <h1>{{title}}</h1>
   <div class="panel panel-default panel-body">
+    <a mat-fab color="primary" navigateBack="users"><mat-icon>arrow_back</mat-icon></a>
     <div class="panel-header">
       <button mat-raised-button color="primary" aria-label="Save" [routerLink]="['..']">
         <mat-icon>save_alt</mat-icon> Save
+      </button>
+      <button mat-raised-button color="primary" aria-label="Refresh" [routerLink]="['..']">
+        <mat-icon>refresh</mat-icon> Refresh
       </button>
     </div>
   </div>

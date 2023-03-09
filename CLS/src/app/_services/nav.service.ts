@@ -1,4 +1,4 @@
-import { Injectable, Directive, HostListener } from "@angular/core"
+import { Injectable, Directive, HostListener, Input } from "@angular/core"
 import { Location } from "@angular/common"
 import { Router, NavigationEnd, ActivatedRoute } from "@angular/router"
 
@@ -14,13 +14,13 @@ export class NavigationService {
         });
     }
 
-    back(): void {
+    back(commands?: any[]): void {
         this.history.pop()
-        if (this.history.length > 0) {
+        if (this.history.length > 0 || commands == null) {
             this.location.back()
         }
         else {
-            this.router.navigate([".."])
+            this.router.navigate(commands)
         }
     }
 }
@@ -31,8 +31,13 @@ export class NavigationService {
 export class NavigateBackDirective {
     constructor(private navigation: NavigationService, private route: ActivatedRoute) { }
 
+    @Input() navigateBack?: string
     @HostListener("click")
     onClick(): void {
-        this.navigation.back()
+        if (this.navigateBack == null) {
+            this.navigation.back()
+        } else {
+            this.navigation.back([this.navigateBack])
+        }
     }
 }

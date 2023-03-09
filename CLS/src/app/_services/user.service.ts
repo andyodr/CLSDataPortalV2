@@ -28,21 +28,9 @@ export class UserService {
     );
   }
 
-
-
-  /*getUserData(){
-    //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-    return this.http.get<UserData>(this.baseUrl + '/index').pipe(
-      map((response: UserData) => {
-        const allUsersData = response
-        console.log("All Users Data : ", allUsersData);
-        this.userData = response 
-      })
-    );
-  }*/
-
-
-
+  getUser(id: number){
+      return this.http.get<UserData>(`${this.baseUrl}edit/${id}`)
+  }
 
   //el tipo
   /*getUsers():Observable<User[]>{

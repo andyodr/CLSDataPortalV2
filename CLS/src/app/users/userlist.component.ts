@@ -41,16 +41,13 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.userSubscription = this.userService.getUsers().subscribe({
             next: (response: any) => {
                 this.dataSource = new MatTableDataSource((response as UserData).data)
+                this.dataSource.sort = this.sort
                 // processLocalError here
             },
             error: (err: any) => {
                 this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
             }
         })
-    }
-
-    ngAfterViewInit(): void {
-        this.dataSource.sort = this.sort
     }
 
     applyFilter(event: Event) {
