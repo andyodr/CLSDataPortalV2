@@ -6,7 +6,7 @@ import { Component, OnInit } from "@angular/core"
     styleUrls: ["./useradd.component.scss"]
 })
 export class UserAddComponent implements OnInit {
-
+    title = "Add User"
     constructor() { }
 
     ngOnInit(): void {

@@ -1,0 +1,19 @@
+.panel-body {
+  padding: 15px;
+}
+
+.panel-header {
+  background-color: var(--mat-color-50);
+  border: 1px solid #e2edeb;
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.panel-header > :last-child {
+  margin: 10px 22px 22px;
+}

@@ -85,4 +85,5 @@
   display: grid;
   min-height: 100vh;
   grid-template: 70px 1fr / auto 1fr auto;
+  padding: initial;
 }

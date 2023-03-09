@@ -7,11 +7,12 @@ import { Subscription } from "rxjs"
 import { User, UserData } from "src/app/_models/user"
 import { UserService } from "src/app/_services/user.service"
 import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../app-constants"
+import { NavigationService } from "../_services/nav.service"
 
 @Component({
     selector: "app-user-list",
     templateUrl: "./userlist.component.html",
-    styleUrls: ["./userlist.component.css"]
+    styleUrls: ["./userlist.component.scss"]
 })
 export class UserListComponent implements OnInit, OnDestroy {
     title = "Users"
@@ -30,7 +31,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         value: 0
     }
 
-    constructor(private userService: UserService, public router: Router) { }
+    constructor(private userService: UserService, public router: Router, private _: NavigationService) { }
 
     ngOnDestroy(): void {
         this.userSubscription.unsubscribe()

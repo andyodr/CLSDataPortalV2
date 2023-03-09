@@ -7,6 +7,7 @@ import { ActivatedRoute } from "@angular/router";
     styleUrls: ["./useredit.component.scss"]
 })
 export class UserEditComponent implements OnInit {
+    title = "Edit User"
     id!: number
     constructor(private route: ActivatedRoute) { }
 

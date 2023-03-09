@@ -34,6 +34,7 @@ import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { SharedModule } from './_modules/shared.module';
 import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
+import { NavigateBackDirective } from "./_services/nav.service"
 
 @NgModule({
     declarations: [
@@ -45,6 +46,7 @@ import { UserAddComponent } from "./users/useradd.component"
         HomeComponent,
         MeasureDefinitionComponent,
         MultipleSheetsDialog,
+        NavigateBackDirective,
         NotFoundComponent,
         ServerErrorComponent,
         TableComponent,

@@ -6,9 +6,10 @@
   background-color: var(--mat-color-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
+  border: 1px solid var(--mat-color-100);
   border-bottom: 1px solid transparent;
-  border-top-right-radius: 1px;
-  border-top-left-radius: 1px;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,7 +21,7 @@
 
 .mat-column-userName {
   font-size: larger;
-  width: 12em;
+  width: 15em;
 }
 
 .mat-column-lastName {
