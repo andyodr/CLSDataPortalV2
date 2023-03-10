@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { NavSettingsService } from 'src/app/_services/nav-settings.service';
 import { AccountService } from '../../_services/account.service';
+import { LoggerService } from '../../_services/logger.service';
 
 
 @Component({
@@ -16,8 +16,11 @@ export class LoginComponent implements OnInit {
   model: any = {};
 
 
-  constructor(private accountService: AccountService, private router: Router, private toastr: ToastrService, 
-              public _navSettingsService: NavSettingsService) { }
+    constructor(
+        private accountService: AccountService,
+        private router: Router,
+        private logger: LoggerService,
+        public _navSettingsService: NavSettingsService) { }
 
   ngOnInit(): void {
     this._navSettingsService.hideNavBar();
@@ -46,7 +49,7 @@ export class LoginComponent implements OnInit {
         this._navSettingsService.showNavBar();
         this.router.navigateByUrl('/measuredata');
       },
-      error: error => this.toastr.error(error.message)
+      error: error => this.logger.logError(error.message)
     });
   }
 
@@ -58,5 +61,4 @@ export class LoginComponent implements OnInit {
   cancel() {  
     this.cancelLogin.emit(false);
   }
-
 }

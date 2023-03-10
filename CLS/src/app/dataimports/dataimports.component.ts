@@ -2,7 +2,6 @@ import { formatDate } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
-import { MatSnackBar } from "@angular/material/snack-bar"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
 import { environment } from "../environments/environment"
 import { FilterPipe } from "../filter.pipe"
@@ -13,6 +12,7 @@ import { WorkBook, read, utils } from 'xlsx'
 import { ProgressBarMode } from "@angular/material/progress-bar"
 import { ToggleService } from "../_services/toggle.service"
 import { ErrorModel } from "../_models/error"
+import { LoggerService } from "../_services/logger.service"
 
 type DataOut = {
     dataImport: number
@@ -123,7 +123,7 @@ export class DataImportsComponent implements OnInit {
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
         private http: HttpClient,
-        private logger: MatSnackBar,
+        private logger: LoggerService,
         private toggleService: ToggleService,
         @Inject(LOCALE_ID) private locale: string) { }
 
@@ -577,15 +577,7 @@ export class DataImportsComponent implements OnInit {
                             this.processUploadError(body.error)
                         }
                         else {
-                            this.logger.open(
-                                `✔️ ${MESSAGES.uploadSuccess}`,
-                                undefined,
-                                {
-                                    duration: 5000,
-                                    panelClass: ["snackbar-success"],
-                                    horizontalPosition: "right",
-                                    verticalPosition: "bottom"
-                                })
+                            this.logger.logSuccess(`✔️ ${MESSAGES.uploadSuccess}`)
                             this.setProgress(false)
                             this.clearClick()
                         }

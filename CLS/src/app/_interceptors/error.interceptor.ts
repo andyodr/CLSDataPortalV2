@@ -7,13 +7,13 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { NavigationExtras, Router } from '@angular/router';
+import { LoggerService } from '../_services/logger.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
 
-  constructor(private router: Router, private toastr: ToastrService) {}
+  constructor(private router: Router, private logger: LoggerService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
@@ -30,12 +30,12 @@ export class ErrorInterceptor implements HttpInterceptor {
                 }
                 throw modalStateErrors.flat();
               }else {
-                this.toastr.error(error.error, error.status.toString());
+                this.logger.logError(error.error + error.status.toString());
           
               }
               break;
             case 401:
-              this.toastr.error('Unauthorised', error.status.toString());
+              this.logger.logError('Unauthorised ' + error.status.toString());
               break;
             case 404:
               this.router.navigateByUrl('/not-found');
@@ -45,7 +45,7 @@ export class ErrorInterceptor implements HttpInterceptor {
               this.router.navigateByUrl('/server-error', navigationExtras);
               break;
             default:
-              this.toastr.error('Something unexpected went wrong');
+              this.logger.logError('Something unexpected went wrong');
               console.log(error);
               break;
           }

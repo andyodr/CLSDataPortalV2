@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core"
 import { ActivatedRoute } from "@angular/router";
 import { UserData } from "../_models/user";
+import { LoggerService } from "../_services/logger.service";
 import { UserService } from "../_services/user.service";
 
 type Model = {
@@ -22,7 +23,7 @@ export class UserEditComponent implements OnInit {
     userData!: UserData
     model!: Model
     disabledAll = false
-    constructor(private route: ActivatedRoute, private userService: UserService) { }
+    constructor(private route: ActivatedRoute, private userService: UserService, private logger: LoggerService) { }
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
@@ -39,5 +40,9 @@ export class UserEditComponent implements OnInit {
                 }
             })
         })
+    }
+
+    save() {
+        this.logger.logWarning("Save user not implemented")
     }
 }

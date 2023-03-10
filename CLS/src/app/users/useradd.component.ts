@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core"
+import { LoggerService } from "../_services/logger.service"
 
 @Component({
     selector: "app-useradd",
@@ -7,9 +8,10 @@ import { Component, OnInit } from "@angular/core"
 })
 export class UserAddComponent implements OnInit {
     title = "Add User"
-    constructor() { }
+    constructor(private logger: LoggerService) { }
 
     ngOnInit(): void {
+        this.logger.logError("Not Implemented")
     }
 
 }

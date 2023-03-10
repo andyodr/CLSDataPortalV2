@@ -35,10 +35,12 @@ import { MeasureDefinitionComponent } from './measuredefinition/measuredefinitio
 import { TableComponent } from './table/table.component';
 import { UserListComponent } from "./users/userlist.component"
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
-import { SharedModule } from './_modules/shared.module';
+import { NavbarComponent } from "./navbar/navbar.component";
+import { NavigateBackDirective } from "./_services/nav.service"
 import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
-import { NavigateBackDirective } from "./_services/nav.service"
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { LoggerService } from "./_services/logger.service";
 
 @NgModule({
     declarations: [
@@ -51,6 +53,7 @@ import { NavigateBackDirective } from "./_services/nav.service"
         MeasureDataComponent,
         MeasureDefinitionComponent,
         MultipleSheetsDialog,
+        NavbarComponent,
         NavigateBackDirective,
         NotFoundComponent,
         ServerErrorComponent,
@@ -82,9 +85,11 @@ import { NavigateBackDirective } from "./_services/nav.service"
         MatTableModule,
         MatTreeModule,
         NgbModule,
-        SharedModule
+        BsDropdownModule.forRoot(),
+
     ],
     providers: [
+        LoggerService,
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     ],
     bootstrap: [AppComponent]
