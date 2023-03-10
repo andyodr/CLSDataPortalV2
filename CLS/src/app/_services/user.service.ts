@@ -4,11 +4,8 @@ import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { User, UserData } from '../_models/user';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: "root" })
 export class UserService {
-
   private baseUrl = environment.baseUrl + 'api/users/';
   /*users: User[] = [];
   userData: UserData | undefined;
@@ -98,6 +95,4 @@ export class UserService {
   delete(id: string) {
       return this.http.delete(`${baseUrl}/${id}`);
   }*/
-
-  
 }

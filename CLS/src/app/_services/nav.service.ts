@@ -11,7 +11,7 @@ export class NavigationService {
             if (event instanceof NavigationEnd) {
                 this.history.push(event.urlAfterRedirects)
             }
-        });
+        })
     }
 
     back(commands?: any[]): void {
