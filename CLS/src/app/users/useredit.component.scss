@@ -21,16 +21,12 @@
 form {
   margin: 15px 0px;
 
-  div {
+  > div {
     display: flex;
     gap: 10px;
   }
 
-  :first-child :first-child {
-      width: 100%;
-  }
-
-  :nth-child(2) > * {
+  > :first-child > :first-child, > :nth-child(2) > * {
       width: 100%;
   }
 }
