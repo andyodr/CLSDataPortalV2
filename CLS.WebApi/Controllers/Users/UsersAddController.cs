@@ -22,7 +22,7 @@ public class AddController : ControllerBase
 	/// <returns>An instance of UserIndexGetObject</returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
-		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
+		var returnObject = new UserIndexGetObject { Hierarchy = new(), Roles = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -33,14 +33,14 @@ public class AddController : ControllerBase
 
 			var region = _context.Hierarchy
 				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
-			returnObject.hierarchy.Add(new() {
+			returnObject.Hierarchy.Add(new() {
 				hierarchy = region.Name,
 				id = region.Id,
 				sub = Helper.GetSubsLevel(_context, region.Id),
 				count = 0 });
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				returnObject.roles.Add(new() { id = role.Id, name = role.Name });
+				returnObject.Roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
 			return returnObject;
@@ -57,7 +57,7 @@ public class AddController : ControllerBase
 	/// <returns></returns>
 	[HttpPost]
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto model) {
-		var returnObject = new UserIndexGetObject { data = new() };
+		var returnObject = new UserIndexGetObject { Data = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -86,7 +86,7 @@ public class AddController : ControllerBase
 			Helper.AddUserHierarchy(user.Id, _context, model.hierarchiesId, addedHierarchies);
 			_context.SaveChanges();
 			model.id = user.Id;
-			returnObject.data.Add(model);
+			returnObject.Data.Add(model);
 			addedHierarchies.Clear();
 
 			Helper.AddAuditTrail(

@@ -23,7 +23,7 @@ public class EditController : ControllerBase
 	/// <returns></returns>
 	[HttpGet("{id}")]
 	public ActionResult<UserIndexGetObject> Get(int id) {
-		var result = new UserIndexGetObject { data = new(), hierarchy = new(), roles = new() };
+		var result = new UserIndexGetObject { Data = new(), Hierarchy = new(), Roles = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -33,7 +33,7 @@ public class EditController : ControllerBase
 			}
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
-			result.hierarchy.Add(new() {
+			result.Hierarchy.Add(new() {
 				hierarchy = regions.First().Name,
 				id = regions.First().Id,
 				sub = Helper.GetSubsLevel(_context, regions.First().Id),
@@ -42,7 +42,7 @@ public class EditController : ControllerBase
 
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				result.roles.Add(new() { id = role.Id, name = role.Name });
+				result.Roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
 			var users = _context.User
@@ -71,11 +71,11 @@ public class EditController : ControllerBase
 
 				if (user.Id == (int)Helper.userRoles.powerUser) {
 					if (_user.userId == (int)Helper.userRoles.powerUser) {
-						result.data.Add(currentUser);
+						result.Data.Add(currentUser);
 					}
 				}
 				else {
-					result.data.Add(currentUser);
+					result.Data.Add(currentUser);
 				}
 			}
 
@@ -100,7 +100,7 @@ public class EditController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new UserIndexGetObject { data = new() };
+			var returnObject = new UserIndexGetObject { Data = new() };
 			var user = _context.User.Find(id);
 			if (user == null) {
 				return ValidationProblem("User ID not found.");
@@ -147,7 +147,7 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 				_context.UserHierarchy.Where(h => h.UserId == id).ExecuteDelete();
 			}
 
-			returnObject.data.Add(model);
+			returnObject.Data.Add(model);
 
 			Helper.AddAuditTrail(_context,
 				Resource.SECURITY,
