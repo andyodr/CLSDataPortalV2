@@ -547,15 +547,6 @@ public static class Helper
 		}
 	}
 
-	internal static void UserDeleteHierarchy(int userId, ApplicationDbContext context) {
-		var deleteRecords = context.UserHierarchy.Where(u => u.User.Id == userId).ToArray();
-		if (deleteRecords.Length > 0) {
-			foreach (var record in deleteRecords) {
-				context.UserHierarchy.Remove(record);
-			}
-		}
-	}
-
 	internal static void AddUserHierarchy(int userId, ApplicationDbContext context, List<int> hierarchiesId, List<int> addedHierarchies) {
 		foreach (int hId in hierarchiesId) {
 			if (!addedHierarchies.Contains(hId) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == hId && u.User.Id == userId).Any()) {

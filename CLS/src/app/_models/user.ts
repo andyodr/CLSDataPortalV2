@@ -3,13 +3,12 @@ import { RegionFilter } from "./regionfilter"
 
 //Interface for User Model
 export interface User {
-    id?: string
+    id?: number
     userName: string
     lastName?: string
     firstName?: string
     department?: string
     roleId: number
-    roleName: string
     hierarchiesId: number[]
     hierarchyName?: string
     active?: string

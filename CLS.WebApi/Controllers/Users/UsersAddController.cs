@@ -53,10 +53,10 @@ public class AddController : ControllerBase
 	/// <summary>
 	/// Create a new user in the User table and return its userId.
 	/// </summary>
-	/// <param name="value"></param>
+	/// <param name="model"></param>
 	/// <returns></returns>
 	[HttpPost]
-	public ActionResult<UserIndexGetObject> Post(UserIndexDto value) {
+	public ActionResult<UserIndexGetObject> Post(UserIndexDto model) {
 		var returnObject = new UserIndexGetObject { data = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -66,27 +66,27 @@ public class AddController : ControllerBase
 				return Unauthorized();
 			}
 
-			if (_context.User.Where(u => u.UserName == value.userName).Any()) {
+			if (_context.User.Where(u => u.UserName == model.userName).Any()) {
 				return BadRequest(Resource.USERS_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
 
 			var userC = _context.User.Add(new() {
-				UserName = value.userName,
-				LastName = value.lastName,
-				FirstName = value.firstName,
-				Department = value.department,
-				Active = Helper.StringToBool(value.active),
+				UserName = model.userName,
+				LastName = model.lastName,
+				FirstName = model.firstName,
+				Department = model.department,
+				Active = Helper.StringToBool(model.active),
 				LastUpdatedOn = lastUpdatedOn
 			});
 
-			userC.Property("UserRoleId").CurrentValue = value.roleId;
+			userC.Property("UserRoleId").CurrentValue = model.roleId;
 			var user = userC.Entity;
-			Helper.AddUserHierarchy(user.Id, _context, value.hierarchiesId, addedHierarchies);
+			Helper.AddUserHierarchy(user.Id, _context, model.hierarchiesId, addedHierarchies);
 			_context.SaveChanges();
-			value.id = user.Id;
-			returnObject.data.Add(value);
+			model.id = user.Id;
+			returnObject.data.Add(model);
 			addedHierarchies.Clear();
 
 			Helper.AddAuditTrail(

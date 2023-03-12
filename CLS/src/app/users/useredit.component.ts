@@ -29,6 +29,7 @@ export class UserEditComponent implements OnInit {
     treeFlattener!: MatTreeFlattener<RegionFilter, RegionFlatNode>
     treeData!: MatTreeFlatDataSource<RegionFilter, RegionFlatNode>
     model = {
+        id: -1,
         userName: "",
         firstName: "",
         lastName: "",
@@ -37,7 +38,7 @@ export class UserEditComponent implements OnInit {
         active: false,
         checklistSelection: new SelectionModel<RegionFlatNode>(true)
     }
-    
+
     constructor(private route: ActivatedRoute, private userService: UserService, private logger: LoggerService) {
         this.treeFlattener = new MatTreeFlattener(
             this.transformer,
@@ -52,12 +53,12 @@ export class UserEditComponent implements OnInit {
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
-            let id = Number(params.get("id"))
-            this.userService.getUser(id).subscribe(value => {
-                let user = value.data[0]
-                this.roles = value.roles
+            const id = Number(params.get("id"))
+            this.userService.getUser(id).subscribe(ud => {
+                const user = ud.data[0]
+                this.roles = ud.roles
 
-                let hierarchy = value.hierarchy
+                const hierarchy = ud.hierarchy
                 this.treeData.data = hierarchy
                 let v = [hierarchy[0]], n = 0
                 while (n < v.length) {  // flatten hierarchy into v
@@ -73,6 +74,7 @@ export class UserEditComponent implements OnInit {
                     .map(id => m.get(id)).filter((rf): rf is RegionFilter => !!rf)
                     .map(rf => this.nestedNodeMap.get(rf)).filter((fn): fn is RegionFlatNode => !!fn)
                 this.model = {
+                    id,
                     userName: user.userName,
                     roleId: user.roleId,
                     firstName: user.firstName ?? "",
@@ -175,10 +177,22 @@ export class UserEditComponent implements OnInit {
     }
 
     save() {
-        this.logger.logWarning("Save user not implemented")
-        console.log({
-            ...this.model,
-            checklistSelection: this.model.checklistSelection.selected.map(it => this.flatNodeMap.get(it)?.id)
+        const { id, userName, firstName, lastName, roleId, department, active } = this.model
+        const hierarchiesId = this.model.checklistSelection.selected
+            .map(node => this.flatNodeMap.get(node))
+            .filter((rf): rf is RegionFilter => !!rf)
+            .map(rf => rf.id)
+        this.userService.updateUser({
+            id,
+            userName,
+            firstName,
+            lastName,
+            roleId,
+            department,
+            active: active.toString(),
+            hierarchiesId
+        }).subscribe(ud => {
+            this.logger.logSuccess("User information saved")
         })
     }
 }

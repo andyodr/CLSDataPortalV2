@@ -19,7 +19,7 @@
 }
 
 .panel-header > :last-child {
-  margin: 10px 22px 22px;
+  margin: 10px 22px;
 }
 
 form {
@@ -31,6 +31,14 @@ form {
   }
 
   > :first-child > :first-child, > :nth-child(2) > * {
-      width: 100%;
+    width: 100%;
   }
+}
+
+:host ::ng-deep form > div label.mat-checkbox-layout {
+  flex-direction: column-reverse !important;
+}
+
+:host ::ng-deep form > div .mat-checkbox-inner-container {
+  margin: 2px auto;
 }

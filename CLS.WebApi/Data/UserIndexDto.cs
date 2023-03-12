@@ -12,7 +12,7 @@ public class UserIndexDto
 
 	public string? department { get; set; }
 
-	public string roleName { get; set; } = null!;
+	public string? roleName { get; set; } = null!;
 
 	public int roleId { get; set; }
 

@@ -12,7 +12,6 @@ namespace CLS.WebApi.Controllers.Users;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private readonly List<int> addedHierarchies = new();
 	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _context = context;
@@ -91,8 +90,8 @@ public class EditController : ControllerBase
 	/// <summary>
 	/// Modify user details for a specified user ID.
 	/// </summary>
-	[HttpPut]
-	public ActionResult<UserIndexGetObject> Put(UserIndexDto value) {
+	[HttpPut("{id}")]
+	public ActionResult<UserIndexGetObject> Put(int id, UserIndexDto model) {
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -102,38 +101,59 @@ public class EditController : ControllerBase
 			}
 
 			var returnObject = new UserIndexGetObject { data = new() };
-			var user = _context.User.Find(value.id);
+			var user = _context.User.Find(id);
 			if (user == null) {
 				return ValidationProblem("User ID not found.");
 			}
 
-			if (value.userName != user.UserName) {
-				if (_context.User.Where(u => u.UserName == value.userName).Any()) {
+			if (model.userName != user.UserName) {
+				if (_context.User.Where(u => u.UserName == model.userName).Any()) {
 					return ValidationProblem(Resource.USERS_EXIST);
 				}
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			user.UserName = value.userName;
-			user.LastName = value.lastName;
-			user.FirstName = value.firstName;
-			user.Department = value.department;
-			user.Active = Helper.StringToBool(value.active);
+			user.UserName = model.userName;
+			user.LastName = model.lastName;
+			user.FirstName = model.firstName;
+			user.Department = model.department;
+			user.Active = Helper.StringToBool(model.active);
 			user.LastUpdatedOn = lastUpdatedOn;
-			_context.Entry(user).Property("UserRoleId").CurrentValue = value.roleId;
+			_context.Entry(user).Property("UserRoleId").CurrentValue = model.roleId;
 
-			Helper.UserDeleteHierarchy(user.Id, _context);
-			Helper.AddUserHierarchy(user.Id, _context, value.hierarchiesId, addedHierarchies);
+			if (model.hierarchiesId.Count > 0) {
+				// UI only shows hierarchyLevel < 4, but we need to add all the child hierarchies as well
+				var allSelectedHierarchies = _context.Hierarchy.FromSqlRaw($@"WITH f AS
+(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+FROM Hierarchy WHERE Id IN ({string.Join(',', model.hierarchiesId)})
+UNION ALL
+SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
+FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
+WHERE h.HierarchyLevelId > 3)
+SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
+				_context.UserHierarchy
+					.Where(h => h.UserId == id && !allSelectedHierarchies.Contains(h.HierarchyId))
+					.ExecuteDelete();
+				var remaining = _context.UserHierarchy.Where(h => h.UserId == id).Select(h => h.HierarchyId).ToArray();
+				foreach (var hId in allSelectedHierarchies) {
+					if (!remaining.Contains(hId)) {
+						_context.UserHierarchy.Add(new() { UserId = id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
+					}
+				}
 
-			returnObject.data.Add(value);
-			_context.SaveChanges();
-			addedHierarchies.Clear();
+				_context.SaveChanges();
+			}
+			else {
+				_context.UserHierarchy.Where(h => h.UserId == id).ExecuteDelete();
+			}
+
+			returnObject.data.Add(model);
 
 			Helper.AddAuditTrail(_context,
 				Resource.SECURITY,
 				"SEC-04",
 				"User Updated",
-				@"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
+				@"ID=" + id.ToString() + " / Username=" + user.UserName,
 				lastUpdatedOn,
 				_user.userId
 			);
