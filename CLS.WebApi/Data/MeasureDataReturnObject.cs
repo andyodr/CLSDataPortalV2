@@ -2,20 +2,35 @@
 
 public class MeasureDataReturnObject
 {
-	public long id { set; get; }
-	public string name { set; get; }
-	public double? value { set; get; }
-	public string explanation { set; get; }
-	public string action { set; get; }
-	public double? target { set; get; }
-	public int? targetCount { get; set; }
-	public long? targetId { get; set; }
-	public int unitId { set; get; }
-	public string units { set; get; }
-	public double? yellow { set; get; }
-	public string? expression { set; get; }
-	public string evaluated { set; get; }
-	public bool calculated { set; get; }
-	public string? description { set; get; }
-	public UpdatedObject updated { set; get; }
+	public long Id { get; set; }
+
+	public string Name { get; set; } = null!;
+
+	public double? Value { get; set; }
+
+	public string? Explanation { get; set; }
+
+	public string? Action { get; set; }
+
+	public double? Target { get; set; }
+
+	public int? TargetCount { get; set; }
+
+	public long? TargetId { get; set; }
+
+	public int UnitId { get; set; }
+
+	public string Units { get; set; } = null!;
+
+	public double? Yellow { get; set; }
+
+	public string? Expression { get; set; }
+
+	public string Evaluated { get; set; } = null!;
+
+	public bool Calculated { get; set; }
+
+	public string? Description { get; set; }
+
+	public UpdatedObject Updated { get; set; } = null!;
 }

@@ -24,7 +24,7 @@ public class IndexController : ControllerBase
 	/// Get a MeasureDataIndexListObject
 	/// </summary>
 	[HttpGet]
-	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject value) {
+	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject model) {
 		var returnObject = new MeasureDataIndexListObject { data = new() };
 		DateTime? date = new();
 
@@ -36,17 +36,17 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			returnObject.allow = _user.hierarchyIds.Contains(value.HierarchyId);
+			returnObject.allow = _user.hierarchyIds.Contains(model.HierarchyId);
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, value.HierarchyId);
+			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, model.HierarchyId);
 
-			returnObject.calendarId = value.CalendarId;
-			if (string.IsNullOrEmpty(value.Day)) {
+			returnObject.calendarId = model.CalendarId;
+			if (string.IsNullOrEmpty(model.Day)) {
 				date = null;
 			}
 			else {
-				date = Convert.ToDateTime(value.Day);
+				date = Convert.ToDateTime(model.Day);
 				var cal = _context.Calendar
 					.Where(c => c.StartDate == date)
 					.AsNoTrackingWithIdentityResolution().ToArray();
@@ -66,90 +66,92 @@ public class IndexController : ControllerBase
 				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.userId, calendar, _context);
 			}
 
-			var measures = from mdef in _context.MeasureDefinition
-						   from m in mdef.Measures
-						   from t in m.Targets
-						   from md in t.MeasureData
-						   where m.Active == true && m.Hierarchy.Id == value.HierarchyId
-						   && mdef.MeasureType.Id == value.MeasureTypeId
-						   && md.CalendarId == returnObject.calendarId
-						   select new {
-							   lastUpdatedOn = md.LastUpdatedOn,
-							   md.User,
-							   value = md.Value,
-							   target = t.Value,
-							   yellow = t.YellowValue,
-							   id = md.Id,
-							   name = mdef.Name,
-							   precision = mdef.Precision,
-							   description = mdef.Description,
-							   expression = mdef.Expression,
-							   mdef.Unit,
-							   explanation = md.Explanation,
-							   action = md.Action,
-							   hId = m.Hierarchy.Id,
-							   calculated = Helper.IsMeasureCalculated(_context, m.Expression ?? false, value.HierarchyId, calendar.Interval.Id, md.Id, null)
-						   };
+			var measures = _context.MeasureData
+				.Where(m => m.Measure!.Active == true
+					&& m.Measure.HierarchyId == model.HierarchyId
+					&& m.Measure.MeasureDefinition!.MeasureTypeId == model.MeasureTypeId
+					&& m.CalendarId == returnObject.calendarId)
+				.Include(md => md.Target)
+				.Include(md => md.User)
+				.Include(md => md.Measure)
+				.ThenInclude(m => m!.MeasureDefinition)
+				.Select(md => new {
+					lastUpdatedOn = md.LastUpdatedOn,
+					md.User,
+					value = md.Value,
+					target = md.Target!.Value,
+					yellow = md.Target.YellowValue,
+					id = md.Id,
+					name = md.Measure!.MeasureDefinition!.Name,
+					precision = md.Measure.MeasureDefinition.Precision,
+					description = md.Measure.MeasureDefinition.Description,
+					expression = md.Measure.MeasureDefinition.Expression,
+					md.Measure.MeasureDefinition.Unit,
+					explanation = md.Explanation,
+					action = md.Action,
+					hId = md.Measure.HierarchyId,
+					calculated = Helper.IsMeasureCalculated(_context, md.Measure.Expression ?? false, model.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
+				});
 
 			// Find all measure definition variables.
-			var allVarNames = from m in _context.MeasureDefinition.Where(m => m.MeasureType.Id == value.MeasureTypeId)
+			var allVarNames = from m in _context.MeasureDefinition.Where(m => m.MeasureType.Id == model.MeasureTypeId)
 							  select new { m.Id, m.VariableName };
 
-			foreach (var record in measures.AsNoTracking()) {
+			foreach (var record in measures.AsNoTrackingWithIdentityResolution()) {
 				var newObject = new MeasureDataReturnObject();
 
 				if (record.User is null) {
-					newObject.updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, Resource.SYSTEM);
+					newObject.Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, Resource.SYSTEM);
 				}
 				else {
-					newObject.updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User.UserName);
+					newObject.Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User.UserName);
 				}
 
-				newObject.id = record.id;
-				newObject.name = record.name;
-				newObject.explanation = record.explanation;
-				newObject.description = record.description;
-				newObject.action = record.action;
-				newObject.unitId = record.Unit.Id;
-				newObject.units = record.Unit.Short;
-				newObject.target = record.target;
-				newObject.yellow = record.yellow;
-				newObject.value = record.value;
+				newObject.Id = record.id;
+				newObject.Name = record.name;
+				newObject.Explanation = record.explanation;
+				newObject.Description = record.description;
+				newObject.Action = record.action;
+				newObject.UnitId = record.Unit.Id;
+				newObject.Units = record.Unit.Short;
+				newObject.Target = record.target;
+				newObject.Yellow = record.yellow;
+				newObject.Value = record.value;
 
 				if (record.target is not null) {
-					newObject.target = Math.Round((double)record.target, record.precision, MidpointRounding.AwayFromZero);
+					newObject.Target = Math.Round((double)record.target, record.precision, MidpointRounding.AwayFromZero);
 				}
 
 				if (record.yellow is not null) {
-					newObject.yellow = Math.Round((double)record.yellow, record.precision, MidpointRounding.AwayFromZero);
+					newObject.Yellow = Math.Round((double)record.yellow, record.precision, MidpointRounding.AwayFromZero);
 				}
 
 				if (record.value is not null) {
-					newObject.value = Math.Round((double)record.value, record.precision, MidpointRounding.AwayFromZero);
+					newObject.Value = Math.Round((double)record.value, record.precision, MidpointRounding.AwayFromZero);
 				}
 
-				newObject.calculated = record.calculated;
+				newObject.Calculated = record.calculated;
 
 				// Evaluates expressions
-				newObject.expression = record.expression;
-				newObject.evaluated = string.Empty;
-				if (newObject.calculated && !string.IsNullOrEmpty(newObject.expression)) {
+				newObject.Expression = record.expression;
+				newObject.Evaluated = string.Empty;
+				if (newObject.Calculated && !string.IsNullOrEmpty(newObject.Expression)) {
 					var varNames = new List<VariableName>();
 					foreach (var item in allVarNames) {
-						if (newObject.expression.Contains(item.VariableName)) {
+						if (newObject.Expression.Contains(item.VariableName)) {
 							varNames.Add(new VariableName { id = item.Id, varName = item.VariableName });
 						}
 					}
 					// Search measure data values from variables
 					if (varNames.Count > 0) {
-						string sExpression = newObject.expression;
+						string sExpression = newObject.Expression;
 						foreach (var item in varNames) {
 							var measure = _context.Measure
-								.Where(m => m.MeasureDefinition.Id == item.id && m.Hierarchy.Id == value.HierarchyId)
+								.Where(m => m.MeasureDefinitionId == item.id && m.HierarchyId == model.HierarchyId)
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
 								var measureData = _context.MeasureData
-									.Where(md => md.Measure.Id == measure.First().Id && md.Calendar.Id == returnObject.calendarId)
+									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == returnObject.calendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
 									if (measureData.First().Value is not null) {
@@ -159,20 +161,20 @@ public class IndexController : ControllerBase
 							}
 						}
 
-						newObject.evaluated = sExpression;
+						newObject.Evaluated = sExpression;
 					}
 				}
 
 				returnObject.data.Add(newObject);
 			}
 
-			returnObject.range = BuildRangeString(value.CalendarId);
-			if (value.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
-				_user.savedFilters[Helper.pages.measureData].calendarId = value.CalendarId;
+			returnObject.range = BuildRangeString(model.CalendarId);
+			if (model.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
+				_user.savedFilters[Helper.pages.measureData].calendarId = model.CalendarId;
 				_user.savedFilters[Helper.pages.measureData].intervalId = calendar.Interval.Id;
 				_user.savedFilters[Helper.pages.measureData].year = calendar.Year;
 			}
-			_user.savedFilters[Helper.pages.measureData].hierarchyId = value.HierarchyId;
+			_user.savedFilters[Helper.pages.measureData].hierarchyId = model.HierarchyId;
 			returnObject.filter = _user.savedFilters[Helper.pages.measureData];
 
 			return returnObject;
@@ -237,10 +239,10 @@ public class IndexController : ControllerBase
 
 			measureDataList.Add(
 			  new MeasureDataReturnObject {
-				  value = value.MeasureValue,
-				  explanation = value.Explanation,
-				  action = value.Action,
-				  updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.userName)
+				  Value = value.MeasureValue,
+				  Explanation = value.Explanation,
+				  Action = value.Action,
+				  Updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.userName)
 			  }
 			);
 			returnObject.data = measureDataList;

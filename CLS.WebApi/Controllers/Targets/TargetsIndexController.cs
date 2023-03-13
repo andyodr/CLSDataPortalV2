@@ -49,27 +49,27 @@ public class IndexController : ControllerBase
 				foreach (var t in targets.Include(t => t.Measure).Include(t => t.User).AsNoTrackingWithIdentityResolution()) {
 					if (def.Id == t.Measure!.MeasureDefinitionId) {
 						var mdr = new MeasureDataReturnObject {
-							id = t.Measure.Id,
-							name = def.Name,
-							target = t.Value,
-							yellow = t.YellowValue,
-							targetCount = t.Measure.Targets!.Count,
-							expression = def.Expression,
-							description = def.Description,
-							units = def.Unit.Short,
-							targetId = t.Id,
-							updated = t.UserId switch {
+							Id = t.Measure.Id,
+							Name = def.Name,
+							Target = t.Value,
+							Yellow = t.YellowValue,
+							TargetCount = t.Measure.Targets!.Count,
+							Expression = def.Expression,
+							Description = def.Description,
+							Units = def.Unit.Short,
+							TargetId = t.Id,
+							Updated = t.UserId switch {
 								null => Helper.LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
 								_ => Helper.LastUpdatedOnObj(t.LastUpdatedOn, t.User?.UserName)
 							}
 						};
 
 						if (t.Value is double v) {
-							mdr.target = Math.Round(v, def.Precision, MidpointRounding.AwayFromZero);
+							mdr.Target = Math.Round(v, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
 						if (t.YellowValue is double y) {
-							mdr.yellow = Math.Round(y, def.Precision, MidpointRounding.AwayFromZero);
+							mdr.Yellow = Math.Round(y, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
 						returnObject.data.Add(mdr);
@@ -173,11 +173,11 @@ public class IndexController : ControllerBase
 
 			_context.SaveChanges();
 			measureDataList.Add(new() {
-				target = value.target,
-				yellow = value.yellow,
-				targetId = returnTargetId,
-				targetCount = _context.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
-				updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.userName)
+				Target = value.target,
+				Yellow = value.yellow,
+				TargetId = returnTargetId,
+				TargetCount = _context.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
+				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.userName)
 			});
 
 			returnObject.data = measureDataList;

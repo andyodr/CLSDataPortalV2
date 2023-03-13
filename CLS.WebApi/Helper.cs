@@ -212,20 +212,23 @@ public static class Helper
 		}
 
 		if (measureCalculated is null) {
-			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).First();
+			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).FirstOrDefault();
 			measureCalculated = new MeasureCalculatedObject {
-				reportIntervalId = measureDef.ReportIntervalId,
-				calculated = measureDef.Calculated ?? false,
-				aggDaily = measureDef.AggDaily ?? false,
-				aggWeekly = measureDef.AggWeekly ?? false,
-				aggMonthly = measureDef.AggMonthly ?? false,
-				aggQuarterly = measureDef.AggQuarterly ?? false,
-				aggYearly = measureDef.AggYearly ?? false
+				reportIntervalId = measureDef?.ReportIntervalId ?? 0,
+				calculated = measureDef?.Calculated ?? false,
+				aggDaily = measureDef?.AggDaily ?? false,
+				aggWeekly = measureDef?.AggWeekly ?? false,
+				aggMonthly = measureDef?.AggMonthly ?? false,
+				aggQuarterly = measureDef?.AggQuarterly ?? false,
+				aggYearly = measureDef?.AggYearly ?? false
 			};
 		}
 
 		// If Measure.Expression = 0, then check MeasureDefinition
-		if (!measureCalculated.calculated) {
+		if (measureCalculated.calculated) {
+			return isCalculatedExpression; // This is false
+		}
+		else {
 			if (measureCalculated.reportIntervalId == intervalId) {
 				return false;
 			}
@@ -253,8 +256,6 @@ public static class Helper
 			}
 			return bReturn;
 		}
-		else
-			return isCalculatedExpression; // This is false
 	}
 
 	internal static DataImportObject DataImportHeading(dataImports dataImport) {

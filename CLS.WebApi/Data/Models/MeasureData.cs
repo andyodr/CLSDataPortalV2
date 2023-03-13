@@ -14,15 +14,15 @@ public class MeasureData
 
 	public Target? Target { get; set; }
 
-	public int UserId { get; set; }
+	public int? UserId { get; set; }
 
 	public User? User { get; set; }
 
 	public double? Value { get; set; }
 
-	public string Explanation { get; set; } = null!;
+	public string? Explanation { get; set; }
 
-	public string Action { get; set; } = null!;
+	public string? Action { get; set; }
 
 	public byte IsProcessed { get; set; }
 
