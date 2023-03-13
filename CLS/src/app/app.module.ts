@@ -42,6 +42,7 @@ import { UserAddComponent } from "./users/useradd.component"
 import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { SbComponent } from "./_services/logger.service"
 import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
+import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 
 @NgModule({
     declarations: [
@@ -65,7 +66,8 @@ import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
         UserListComponent,
         UserEditComponent,
         UserAddComponent,
-        RegionTreeComponent
+        RegionTreeComponent,
+        RegionHierarchyComponent
     ],
     imports: [
         AppRoutingModule,

@@ -48,10 +48,10 @@ public class FilterController : ControllerBase
 				.AsNoTrackingWithIdentityResolution()
 				.ToArray();
 			filter.hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubs(_context, regions.First().Id, _user),
-				count = 0
+				Hierarchy = regions.First().Name,
+				Id = regions.First().Id,
+				Sub = Helper.GetSubs(_context, regions.First().Id, _user),
+				Count = 0
 			});
 
 			_user.savedFilters[Helper.pages.target].measureTypeId ??= _context.MeasureType.First().Id;

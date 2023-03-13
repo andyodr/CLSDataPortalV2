@@ -2,19 +2,19 @@
 
 public class RegionsDataViewModel
 {
-	public int id { get; set; }
+	public int Id { get; set; }
 
-	public int? levelId { get; set; }
+	public int? LevelId { get; set; }
 
-	public string level { get; set; }
+	public string Level { get; set; } = null!;
 
-	public string name { get; set; }
+	public string Name { get; set; } = null!;
 
-	public int? parentId { get; set; }
+	public int? ParentId { get; set; }
 
-	public string parentName { get; set; }
+	public string ParentName { get; set; } = null!;
 
-	public bool? active { get; set; }
+	public bool? Active { get; set; }
 
-	public bool? remove { get; set; }
+	public bool? Remove { get; set; }
 }

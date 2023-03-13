@@ -146,12 +146,12 @@ public static class Helper
 	internal static ICollection<RegionFilterObject> GetSubsLevel(ApplicationDbContext dbc, int id) {
 		var children = dbc.Hierarchy
 			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 4)
-			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
 			.ToArray();
 		foreach (var rfo in children) {
-			rfo.sub = GetSubsLevel(dbc, rfo.id);
-			rfo.count = rfo.sub.Count;
+			rfo.Sub = GetSubsLevel(dbc, rfo.Id);
+			rfo.Count = rfo.Sub.Count;
 		}
 
 		return children;
@@ -160,12 +160,12 @@ public static class Helper
 	internal static ICollection<RegionFilterObject> GetSubsAll(ApplicationDbContext dbc, int id) {
 		var children = dbc.Hierarchy
 			.Where(h => h.HierarchyParentId == id)
-			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
 			.ToArray();
 		foreach (var rfo in children) {
-			rfo.sub = GetSubsAll(dbc, rfo.id);
-			rfo.count = rfo.sub.Count;
+			rfo.Sub = GetSubsAll(dbc, rfo.Id);
+			rfo.Count = rfo.Sub.Count;
 		}
 
 		return children;
@@ -175,23 +175,23 @@ public static class Helper
 		var children = new List<RegionFilterObject>();
 		var hierarchyList = context.Hierarchy
 			.Where(h => h.HierarchyParentId == id && h.Active == true)
-			.Select(h => new RegionFilterObject { hierarchy = h.Name, id = h.Id })
+			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
 			.ToArray();
 		foreach (var rfo in hierarchyList) {
-			rfo.sub = GetSubs(context, rfo.id, user);
-			rfo.count = rfo.sub.Count;
-			rfo.found = user.hierarchyIds.Contains(rfo.id);
-			if (rfo.found == false) {
+			rfo.Sub = GetSubs(context, rfo.Id, user);
+			rfo.Count = rfo.Sub.Count;
+			rfo.Found = user.hierarchyIds.Contains(rfo.Id);
+			if (rfo.Found == false) {
 				var child = context.Hierarchy
-					.Where(c => c.HierarchyParentId == rfo.id)
+					.Where(c => c.HierarchyParentId == rfo.Id)
 					.Select(c => c.Id)
 					.Distinct()
 					.ToArray();
-				rfo.found = user.hierarchyIds.Any(i => child.Contains(i));
+				rfo.Found = user.hierarchyIds.Any(i => child.Contains(i));
 			}
 
-			if (rfo.found == true) {
+			if (rfo.Found == true) {
 				children.Add(rfo);
 			}
 		}

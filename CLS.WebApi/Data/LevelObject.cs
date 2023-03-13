@@ -2,6 +2,7 @@
 
 public class LevelObject
 {
-	public int id { set; get; }
-	public string name { set; get; }
+	public int Id { set; get; }
+
+	public string Name { set; get; } = null!;
 }

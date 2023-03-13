@@ -76,11 +76,11 @@ public class FilterController : ControllerBase
 			//filter.hierarchy.Add(new RegionFilterObject { hierarchy = regions.Name, id = regions.Id, sub = Helper.getSubs(regions.Id, _user), count = 0 });
 
 			filter.hierarchy.Add(new() {
-				hierarchy = regions.Name,
-				id = regions.Id,
-				found = true,
-				sub = Helper.GetSubs(_context, regions.Id, _user),
-				count = 0
+				Hierarchy = regions.Name,
+				Id = regions.Id,
+				Found = true,
+				Sub = Helper.GetSubs(_context, regions.Id, _user),
+				Count = 0
 			});
 
 

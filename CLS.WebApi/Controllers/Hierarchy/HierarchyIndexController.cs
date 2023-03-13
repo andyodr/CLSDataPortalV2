@@ -25,20 +25,20 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new(), levels = new() };
+			var returnObject = new RegionMetricsFilterObject { Data = new(), Hierarchy = new(), Levels = new() };
 			var levels = from level in _context.HierarchyLevel.OrderBy(l => l.Id)
 						 select new { id = level.Id, name = level.Name };
 
 			foreach (var level in levels) {
-				returnObject.levels.Add(new() { id = level.id, name = level.name });
+				returnObject.Levels.Add(new() { Id = level.id, Name = level.name });
 			}
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().ToArray();
-			returnObject.hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubsAll(_context, regions.First().Id),
-				count = 0
+			returnObject.Hierarchy.Add(new() {
+				Hierarchy = regions.First().Name,
+				Id = regions.First().Id,
+				Sub = Helper.GetSubsAll(_context, regions.First().Id),
+				Count = 0
 			});
 
 			//set regionid here for current user
@@ -48,25 +48,25 @@ public class IndexController : ControllerBase
 							  where measure.HierarchyId == hierarchy.Id
 							  select md.Id).Any();
 				var newData = new RegionsDataViewModel {
-					id = hierarchy.Id,
-					name = hierarchy.Name,
-					levelId = hierarchy.HierarchyLevelId,
-					level = levels.Where(l => l.id == hierarchy.HierarchyLevelId).First().name,
-					active = hierarchy.Active,
-					remove = !exists
+					Id = hierarchy.Id,
+					Name = hierarchy.Name,
+					LevelId = hierarchy.HierarchyLevelId,
+					Level = levels.Where(l => l.id == hierarchy.HierarchyLevelId).First().name,
+					Active = hierarchy.Active,
+					Remove = !exists
 				};
 				var parent = _context.Hierarchy.Where(h => h.Id == hierarchy.HierarchyParentId);
 				if (parent.Any()) {
 					var firstParent = parent.First();
-					newData.parentId = firstParent.Id;
-					newData.parentName = firstParent.Name;
+					newData.ParentId = firstParent.Id;
+					newData.ParentName = firstParent.Name;
 				}
 				else {
-					newData.parentId = null;
-					newData.parentName = "";
+					newData.ParentId = null;
+					newData.ParentName = "";
 				}
 
-				returnObject.data.Add(newData);
+				returnObject.Data.Add(newData);
 			}
 
 			return returnObject;
@@ -79,7 +79,7 @@ public class IndexController : ControllerBase
 
 	[HttpPost]
 	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd value) {
-		var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
+		var returnObject = new RegionMetricsFilterObject { Data = new(), Hierarchy = new() };
 
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -99,19 +99,19 @@ public class IndexController : ControllerBase
 			}).Entity;
 			_ = _context.SaveChanges();
 			var newHierarchy = new RegionsDataViewModel {
-				id = updatedHierarchy.Id,
-				name = updatedHierarchy.Name,
-				levelId = updatedHierarchy.HierarchyLevelId,
-				level = _context.HierarchyLevel.Where(h => h.Id == updatedHierarchy.HierarchyLevelId).First().Name,
-				parentId = updatedHierarchy.HierarchyParentId,
-				active = updatedHierarchy.Active
+				Id = updatedHierarchy.Id,
+				Name = updatedHierarchy.Name,
+				LevelId = updatedHierarchy.HierarchyLevelId,
+				Level = _context.HierarchyLevel.Where(h => h.Id == updatedHierarchy.HierarchyLevelId).First().Name,
+				ParentId = updatedHierarchy.HierarchyParentId,
+				Active = updatedHierarchy.Active
 			};
 
 			var parent = _context.Hierarchy.Where(h => h.Id == updatedHierarchy.HierarchyParentId).FirstOrDefault();
-			newHierarchy.parentId = parent?.Id;
-			newHierarchy.parentName = parent?.Name ?? string.Empty;
+			newHierarchy.ParentId = parent?.Id;
+			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, newHierarchy.id);
+			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, newHierarchy.Id);
 			_context.SaveChanges();
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
@@ -119,26 +119,26 @@ public class IndexController : ControllerBase
 
 			var exists = (from measure in _context.Measure
 						  from md in measure.MeasureData
-						  where measure.HierarchyId == newHierarchy.id
+						  where measure.HierarchyId == newHierarchy.Id
 						  select md.Id).Any();
-			newHierarchy.remove = !exists;
-			returnObject.data.Add(newHierarchy);
+			newHierarchy.Remove = !exists;
+			returnObject.Data.Add(newHierarchy);
 
 			Helper.AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
-				@"Added / ID=" + newHierarchy.id.ToString(),
+				@"Added / ID=" + newHierarchy.Id.ToString(),
 				DateTime.Now,
 				_user.userId
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToArray();
-			returnObject.hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubsAll(_context, regions.First().Id),
-				count = 0
+			returnObject.Hierarchy.Add(new() {
+				Hierarchy = regions.First().Name,
+				Id = regions.First().Id,
+				Sub = Helper.GetSubsAll(_context, regions.First().Id),
+				Count = 0
 			});
 
 			return returnObject;
@@ -150,7 +150,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<RegionMetricsFilterObject> Put(RegionsDataViewModel value) {
-		var returnObject = new RegionMetricsFilterObject { data = new() };
+		var returnObject = new RegionMetricsFilterObject { Data = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -160,16 +160,16 @@ public class IndexController : ControllerBase
 			}
 
 			DateTime updatedOn = DateTime.Now;
-			var updateHierarchy = _context.Hierarchy.Find(value.id);
+			var updateHierarchy = _context.Hierarchy.Find(value.Id);
 			if (updateHierarchy is null) {
 				return returnObject;
 			}
 
-			updateHierarchy.Name = value.name;
-			updateHierarchy.Active = value.active;
-			updateHierarchy.HierarchyParentId = value.parentId;
+			updateHierarchy.Name = value.Name;
+			updateHierarchy.Active = value.Active;
+			updateHierarchy.HierarchyParentId = value.ParentId;
 			updateHierarchy.LastUpdatedOn = updatedOn;
-			updateHierarchy.HierarchyLevelId = value.levelId ?? -1;
+			updateHierarchy.HierarchyLevelId = value.LevelId ?? -1;
 			if (updateHierarchy.HierarchyLevelId == Helper.hierarchyGlobalId) {
 				updateHierarchy.HierarchyParentId = null;
 			}
@@ -178,31 +178,31 @@ public class IndexController : ControllerBase
 			_context.SaveChanges();
 
 			var newHierarchy = new RegionsDataViewModel {
-				id = updateHierarchy.Id,
-				name = updateHierarchy.Name,
-				levelId = updateHierarchy.HierarchyLevelId,
-				active = updateHierarchy.Active,
-				level = _context.HierarchyLevel.Where(h => h.Id == updateHierarchy.HierarchyLevelId).First().Name
+				Id = updateHierarchy.Id,
+				Name = updateHierarchy.Name,
+				LevelId = updateHierarchy.HierarchyLevelId,
+				Active = updateHierarchy.Active,
+				Level = _context.HierarchyLevel.Where(h => h.Id == updateHierarchy.HierarchyLevelId).First().Name
 			};
 			var exists = (from measure in _context.Measure
 						  from md in measure.MeasureData
-						  where measure.HierarchyId == newHierarchy.id
+						  where measure.HierarchyId == newHierarchy.Id
 						  select md.Id).Any();
-			newHierarchy.remove = !exists;
-			var parent = _context.Hierarchy.Where(h => h.Id == value.parentId).FirstOrDefault();
-			newHierarchy.parentId = parent?.Id;
-			newHierarchy.parentName = parent?.Name ?? string.Empty;
+			newHierarchy.Remove = !exists;
+			var parent = _context.Hierarchy.Where(h => h.Id == value.ParentId).FirstOrDefault();
+			newHierarchy.ParentId = parent?.Id;
+			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
 			Helper.AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
-				@"Updated / ID=" + newHierarchy.id.ToString(),
+				@"Updated / ID=" + newHierarchy.Id.ToString(),
 				updatedOn,
 				_user.userId
 			);
 
-			returnObject.data.Add(newHierarchy);
+			returnObject.Data.Add(newHierarchy);
 			return returnObject;
 		}
 		catch (Exception e) {
@@ -220,7 +220,7 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new RegionMetricsFilterObject { data = new(), hierarchy = new() };
+			var returnObject = new RegionMetricsFilterObject { Data = new(), Hierarchy = new() };
 			string hierarchyName = string.Empty;
 			var exists = (from measure in _context.Measure
 						  from md in measure.MeasureData
@@ -261,31 +261,31 @@ public class IndexController : ControllerBase
 			}
 
 			var newHierarchy = new RegionsDataViewModel {
-				id = id,
-				name = "",
-				levelId = null,
-				parentId = null,
-				remove = true,
-				parentName = ""
+				Id = id,
+				Name = "",
+				LevelId = null,
+				ParentId = null,
+				Remove = true,
+				ParentName = ""
 			};
-			returnObject.data.Add(newHierarchy);
+			returnObject.Data.Add(newHierarchy);
 
 
 			Helper.AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
-				@"Deleted / ID=" + newHierarchy.id.ToString() +
+				@"Deleted / ID=" + newHierarchy.Id.ToString() +
 						" / Name=" + hierarchyName,
 				DateTime.Now,
 				_user.userId
 			);
 
 			var regions = _context.Hierarchy.OrderBy(r => r.Id).ToArray();
-			returnObject.hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubsAll(_context, regions.First().Id), count = 0
+			returnObject.Hierarchy.Add(new() {
+				Hierarchy = regions.First().Name,
+				Id = regions.First().Id,
+				Sub = Helper.GetSubsAll(_context, regions.First().Id), Count = 0
 			});
 			return returnObject;
 		}

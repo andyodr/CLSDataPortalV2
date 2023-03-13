@@ -42,10 +42,10 @@ public class FilterController : ControllerBase
 				var subs = Helper.GetSubs(_context, region.Id, _user);
 				if (subs.Count > 0) {
 					returnObject.hierarchy.Add(new() {
-						hierarchy = region.Name,
-						id = region.Id,
-						sub = subs,
-						count = subs.Count
+						Hierarchy = region.Name,
+						Id = region.Id,
+						Sub = subs,
+						Count = subs.Count
 					});
 				}
 			}

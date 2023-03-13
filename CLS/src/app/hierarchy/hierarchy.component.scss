@@ -27,25 +27,20 @@ table {
     width: 100%;
 }
 
-.mat-column-userName {
-  font-size: larger;
+.mat-column-name {
   width: 15em;
 }
 
-.mat-column-lastName {
-  width: 12em;
+.mat-column-parentName {
+  width: 15em;
 }
 
-.mat-column-firstName {
-  width: 12em;
+.mat-column-level {
+  width: 10em;
 }
 
-.mat-column-department {
-  width: 19em;
-}
-
-.mat-column-roleName {
-  width: 19em;
+.mat-column-active {
+  width: 4em;
 }
 
 .mat-row .mat-cell {

@@ -1,8 +1,8 @@
 import { SelectionModel } from "@angular/cdk/collections"
 import { FlatTreeControl } from "@angular/cdk/tree"
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core"
+import { Component, EventEmitter, Input, Output } from "@angular/core"
 import { MatTreeFlatDataSource, MatTreeFlattener } from "@angular/material/tree"
-import { RegionFilter, RegionFlatNode } from "../../_models/regionfilter"
+import { RegionFilter, RegionFlatNode } from "../../_models/regionhierarchy"
 
 @Component({
     selector: "app-region-tree",
