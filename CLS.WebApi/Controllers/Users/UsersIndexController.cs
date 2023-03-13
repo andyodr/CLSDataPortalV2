@@ -26,7 +26,7 @@ public class IndexController : ControllerBase
 	/// <returns></returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
-		var returnObject = new UserIndexGetObject { data = new(), hierarchy = null, roles = new() };
+		var returnObject = new UserIndexGetObject { Data = new(), Hierarchy = null, Roles = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -37,7 +37,7 @@ public class IndexController : ControllerBase
 
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles.AsNoTracking()) {
-				returnObject.roles.Add(new() { id = role.Id, name = role.Name });
+				returnObject.Roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
 			var users = _context.User.OrderBy(u => u.UserName);
@@ -56,7 +56,7 @@ public class IndexController : ControllerBase
 
 				}
 				else {
-					returnObject.data.Add(currentUser);
+					returnObject.Data.Add(currentUser);
 				}
 			}
 

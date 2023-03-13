@@ -4,7 +4,7 @@ public class MeasureDataReceiveObject
 {
 	public int? CalendarId { get; set; }
 
-	public string Day { get; set; } = null!;
+	public string? Day { get; set; }
 
 	public int HierarchyId { get; set; }
 

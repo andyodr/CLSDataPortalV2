@@ -1,4 +1,4 @@
-<div class="page">
+<div>
   <h1>{{title}}</h1>
   <div class="panel panel-default panel-body">
     <a mat-fab color="primary" navigateBack="users"><mat-icon>arrow_back</mat-icon></a>
@@ -16,7 +16,7 @@
         <mat-form-field appearance="fill">
           <mat-label>Role</mat-label>
           <mat-select name="roleId" [(ngModel)]="model.roleId" [disabled]="disabledAll">
-            <mat-option *ngFor="let role of userData.roles" [value]="role.id">
+            <mat-option *ngFor="let role of roles" [value]="role.id">
               {{role.name}}
             </mat-option>
           </mat-select>
@@ -37,7 +37,7 @@
           <input matInput name="department" [(ngModel)]="model.department" placeholder="Black Mesa Research" [disabled]="disabledAll">
         </mat-form-field>
       </div>
-      <!--<mat-tree></mat-tree>-->
+      <app-region-tree [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedRegions"></app-region-tree>
     </form>
   </div>
 </div>

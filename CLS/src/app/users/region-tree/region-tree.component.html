@@ -1,0 +1,19 @@
+<mat-tree [dataSource]="treeData" [treeControl]="treeControl">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+    <button mat-icon-button disabled></button>
+    <mat-checkbox color="primary" class="checklist-leaf-node"
+                  [checked]="checklistSelection.isSelected(node)"
+                  (change)="regionSelectionToggle(node)">{{node.hierarchy}}</mat-checkbox>
+  </mat-tree-node>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+    <button mat-icon-button matTreeNodeToggle
+            [attr.aria-label]="'Toggle ' + node.hierarchy">
+      <mat-icon class="mat-icon-rtl-mirror">
+        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+      </mat-icon>
+    </button>
+    <mat-checkbox color="primary" [checked]="descendantsAllSelected(node)"
+                  [indeterminate]="descendantsPartiallySelected(node)"
+                  (change)="regionSelectionToggle(node)">{{node.hierarchy}}</mat-checkbox>
+  </mat-tree-node>
+</mat-tree>

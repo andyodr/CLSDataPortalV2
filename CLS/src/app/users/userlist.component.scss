@@ -1,3 +1,7 @@
+:host > :first-child {
+  padding: 20px;
+}
+
 .panel-body {
   padding: 15px;
 }
@@ -15,9 +19,9 @@
   align-items: center;
 }
 
-  .panel-header > :last-child {
-    margin: 10px 22px 22px;
-  }
+.panel-header > :last-child {
+  margin: 10px 22px 22px;
+}
 
 .mat-column-userName {
   font-size: larger;
@@ -25,24 +29,22 @@
 }
 
 .mat-column-lastName {
-    width: 12em;
+  width: 12em;
 }
 
 .mat-column-firstName {
-    width: 12em;
+  width: 12em;
 }
 
 .mat-column-department {
-    width: 19em;
+  width: 19em;
 }
 
 .mat-column-roleName {
-    width: 19em;
+  width: 19em;
 }
 
 .mat-row .mat-cell {
-  border-bottom: 1px solid transparent;
-  border-top: 1px solid transparent;
   cursor: pointer;
 }
 
@@ -50,6 +52,14 @@
   background-color: var(--mat-color-100);
 }
 
+.mat-row .empty-table {
+  cursor: initial;
+}
+
+.mat-row:hover .empty-table {
+  background-color: initial;
+}
+
 footer {
-    padding: 15px;
+  padding: 15px;
 }

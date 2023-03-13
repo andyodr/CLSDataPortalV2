@@ -11,7 +11,6 @@ namespace CLS.WebApi.Controllers.Users;
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private readonly List<int> addedHierarchies = new();
 	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _context = context;
@@ -22,7 +21,7 @@ public class AddController : ControllerBase
 	/// <returns>An instance of UserIndexGetObject</returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
-		var returnObject = new UserIndexGetObject { hierarchy = new(), roles = new() };
+		var returnObject = new UserIndexGetObject { Hierarchy = new(), Roles = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -33,14 +32,15 @@ public class AddController : ControllerBase
 
 			var region = _context.Hierarchy
 				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
-			returnObject.hierarchy.Add(new() {
+			returnObject.Hierarchy.Add(new() {
 				hierarchy = region.Name,
 				id = region.Id,
 				sub = Helper.GetSubsLevel(_context, region.Id),
-				count = 0 });
+				count = 0
+			});
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				returnObject.roles.Add(new() { id = role.Id, name = role.Name });
+				returnObject.Roles.Add(new() { id = role.Id, name = role.Name });
 			}
 
 			return returnObject;
@@ -53,11 +53,11 @@ public class AddController : ControllerBase
 	/// <summary>
 	/// Create a new user in the User table and return its userId.
 	/// </summary>
-	/// <param name="value"></param>
+	/// <param name="model"></param>
 	/// <returns></returns>
 	[HttpPost]
-	public ActionResult<UserIndexGetObject> Post(UserIndexDto value) {
-		var returnObject = new UserIndexGetObject { data = new() };
+	public ActionResult<UserIndexGetObject> Post(UserIndexDto model) {
+		var returnObject = new UserIndexGetObject { Data = new() };
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -66,28 +66,42 @@ public class AddController : ControllerBase
 				return Unauthorized();
 			}
 
-			if (_context.User.Where(u => u.UserName == value.userName).Any()) {
+			if (_context.User.Where(u => u.UserName == model.userName).Any()) {
 				return BadRequest(Resource.USERS_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
 
-			var userC = _context.User.Add(new() {
-				UserName = value.userName,
-				LastName = value.lastName,
-				FirstName = value.firstName,
-				Department = value.department,
-				Active = Helper.StringToBool(value.active),
+			var userEntry = _context.User.Add(new() {
+				UserName = model.userName,
+				LastName = model.lastName,
+				FirstName = model.firstName,
+				Department = model.department,
+				Active = Helper.StringToBool(model.active),
 				LastUpdatedOn = lastUpdatedOn
 			});
 
-			userC.Property("UserRoleId").CurrentValue = value.roleId;
-			var user = userC.Entity;
-			Helper.AddUserHierarchy(user.Id, _context, value.hierarchiesId, addedHierarchies);
+			userEntry.Property("UserRoleId").CurrentValue = model.roleId;
+			var user = userEntry.Entity;
 			_context.SaveChanges();
-			value.id = user.Id;
-			returnObject.data.Add(value);
-			addedHierarchies.Clear();
+			model.id = user.Id;
+			returnObject.Data.Add(model);
+			if (model.hierarchiesId.Count > 0) {
+				// Add all the child hierarchies first before inserting UserHierarchy
+				var allSelectedHierarchies = _context.Hierarchy.FromSqlRaw($@"WITH f AS
+(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+FROM Hierarchy WHERE Id IN ({string.Join(',', model.hierarchiesId)})
+UNION ALL
+SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
+FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
+WHERE h.HierarchyLevelId > 3)
+SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
+				foreach (var hId in allSelectedHierarchies) {
+					_context.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
+				}
+
+				_context.SaveChanges();
+			}
 
 			Helper.AddAuditTrail(
 			  _context, Resource.SECURITY,

@@ -212,20 +212,23 @@ public static class Helper
 		}
 
 		if (measureCalculated is null) {
-			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).First();
+			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).FirstOrDefault();
 			measureCalculated = new MeasureCalculatedObject {
-				reportIntervalId = measureDef.ReportIntervalId,
-				calculated = measureDef.Calculated ?? false,
-				aggDaily = measureDef.AggDaily ?? false,
-				aggWeekly = measureDef.AggWeekly ?? false,
-				aggMonthly = measureDef.AggMonthly ?? false,
-				aggQuarterly = measureDef.AggQuarterly ?? false,
-				aggYearly = measureDef.AggYearly ?? false
+				reportIntervalId = measureDef?.ReportIntervalId ?? 0,
+				calculated = measureDef?.Calculated ?? false,
+				aggDaily = measureDef?.AggDaily ?? false,
+				aggWeekly = measureDef?.AggWeekly ?? false,
+				aggMonthly = measureDef?.AggMonthly ?? false,
+				aggQuarterly = measureDef?.AggQuarterly ?? false,
+				aggYearly = measureDef?.AggYearly ?? false
 			};
 		}
 
 		// If Measure.Expression = 0, then check MeasureDefinition
-		if (!measureCalculated.calculated) {
+		if (measureCalculated.calculated) {
+			return isCalculatedExpression; // This is false
+		}
+		else {
 			if (measureCalculated.reportIntervalId == intervalId) {
 				return false;
 			}
@@ -253,8 +256,6 @@ public static class Helper
 			}
 			return bReturn;
 		}
-		else
-			return isCalculatedExpression; // This is false
 	}
 
 	internal static DataImportObject DataImportHeading(dataImports dataImport) {
@@ -544,46 +545,6 @@ public static class Helper
 		}
 		else {
 			return null;
-		}
-	}
-
-	internal static void UserDeleteHierarchy(int userId, ApplicationDbContext context) {
-		var deleteRecords = context.UserHierarchy.Where(u => u.User.Id == userId).ToArray();
-		if (deleteRecords.Length > 0) {
-			foreach (var record in deleteRecords) {
-				context.UserHierarchy.Remove(record);
-			}
-		}
-	}
-
-	internal static void AddUserHierarchy(int userId, ApplicationDbContext context, List<int> hierarchiesId, List<int> addedHierarchies) {
-		foreach (int hId in hierarchiesId) {
-			if (!addedHierarchies.Contains(hId) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == hId && u.User.Id == userId).Any()) {
-				_ = context.UserHierarchy.Add(new() {
-					LastUpdatedOn = DateTime.Now,
-					HierarchyId = hId,
-					UserId = userId
-				});
-				AddHierarchyChildren(userId, context, hId, addedHierarchies);
-				addedHierarchies.Add(hId);
-			}
-		}
-	}
-
-	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {
-		List<RegionFilterObject> children = new();
-		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId).ToArray();
-
-		foreach (var record in hierarchies) {
-			if (!addedHierarchies.Contains(record.Id) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Any()) {
-				_ = context.UserHierarchy.Add(new() {
-					LastUpdatedOn = DateTime.Now,
-					HierarchyId = record.Id,
-					UserId = userId
-				});
-				addedHierarchies.Add(record.Id);
-				AddHierarchyChildren(userId, context, record.Id, addedHierarchies);
-			}
 		}
 	}
 

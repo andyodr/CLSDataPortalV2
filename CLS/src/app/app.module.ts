@@ -39,8 +39,9 @@ import { NavbarComponent } from "./navbar/navbar.component";
 import { NavigateBackDirective } from "./_services/nav.service"
 import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LoggerService } from "./_services/logger.service";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown"
+import { SbComponent } from "./_services/logger.service"
+import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
 
 @NgModule({
     declarations: [
@@ -56,13 +57,15 @@ import { LoggerService } from "./_services/logger.service";
         NavbarComponent,
         NavigateBackDirective,
         NotFoundComponent,
+        SbComponent,
         ServerErrorComponent,
         TableComponent,
         TestErrorComponent,
         UploadDirective,
         UserListComponent,
         UserEditComponent,
-        UserAddComponent
+        UserAddComponent,
+        RegionTreeComponent
     ],
     imports: [
         AppRoutingModule,
@@ -89,7 +92,6 @@ import { LoggerService } from "./_services/logger.service";
 
     ],
     providers: [
-        LoggerService,
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     ],
     bootstrap: [AppComponent]
