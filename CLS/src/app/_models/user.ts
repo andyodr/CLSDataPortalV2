@@ -3,27 +3,27 @@ import { RegionFilter } from "./regionfilter"
 
 //Interface for User Model
 export interface User {
-    id?: string
+    id?: number
     userName: string
     lastName?: string
     firstName?: string
     department?: string
     roleId: number
-    roleName: string
     hierarchiesId: number[]
     hierarchyName?: string
     active?: string
 }
 
-//Interface for Used Data Model
-export interface UserData {
+export interface RolesAndRegions {
+    hierarchy: RegionFilter[]
     roles: UserRole[]
     error: ErrorModel
-    hierarchy: RegionFilter[]
+}
+
+export interface UserData extends RolesAndRegions {
     data: User[]
 }
 
-//Interface for User Role Model
 export interface UserRole {
     id: string
     name: string

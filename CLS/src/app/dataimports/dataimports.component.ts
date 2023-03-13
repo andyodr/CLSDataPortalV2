@@ -77,7 +77,7 @@ export class DataImportsComponent implements OnInit {
     sheetNames: { id: number, name: string }[] = []
     sheetName = ""
     colNames: string[] = []
-    tableData: {[name: string]: JsonValue }[] = []
+    tableData: { [name: string]: JsonValue }[] = []
     fileName = ""
     msgUpload = ""
 
@@ -132,7 +132,7 @@ export class DataImportsComponent implements OnInit {
         this.getData()
         this.toggleService.toggle$.subscribe(toggle => {
             this.toggle = toggle;
-          });
+        });
     }
 
     setProgress(enable: boolean) {

@@ -1,17 +1,9 @@
 import { Component, OnInit } from "@angular/core"
-import { ActivatedRoute } from "@angular/router";
-import { UserData } from "../_models/user";
-import { LoggerService } from "../_services/logger.service";
-import { UserService } from "../_services/user.service";
-
-type Model = {
-    userName: string
-    roleId: number
-    firstName: string
-    lastName: string
-    department: string
-    active: boolean
-}
+import { ActivatedRoute } from "@angular/router"
+import { RegionFilter } from "../_models/regionfilter"
+import { UserRole } from "../_models/user"
+import { LoggerService } from "../_services/logger.service"
+import { UserService } from "../_services/user.service"
 
 @Component({
     selector: "app-useredit",
@@ -20,29 +12,56 @@ type Model = {
 })
 export class UserEditComponent implements OnInit {
     title = "Edit User"
-    userData!: UserData
-    model!: Model
+    roles: UserRole[] = []
+    hierarchy: RegionFilter[] = []
     disabledAll = false
+    model = {
+        id: -1,
+        userName: "",
+        firstName: "",
+        lastName: "",
+        roleId: 1,
+        department: "",
+        active: false,
+        selectedRegions: [] as number[]
+    }
+
     constructor(private route: ActivatedRoute, private userService: UserService, private logger: LoggerService) { }
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
-            let id = Number(params.get("id"))
-            this.userService.getUser(id).subscribe(user => {
-                this.userData = user
+            const id = Number(params.get("id"))
+            this.userService.getUserData(id).subscribe(ud => {
+                const { userName, firstName, lastName, roleId, department, active, hierarchiesId } = ud.data[0]
+                this.roles = ud.roles
+                this.hierarchy = ud.hierarchy
                 this.model = {
-                    userName: user.data[0].userName,
-                    roleId: user.data[0].roleId,
-                    firstName: user.data[0].firstName ?? "",
-                    lastName: user.data[0].lastName ?? "",
-                    department: user.data[0].department ?? "",
-                    active: user.data[0].active === "true"
+                    id,
+                    userName,
+                    roleId,
+                    firstName: firstName ?? "",
+                    lastName: lastName ?? "",
+                    department: department ?? "",
+                    active: active === "true",
+                    selectedRegions: hierarchiesId
                 }
             })
         })
     }
 
     save() {
-        this.logger.logWarning("Save user not implemented")
+        const { id, userName, firstName, lastName, roleId, department, active } = this.model
+        this.userService.updateUser({
+            id,
+            userName,
+            firstName,
+            lastName,
+            roleId,
+            department,
+            active: active.toString(),
+            hierarchiesId: this.model.selectedRegions
+        }).subscribe(ud => {
+            this.logger.logSuccess("User information saved")
+        })
     }
 }
