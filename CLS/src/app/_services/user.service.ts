@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { User, UserData } from '../_models/user';
+import { RolesAndRegions, User, UserData } from '../_models/user';
 
 @Injectable({ providedIn: "root" })
 export class UserService {
@@ -25,12 +25,20 @@ export class UserService {
         );
     }
 
-    getUser(id: number) {
+    getUserData(id: number) {
         return this.http.get<UserData>(`${this.baseUrl}edit/${id}`)
+    }
+
+    addUser(user: User): Observable<UserData> {
+        return this.http.post<UserData>(`${this.baseUrl}add`, user)
     }
 
     updateUser(user: User): Observable<User> {
         return this.http.put<User>(`${this.baseUrl}edit/${user.id}`, user)
+    }
+
+    getRolesAndRegions() {
+        return this.http.get<RolesAndRegions>(`${this.baseUrl}add`)
     }
 
     //el tipo
@@ -69,10 +77,6 @@ export class UserService {
 
     /*getUser(id: number): Observable<User> {
       return this.http.get<User>(`${this.baseUrl}/${id}`);
-    }
-  
-    createUser(user: User): Observable<User> {
-      return this.http.post<User>(this.baseUrl, user);
     }
   
     deleteUser(id: number): Observable<void> {

@@ -14,15 +14,16 @@ export interface User {
     active?: string
 }
 
-//Interface for Used Data Model
-export interface UserData {
+export interface RolesAndRegions {
+    hierarchy: RegionFilter[]
     roles: UserRole[]
     error: ErrorModel
-    hierarchy: RegionFilter[]
+}
+
+export interface UserData extends RolesAndRegions {
     data: User[]
 }
 
-//Interface for User Role Model
 export interface UserRole {
     id: string
     name: string

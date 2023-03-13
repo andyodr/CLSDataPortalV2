@@ -41,6 +41,7 @@ import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
 import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { SbComponent } from "./_services/logger.service"
+import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
 
 @NgModule({
     declarations: [
@@ -63,7 +64,8 @@ import { SbComponent } from "./_services/logger.service"
         UploadDirective,
         UserListComponent,
         UserEditComponent,
-        UserAddComponent
+        UserAddComponent,
+        RegionTreeComponent
     ],
     imports: [
         AppRoutingModule,

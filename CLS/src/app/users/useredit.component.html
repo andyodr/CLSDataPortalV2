@@ -37,25 +37,7 @@
           <input matInput name="department" [(ngModel)]="model.department" placeholder="Black Mesa Research" [disabled]="disabledAll">
         </mat-form-field>
       </div>
-      <mat-tree [dataSource]="treeData" [treeControl]="treeControl">
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-          <button mat-icon-button disabled></button>
-          <mat-checkbox color="primary" class="checklist-leaf-node"
-                        [checked]="model.checklistSelection.isSelected(node)"
-                        (change)="regionFilterSelectionToggle(node)">{{node.hierarchy}}</mat-checkbox>
-        </mat-tree-node>
-        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-          <button mat-icon-button matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.hierarchy">
-            <mat-icon class="mat-icon-rtl-mirror">
-              {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-            </mat-icon>
-          </button>
-          <mat-checkbox color="primary" [checked]="descendantsAllSelected(node)"
-                        [indeterminate]="descendantsPartiallySelected(node)"
-                        (change)="regionFilterSelectionToggle(node)">{{node.hierarchy}}</mat-checkbox>
-        </mat-tree-node>
-      </mat-tree>
+      <app-region-tree [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedRegions"></app-region-tree>
     </form>
   </div>
 </div>

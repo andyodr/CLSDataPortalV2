@@ -8,3 +8,9 @@ export type RegionFilter = {
     found?: boolean
     error: ErrorModel
 }
+
+export class RegionFlatNode {
+    hierarchy!: string
+    level!: number
+    expandable!: boolean
+}

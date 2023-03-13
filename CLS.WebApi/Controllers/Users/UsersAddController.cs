@@ -11,7 +11,6 @@ namespace CLS.WebApi.Controllers.Users;
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private readonly List<int> addedHierarchies = new();
 	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _context = context;
@@ -37,7 +36,8 @@ public class AddController : ControllerBase
 				hierarchy = region.Name,
 				id = region.Id,
 				sub = Helper.GetSubsLevel(_context, region.Id),
-				count = 0 });
+				count = 0
+			});
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
 				returnObject.Roles.Add(new() { id = role.Id, name = role.Name });
@@ -72,7 +72,7 @@ public class AddController : ControllerBase
 
 			var lastUpdatedOn = DateTime.Now;
 
-			var userC = _context.User.Add(new() {
+			var userEntry = _context.User.Add(new() {
 				UserName = model.userName,
 				LastName = model.lastName,
 				FirstName = model.firstName,
@@ -81,13 +81,27 @@ public class AddController : ControllerBase
 				LastUpdatedOn = lastUpdatedOn
 			});
 
-			userC.Property("UserRoleId").CurrentValue = model.roleId;
-			var user = userC.Entity;
-			Helper.AddUserHierarchy(user.Id, _context, model.hierarchiesId, addedHierarchies);
+			userEntry.Property("UserRoleId").CurrentValue = model.roleId;
+			var user = userEntry.Entity;
 			_context.SaveChanges();
 			model.id = user.Id;
 			returnObject.Data.Add(model);
-			addedHierarchies.Clear();
+			if (model.hierarchiesId.Count > 0) {
+				// Add all the child hierarchies first before inserting UserHierarchy
+				var allSelectedHierarchies = _context.Hierarchy.FromSqlRaw($@"WITH f AS
+(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+FROM Hierarchy WHERE Id IN ({string.Join(',', model.hierarchiesId)})
+UNION ALL
+SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
+FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
+WHERE h.HierarchyLevelId > 3)
+SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
+				foreach (var hId in allSelectedHierarchies) {
+					_context.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
+				}
+
+				_context.SaveChanges();
+			}
 
 			Helper.AddAuditTrail(
 			  _context, Resource.SECURITY,

@@ -547,37 +547,6 @@ public static class Helper
 		}
 	}
 
-	internal static void AddUserHierarchy(int userId, ApplicationDbContext context, List<int> hierarchiesId, List<int> addedHierarchies) {
-		foreach (int hId in hierarchiesId) {
-			if (!addedHierarchies.Contains(hId) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == hId && u.User.Id == userId).Any()) {
-				_ = context.UserHierarchy.Add(new() {
-					LastUpdatedOn = DateTime.Now,
-					HierarchyId = hId,
-					UserId = userId
-				});
-				AddHierarchyChildren(userId, context, hId, addedHierarchies);
-				addedHierarchies.Add(hId);
-			}
-		}
-	}
-
-	internal static void AddHierarchyChildren(int userId, ApplicationDbContext context, int hierarchyId, List<int> addedHierarchies) {
-		List<RegionFilterObject> children = new();
-		var hierarchies = context.Hierarchy.Where(h => h.HierarchyParentId == hierarchyId).ToArray();
-
-		foreach (var record in hierarchies) {
-			if (!addedHierarchies.Contains(record.Id) && !context.UserHierarchy.Where(u => u.Hierarchy!.Id == record.Id && u.User.Id == userId).Any()) {
-				_ = context.UserHierarchy.Add(new() {
-					LastUpdatedOn = DateTime.Now,
-					HierarchyId = record.Id,
-					UserId = userId
-				});
-				addedHierarchies.Add(record.Id);
-				AddHierarchyChildren(userId, context, record.Id, addedHierarchies);
-			}
-		}
-	}
-
 	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext dbc) {
 		// --------------------------------- Lock Override ----------------------------
 		bool isLocked = false;

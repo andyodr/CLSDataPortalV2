@@ -125,7 +125,7 @@ public class EditController : ControllerBase
 				// UI only shows hierarchyLevel < 4, but we need to add all the child hierarchies as well
 				var allSelectedHierarchies = _context.Hierarchy.FromSqlRaw($@"WITH f AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE Id IN ({string.Join(',', model.hierarchiesId)})
+FROM Hierarchy WHERE HierarchyLevelId < 4 AND Id IN ({string.Join(',', model.hierarchiesId)})
 UNION ALL
 SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
 FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
