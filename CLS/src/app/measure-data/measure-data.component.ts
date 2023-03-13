@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MSG_ERROR_PROCESSING } from '../app-constants';
+import { MeasureDataResponse } from '../_models/measureData';
 import { MeasureDataService } from '../_services/measure-data.service';
 import { UserService } from '../_services/user.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-measure-data',
@@ -10,6 +12,9 @@ import { UserService } from '../_services/user.service';
   styleUrls: ['./measure-data.component.css']
 })
 export class MeasureDataComponent implements OnInit {
+
+  measureDataResponse: MeasureDataResponse | undefined;
+  @Output() progressEvent = new EventEmitter<boolean>();
 
 
   //Declarations
@@ -41,7 +46,7 @@ export class MeasureDataComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.getMeasData();
+    this.getMeasData1();
   }
 
   getMeasData(){
@@ -57,20 +62,36 @@ export class MeasureDataComponent implements OnInit {
     );
   }
 
-
-
-    
-  isBoolShow(str: string | boolean){
-    return ((str == "true") || (str == true));
+  getMeasData1() {
+    this._measureDataService.getMeasureData().subscribe({
+      next: response => {
+        this.measureDataResponse = response
+      }
+  })
   }
-      
-  toggleFilterOpen() {
-    //$mdSidenav('left').toggle();
-    
-  };
 
-  progress ( inprog: boolean){
+  //Is bool show
+  // isBoolShow(str: string | boolean){
+  //   return ((str == "true") || (str == true));
+  // }
+  // <p *ngIf="isBoolShow(myString)">My string is true!</p>
+  // isBoolShow(str: string): boolean {
+  //   return str === 'true' || str === true;
+  // }
+  
+  // //Filter Toggle
+  // @ViewChild('sidenav') sidenav: MatSidenav;
+  // toggleFilterOpen(): void {
+  //   $mdSidenav('left').toggle();
+  // };
+
+
+  //Progress Event
+  /*progress ( inprog: boolean){
     //$broadcast('ProgressEvent', bool);
+  }*/
+  progress(bool: boolean) {
+    this.progressEvent.emit(bool);
   }
     
   // Reloads table from TableCtrl
