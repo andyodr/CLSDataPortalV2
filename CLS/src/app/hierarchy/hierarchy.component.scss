@@ -23,8 +23,44 @@
   margin: 10px 22px 22px;
 }
 
+mat-drawer {
+  header {
+    background-color: var(--mat-color-500);
+    border-block: 1px solid var(--mat-color-700);
+    padding: 15px 20px;
+    display: flex;
+    gap: 15px;
+
+    h2 {
+      color: white;
+      display: flex;
+      order: 2;
+      margin: auto 2em;
+    }
+  }
+
+  form {
+    mat-checkbox {
+      margin: 30px 30px 20px;
+    }
+
+    mat-form-field {
+      display: block;
+      margin: 0px 25px;
+    }
+
+    h4 {
+      margin: 0px 25px;
+    }
+  }
+}
+
+button, a {
+  min-width: 8em;
+}
+
 table {
-    width: 100%;
+  width: 100%;
 }
 
 .mat-column-name {

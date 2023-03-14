@@ -1,4 +1,7 @@
-/* position: sticky;  */
+html, body {
+  min-height: 100%;
+}
+
 .topbar {
   color: white;
   background-color: #0A8CAA;
@@ -19,7 +22,7 @@
     }
 
 .nav-toggle {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .sidebar-expanded {
@@ -83,7 +86,7 @@
 
 .page {
   display: grid;
-  min-height: 100vh;
+  min-height: 100%;
   grid-template: 70px 1fr / auto 1fr auto;
   padding: initial;
 }

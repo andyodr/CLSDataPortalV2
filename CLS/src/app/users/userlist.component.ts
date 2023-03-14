@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core"
-import { ProgressBarMode } from "@angular/material/progress-bar"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { Router } from "@angular/router"
@@ -22,14 +21,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     private userSubscription = new Subscription()
     toggle: any = true
     disabledAll = false
-    skUsers = ""
     errorMsg: any = ""
     showError = false
     showContentPage = true
-    progress = {
-        mode: "determinate" as ProgressBarMode,
-        value: 0
-    }
 
     constructor(private userService: UserService, public router: Router, private _: NavigationService) { }
 

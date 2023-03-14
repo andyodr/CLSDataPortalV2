@@ -10,6 +10,7 @@ import { MatInputModule } from "@angular/material/input"
 import { MatMenuModule } from "@angular/material/menu";
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from "@angular/material/snack-bar"
 import { MatSortModule } from "@angular/material/sort"
@@ -78,6 +79,7 @@ import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
         MatButtonModule,
         MatCheckboxModule,
         MatDialogModule,
+        MatSidenavModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,

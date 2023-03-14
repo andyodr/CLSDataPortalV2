@@ -1,5 +1,5 @@
 :host > :first-child {
-    padding: 20px;
+  padding: 20px;
 }
 
 .panel-body {
@@ -22,6 +22,10 @@
   margin: 10px 22px;
 }
 
+button {
+  min-width: 8em;
+}
+
 form {
   margin: 15px 0px;
 
@@ -36,7 +40,7 @@ form {
 }
 
 :host ::ng-deep form > div label.mat-checkbox-layout {
-  flex-direction: column-reverse !important;
+  flex-direction: column-reverse;
 }
 
 :host ::ng-deep form > div .mat-checkbox-inner-container {
