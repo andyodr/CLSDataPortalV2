@@ -1,16 +1,14 @@
 <div class="page">
-  <div class="topbar" *ngIf="_navSettingsService.enableNavBar">
+  <div class="topbar mat-elevation-z6" *ngIf="_navSettingsService.enableNavBar">
     <div *ngIf="opened" class="nav-logo-expanded">
       <img src="../assets/images/JnJ_Logo.png" width="162" height="40" alt="J&J Logo" class="logo">
     </div>
     <div *ngIf="!opened" class="nav-logo-collapsed">
       <img src="../assets/images/JnJ_Logo_sm.png" width="35" height="29" alt="J&J Logo Collapsed" class="logo">
     </div>
-  </div>
-  <div class="nav-toggle">
-    <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
-  </div>
-  <div *ngIf="_navSettingsService.enableNavBar">
+    <div class="nav-toggle">
+      <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
+    </div>
     <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
     <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
       <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
@@ -36,8 +34,8 @@
       </div> -->
     </div>
   </div>
-  <div *ngIf="_navSettingsService.enableNavBar" [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar">
-    <div class="sidebar-title" *ngIf="opened">CLS Data Portal</div>
+  <div *ngIf="_navSettingsService.enableNavBar" [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar mat-elevation-z6">
+    <div class="sidebar-title" *ngIf="opened">Deliver Data Portal</div>
     <ul>
       <li>
         <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>

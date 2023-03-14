@@ -1,118 +1,120 @@
-<mat-drawer-container>
-  <mat-drawer #drawer position="end">
-    <header>
-      <h2>{{drawerTitle}} Hierarchy</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drawer.close()">
-        <mat-icon>close</mat-icon> Cancel
-      </button>
-      <button mat-raised-button aria-label="Save" (click)="drawer.close(); logger.logInfo('Save not implemented')">
-        <mat-icon>save_alt</mat-icon> Save
-      </button>
-    </header>
-    <form>
-      <mat-checkbox name="active" [(ngModel)]="model.active" color="primary" labelPosition="before">Active</mat-checkbox>
-      <mat-form-field appearance="fill">
-        <mat-label>Region Name</mat-label>
-        <input matInput name="hierarchyName" [(ngModel)]="model.name" placeholder="Wakanda" [disabled]="disabledAll">
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Hierarchy Level</mat-label>
-        <mat-select name="level" [(ngModel)]="model.level" [disabled]="disabledAll">
-          <mat-option *ngFor="let level of hierarchyLevels" [value]="level.id">
-            {{level.name}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <h4>Parent Hierarchy:</h4>
-    </form>
-  </mat-drawer>
-  <mat-drawer-content>
-    <h1>{{title}}</h1>
-    <div class="panel panel-default panel-body">
-      <!-- Error Section-->
-      <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
-      <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
-        <div class="panel-body padB0 marB0 noBorder">
-          <ngb-alert type="danger" (closed)="closeError()">
-            <p>{{errorMsg.heading}}</p>
-            <section class="table-flip-scroll table-dynamic overflowAuto">
-              <table class="table table-bordered table-striped cf no-margin">
-                <thead class="cf">
-                  <tr>
-                    <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                    <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                    <td class="alert-danger">{{errorRows.row}}</td>
-                    <td class="alert-danger">{{errorRows.message}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
-          </ngb-alert>
-        </div>
-      </div>
-      <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showError">
-        <div class="panel-body padB0 marB0 noBorder">
-          <ngb-alert type="danger" (closed)="closeError()">
-            <p>{{errorMsg.heading}}</p>
-            <section class="table-flip-scroll table-dynamic overflowAuto">
-              <table class="table table-bordered table-striped cf no-margin">
-                <thead class="cf">
-                  <tr>
-                    <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                    <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                    <td class="alert-danger">{{errorRows.row}}</td>
-                    <td class="alert-danger">{{errorRows.message}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
-          </ngb-alert>
-        </div>
-      </div>
-
-      <div class="panel-header">
-        <mat-form-field appearance="fill">
-          <mat-label>Filter</mat-label>
-          <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
-        </mat-form-field>
-        <button mat-raised-button color="accent" aria-label="Add" (click)="add(); drawer.open()">
-          <mat-icon>add_location</mat-icon> Add
+<div>
+  <mat-drawer-container>
+    <mat-drawer #drawer position="end">
+      <header>
+        <h2>{{drawerTitle}} Hierarchy</h2>
+        <button mat-raised-button aria-label="Cancel" (click)="drawer.close()">
+          <mat-icon>close</mat-icon> Cancel
         </button>
+        <button mat-raised-button aria-label="Save" (click)="drawer.close(); logger.logInfo('Save not implemented')">
+          <mat-icon>save_alt</mat-icon> Save
+        </button>
+      </header>
+      <form>
+        <mat-checkbox name="active" [(ngModel)]="model.active" color="primary" labelPosition="before">Active</mat-checkbox>
+        <mat-form-field appearance="fill">
+          <mat-label>Region Name</mat-label>
+          <input matInput name="hierarchyName" [(ngModel)]="model.name" placeholder="Wakanda" [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Hierarchy Level</mat-label>
+          <mat-select name="level" [(ngModel)]="model.level" [disabled]="disabledAll">
+            <mat-option *ngFor="let level of hierarchyLevels" [value]="level.id">
+              {{level.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <h4>Parent Hierarchy:</h4>
+      </form>
+    </mat-drawer>
+    <mat-drawer-content>
+      <h1>{{title}}</h1>
+      <div class="panel panel-default panel-body">
+        <!-- Error Section-->
+        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
+        <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeError()">
+              <p>{{errorMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
+          </div>
+        </div>
+        <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeError()">
+              <p>{{errorMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
+          </div>
+        </div>
+
+        <div class="panel-header">
+          <mat-form-field appearance="fill">
+            <mat-label>Filter</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
+          </mat-form-field>
+          <button mat-raised-button color="accent" aria-label="Add" (click)="add(); drawer.open()">
+            <mat-icon>add_location</mat-icon> Add
+          </button>
+        </div>
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Region</th>
+            <td mat-cell *matCellDef="let rh">{{rh.name}}</td>
+          </ng-container>
+          <ng-container matColumnDef="parentName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Parent</th>
+            <td mat-cell *matCellDef="let rh">{{rh.parentName}}</td>
+          </ng-container>
+          <ng-container matColumnDef="level">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Level</th>
+            <td mat-cell *matCellDef="let rh">{{rh.level}}</td>
+          </ng-container>
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
+            <td mat-cell *matCellDef="let rh"><mat-icon>{{rh.active === true || rh.active === "true" ? "check": ""}}</mat-icon></td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row (click)="edit(row.id); drawer.open()" *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-table" colspan="6">No data matching the filter {{input.value}}</td>
+          </tr>
+        </table>
+        <footer>
+          <span> Showing {{dataSource.filteredData.length}} entries	</span>
+        </footer>
       </div>
-      <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Region</th>
-          <td mat-cell *matCellDef="let rh">{{rh.name}}</td>
-        </ng-container>
-        <ng-container matColumnDef="parentName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Parent</th>
-          <td mat-cell *matCellDef="let rh">{{rh.parentName}}</td>
-        </ng-container>
-        <ng-container matColumnDef="level">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Level</th>
-          <td mat-cell *matCellDef="let rh">{{rh.level}}</td>
-        </ng-container>
-        <ng-container matColumnDef="active">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
-          <td mat-cell *matCellDef="let rh"><mat-icon>{{rh.active === true || rh.active === "true" ? "check": ""}}</mat-icon></td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row (click)="edit(row.id); drawer.open()" *matRowDef="let row; columns: displayedColumns;"></tr>
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell empty-table" colspan="6">No data matching the filter {{input.value}}</td>
-        </tr>
-      </table>
-      <footer>
-        <span> Showing {{dataSource.filteredData.length}} entries	</span>
-      </footer>
-    </div>
-  </mat-drawer-content>
-</mat-drawer-container>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>

@@ -1,5 +1,6 @@
-:host > :first-child {
+mat-drawer-container {
   padding: 20px;
+  background-color: inherit;
 }
 
 .panel-body {
@@ -25,8 +26,7 @@
 
 mat-drawer {
   header {
-    background-color: var(--mat-color-500);
-    border-block: 1px solid var(--mat-color-700);
+    background: linear-gradient(var(--mat-color-600), var(--mat-color-500) 33%, var(--mat-color-500));
     padding: 15px 20px;
     display: flex;
     gap: 15px;

@@ -5,21 +5,21 @@
   padding: 15px 30px;
 }
 
-  .topbar + div {
-    display: flex;
-    color: white;
-    background-color: #0A8CAA;
-    padding: 20px 20px;
-  }
+.topbar + div {
+  display: flex;
+  color: white;
+  background-color: #0A8CAA;
+  padding: 20px 20px;
+}
 
-    .topbar + div + div {
-      color: white;
-      background-color: #0A8CAA;
-      padding: 6px;
-    }
+.topbar + div + div {
+  color: white;
+  background-color: #0A8CAA;
+  padding: 6px;
+}
 
 .nav-toggle {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .sidebar-expanded {
@@ -53,9 +53,9 @@
   cursor: pointer;
 }
 
-  .sidebar li span {
-    margin-left: 20px;
-  }
+.sidebar li span {
+  margin-left: 20px;
+}
 
 .sidebar + div {
   grid-row: 2;
@@ -74,11 +74,6 @@
   color: white;
   font-size: 20px;
   border-radius: 50%;
-}
-
-.main {
-  display: flex;
-  height: auto;
 }
 
 .page {
