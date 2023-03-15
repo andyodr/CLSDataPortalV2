@@ -20,7 +20,7 @@ export interface Hierarchy {
     levelId?: number
     level: string
     name: string
-    parentId?: string
+    parentId?: number
     parentName: string
     active?: boolean
     remove?: boolean

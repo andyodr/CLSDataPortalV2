@@ -3,7 +3,7 @@ import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { Subscription } from "rxjs"
 import { processError } from "../app-constants"
-import { Hierarchy, HierarchyApiResult } from "../_models/regionhierarchy"
+import { Hierarchy, RegionFilter } from "../_models/regionhierarchy"
 import { HierarchyService } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
 
@@ -23,12 +23,14 @@ export class RegionHierarchyComponent implements OnInit {
     showError = false
     showContentPage = true
     drawerTitle = "Add"
+    hierarchy: RegionFilter[] = []
     hierarchyLevels!: { name: string, id: number }[]
     model = {
         id: 0,
         active: false,
         name: "",
-        level: 0
+        level: 0,
+        selectedParent: 0 as number | number[] | null
     }
 
     constructor(private hierarchyService: HierarchyService, public logger: LoggerService) { }
@@ -39,9 +41,10 @@ export class RegionHierarchyComponent implements OnInit {
 
     ngOnInit(): void {
         this.userSubscription = this.hierarchyService.getHierarchy().subscribe({
-            next: (response: any) => {
-                this.dataSource = new MatTableDataSource((response as HierarchyApiResult).data)
-                this.hierarchyLevels = (response as HierarchyApiResult).levels
+            next: response => {
+                this.dataSource = new MatTableDataSource(response.data)
+                this.hierarchyLevels = response.levels
+                this.hierarchy = response.hierarchy
                 this.dataSource.sort = this.sort
                 // processLocalError here
             },
@@ -57,6 +60,7 @@ export class RegionHierarchyComponent implements OnInit {
         this.model.active = false
         this.model.name = ""
         this.model.level = 0
+        this.model.selectedParent = null
     }
 
     edit(hid: number) {
@@ -66,6 +70,7 @@ export class RegionHierarchyComponent implements OnInit {
         this.model.active = hierarchy?.active ?? false
         this.model.name = hierarchy?.name ?? ""
         this.model.level = hierarchy?.levelId ?? 0
+        this.model.selectedParent = hierarchy?.parentId ?? null
     }
 
     applyFilter(event: Event) {

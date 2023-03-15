@@ -33,7 +33,7 @@ import { FilterPipe } from './filter.pipe';
 import { HomeComponent } from './home/home.component';
 import { MeasureDataComponent } from "./measure-data/measure-data.component"
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
-import { TableComponent } from './table/table.component';
+import { TableComponent } from "./lib/table/table.component"
 import { UserListComponent } from "./users/userlist.component"
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NavbarComponent } from "./navbar/navbar.component";
@@ -42,7 +42,7 @@ import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
 import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { SbComponent } from "./_services/logger.service"
-import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
+import { RegionTreeComponent } from "./lib/region-tree/region-tree.component"
 import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 
 @NgModule({

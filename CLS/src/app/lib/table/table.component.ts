@@ -1,13 +1,13 @@
-import { Component, Input } from '@angular/core'
-import { SelCal } from '../app-constants'
-import { FilterPipe } from '../filter.pipe'
+import { Component, Input } from "@angular/core"
+import { SelCal } from "../../app-constants"
+import { FilterPipe } from "../../filter.pipe"
 
 export type JsonValue = string | number | boolean | null
 
 @Component({
-    selector: 'app-table',
-    templateUrl: './table.component.html',
-    styleUrls: ['./table.component.css'],
+    selector: "app-table",
+    templateUrl: "./table.component.html",
+    styleUrls: ["./table.component.css"],
     providers: [FilterPipe]
 })
 export class TableComponent {

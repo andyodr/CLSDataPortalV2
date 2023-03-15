@@ -5,7 +5,7 @@ import { MatDialog } from "@angular/material/dialog"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../app-constants"
 import { environment } from "../environments/environment"
 import { FilterPipe } from "../filter.pipe"
-import { TableComponent, JsonValue } from "../table/table.component"
+import { TableComponent, JsonValue } from "../lib/table/table.component"
 import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
