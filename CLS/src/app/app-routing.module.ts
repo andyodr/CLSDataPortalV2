@@ -11,6 +11,8 @@ import { AuthGuard } from './_guards/auth.guard';
 import { UserListComponent } from './users/userlist.component';
 import { UserAddComponent } from './users/useradd.component';
 import { UserEditComponent } from './users/useredit.component';
+import { TargetsComponent } from './targets/targets.component';
+import { MeasuresComponent } from './measures/measures.component';
 
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
@@ -29,6 +31,8 @@ const routes: Routes = [
             { path: 'home', component: HomeComponent },
         ]
     },
+    { path: 'targets', component: TargetsComponent },
+    { path: 'measures', component: MeasuresComponent },
     { path: 'measuredefinition', component: MeasureDefinitionComponent },
     { path: "dataimports", title: "Distributor - Data Imports", component: DataImportsComponent },
     { path: 'errors', component: TestErrorComponent },

@@ -1,173 +1,289 @@
-
-<hr>
 <!-- Path: CLS\src\app\measure-data\measure-data.component.ts -->
-<hr>
-<div class="page page-table" data-ng-controller="MeasureDataCtrl">
-    <div class="row ui-section">
+
+<div class="page page-table">
+  <div class="row ui-section">
     <div class="col-lg-8 clearfix">
-      <h2 class="section-header2">{{title}}</h2>
+      <h2 class="section-header2">{{ title }}</h2>
     </div>
-    <div class="col-md-12 itgMinH">
-    
+    <div class="col-md-12">
       <div class="panel panel-default">
-      
         <!-- Progress Section-->
-        <aside data-ng-include="'app/layout/progress.html'" ></aside>
-    
+        <!-- <aside data-ng-include="'app/layout/progress.html'"></aside> -->
+        <!-- <ng-container *ngTemplateOutlet="progressTemplate"></ng-container> -->
+        <!-- <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar> -->
+
+
         <!-- Error Section-->
-        <aside data-ng-include="'app/layout/errors.html'" ></aside>
-      
+        <!-- <aside data-ng-include="'app/layout/errors.html'"></aside> -->
+        <!-- <ng-container *ngTemplateOutlet="'./errors/test-error/test-error.component.html'"></ng-container> -->
+        <!-- Errors Template -->
+        <ng-template #errorsTemplate>
+          <aside>
+            <app-errors></app-errors>
+          </aside>
+        </ng-template>
+
         <!-- Filter Section-->
-        <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
-     
+        <aside
+          ng-show="showContentPage"
+          data-ng-include="'app/layout/filters.html'"
+        ></aside>
+        <!-- Filters Template -->
+        <!-- <ng-template #filtersTemplate>
+          <aside>
+            <app-filters></app-filters>
+          </aside>
+        </ng-template> -->
+
         <!-- Table Section-->
         <div ng-show="showContentPage" class="panel-body padT0">
-                
           <div class="panel panel-default">
-                
             <!-- Heading and Buttons Section-->
             <div class="panel-heading">
-            
               <div class="row">
-              
-                <div class="col-sm-5 col-md-6"> 
+                <div class="col-sm-5 col-md-6">
                   <div class="form-inline">
                     <div class="form-group">
                       <form class="disInline">
-                        <input type="text" placeholder="Search..." class="form-control marL15 marR10" style="width: 300px;"
-                             data-ng-model="skMeasureData" data-ng-keyup="populateTable()" ng-disabled="disabledAll">
+                        <input 
+                          type="text"
+                          placeholder="Search..."
+                          class="form-control marL15 marR10"
+                          style="width: 300px"
+                          [(ngModel)]="skMeasureData" [ngModelOptions]="{standalone: true}"
+                          (keyup)="populateTable()"
+                          [disabled]="disabledAll"
+                        />
                       </form>
-                      <h5 class="padL15">{{this.dataRange}}</h5>
+                      <h5 class="padL15">{{ this.dataRange }}</h5>
                     </div>
                   </div>
                 </div>
-                
-                <div class="ccol-sm-5 col-md-6"> 
+
+                <div class="ccol-sm-5 col-md-6">
                   <div class="form-inline textAlignR">
                     <div class="form-group">
-    <!-- <md-input-container flex class="mar0" style="min-width:140px; width:220px;">
+                      <!-- <md-input-container flex class="mar0" style="min-width:140px; width:220px;">
       <md-select data-ng-model="selCalSelected" aria-label="Select" data-ng-model-options="{trackBy: '$value.id'}" 
         data-ng-disabled="disabledAll || btnDisabled" data-ng-change="onselCalChange()">
         <md-option data-ng-repeat="calculated in selCalculated" ng-value="calculated"> {{calculated.name}} </md-option>	
       </md-select>
-    </md-input-container>
-      
-    <md-button class="md-raised btn-w-sm md-primary bg-info2 marR20 marL15" aria-label="Refresh" type="button" ng-disabled="disabledAll" ng-click="refresh()">
-      <span class="glyphicon glyphicon-refresh"></span> Refresh </md-button>
+    </md-input-container> -->
+                      <mat-form-field appearance="fill" class="mar0" style="min-width:140px; width:220px;">
+                        <mat-label>Select</mat-label>
+                        <mat-select [(ngModel)]="selCalSelected" [disabled]="disabledAll || btnDisabled" (selectionChange)="onselCalChange()">
+                          <mat-option *ngFor="let calculated of selCalculated" [value]="calculated">{{ calculated.name }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <button mat-raised-button type="button" class="md-raised btn-w-sm md-primary bg-info2 marR20 marL15" aria-label="Refresh" type="button" [disabled]="disabledAll" (click)="refresh()" matTooltip="Refresh Table">
+                        <mat-icon>refresh</mat-icon>
+                        Refresh
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div> 
-              
-            </div> -->
-    
+              </div>
+            </div>
+
             <!-- Table Section-->
-    <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
-    <table class="table table-bordered table-striped cf no-margin">
-        <thead class="cf">
-        <tr>
-            <th class="numeric"><div class="th"> <span class="padL20">Measure Definition</span>
-            <span class="fa fa-angle-up" data-ng-click=" order('name') " data-ng-class="{active: row == 'name'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-name') " data-ng-class="{active: row == '-name'}"></span>
-            </div></th>
-            <th class="numeric"><div class="th"> Value
-            <span class="fa fa-angle-up" data-ng-click=" order('value') " data-ng-class="{active: row == 'value'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-value') " data-ng-class="{active: row == '-value'}"></span>
-            </div></th>
-        <th class="numeric"><div class="th"> Units
-            <span class="fa fa-angle-up" data-ng-click=" order('units') " data-ng-class="{active: row == 'units'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-units') " data-ng-class="{active: row == '-units'}"></span>
-            </div></th>    
-            <th class="numeric"><div class="th"> Explanation
-            <span class="fa fa-angle-up" data-ng-click=" order('explanation') " data-ng-class="{active: row == 'explanation'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-explanation') " data-ng-class="{active: row == '-explanation'}"></span>
-            </div></th>
-            <th class="numeric"><div class="th"> Action
-            <span class="fa fa-angle-up" data-ng-click=" order('action') " data-ng-class="{active: row == 'action'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-action') " data-ng-class="{active: row == '-action'}"></span>
-            </div></th>
-            <th class="numeric"><div class="th"> Updated
-            <span class="fa fa-angle-up" data-ng-click=" order('updated.longDt') " data-ng-class="{active: row == 'updated'}"></span>
-            <span class="fa fa-angle-down" data-ng-click=" order('-updated.longDt') " data-ng-class="{active: row == '-updated'}"></span>
-            </div></th>		
-            <th class="numeric itgWidth100 textAlignM"><div class="th"></div></th>		
-        </tr>
-        </thead>
-        <tbody>
-        <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr">
-            <td style="width:240px;">
-          <p class="itgLock" uib-tooltip="Calculated"><span ng-if="data.calculated" class="glyphicon glyphicon-ban-circle"></span></p>
-          <p class="itgPopup">
-            <!-- <span popover-placement="right" uib-popover-template="dPopover.templateUrl" 
-              popover-title="{{this.dPopover.title}}" popover-trigger="mouseenter" ng-mouseover="mmPopover(data)">
-              {{this.data.name}}
-            </span>  -->
-          </p>
-        </td>
-            <!-- <td class="tdA{{data.id}}" style="width:120px;" ng-class="getBgColor(data)" ng-bind="data.value"></td> -->
-        <!-- <td ng-bind="data.units"></td>
-            <td class="tdB{{data.id}}" ng-bind="data.explanation"></td>
-            <td class="tdC{{data.id}}" ng-bind="data.action"></td>
-            <td style="width:115px;">
-          <span uib-tooltip-template="'mmUpdateTooltipTemplate.html'">{{data.updated.shortDt}}</span>
-        </td> -->
-            <td class="mar0 itgWidth100 textAlignM">
-    
-    <div ng-if="showActionButtons"> 
-       
-      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit" ng-disabled="disabledAll" ng-click="edit(data)" uib-tooltip="Edit">
-        <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" ng-disabled="disabledAll" ng-click="edit(data)" uib-tooltip="Edit"></button> -->
-        <span class="glyphicon glyphicon-pencil"></span>
-      </button>
-       
-      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit" ng-click="save(data)" uib-tooltip="Save">
-        <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit{{data.id}}" ng-click="save(data)" uib-tooltip="Save"></button> -->
-        <span class="glyphicon glyphicon-ok"></span>
-      </button>  
-    
-      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit" ng-click="cancel(data)" uib-tooltip="Cancel">
-        <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit{{data.id}}" ng-click="cancel(data)" uib-tooltip="Cancel"></button> -->
-        <span class="glyphicon glyphicon-arrow-left"></span>
-      </button>   
-       
-    </div>
-    
-    <p ng-if="locked" class="itgLock" uib-tooltip="Locked"><span class="glyphicon glyphicon-lock"></span></p>
-    <p ng-if="!allow" class="itgLock" uib-tooltip="Not Allowed"><span class="glyphicon glyphicon-eye-close"></span></p>
-    
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <footer class="table-footer">
-      <span class="padL20"> Showing entries	</span>
-      <!-- <span class="padL20"> Showing {{this.filteredData.length}} entries	</span> -->
-    </footer>
-    </section>
-    
+            <section
+              class="table-flip-scroll table-dynamic overflowAuto"
+              data-ng-controller="TableCtrl"
+            >
+              <table class="table table-bordered table-striped cf no-margin">
+                <thead class="cf">
+                  <tr>
+                    <th class="numeric">
+                      <div class="th">
+                        <span class="padL20">Measure Definition</span>
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('name') "
+                          data-ng-class="{active: row == 'name'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-name') "
+                          data-ng-class="{active: row == '-name'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric">
+                      <div class="th">
+                        Value
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('value') "
+                          data-ng-class="{active: row == 'value'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-value') "
+                          data-ng-class="{active: row == '-value'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric">
+                      <div class="th">
+                        Units
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('units') "
+                          data-ng-class="{active: row == 'units'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-units') "
+                          data-ng-class="{active: row == '-units'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric">
+                      <div class="th">
+                        Explanation
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('explanation') "
+                          data-ng-class="{active: row == 'explanation'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-explanation') "
+                          data-ng-class="{active: row == '-explanation'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric">
+                      <div class="th">
+                        Action
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('action') "
+                          data-ng-class="{active: row == 'action'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-action') "
+                          data-ng-class="{active: row == '-action'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric">
+                      <div class="th">
+                        Updated
+                        <span
+                          class="fa fa-angle-up"
+                          data-ng-click=" order('updated.longDt') "
+                          data-ng-class="{active: row == 'updated'}"
+                        ></span>
+                        <span
+                          class="fa fa-angle-down"
+                          data-ng-click=" order('-updated.longDt') "
+                          data-ng-class="{active: row == '-updated'}"
+                        ></span>
+                      </div>
+                    </th>
+                    <th class="numeric itgWidth100 textAlignM">
+                      <div class="th"></div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr"> -->
+                  <tr *ngFor="let data of measureDataResponse?.data" class="itgTableTr">
+                    <td style="width: 240px">
+                      <p class="itgLock" uib-tooltip="Calculated">
+                        <span *ngIf="data.calculated" class="glyphicon glyphicon-ban-circle"></span>
+                      </p>
+                      <p class="itgPopup">
+                        <!-- <span popover-placement="right" uib-popover-template="dPopover.templateUrl" 
+                          popover-title="{{this.dPopover.title}}" popover-trigger="mouseenter" ng-mouseover="mmPopover(data)">
+                          {{this.measureDataResponse}}
+                        </span>  -->
+                      </p>
+                      {{ data.name }}
+                    </td>
+                    <td class="tdA {{ data.id }}" style="width: 120px" [ngClass]="getBgColor(data)">{{ data.value }}</td>
+                    <td> {{ data.units}} </td>
+                    <td class="tdB{{ data.id }}"> {{ data.explanation }}</td>
+                    <td class="tdC{{ data.id }}"> {{ data.action }}</td>
+                    <td style="width: 150px">
+                      <span uib-tooltip-template="'mmUpdateTooltipTemplate.html'">{{ data.updated.shortDt }}</span>
+                    </td>
+                    <!-- <td class="mar0 itgWidth100 textAlignM"> -->
+                    <td style="width: 250px">
+                      <div *ngIf="!showActionButtons">
+                        <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" [disabled]="disabledAll" (click)="edit(data)" matTooltip="Edit">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit" [disabled]="disabledAll" (click)="save(data)" matTooltip="Save">
+                          <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit{{data.id}}" [disabled]="disabledAll" (click)="save(data)" matTooltip="Cancel">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </div>
+
+                      <p *ngIf="locked" class="itgLock" matTooltip="Locked">
+                        <mat-icon>lock</mat-icon>
+                      </p>
+                      <p *ngIf="allow" class="itgLock" matTooltip="Not Allowed">
+                        <mat-icon>lock</mat-icon>
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <footer class="table-footer">
+                <span class="padL20"> Showing {{this.data.length}} entries	</span>
+              </footer>
+            </section>
           </div>
         </div>
-      
       </div>
     </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="mmPopoverTemplate.html">
+  <div class="form-group itgPopover">
+    <p>
+      Target = <span class="itgGreen">{{dPopover.target}}</span> / <span class="itgYellow">{{dPopover.yellow}}</span>
+    </p>
+    <div class="itgPopoverWrap">
+      <p>ID: <span>{{dPopover.id}}</span></p>
+      <p>Value: <span>{{dPopover.value}}</span></p>
+      <p ng-if="dPopover.calculated">Expression: <span>{{dPopover.expression}}</span></p>
+      <p ng-if="dPopover.calculated">Evaluated: <span>{{dPopover.evaluated}}</span></p>
     </div>
-    </div>
-    
-    <script type="text/ng-template" id="mmPopoverTemplate.html">
-    <div class="form-group itgPopover">
-      <p>
-        Target = <span class="itgGreen">{{dPopover.target}}</span> / <span class="itgYellow">{{dPopover.yellow}}</span>
-      </p>
-      <div class="itgPopoverWrap">
-        <p>ID: <span>{{dPopover.id}}</span></p>
-        <p>Value: <span>{{dPopover.value}}</span></p>
-        <p ng-if="dPopover.calculated">Expression: <span>{{dPopover.expression}}</span></p>
-        <p ng-if="dPopover.calculated">Evaluated: <span>{{dPopover.evaluated}}</span></p>
-      </div>
-      <p class="padT10"><span>{{dPopover.description}}</span></p>
-    </div> 
-    </script>
-    
-    <script type="text/ng-template" id="mmUpdateTooltipTemplate.html">
-      <span>{{data.updated.by}}<br />{{data.updated.longDt}}</span>
-    </script>
+    <p class="padT10"><span>{{dPopover.description}}</span></p>
+  </div>
+</script>
+
+<script type="text/ng-template" id="mmUpdateTooltipTemplate.html">
+  <span>{{data.updated.by}}<br />{{data.updated.longDt}}</span>
+</script>
+
+<!-- <hr /> -->
+
+<!-- {{measureDataResponse | json}} -->
+
+<!-- <hr class="my-5" /> -->
+
+<!-- <table class="table table-hover" *ngIf="measureDataResponse?.data">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Value</th>
+      <th scope="col">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of measureDataResponse?.data">
+      <td>{{ data.name }}</td>
+      <td>{{data.}}</td>
+      <td>{{ data.value }}</td>
+      <td>{{ data.description }}</td>
+    </tr>
+  </tbody>
+</table> -->

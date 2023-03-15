@@ -1,0 +1,137 @@
+
+<div class="page page-table" data-ng-controller="TargetsCtrl">
+    <div class="row ui-section">
+    <div class="col-lg-8 clearfix">
+      <h2 class="section-header2">{{title}}</h2>
+    </div>
+    <div class="col-md-12 itgMinH">
+    
+      <div class="panel panel-default">
+      
+        <!-- Progress Section-->
+        <aside data-ng-include="'app/layout/progress.html'" ></aside>
+    
+        <!-- Error Section-->
+        <aside data-ng-include="'app/layout/errors.html'" ></aside>
+      
+        <!-- Filter Section-->
+        <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
+     
+        <!-- Table Section-->
+        <div ng-show="showContentPage" class="panel-body padT0">
+          
+          <div class="panel panel-default itgTable">
+                
+            <!-- Heading and Buttons Section-->
+            <div class="panel-heading">
+              <div class="row">
+              
+                <div class="col-md-4"> 
+                  <form>
+                    <input type="text" placeholder="Search..." class="form-control" data-ng-model="skTargets" data-ng-keyup="populateTable()" ng-disabled="disabledAll">
+                  </form>
+                </div>
+                
+                <div class="col-md-8">
+                  <div ng-if="allow" class="form-inline textAlignR">
+                    <div class="form-group">
+    <!-- <md-button class="md-raised btn-w-lg md-primary bg-info2 marR20 mmBtnDisabled padR15" aria-label="Apply" ng-disabled="disabledAll" ng-Click="applyToChildren()">
+      <span class="glyphicon glyphicon-ok padL10 padR10"></span> Apply To Children </md-button> -->
+                    </div>
+                  </div>
+                </div>
+              
+              </div>
+            </div>
+            
+            <!-- Table Section-->
+    <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
+    <table class="table table-bordered table-striped cf no-margin">
+        <thead class="cf">
+        <tr>
+            <th class="numeric"><div class="th"> <span>Measure Definition</span>
+            <span class="fa fa-angle-up" data-ng-click=" order('name') " data-ng-class="{active: row == 'name'}"></span>
+            <span class="fa fa-angle-down" data-ng-click=" order('-name') " data-ng-class="{active: row == '-name'}"></span>
+            </div></th>
+            <th class="numeric"><div class="th"> Target Value
+            <span class="fa fa-angle-up" data-ng-click=" order('target') " data-ng-class="{active: row == 'target'}"></span>
+            <span class="fa fa-angle-down" data-ng-click=" order('-target') " data-ng-class="{active: row == '-target'}"></span>
+            </div></th>
+            <th class="numeric"><div class="th"> Target Yellow
+            <span class="fa fa-angle-up" data-ng-click=" order('yellow') " data-ng-class="{active: row == 'yellow'}"></span>
+            <span class="fa fa-angle-down" data-ng-click=" order('-yellow') " data-ng-class="{active: row == '-yellow'}"></span>
+            </div></th>
+            <th class="numeric"><div class="th"> Updated
+            <span class="fa fa-angle-up" data-ng-click=" order('updated.longDt') " data-ng-class="{active: row == 'updated'}"></span>
+            <span class="fa fa-angle-down" data-ng-click=" order('-updated.longDt') " data-ng-class="{active: row == '-updated'}"></span>
+            </div></th>		
+            <th class="numeric itgWidth100 textAlignM"><div class="th"></div></th>		
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr">
+            <td style="width:240px;">
+          <p class="itgPopup">
+            <!-- <span popover-placement="right" uib-popover-template="dPopover.templateUrl" 
+              popover-title="{{dPopover.title}}" popover-trigger="mouseenter" ng-mouseover="mmPopover(data)">
+              {{data.name}}
+            </span>  -->
+          </p>
+        </td>
+            <!-- <td id="tdA{{data.id}}" ng-bind="data.target"></td>
+            <td id="tdB{{data.id}}" ng-bind="data.yellow"></td> -->
+            <td style="width:115px;">
+          <!-- <span uib-tooltip-template="'tUpdateTooltipTemplate.html'">{{data.updated.shortDt}}</span> -->
+        </td>
+            <td class="mar0 itgWidth100 textAlignM">
+      
+    <div ng-if="allow"> 
+      
+      <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" ng-disabled="disabledAll" ng-click="edit(data)" uib-tooltip="Edit">
+        <span class="glyphicon glyphicon-pencil"></span>
+      </button> -->
+       
+      <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit{{data.id}}" ng-click="save(data)" uib-tooltip="Save">
+        <span class="glyphicon glyphicon-ok"></span>
+      </button>   -->
+    
+      <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit{{data.id}}" ng-click="cancel(data)" uib-tooltip="Cancel">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+      </button>    -->
+      
+    </div>
+    
+    <p ng-if="!allow" class="itgLock" uib-tooltip="Not Allowed"><span class="glyphicon glyphicon-eye-close"></span></p>
+    
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="table-footer">
+      <!-- <span> Showing {{filteredData.length}} entries	</span> -->
+      <span> Showing  entries	</span>
+    </footer>
+    </section>
+    
+          </div>
+        </div>
+      
+      </div>
+    </div>
+    </div>
+    </div>
+    
+    <script type="text/ng-template" id="tPopoverTemplate.html">
+    <div class="form-group itgPopover">
+      <div class="itgPopoverWrap">
+        <p>ID: <span>{{dPopover.id}}</span></p>
+        <p>Units: <span>{{dPopover.units}}</span></p>
+        <p>Expression: <span>{{dPopover.expression}}</span></p>
+      </div>
+      <p class="padT10"><span>{{dPopover.description}}</span></p>
+    </div> 
+    </script>
+    
+    <script type="text/ng-template" id="tUpdateTooltipTemplate.html">
+      <span>{{data.updated.by}}<br />{{data.updated.longDt}}</span>
+    </script>
