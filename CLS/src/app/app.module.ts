@@ -41,7 +41,10 @@ import { UserEditComponent } from "./users/useredit.component"
 import { UserAddComponent } from "./users/useradd.component"
 import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { SbComponent } from "./_services/logger.service"
-import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
+import { RegionTreeComponent } from "./users/region-tree/region-tree.component";
+import { TargetsComponent } from './targets/targets.component';
+import { MeasuresComponent } from './measures/measures.component'
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @NgModule({
     declarations: [
@@ -65,7 +68,9 @@ import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
         UserListComponent,
         UserEditComponent,
         UserAddComponent,
-        RegionTreeComponent
+        RegionTreeComponent,
+        TargetsComponent,
+        MeasuresComponent
     ],
     imports: [
         AppRoutingModule,
@@ -86,6 +91,7 @@ import { RegionTreeComponent } from "./users/region-tree/region-tree.component"
         MatSnackBarModule,
         MatSortModule,
         MatTableModule,
+        MatTooltipModule,
         MatTreeModule,
         NgbModule,
         BsDropdownModule.forRoot(),

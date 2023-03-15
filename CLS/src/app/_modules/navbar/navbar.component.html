@@ -28,7 +28,7 @@
         <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
       </div>
       <div>
-        <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
+        <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home" matTooltip="Help">help</mat-icon></a>
       </div>
       <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
         <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>

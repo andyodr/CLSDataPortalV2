@@ -6,6 +6,14 @@ export interface Filter {
     year: number;
 }
 
+export interface measureDataFilter {
+    calendarId: number;
+    year: number;
+    hierarchyId: number;
+    measureTypeId: number;
+    intervalId: number;
+ }
+
 export interface Updated {
     by: string;
     longDt: string;
@@ -42,3 +50,42 @@ export interface MeasureDataResponse {
     data: Data[];
     error?: any;
 }
+
+//--------------------------------------------
+//Interface for Measure Data Model
+export interface MeasureData {
+    measureDataId?: string;
+    measureId?: string;
+    calendarId?: string;
+    targetId?: string;
+    value?: string;
+    explanation?: string;
+    action?: string;
+    userId?: string;
+    lastUpdatedOn?: string;
+    isProcessed?: string
+}
+
+export interface MeasureDataIndexListObject{
+    range: string;
+    calendarId?: string;
+    allow?: boolean;
+    editValue?: boolean;
+    locked?: boolean;
+    confirmed?: boolean;
+    filter?: any;
+    data?: MeasureData[];
+    error?: string;
+} 
+
+export interface MeasureDataReceiveObject{
+    calendarId: number;
+    day: string;
+    hierarchyId: number;
+    measureTypeId: number;
+    //measureDataId { set; get; }      
+    //measureValue { set; get; }
+    explanation: string;
+    action: string;  
+    //public ErrorModel error { set; get; }
+  }
