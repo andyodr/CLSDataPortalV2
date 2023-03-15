@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-measure-data',
   templateUrl: './measure-data.component.html',
-  styleUrls: ['./measure-data.component.css']
+  styleUrls: ['./measure-data.component.scss']
 })
 export class MeasureDataComponent implements OnInit {
 
