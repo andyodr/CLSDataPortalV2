@@ -29,7 +29,7 @@ import { ErrorsComponent } from './errors/errors.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
-import { FilterPipe } from './filter.pipe';
+import { FilterPipe } from "./lib/filter.pipe"
 import { HomeComponent } from './home/home.component';
 import { MeasureDataComponent } from "./measure-data/measure-data.component"
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MSG_ERROR_PROCESSING } from '../app-constants';
+import { MSG_ERROR_PROCESSING } from '../lib/app-constants';
 import { MeasureDataService } from '../_services/measure-data.service';
 import { UserService } from '../_services/user.service';
 

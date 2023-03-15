@@ -5,7 +5,7 @@ import { Router } from "@angular/router"
 import { Subscription } from "rxjs"
 import { User, UserData } from "../_models/user"
 import { UserService } from "../_services/user.service"
-import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../app-constants"
+import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../lib/app-constants"
 import { NavigationService } from "../_services/nav.service"
 
 @Component({

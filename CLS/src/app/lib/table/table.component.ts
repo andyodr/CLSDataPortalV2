@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core"
-import { SelCal } from "../../app-constants"
-import { FilterPipe } from "../../filter.pipe"
+import { SelCal } from "../../lib/app-constants"
+import { FilterPipe } from "../../lib/filter.pipe"
 
 export type JsonValue = string | number | boolean | null
 
