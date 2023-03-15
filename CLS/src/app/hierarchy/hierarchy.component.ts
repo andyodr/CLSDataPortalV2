@@ -30,7 +30,7 @@ export class RegionHierarchyComponent implements OnInit {
         active: false,
         name: "",
         level: 0,
-        selectedParent: 0 as number | number[] | null
+        selectedParent: null as number | number[] | null
     }
 
     constructor(private hierarchyService: HierarchyService, public logger: LoggerService) { }
@@ -73,9 +73,35 @@ export class RegionHierarchyComponent implements OnInit {
         this.model.selectedParent = hierarchy?.parentId ?? null
     }
 
+    save() {
+        const { id, name, active, level: levelId, selectedParent: parentId } = this.model
+        if (typeof parentId !== "number") {
+            this.logger.logWarning(`The parentId: ${parentId} is not valid here`)
+            return
+        }
+
+        if (this.drawerTitle === "Add") {
+            var op = this.hierarchyService.addHierarchy({ levelId, name, parentId, active })
+        }
+        else {
+            var op = this.hierarchyService.updateHierarchy({ id, levelId, name, parentId, active })
+        }
+
+        op.subscribe({
+            next: _ => {
+                this.logger.logSuccess("Save completed")
+                this.ngOnInit()
+            }
+        })
+    }
+
     applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
+    }
+
+    identity(_: number, item: { id: number }) {
+        return item.id
     }
 
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {

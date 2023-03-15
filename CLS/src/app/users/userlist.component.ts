@@ -49,6 +49,10 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
+    identity(_: number, item: { id: number }) {
+        return item.id
+    }
+
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
         this.errorMsg = processError(name, message, id, status)
         this.showError = true

@@ -15,15 +15,18 @@ export class RegionFlatNode {
     expandable!: boolean
 }
 
-export interface Hierarchy {
-    id: number
-    levelId?: number
-    level: string
+export interface HierarchyAdd {
+    levelId: number
     name: string
-    parentId?: number
-    parentName: string
+    parentId: number
     active?: boolean
     remove?: boolean
+}
+
+export interface Hierarchy extends HierarchyAdd {
+    id: number
+    level?: string
+    parentName?: string
 }
 
 export type HierarchyApiResult = {

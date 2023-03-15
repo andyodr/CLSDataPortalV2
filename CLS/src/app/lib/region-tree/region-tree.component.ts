@@ -89,23 +89,25 @@ export class RegionTreeComponent {
         return new Map<number, RegionFilter>(fh.map(rf => [rf.id, rf]))
     }
 
-    setInitialSelections(hierarchy: RegionFilter[], value: number | number[] | null): void {
-        if (Array.isArray(value)) {
-            if (value.length > 0) {
+    setInitialSelections(hierarchy: RegionFilter[], selected: number | number[] | null): void {
+        if (Array.isArray(selected)) {
+            if (selected.length > 0) {
                 let m = this.createHierarchyMap(hierarchy)
-                let initiallySelectedRegions: RegionFlatNode[] = value
+                let initiallySelectedRegions: RegionFlatNode[] = selected
                     .map(id => m.get(id)).filter((rf): rf is RegionFilter => !!rf)
                     .map(rf => this.nestedNodeMap.get(rf)).filter((fn): fn is RegionFlatNode => !!fn)
                 this.checklistSelection.select(...initiallySelectedRegions)
+                this.treeControl.expand(this.treeControl.dataNodes[0])
             }
+
         }
-        else if (value == null) {
+        else if (selected == null) {
             this.checklistSelection.clear()
             this.treeControl.collapseAll()
         }
         else {
             // expand the parent nodes to reveal selected parent
-            let r = this.createHierarchyMap(hierarchy).get(value)
+            let r = this.createHierarchyMap(hierarchy).get(selected)
             if (r) {
                 let node = this.nestedNodeMap.get(r)
                 if (node) {
@@ -226,6 +228,7 @@ export class RegionTreeComponent {
             descendants.forEach(child => this.checklistSelection.isSelected(child))
         }
 
+        this.addSelected(node)
         this.checkAllParentsSelection(node)
     }
 

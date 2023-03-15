@@ -85,7 +85,7 @@
         <td mat-cell *matCellDef="let user"><mat-icon>{{user.active === true || user.active === "true" ? "check": ""}}</mat-icon></td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row (click)="router.navigate(['/users', row.id])" *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row (click)="router.navigate(['/users', row.id])" *matRowDef="let row; columns: displayedColumns; trackBy: identity"></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell empty-table" colspan="6">No data matching the filter {{input.value}}</td>
       </tr>
