@@ -1,7 +1,8 @@
+<app-sidebar></app-sidebar>
 <div>
   <h1>{{title}}</h1>
   <div class="panel panel-default panel-body">
-    <!-- Table Section-->
+    <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
     <div class="panel panel-default">
       <!-- Heading and Buttons Section-->
       <div class="panel-header" [hidden]="!showContentPage">
@@ -27,7 +28,6 @@
             <mat-icon class="padR10">upload</mat-icon> Upload
           </button>
         </div>
-        <mat-progress-bar class="md-warn" [mode]="progress.mode" [value]="progress.value"></mat-progress-bar>
       </div>
       <div class="panel-body padB0" [hidden]="!showContentPage">
         <div class="section-1">

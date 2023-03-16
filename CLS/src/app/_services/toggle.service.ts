@@ -5,12 +5,12 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class ToggleService {
-  private toggle = new Subject<any>();
+  private toggle = new Subject<boolean>();
   toggle$ = this.toggle.asObservable();
 
   constructor() { }
 
-  setToggle(toggle: any) {
+  setToggle(toggle: boolean) {
     this.toggle.next(toggle);
   }
 }

@@ -49,8 +49,8 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
-    identity(_: number, item: { id: number }) {
-        return item.id
+    identity(index: number, row: User) {
+        return row.id
     }
 
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {

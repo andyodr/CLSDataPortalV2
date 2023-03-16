@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core"
 
 @Component({
-  selector: 'app-measuredefinition',
-  templateUrl: './measuredefinition.component.html',
-  styleUrls: ['./measuredefinition.component.css']
+    selector: "app-measuredefinition",
+    templateUrl: "./measuredefinition.component.html",
+    styleUrls: ["./measuredefinition.component.css"]
 })
 export class MeasureDefinitionComponent implements OnInit {
+    title = "Measure Definition"
+    constructor() { }
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
 }

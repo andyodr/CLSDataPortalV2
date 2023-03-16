@@ -1,5 +1,11 @@
-:host > :first-child {
-  padding: 20px;
+:host {
+  display: flex;
+  height: 100%;
+
+  > app-sidebar + div {
+    padding: 20px;
+    flex: 1 auto;
+  }
 }
 
 .panel-body {
@@ -28,7 +34,7 @@ button {
 }
 
 table {
-    width: 100%;
+  width: 100%;
 }
 
 .mat-column-userName {

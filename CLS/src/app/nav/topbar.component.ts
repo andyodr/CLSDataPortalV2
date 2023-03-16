@@ -5,12 +5,11 @@ import { NavSettingsService } from 'src/app/_services/nav-settings.service';
 import { ToggleService } from '../_services/toggle.service';
 
 @Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  selector: 'app-topbar',
+  templateUrl: './topbar.component.html',
+  styleUrls: ['./topbar.component.css']
 })
 export class NavbarComponent implements OnInit {
-
   public  opened = true;
   model: any = {};
 
@@ -23,7 +22,6 @@ export class NavbarComponent implements OnInit {
   login() {
     this.accountService.login(this.model).subscribe({
       next: _ => this.router.navigateByUrl('/users')//,
-      //error: error => this.toastr.error(error.error)
     });
   }
 

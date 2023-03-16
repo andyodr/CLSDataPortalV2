@@ -22,28 +22,29 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppDialog } from './app-dialog.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { DataImportsComponent } from './dataimports/dataimports.component';
-import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
-import { UploadDirective } from "./dataimports/upload.directive"
+import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { ErrorsComponent } from './errors/errors.component';
-import { NotFoundComponent } from './errors/not-found/not-found.component';
-import { ServerErrorComponent } from './errors/server-error/server-error.component';
-import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { FilterPipe } from "./lib/filter.pipe"
 import { HomeComponent } from './home/home.component';
 import { MeasureDataComponent } from "./measure-data/measure-data.component"
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
-import { TableComponent } from "./lib/table/table.component"
-import { UserListComponent } from "./users/userlist.component"
-import { ErrorInterceptor } from './_interceptors/error.interceptor';
-import { NavbarComponent } from "./navbar/navbar.component";
+import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
+import { NavbarComponent } from "./nav/topbar.component"
 import { NavigateBackDirective } from "./_services/nav.service"
-import { UserEditComponent } from "./users/useredit.component"
-import { UserAddComponent } from "./users/useradd.component"
-import { BsDropdownModule } from "ngx-bootstrap/dropdown"
-import { SbComponent } from "./_services/logger.service"
+import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { RegionTreeComponent } from "./lib/region-tree/region-tree.component"
 import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
+import { SbComponent } from "./_services/logger.service"
+import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { SidebarComponent } from "./nav/sidebar.component"
+import { TableComponent } from "./lib/table/table.component"
+import { TestErrorComponent } from './errors/test-error/test-error.component';
+import { UploadDirective } from "./dataimports/upload.directive"
+import { UserAddComponent } from "./users/useradd.component"
+import { UserEditComponent } from "./users/useredit.component"
+import { UserListComponent } from "./users/userlist.component"
 
 @NgModule({
     declarations: [
@@ -59,16 +60,17 @@ import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
         NavbarComponent,
         NavigateBackDirective,
         NotFoundComponent,
+        RegionHierarchyComponent,
+        RegionTreeComponent,
         SbComponent,
         ServerErrorComponent,
+        SidebarComponent,
         TableComponent,
         TestErrorComponent,
         UploadDirective,
         UserListComponent,
         UserEditComponent,
-        UserAddComponent,
-        RegionTreeComponent,
-        RegionHierarchyComponent
+        UserAddComponent
     ],
     imports: [
         AppRoutingModule,

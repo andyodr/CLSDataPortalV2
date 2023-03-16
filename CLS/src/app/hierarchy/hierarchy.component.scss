@@ -1,7 +1,16 @@
-mat-drawer-container {
-  padding: 20px;
+:host, mat-drawer-container, app-sidebar {
+  height: 100%;
+}
+
+mat-drawer-content {
+  display: flex;
   background-color: inherit;
   height: 100%;
+}
+
+mat-drawer-content > app-sidebar + div {
+  padding: 20px;
+  flex: 1 auto;
 }
 
 .panel-body {
