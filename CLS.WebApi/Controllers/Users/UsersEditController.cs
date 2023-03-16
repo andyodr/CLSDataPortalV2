@@ -34,10 +34,10 @@ public class EditController : ControllerBase
 
 			var regions = _context.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
 			result.Hierarchy.Add(new() {
-				hierarchy = regions.First().Name,
-				id = regions.First().Id,
-				sub = Helper.GetSubsLevel(_context, regions.First().Id),
-				count = 0
+				Hierarchy = regions.First().Name,
+				Id = regions.First().Id,
+				Sub = Helper.GetSubsLevel(_context, regions.First().Id),
+				Count = 0
 			});
 
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);

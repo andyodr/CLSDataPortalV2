@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core"
 import { ActivatedRoute } from "@angular/router"
-import { RegionFilter } from "../_models/regionfilter"
+import { RegionFilter } from "../_models/regionhierarchy"
 import { UserRole } from "../_models/user"
 import { LoggerService } from "../_services/logger.service"
 import { UserService } from "../_services/user.service"
@@ -23,7 +23,7 @@ export class UserEditComponent implements OnInit {
         roleId: 1,
         department: "",
         active: false,
-        selectedRegions: [] as number[]
+        selectedRegions: [] as number | number[] | null
     }
 
     constructor(private route: ActivatedRoute, private userService: UserService, private logger: LoggerService) { }
@@ -50,18 +50,20 @@ export class UserEditComponent implements OnInit {
     }
 
     save() {
-        const { id, userName, firstName, lastName, roleId, department, active } = this.model
-        this.userService.updateUser({
-            id,
-            userName,
-            firstName,
-            lastName,
-            roleId,
-            department,
-            active: active.toString(),
-            hierarchiesId: this.model.selectedRegions
-        }).subscribe(ud => {
-            this.logger.logSuccess("User information saved")
-        })
+        const { id, userName, firstName, lastName, roleId, department, active, selectedRegions: hierarchiesId } = this.model
+        if (Array.isArray(hierarchiesId)) {
+            this.userService.updateUser({
+                id,
+                userName,
+                firstName,
+                lastName,
+                roleId,
+                department,
+                active: active.toString(),
+                hierarchiesId
+            }).subscribe(ud => {
+                this.logger.logSuccess("User information saved")
+            })
+        }
     }
 }

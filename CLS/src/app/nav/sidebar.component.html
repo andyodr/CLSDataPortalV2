@@ -1,0 +1,26 @@
+<div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar mat-elevation-z6">
+  <header class="sidebar-title" *ngIf="opened">Deliver Data Portal</header>
+  <ul>
+    <li>
+      <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>
+    </li>
+    <li>
+      <i class="fa fa-pencil" routerLink="/targets"></i><span class="text-li" routerLink="/targets" *ngIf="opened">Targets</span>
+    </li>
+    <li>
+      <i class="fa fa-list" routerLink="/measures"></i><span class="text-li" routerLink="/measures" *ngIf="opened">Measures</span>
+    </li>
+    <li>
+      <i class="fa fa-file" routerLink="/measuredefinition"></i><span class="text-li" routerLink="/measuredefinition" *ngIf="opened">Measure Definition</span>
+    </li>
+    <li>
+      <i class="fa fa-map" routerLink="/hierarchy"></i><span class="text-li" routerLink="/hierarchy" *ngIf="opened">Hierarchy</span>
+    </li>
+    <li>
+      <i class="fa fa-upload" routerLink="/dataimports"></i><span class="text-li" routerLink="/dataimports" *ngIf="opened">Data Imports</span>
+    </li>
+    <li>
+      <i class="fa fa-link"></i><span class="text-li" *ngIf="opened">Tableau</span>
+    </li>
+  </ul>
+</div>

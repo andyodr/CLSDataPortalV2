@@ -33,10 +33,10 @@ public class AddController : ControllerBase
 			var region = _context.Hierarchy
 				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
 			returnObject.Hierarchy.Add(new() {
-				hierarchy = region.Name,
-				id = region.Id,
-				sub = Helper.GetSubsLevel(_context, region.Id),
-				count = 0
+				Hierarchy = region.Name,
+				Id = region.Id,
+				Sub = Helper.GetSubsLevel(_context, region.Id),
+				Count = 0
 			});
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {

@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core"
-import { ProgressBarMode } from "@angular/material/progress-bar"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { Router } from "@angular/router"
 import { Subscription } from "rxjs"
 import { User, UserData } from "../_models/user"
 import { UserService } from "../_services/user.service"
-import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../app-constants"
+import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../lib/app-constants"
 import { NavigationService } from "../_services/nav.service"
 
 @Component({
@@ -22,14 +21,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     private userSubscription = new Subscription()
     toggle: any = true
     disabledAll = false
-    skUsers = ""
     errorMsg: any = ""
     showError = false
     showContentPage = true
-    progress = {
-        mode: "determinate" as ProgressBarMode,
-        value: 0
-    }
 
     constructor(private userService: UserService, public router: Router, private _: NavigationService) { }
 
@@ -53,6 +47,10 @@ export class UserListComponent implements OnInit, OnDestroy {
     applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
+    }
+
+    identity(index: number, row: User) {
+        return row.id
     }
 
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {

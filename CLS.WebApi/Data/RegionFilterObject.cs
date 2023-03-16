@@ -2,10 +2,15 @@
 
 public class RegionFilterObject
 {
-	public string hierarchy { set; get; }
-	public int id { set; get; }
-	public int? count { set; get; }
-	public ICollection<RegionFilterObject> sub { set; get; }
-	public bool? found { get; set; }
-	public ErrorModel error { set; get; }
+	public string Hierarchy { get; set; } = null!;
+
+	public int Id { get; set; }
+
+	public int? Count { get; set; }
+
+	public ICollection<RegionFilterObject> Sub { get; set; } = new List<RegionFilterObject>();
+
+	public bool? Found { get; set; }
+
+	public ErrorModel? Error { get; set; }
 }

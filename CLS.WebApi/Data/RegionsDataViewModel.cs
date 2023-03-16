@@ -1,20 +1,23 @@
 ﻿namespace CLS.WebApi.Data;
 
-public class RegionsDataViewModel
+public class RegionsDataViewModelAdd
 {
-	public int id { get; set; }
+	public int LevelId { get; set; }
 
-	public int? levelId { get; set; }
+	public string Name { get; set; } = null!;
 
-	public string level { get; set; }
+	public int? ParentId { get; set; }
 
-	public string name { get; set; }
+	public bool Active { get; set; }
 
-	public int? parentId { get; set; }
+	public bool Remove { get; set; }
+}
 
-	public string parentName { get; set; }
+public class RegionsDataViewModel: RegionsDataViewModelAdd
+{
+	public int Id { get; set; }
 
-	public bool? active { get; set; }
+	public string? Level { get; set; }
 
-	public bool? remove { get; set; }
+	public string? ParentName { get; set; }
 }

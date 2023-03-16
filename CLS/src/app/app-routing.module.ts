@@ -8,22 +8,24 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './_guards/auth.guard';
-import { UserListComponent } from './users/userlist.component';
-import { UserAddComponent } from './users/useradd.component';
-import { UserEditComponent } from './users/useredit.component';
+import { UserListComponent } from "./users/userlist.component"
+import { UserAddComponent } from "./users/useradd.component"
+import { UserEditComponent } from "./users/useredit.component"
+import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-	{ path: 'measuredata', component: MeasureDataComponent },
+    { path: 'measuredata', component: MeasureDataComponent },
     {
         path: "users", children: [
-            { path: "add", title: "Distributor - Add User", component: UserAddComponent },
-            { path: "", title: "Distributor - User", component: UserListComponent },
-            { path: ":id", title: "Distributor - Edit User", component: UserEditComponent }
+            { path: "add", title: "Deliver Data Portal - Add User", component: UserAddComponent },
+            { path: "", title: "Deliver Data Portal - Users", component: UserListComponent },
+            { path: ":id", title: "Deliver Data Portal - Edit User", component: UserEditComponent }
         ]
     },
+    { path: "hierarchy", title: "Deliver Data Portal - Region Hierarchy", component: RegionHierarchyComponent },
     {
         path: '',
         runGuardsAndResolvers: 'always',
@@ -34,13 +36,13 @@ const routes: Routes = [
     { path: 'targets', component: TargetsComponent },
     { path: 'measures', component: MeasuresComponent },
     { path: 'measuredefinition', component: MeasureDefinitionComponent },
-    { path: "dataimports", title: "Distributor - Data Imports", component: DataImportsComponent },
+    { path: "dataimports", title: "Deliver Data Portal - Data Imports", component: DataImportsComponent },
     { path: 'errors', component: TestErrorComponent },
     { path: 'not-found', component: NotFoundComponent },
     { path: 'server-error', component: ServerErrorComponent },
     { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
-	//{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
+//{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],

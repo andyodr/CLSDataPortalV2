@@ -1,1 +1,20 @@
-<p>measuredefinition works!</p>
+<mat-drawer-container>
+  <mat-drawer #drawer>
+    <header>
+      <h2>Filter</h2>
+      <button mat-raised-button aria-label="Cancel" (click)="drawer.close()">
+        <mat-icon>close</mat-icon> Cancel
+      </button>
+      <button mat-raised-button aria-label="Save" (click)="save(); drawer.close()">
+        <mat-icon>save_alt</mat-icon> Save
+      </button>
+    </header>
+  </mat-drawer>
+  <mat-drawer-content>
+    <app-sidebar></app-sidebar>
+    <content>
+      <p>measuredefinition works!</p>
+      <button mat-raised-button (click)="drawer.open()">Filter</button>
+    </content>
+  </mat-drawer-content>
+</mat-drawer-container>

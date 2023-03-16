@@ -1,106 +1,110 @@
+<app-sidebar></app-sidebar>
 <div class="page page-table" data-ng-controller="MeasuresCtrl">
-    <div class="row ui-section">
+  <div class="row ui-section">
     <div class="col-lg-8 clearfix">
       <h2 class="section-header2">{{title}}</h2>
     </div>
     <div class="col-md-12 itgMinH">
-    
+
       <div class="panel panel-default">
-      
+
         <!-- Progress Section-->
-        <aside data-ng-include="'app/layout/progress.html'" ></aside>
-        
+        <aside data-ng-include="'app/layout/progress.html'"></aside>
+
         <!-- Error Section-->
-        <aside data-ng-include="'app/layout/errors.html'" ></aside>
-        
+        <aside data-ng-include="'app/layout/errors.html'"></aside>
+
         <!-- Filter Section-->
         <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
-       
+
         <!-- Table Section-->
         <div ng-show="showContentPage" class="panel-body padT0">
-                
+
           <div class="panel panel-default">
-          
+
             <!-- Heading and Buttons Section-->
             <div class="panel-heading">
               <div class="row">
-                 <form>
+                <form>
                   <input type="text" placeholder="Search..." class="form-control marL15" style="width: 300px;"
-                       data-ng-model="skMeasures" data-ng-keyup="populateTable()" ng-disabled="disabledAll">
+                         data-ng-model="skMeasures" data-ng-keyup="populateTable()" ng-disabled="disabledAll">
                 </form>
               </div>
             </div>
-                
+
             <!-- Table Section-->
-    <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
-    <table class="table table-bordered table-striped cf no-margin">
-     <thead class="cf">
-     <tr>
-      <th class="numeric"><div class="th"> <span>Measure Definition</span>
-      <span class="fa fa-angle-up" data-ng-click=" order('name') " data-ng-class="{active: row == 'name'}"></span>
-      <span class="fa fa-angle-down" data-ng-click=" order('-name') " data-ng-class="{active: row == '-name'}"></span>
-      </div></th>   
-      <th class="numeric" data-ng-repeat="region in hierarchy track by $index">
-        <!-- <div class="th"><span class="f12" ng-if="($index == 0)">(Parent)</span> {{region}} </div> -->
-      </th>
-      <th ng-if="allow" class="numeric itgWidth100 textAlignM"><div class="th"></div></th>  
-     </tr>
-     </thead>
-     <tbody>
-     <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr">
-        
-        <td style="width:200px;">
-          <p class="itgPopupLink" ng-click="editOwner(data)">
-            <!-- <span class="pSpan" uib-tooltip="Owner: {{data.owner}}">{{data.name}}</span> -->
-          </p>
-        </td>
-        
-        <td data-ng-repeat="region in data.hierarchy track by $index">
-          <div class="magicWrap">
-            <!-- <input class="magic-checkbox" type="checkbox" id="A{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.active" 
-              ng-disabled="rowsDisabled($parent.$index)" />
-            <label for="A{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Active"> A </label> -->
-          </div>
-          <div class="magicWrap">  
-            <!-- <input class="magic-checkbox" type="checkbox" id="B{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.expression" 
-              ng-disabled="rowsDisabled($parent.$index)" />
-            <label for="B{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Calculated Expression"> E </label>  -->
-          </div>
-          <div class="magicWrap">
-            <!-- <input class="magic-checkbox" type="checkbox" id="C{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.rollup" 
-              ng-disabled="rowsDisabled($parent.$index)" />
-            <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>   -->
-          </div>
-        </td>
-           
-        <td ng-if="allow" class="mar0 itgTableTd itgWidth100 textAlignM"> 
-        
-    <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" ng-disabled="disabledAll" ng-click="edit(data, $index)" uib-tooltip="Edit">
-      <span class="glyphicon glyphicon-pencil"></span>
-    </button>
-     
-    <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit{{data.id}}" ng-click="save(data, $index)" uib-tooltip="Save">
-      <span class="glyphicon glyphicon-ok"></span>
-    </button>  
-    
-    <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit{{data.id}}" ng-click="cancel(data, $index)" uib-tooltip="Cancel">
-      <span class="glyphicon glyphicon-arrow-left"></span>
-    </button>  -->
-    
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <footer class="table-footer">
-      <!-- <span> Showing {{filteredData.length}} entries </span> -->
-      <span> Showing entries </span>
-    </footer>
-    </section>
-    
+            <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
+              <table class="table table-bordered table-striped cf no-margin">
+                <thead class="cf">
+                  <tr>
+                    <th class="numeric">
+                      <div class="th">
+                        <span>Measure Definition</span>
+                        <span class="fa fa-angle-up" data-ng-click=" order('name') " data-ng-class="{active: row == 'name'}"></span>
+                        <span class="fa fa-angle-down" data-ng-click=" order('-name') " data-ng-class="{active: row == '-name'}"></span>
+                      </div>
+                    </th>
+                    <th class="numeric" data-ng-repeat="region in hierarchy track by $index">
+                      <!-- <div class="th"><span class="f12" ng-if="($index == 0)">(Parent)</span> {{region}} </div> -->
+                    </th>
+                    <th ng-if="allow" class="numeric itgWidth100 textAlignM"><div class="th"></div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr">
+
+                    <td style="width:200px;">
+                      <p class="itgPopupLink" ng-click="editOwner(data)">
+                        <!-- <span class="pSpan" uib-tooltip="Owner: {{data.owner}}">{{data.name}}</span> -->
+                      </p>
+                    </td>
+
+                    <td data-ng-repeat="region in data.hierarchy track by $index">
+                      <div class="magicWrap">
+                        <!-- <input class="magic-checkbox" type="checkbox" id="A{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.active"
+                          ng-disabled="rowsDisabled($parent.$index)" />
+                        <label for="A{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Active"> A </label> -->
+                      </div>
+                      <div class="magicWrap">
+                        <!-- <input class="magic-checkbox" type="checkbox" id="B{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.expression"
+                          ng-disabled="rowsDisabled($parent.$index)" />
+                        <label for="B{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Calculated Expression"> E </label>  -->
+                      </div>
+                      <div class="magicWrap">
+                        <!-- <input class="magic-checkbox" type="checkbox" id="C{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.rollup"
+                          ng-disabled="rowsDisabled($parent.$index)" />
+                        <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>   -->
+                      </div>
+                    </td>
+
+                    <td ng-if="allow" class="mar0 itgTableTd itgWidth100 textAlignM">
+
+                      <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" ng-disabled="disabledAll" ng-click="edit(data, $index)" uib-tooltip="Edit">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                      </button>
+
+                      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit{{data.id}}" ng-click="save(data, $index)" uib-tooltip="Save">
+                        <span class="glyphicon glyphicon-ok"></span>
+                      </button>
+
+                      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit{{data.id}}" ng-click="cancel(data, $index)" uib-tooltip="Cancel">
+                        <span class="glyphicon glyphicon-arrow-left"></span>
+                      </button>  -->
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <footer class="table-footer">
+                <!-- <span> Showing {{filteredData.length}} entries </span> -->
+                <span> Showing entries </span>
+              </footer>
+            </section>
+
           </div>
         </div>
-      
+
       </div>
     </div>
-    </div>
-    </div>
+  </div>
+</div>

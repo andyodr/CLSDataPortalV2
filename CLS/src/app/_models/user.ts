@@ -1,5 +1,5 @@
 import { ErrorModel } from "./error"
-import { RegionFilter } from "./regionfilter"
+import { RegionFilter } from "./regionhierarchy"
 
 //Interface for User Model
 export interface User {

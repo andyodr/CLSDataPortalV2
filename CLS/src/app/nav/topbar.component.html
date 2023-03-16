@@ -1,0 +1,20 @@
+<div class="topbar mat-elevation-z6" *ngIf="_navSettingsService.enableNavBar">
+  <div *ngIf="opened" class="nav-logo-expanded">
+    <img src="../assets/images/JnJ_Logo.png" width="162" height="40" alt="J&J Logo" class="logo">
+  </div>
+  <div *ngIf="!opened" class="nav-logo-collapsed">
+    <img src="../assets/images/JnJ_Logo_sm.png" width="35" height="29" alt="J&J Logo Collapsed" class="logo">
+  </div>
+  <div class="nav-toggle">
+    <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
+  </div>
+  <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
+  <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown style="cursor: pointer;">
+    <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+    <div class="dropdown-menu mt-3" *dropdownMenu>
+      <a class="dropdown-item" routerLink="/users">User Management</a>
+      <a class="dropdown-item">Settings</a>
+      <a class="dropdown-item" (click)="logout()">Logout</a>
+    </div>
+  </div>
+</div>

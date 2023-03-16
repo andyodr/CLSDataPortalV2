@@ -1,0 +1,32 @@
+:host, mat-drawer-container, app-sidebar {
+  height: 100%;
+}
+
+mat-drawer-content {
+  display: flex;
+  background-color: inherit;
+  height: 100%;
+}
+
+mat-drawer-content > app-sidebar + * {
+  padding: 20px;
+  flex: 1 auto;
+}
+
+mat-drawer header {
+  background: linear-gradient(var(--mat-color-600), var(--mat-color-500) 33%, var(--mat-color-500));
+  padding: 15px 20px;
+  display: flex;
+  gap: 15px;
+}
+
+mat-drawer header h2 {
+  color: white;
+  display: flex;
+  margin: auto 2em;
+}
+
+
+button, a {
+  min-width: 8em;
+}

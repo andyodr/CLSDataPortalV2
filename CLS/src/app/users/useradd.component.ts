@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core"
-import { RegionFilter, RegionFlatNode } from "../_models/regionfilter"
+import { RegionFilter } from "../_models/regionhierarchy"
 import { UserRole } from "../_models/user"
 import { LoggerService } from "../_services/logger.service"
 import { UserService } from "../_services/user.service"
@@ -21,7 +21,7 @@ export class UserAddComponent implements OnInit {
         roleId: 1,
         department: "",
         active: false,
-        selectedRegions: [] as number[]
+        selectedRegions: [] as number | number[] | null
     }
 
     constructor(private userService: UserService, private logger: LoggerService) { }
@@ -34,12 +34,14 @@ export class UserAddComponent implements OnInit {
     }
 
     save() {
-        const { userName, firstName, lastName, roleId, department, active, selectedRegions } = this.model
-        this.userService.addUser({
-            userName, firstName, lastName, roleId, department,
-            active: active.toString(),
-            hierarchiesId: selectedRegions
-        }).subscribe(u => this.logger.logInfo(`New user id: ${u.data[0].id}`))
+        const { userName, firstName, lastName, roleId, department, active, selectedRegions: hierarchiesId } = this.model
+        if (Array.isArray(hierarchiesId)) {
+            this.userService.addUser({
+                userName, firstName, lastName, roleId, department,
+                active: active.toString(),
+                hierarchiesId
+            }).subscribe(u => this.logger.logInfo(`New user id: ${u.data[0].id}`))
+        }
     }
 
     refresh() {
