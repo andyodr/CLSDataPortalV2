@@ -49,7 +49,7 @@ mat-drawer header h2 {
   padding: 15px;
 }
 
-button, a {
+div > button, div > a {
   min-width: 8em;
 }
 
