@@ -38,11 +38,11 @@ public class FilterController : ControllerBase
 	// Used first time Measure Data page is open.
 	private IActionResult Filter() {
 		var filter = new FilterReturnObject {
-			intervals = new(),
-			measureTypes = new(),
-			hierarchy = new(),
-			years = new(),
-			currentCalendarIds = new()
+			Intervals = new(),
+			MeasureTypes = new(),
+			Hierarchy = new(),
+			Years = new(),
+			CurrentCalendarIds = new()
 		};
 
 		try {
@@ -56,7 +56,7 @@ public class FilterController : ControllerBase
 			//USE SAVED FILTER
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTrackingWithIdentityResolution()) {
-				filter.intervals.Add(new() { id = interval.Id, name = interval.Name });
+				filter.Intervals.Add(new() { id = interval.Id, name = interval.Name });
 			}
 
 			var cals = _context.Calendar
@@ -64,18 +64,18 @@ public class FilterController : ControllerBase
 						.OrderByDescending(y => y.Year);
 
 			foreach (var cal in cals.AsNoTrackingWithIdentityResolution()) {
-				filter.years.Add(new YearsObject { id = cal.Id, year = cal.Year });
+				filter.Years.Add(new YearsObject { id = cal.Id, year = cal.Year });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTrackingWithIdentityResolution()) {
-				filter.measureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
+				filter.MeasureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
 			var regions = _context.Hierarchy.AsNoTrackingWithIdentityResolution().Single(m => m.HierarchyLevel!.Id == 1);
 			//filter.hierarchy.Add(new RegionFilterObject { hierarchy = regions.Name, id = regions.Id, sub = Helper.getSubs(regions.Id, _user), count = 0 });
 
-			filter.hierarchy.Add(new() {
+			filter.Hierarchy.Add(new() {
 				Hierarchy = regions.Name,
 				Id = regions.Id,
 				Found = true,
@@ -103,13 +103,13 @@ public class FilterController : ControllerBase
 
 			// set Previous Calendar Ids
 			try {
-				filter.currentCalendarIds.weeklyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.weekly);
-				filter.currentCalendarIds.monthlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.monthly);
-				filter.currentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.quarterly);
-				filter.currentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.yearly);
+				filter.CurrentCalendarIds.weeklyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.weekly);
+				filter.CurrentCalendarIds.monthlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.monthly);
+				filter.CurrentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.quarterly);
+				filter.CurrentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.yearly);
 			}
 			catch (Exception e) {
-				filter.error = Helper.ErrorProcessing(_context, e, _user.userId);
+				filter.Error = Helper.ErrorProcessing(_context, e, _user.userId);
 			}
 
 
@@ -138,7 +138,7 @@ public class FilterController : ControllerBase
 				_user.savedFilters[Helper.pages.measureData].year = _context.Calendar.Find(_user.savedFilters[Helper.pages.measureData].calendarId)?.Year;
 			}
 
-			filter.filter = _user.savedFilters[Helper.pages.measureData];
+			filter.Filter = _user.savedFilters[Helper.pages.measureData];
 
 			return Ok(filter);
 		}

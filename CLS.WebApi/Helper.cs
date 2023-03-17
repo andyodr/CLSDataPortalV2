@@ -331,16 +331,16 @@ public static class Helper
 				//create Measure records
 				_ = dbc.Measure.Add(new() {
 					HierarchyId = id.id,
-					MeasureDefinitionId = measureDef.id ?? -1,
+					MeasureDefinitionId = measureDef.Id ?? -1,
 					Active = true,
-					Expression = measureDef.calculated,
+					Expression = measureDef.Calculated,
 					Rollup = true,
 					LastUpdatedOn = dtNow
 				});
 			}
 
 			var measures = from measure in dbc.Measure
-						   where measure.MeasureDefinitionId == measureDef.id
+						   where measure.MeasureDefinitionId == measureDef.Id
 						   select new { id = measure.Id };
 			//make target ids
 			foreach (var measure in measures) {

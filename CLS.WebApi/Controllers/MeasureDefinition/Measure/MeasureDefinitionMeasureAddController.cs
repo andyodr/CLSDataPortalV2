@@ -67,14 +67,14 @@ public class AddController : ControllerBase
 				units = new List<UnitsObject>(),
 				intervals = new(),
 				measureTypes = new(),
-				data = new List<MeasureDefinitionViewModel>()
+				Data = new List<MeasureDefinitionViewModel>()
 			};
 
 			// Validates name and variable name
 			int validateCount = _context.MeasureDefinition
 			  .Where(m =>
-				m.Name.Trim().ToLower() == value.name.Trim().ToLower() ||
-				m.VariableName.Trim().ToLower() == value.varName.Trim().ToLower()).Count();
+				m.Name.Trim().ToLower() == value.Name.Trim().ToLower() ||
+				m.VariableName.Trim().ToLower() == value.VarName.Trim().ToLower()).Count();
 
 			if (validateCount > 0) {
 				throw new Exception(Resource.VAL_MEASURE_DEF_NAME_EXIST);
@@ -96,33 +96,33 @@ public class AddController : ControllerBase
 			}
 
 			// Get Values from Page
-			if (value.expression is null) {
-				value.calculated = false;
+			if (value.Expression is null) {
+				value.Calculated = false;
 			}
 			else {
-				value.calculated = value.expression.Trim().Length > 0;
-				value.expression = value.expression.Replace(" \"", "\"").Replace("\" ", "\"");
+				value.Calculated = value.Expression.Trim().Length > 0;
+				value.Expression = value.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = Helper.nullBoolToBool(value.daily) && value.intervalId != (int)Helper.intervals.daily;
-			weekly = Helper.nullBoolToBool(value.weekly) && value.intervalId != (int)Helper.intervals.weekly;
-			monthly = Helper.nullBoolToBool(value.monthly) && value.intervalId != (int)Helper.intervals.monthly;
-			quarterly = Helper.nullBoolToBool(value.quarterly) && value.intervalId != (int)Helper.intervals.quarterly;
-			yearly = Helper.nullBoolToBool(value.yearly) && value.intervalId != (int)Helper.intervals.yearly;
-			value.aggFunctionId ??= (byte)enumAggFunctions.summation;
+			daily = Helper.nullBoolToBool(value.Daily) && value.IntervalId != (int)Helper.intervals.daily;
+			weekly = Helper.nullBoolToBool(value.Weekly) && value.IntervalId != (int)Helper.intervals.weekly;
+			monthly = Helper.nullBoolToBool(value.Monthly) && value.IntervalId != (int)Helper.intervals.monthly;
+			quarterly = Helper.nullBoolToBool(value.Quarterly) && value.IntervalId != (int)Helper.intervals.quarterly;
+			yearly = Helper.nullBoolToBool(value.Yearly) && value.IntervalId != (int)Helper.intervals.yearly;
+			value.AggFunctionId ??= (byte)enumAggFunctions.summation;
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
 			var currentMD = new Data.Models.MeasureDefinition {
-				Name = value.name,
-				VariableName = value.varName,
-				Description = value.description,
-				Precision = value.precision,
-				Priority = (short)value.priority,
-				FieldNumber = value.fieldNumber,
-				Calculated = (bool)value.calculated,
-				Expression = value.expression,
+				Name = value.Name,
+				VariableName = value.VarName,
+				Description = value.Description,
+				Precision = value.Precision,
+				Priority = (short)value.Priority,
+				FieldNumber = value.FieldNumber,
+				Calculated = (bool)value.Calculated,
+				Expression = value.Expression,
 				AggDaily = daily,
 				AggWeekly = weekly,
 				AggMonthly = monthly,
@@ -131,8 +131,8 @@ public class AddController : ControllerBase
 			};
 
 			if (daily || weekly || monthly || quarterly || yearly) {
-				currentMD.AggFunction = value.aggFunctionId;
-				if (currentMD.Calculated != true && value.aggFunctionId == (byte)enumAggFunctions.expression) {
+				currentMD.AggFunction = value.AggFunctionId;
+				if (currentMD.Calculated != true && value.AggFunctionId == (byte)enumAggFunctions.expression) {
 					currentMD.AggFunction = (byte)enumAggFunctions.summation;
 				}
 			}
@@ -145,8 +145,8 @@ public class AddController : ControllerBase
 
 			var test = _context.MeasureDefinition.Add(currentMD);
 			_context.SaveChanges();
-			value.id = currentMD.Id;
-			result.data.Add(value);
+			value.Id = currentMD.Id;
+			result.Data.Add(value);
 
 			// Create Measure and Target records
 			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, value);
@@ -155,7 +155,7 @@ public class AddController : ControllerBase
 			}
 
 			// Create Measure Data records for current intervals
-			Helper.CreateMeasureDataRecords(_context, value.intervalId, currentMD.Id);
+			Helper.CreateMeasureDataRecords(_context, value.IntervalId, currentMD.Id);
 			if (weekly)
 				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, currentMD.Id);
 			if (monthly)

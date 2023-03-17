@@ -3,18 +3,32 @@
 }
 
 mat-drawer-content {
-  display: flex;
+  display: grid;
+  grid-template: 1fr / auto 1fr;
   background-color: inherit;
   height: 100%;
 }
 
-mat-drawer-content > app-sidebar + * {
+app-sidebar {
+  grid-row: 1 / -1;
+}
+
+app-sidebar ~ * {
+  grid-column: 2;
   padding: 20px;
-  flex: 1 auto;
+}
+
+mat-drawer form {
+  display: flex;
+  padding: 20px;
+}
+
+mat-drawer form * {
+  flex: 1;
 }
 
 mat-drawer header {
-  background: linear-gradient(var(--mat-color-600), var(--mat-color-500) 33%, var(--mat-color-500));
+  background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
   padding: 15px 20px;
   display: flex;
   gap: 15px;
@@ -26,7 +40,78 @@ mat-drawer header h2 {
   margin: auto 2em;
 }
 
+.panel-body {
+  padding: 15px;
+}
 
 button, a {
   min-width: 8em;
+}
+
+div.panel > button {
+  margin: 6px 11px 10px 0px;
+}
+
+span.filter {
+  color: white;
+  background-color: gray;
+  margin: 9px;
+  padding: 4px 11px;
+}
+
+.panel-header {
+  background-color: var(--mat-primary-50);
+  border-color: #e2edeb;
+  padding: 10px 15px 0px;
+  border: 1px solid var(--mat-primary-100);
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button mat-icon {
+  position: relative;
+  top: -1px;
+  left: -4px;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-name {
+  width: 12em;
+}
+
+.mat-column-varName {
+  width: 6em;
+}
+
+.mat-column-description {
+  width: 18em;
+}
+
+.mat-column-expression {
+  width: 18em;
+}
+
+.mat-column-calculated {
+  width: 4em;
+  text-align: center;
+}
+
+.mat-column-interval {
+  width: 6em;
+}
+
+.mat-column-priority {
+  width: 4em;
+  text-align: center;
+}
+
+footer {
+  padding: 15px;
 }

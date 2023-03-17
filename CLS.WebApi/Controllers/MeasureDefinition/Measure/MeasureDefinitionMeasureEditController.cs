@@ -22,7 +22,7 @@ public class EditController : ControllerBase
 			intervals = new(),
 			measureTypes = new(),
 			aggFunctions = AggregationFunctions.list,
-			data = new()
+			Data = new()
 		};
 
 		try {
@@ -50,38 +50,38 @@ public class EditController : ControllerBase
 
 			foreach (var md in _context.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
 				var currentMD = new MeasureDefinitionViewModel {
-					id = md.Id,
-					measureTypeId = md.MeasureTypeId,
-					name = md.Name,
-					varName = md.VariableName,
-					description = md.Description,
-					expression = md.Expression,
-					precision = md.Precision,
-					priority = md.Priority,
-					fieldNumber = md.FieldNumber,
-					unitId = md.Unit!.Id,
-					calculated = md.Calculated,
+					Id = md.Id,
+					MeasureTypeId = md.MeasureTypeId,
+					Name = md.Name,
+					VarName = md.VariableName,
+					Description = md.Description,
+					Expression = md.Expression,
+					Precision = md.Precision,
+					Priority = md.Priority,
+					FieldNumber = md.FieldNumber,
+					UnitId = md.Unit!.Id,
+					Calculated = md.Calculated,
 
 					//find which interval Id to give
 					//currentMD.intervalId = Helper.findIntervalId(currentMD, _intervalsRepository);
-					intervalId = md.ReportIntervalId
+					IntervalId = md.ReportIntervalId
 				};
 
 				bool daily, weekly, monthly, quarterly, yearly = false;
 
-				daily = Helper.nullBoolToBool(md.AggDaily) && currentMD.intervalId != (int)Helper.intervals.daily;
-				weekly = Helper.nullBoolToBool(md.AggWeekly) && currentMD.intervalId != (int)Helper.intervals.weekly;
-				monthly = Helper.nullBoolToBool(md.AggMonthly) && currentMD.intervalId != (int)Helper.intervals.monthly;
-				quarterly = Helper.nullBoolToBool(md.AggQuarterly) && currentMD.intervalId != (int)Helper.intervals.quarterly;
-				yearly = Helper.nullBoolToBool(md.AggYearly) && currentMD.intervalId != (int)Helper.intervals.yearly;
+				daily = Helper.nullBoolToBool(md.AggDaily) && currentMD.IntervalId != (int)Helper.intervals.daily;
+				weekly = Helper.nullBoolToBool(md.AggWeekly) && currentMD.IntervalId != (int)Helper.intervals.weekly;
+				monthly = Helper.nullBoolToBool(md.AggMonthly) && currentMD.IntervalId != (int)Helper.intervals.monthly;
+				quarterly = Helper.nullBoolToBool(md.AggQuarterly) && currentMD.IntervalId != (int)Helper.intervals.quarterly;
+				yearly = Helper.nullBoolToBool(md.AggYearly) && currentMD.IntervalId != (int)Helper.intervals.yearly;
 
-				currentMD.daily = daily;
-				currentMD.weekly = weekly;
-				currentMD.monthly = monthly;
-				currentMD.quarterly = quarterly;
-				currentMD.yearly = yearly;
-				currentMD.aggFunctionId = md.AggFunction;
-				returnObject.data.Add(currentMD);
+				currentMD.Daily = daily;
+				currentMD.Weekly = weekly;
+				currentMD.Monthly = monthly;
+				currentMD.Quarterly = quarterly;
+				currentMD.Yearly = yearly;
+				currentMD.AggFunctionId = md.AggFunction;
+				returnObject.Data.Add(currentMD);
 			}
 			return returnObject;
 		}
@@ -97,7 +97,7 @@ public class EditController : ControllerBase
 			intervals = new(),
 			measureTypes = new(),
 			aggFunctions = AggregationFunctions.list,
-			data = new()
+			Data = new()
 		};
 
 		try {
@@ -124,13 +124,13 @@ public class EditController : ControllerBase
 				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var mDef = _context.MeasureDefinition.Where(m => m.Id == value.id).Single();
+			var mDef = _context.MeasureDefinition.Where(m => m.Id == value.Id).Single();
 
 			// Validates name and variable name
 			int validateCount = _context.MeasureDefinition
 			  .Where(m =>
-					  m.Id != value.id &&
-					  (m.Name.Trim().ToLower() == value.name.Trim().ToLower() || m.VariableName.Trim().ToLower() == value.varName.Trim().ToLower())
+					  m.Id != value.Id &&
+					  (m.Name.Trim().ToLower() == value.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == value.VarName.Trim().ToLower())
 					)
 			  .Count();
 
@@ -140,25 +140,25 @@ public class EditController : ControllerBase
 
 
 			// Get Values from Page
-			if (value.expression is null) {
-				value.calculated = false;
+			if (value.Expression is null) {
+				value.Calculated = false;
 			}
 			else {
-				value.calculated = value.expression.Trim().Length > 0;
-				value.expression = value.expression.Replace(" \"", "\"").Replace("\" ", "\"");
+				value.Calculated = value.Expression.Trim().Length > 0;
+				value.Expression = value.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = Helper.nullBoolToBool(value.daily) && value.intervalId != (int)Helper.intervals.daily;
-			weekly = Helper.nullBoolToBool(value.weekly) && value.intervalId != (int)Helper.intervals.weekly;
-			monthly = Helper.nullBoolToBool(value.monthly) && value.intervalId != (int)Helper.intervals.monthly;
-			quarterly = Helper.nullBoolToBool(value.quarterly) && value.intervalId != (int)Helper.intervals.quarterly;
-			yearly = Helper.nullBoolToBool(value.yearly) && value.intervalId != (int)Helper.intervals.yearly;
-			value.aggFunctionId ??= (byte)enumAggFunctions.summation;
+			daily = Helper.nullBoolToBool(value.Daily) && value.IntervalId != (int)Helper.intervals.daily;
+			weekly = Helper.nullBoolToBool(value.Weekly) && value.IntervalId != (int)Helper.intervals.weekly;
+			monthly = Helper.nullBoolToBool(value.Monthly) && value.IntervalId != (int)Helper.intervals.monthly;
+			quarterly = Helper.nullBoolToBool(value.Quarterly) && value.IntervalId != (int)Helper.intervals.quarterly;
+			yearly = Helper.nullBoolToBool(value.Yearly) && value.IntervalId != (int)Helper.intervals.yearly;
+			value.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
 			var mDef_ = _context.Entry(mDef);
-			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != value.intervalId ||
+			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != value.IntervalId ||
 									 mDef.AggDaily != daily ||
 									 mDef.AggWeekly != weekly ||
 									 mDef.AggMonthly != monthly ||
@@ -166,29 +166,29 @@ public class EditController : ControllerBase
 									 mDef.AggYearly != yearly;
 
 			// Check if some values were changed in order to update IsProcessed to 1 for measure data records 
-			bool updateMeasureData = mDef.VariableName != value.varName ||
-									 mDef.Expression != value.expression ||
-									 mDef.AggFunction != value.aggFunctionId ||
+			bool updateMeasureData = mDef.VariableName != value.VarName ||
+									 mDef.Expression != value.Expression ||
+									 mDef.AggFunction != value.AggFunctionId ||
 									 createMeasureData;
 
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
-			if (value.id is not null) {
-				mDef.Id = (long)value.id;
+			if (value.Id is not null) {
+				mDef.Id = (long)value.Id;
 			}
 
-			mDef.Name = value.name;
-			mDef_.Property("MeasureTypeId").CurrentValue = value.measureTypeId;
-			mDef.VariableName = value.varName;
-			mDef.Description = value.description;
-			mDef.Precision = value.precision;
-			mDef.Priority = (short)value.priority;
-			mDef.FieldNumber = value.fieldNumber;
-			mDef_.Property("UnitId").CurrentValue = value.unitId;
-			mDef.Calculated = (bool)value.calculated;
-			mDef.Expression = value.expression;
-			mDef_.Property("ReportIntervalId").CurrentValue = value.intervalId;
+			mDef.Name = value.Name;
+			mDef_.Property("MeasureTypeId").CurrentValue = value.MeasureTypeId;
+			mDef.VariableName = value.VarName;
+			mDef.Description = value.Description;
+			mDef.Precision = value.Precision;
+			mDef.Priority = (short)value.Priority;
+			mDef.FieldNumber = value.FieldNumber;
+			mDef_.Property("UnitId").CurrentValue = value.UnitId;
+			mDef.Calculated = (bool)value.Calculated;
+			mDef.Expression = value.Expression;
+			mDef_.Property("ReportIntervalId").CurrentValue = value.IntervalId;
 			mDef.AggDaily = daily;
 			mDef.AggWeekly = weekly;
 			mDef.AggMonthly = monthly;
@@ -196,9 +196,9 @@ public class EditController : ControllerBase
 			mDef.AggYearly = yearly;
 
 			if (daily || weekly || monthly || quarterly || yearly) {
-				mDef.AggFunction = value.aggFunctionId;
+				mDef.AggFunction = value.AggFunctionId;
 
-				if (mDef.Calculated != true && value.aggFunctionId == (byte)enumAggFunctions.expression) {
+				if (mDef.Calculated != true && value.AggFunctionId == (byte)enumAggFunctions.expression) {
 					mDef.AggFunction = (byte)enumAggFunctions.summation;
 				}
 			}
@@ -210,7 +210,7 @@ public class EditController : ControllerBase
 			mDef.IsProcessed = (byte)Helper.IsProcessed.complete;
 
 			_context.SaveChanges();
-			returnObject.data.Add(value);
+			returnObject.Data.Add(value);
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
@@ -219,7 +219,7 @@ public class EditController : ControllerBase
 
 			// Create Measure Data records for current intervals if they don't exists
 			if (createMeasureData) {
-				Helper.CreateMeasureDataRecords(_context, value.intervalId, mDef.Id);
+				Helper.CreateMeasureDataRecords(_context, value.IntervalId, mDef.Id);
 				if (weekly)
 					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, mDef.Id);
 				if (monthly)

@@ -25,9 +25,9 @@ public class FilterController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new FilterReturnObject { measureTypes = new(), hierarchy = new() };
+			var returnObject = new FilterReturnObject { MeasureTypes = new(), Hierarchy = new() };
 			foreach (var metricType in _context.MeasureType) {
-				returnObject.measureTypes.Add(new() {
+				returnObject.MeasureTypes.Add(new() {
 					Id = metricType.Id,
 					Name = metricType.Name,
 					Description = metricType.Description
@@ -41,7 +41,7 @@ public class FilterController : ControllerBase
 			foreach (var region in regionList) {
 				var subs = Helper.GetSubs(_context, region.Id, _user);
 				if (subs.Count > 0) {
-					returnObject.hierarchy.Add(new() {
+					returnObject.Hierarchy.Add(new() {
 						Hierarchy = region.Name,
 						Id = region.Id,
 						Sub = subs,
@@ -52,7 +52,7 @@ public class FilterController : ControllerBase
 
 			_user.savedFilters[Helper.pages.measure].hierarchyId ??= 1;
 			_user.savedFilters[Helper.pages.measure].measureTypeId ??= _context.MeasureType.First().Id;
-			returnObject.filter = _user.savedFilters[Helper.pages.measure];
+			returnObject.Filter = _user.savedFilters[Helper.pages.measure];
 			return returnObject;
 		}
 		catch (Exception e) {
