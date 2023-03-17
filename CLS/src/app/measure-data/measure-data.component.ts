@@ -68,14 +68,22 @@ export class MeasureDataComponent implements OnInit {
 
   //showError = false
   //showContentPage = true
+  //intervals
   drawerTitle = "Filter"
   hierarchy: RegionFilter[] = []
-  hierarchyLevels!: { name: string, id: number }[]
+  hierarchyLevels!: { id: number, name: string}[]
+  intervalList!: { name: string, id: number }[]
+  yearList!: { name: string, id: number }[]
+  quarterList!: { name: string, id: number }[]
+  measureTypeList!: { name: string, id: number }[]
   model = {
     id: 0,
     active: false,
     name: "",
-    level: 0,
+    interval: 0,
+    year: 0,
+    quarter: 0,
+    measureType: 0,
     selectedParent: null as number | number[] | null
   } 
 
@@ -543,7 +551,7 @@ export class MeasureDataComponent implements OnInit {
   refresh() {
     //if ( !itgIsNull(filteredPage) ){
     if (this.filteredPage) {
-      this.getData(this.filteredPage);
+      this.getData2(this.filteredPage);
     }
   }
   
@@ -556,16 +564,16 @@ export class MeasureDataComponent implements OnInit {
     if (this.editValue && !data.calculated) {
       this.editBgColor = false;
       const idA = document.querySelector(`.tdA${id}`);
-      // if (idA)
-      // {
-      //   idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
-      //   idA.innerHTML = '';
-      // } 
+      if (idA)
+      {
+        idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
+        idA.innerHTML = '';
+      } 
 
       let dirVal = 'only-digits';
-      /*if (data.unitId === itgUnits.percentage) {
-        dirVal = 'zero-to-one';
-      }*/
+      // if (data.unitId === itgUnits.percentage) {
+      //   dirVal = 'zero-to-one';
+      // }
   
       const mVal = this.itgStrNullToEmpty(data.value);
       const mVal2 = `<input type="text" class="form-control mVal mVal${id}"
@@ -599,9 +607,72 @@ export class MeasureDataComponent implements OnInit {
     // document.querySelector(`.btnEdit${id}`).removeAttribute('disabled');
   }
   
-  cancel(data: any) {
+  edit2(data: any) {
+    //this.disabledAll = true;
+    this.editValue = true;
+    console.log("edit2");
+    console.log("edit2 data: " , data);
+    console.log("edit2 editValue: " , this.editValue);
+    if (!this.allow || this.locked) { return; }
+    console.log("edit2 data: " , data);
     this.disabledAll = false;
     const id = data.id;
+  
+    if (this.editValue && !data.calculated) {
+      this.editBgColor = false;
+      const idA = document.querySelector(`.tdA${id}`);
+      if (idA)
+      {
+        idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
+        idA.innerHTML = '';
+      } 
+
+      let dirVal = 'only-digits';
+      // if (data.unitId === itgUnits.percentage) {
+      //   dirVal = 'zero-to-one';
+      // }
+  
+      const mVal = this.itgStrNullToEmpty(data.value);
+      const mVal2 = `<input type="text" class="form-control mVal mVal${id}"
+        value="${mVal}" maxlength="24" [(ngModel)]="mVal"
+        (ngModelChange)="getBorderColor(${data.target},${data.yellow})" ${dirVal}>`;
+      
+      if (idA)
+      {
+        idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
+        idA.innerHTML = '';
+        //idA.appendChild(mVal2);
+      } 
+    }
+  
+    const idB = document.querySelector(`.tdB${id}`);
+    if(idB)
+    {
+      idB.innerHTML = '';
+      idB.innerHTML = `<textarea class="mExp${id}" rows="2" maxlength="300">${this.itgStrNullToEmpty(data.explanation)}</textarea>`;
+    }
+    const idC = document.querySelector(`.tdC${id}`);
+    if(idC)
+    {
+      idC.innerHTML = '';
+      idC.innerHTML = `<textarea class="mAct${id}" rows="2" maxlength="300">${this.itgStrNullToEmpty(data.action)}</textarea>`;
+    }
+  
+    // document.querySelector(`.edit${id}`).style.display = 'none';
+    // document.querySelector(`.btnEdit${id}`).style.display = 'block';
+    // document.querySelectorAll('.btnEdit').forEach((btn) => btn.setAttribute('disabled', 'true'));
+    // document.querySelector(`.btnEdit${id}`).removeAttribute('disabled');
+  }
+  
+
+
+  cancel(data: any) {
+    this.disabledAll = false;
+    this.editValue = false;
+    const id = data.id;
+    console.log("cancel");
+    console.log("cancel data: " , data);
+    console.log("cancel editValue: " , this.editValue);
   
     if (this.editValue && !data.calculated) {
       if (this.editValue) {
