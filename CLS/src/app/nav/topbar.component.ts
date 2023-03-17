@@ -5,33 +5,33 @@ import { NavSettingsService } from 'src/app/_services/nav-settings.service';
 import { ToggleService } from '../_services/toggle.service';
 
 @Component({
-  selector: 'app-topbar',
-  templateUrl: './topbar.component.html',
-  styleUrls: ['./topbar.component.css']
+    selector: 'app-topbar',
+    templateUrl: './topbar.component.html',
+    styleUrls: ['./topbar.component.css']
 })
 export class NavbarComponent implements OnInit {
-  public  opened = true;
-  model: any = {};
+    public opened = true;
+    model: any = {};
 
-  constructor(public accountService: AccountService , private router: Router, 
-      private toogleService: ToggleService, public _navSettingsService: NavSettingsService) { }
+    constructor(public api: AccountService, private router: Router,
+        private toogleService: ToggleService, public _navSettingsService: NavSettingsService) { }
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
-  login() {
-    this.accountService.login(this.model).subscribe({
-      next: _ => this.router.navigateByUrl('/users')//,
-    });
-  }
+    login() {
+        this.api.login(this.model).subscribe({
+            next: _ => this.router.navigateByUrl('/users')//,
+        });
+    }
 
-  logout() {
-    this.accountService.logout();
-    this.router.navigateByUrl('/');
-  }
+    logout() {
+        this.api.logout();
+        this.router.navigateByUrl('/');
+    }
 
-  toggle() {
-    this.opened = !this.opened;
-    this.toogleService.setToggle(this.opened);
-  }
+    toggle() {
+        this.opened = !this.opened;
+        this.toogleService.setToggle(this.opened);
+    }
 }

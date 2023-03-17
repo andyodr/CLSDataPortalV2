@@ -1,11 +1,16 @@
 :host {
-  display: flex;
+  display: grid;
+  grid-template: 1fr / auto 1fr;
   height: 100%;
+}
 
-  > app-sidebar + div {
-    padding: 20px;
-    flex: 1 auto;
-  }
+app-sidebar {
+  grid-row: 1 / -1;
+}
+
+app-sidebar ~ * {
+  padding: 20px;
+  grid-column: 2;
 }
 
 .panel-body {
@@ -13,10 +18,10 @@
 }
 
 .panel-header {
-  background-color: var(--mat-color-50);
+  background-color: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid var(--mat-color-100);
+  border: 1px solid var(--mat-primary-100);
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -63,7 +68,7 @@ table {
 }
 
 .mat-row:hover .mat-cell {
-  background-color: var(--mat-color-100);
+  background-color: var(--mat-primary-100);
 }
 
 .mat-row .empty-table {

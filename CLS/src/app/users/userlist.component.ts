@@ -25,14 +25,14 @@ export class UserListComponent implements OnInit, OnDestroy {
     showError = false
     showContentPage = true
 
-    constructor(private userService: UserService, public router: Router, private _: NavigationService) { }
+    constructor(private api: UserService, public router: Router, private _: NavigationService) { }
 
     ngOnDestroy(): void {
         this.userSubscription.unsubscribe()
     }
 
     ngOnInit(): void {
-        this.userSubscription = this.userService.getUsers().subscribe({
+        this.userSubscription = this.api.getUsers().subscribe({
             next: (response: any) => {
                 this.dataSource = new MatTableDataSource((response as UserData).data)
                 this.dataSource.sort = this.sort

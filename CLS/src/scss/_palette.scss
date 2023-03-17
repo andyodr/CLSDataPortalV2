@@ -1,27 +1,28 @@
 /* For use in src/lib/core/theming/_palette.scss */
 :root {
-  --mat-color-50: hsl(186, 28%, 96%, 1);
-  --mat-color-100: hsl(187, 49%, 81%, 1);
-  --mat-color-200: hsl(188, 60%, 66%, 1);
-  --mat-color-300: hsl(189, 70%, 52%, 1);
-  --mat-color-400: hsl(190, 80%, 44%, 1);
-  --mat-color-500: hsl(191, 85%, 36%, 1);
-  --mat-color-600: hsl(191, 89%, 32%, 1);
-  --mat-color-700: hsl(191, 93%, 28%, 1);
-  --mat-color-800: hsl(191, 97%, 24%, 1);
-  --mat-color-900: hsl(191, 100%, 20%, 1);
+  --mat-primary-50: hsl(186, 28%, 96%, 1);
+  --mat-primary-100: hsl(187, 49%, 81%, 1);
+  --mat-primary-200: hsl(188, 60%, 66%, 1);
+  --mat-primary-300: hsl(189, 70%, 52%, 1);
+  --mat-primary-400: hsl(190, 80%, 44%, 1);
+  --mat-primary-500: hsl(191, 85%, 36%, 1);
+  --mat-primary-600: hsl(191, 89%, 32%, 1);
+  --mat-primary-700: hsl(191, 93%, 28%, 1);
+  --mat-primary-800: hsl(191, 97%, 24%, 1);
+  --mat-primary-900: hsl(191, 100%, 20%, 1);
+  --mat-blue-gray-50: mat.get-color-from-palette(mat.$blue-gray-palette, 50);
 }
 $teal-palette: (
- 50 : var(--mat-color-50),
-100 : var(--mat-color-100),
-200 : var(--mat-color-200),
-300 : var(--mat-color-300),
-400 : var(--mat-color-400),
-500 : var(--mat-color-500),
-600 : var(--mat-color-600),
-700 : var(--mat-color-700),
-800 : var(--mat-color-800),
-900 : var(--mat-color-900),
+ 50 : var(--mat-primary-50),
+100 : var(--mat-primary-100),
+200 : var(--mat-primary-200),
+300 : var(--mat-primary-300),
+400 : var(--mat-primary-400),
+500 : var(--mat-primary-500),
+600 : var(--mat-primary-600),
+700 : var(--mat-primary-700),
+800 : var(--mat-primary-800),
+900 : var(--mat-primary-900),
 A100 : #ade4ff,
 A200 : #7ad3ff,
 A400 : #47c3ff,
