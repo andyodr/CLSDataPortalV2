@@ -1,4 +1,9 @@
-:host, mat-drawer-container, app-sidebar {
+:host {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+mat-drawer-container, app-sidebar {
   height: 100%;
 }
 

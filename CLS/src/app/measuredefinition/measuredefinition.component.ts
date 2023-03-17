@@ -1,3 +1,4 @@
+import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnInit, ViewChild } from "@angular/core"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
@@ -7,14 +8,21 @@ import { MeasureDefinition, MeasureDefinitionFilter, MeasureDefinitionService, M
 @Component({
     selector: "app-measuredefinition",
     templateUrl: "./measuredefinition.component.html",
-    styleUrls: ["./measuredefinition.component.css"]
+    styleUrls: ["./measuredefinition.component.css"],
+    animations: [
+        trigger("detailExpand", [
+            state("false", style({ height: "0px", minHeight: "0" })),
+            state("true", style({ height: "*" })),
+            transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
+        ])]
 })
 export class MeasureDefinitionComponent implements OnInit {
     title = "Measure Definition"
     filters!: MeasureDefinitionFilter
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasureDefinition>()
-    displayedColumns = ["name", "varName", "description", "expression", "calculated", "interval", "priority"]
+    displayedColumns = ["name", "varName", "description", "calculated", "interval", "priority"]
+    expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
     selectedMeasureType!: MeasureType
@@ -57,5 +65,16 @@ export class MeasureDefinitionComponent implements OnInit {
     closeError() {
         this.errorMsg = ""
         this.showError = false
+    }
+}
+
+class ToggleQuery {
+    expanded!: any
+    toggle(t: any) {
+        this.expanded = t === this.expanded ? null : t
+    }
+
+    query(t: any) {
+        return this.expanded === t
     }
 }

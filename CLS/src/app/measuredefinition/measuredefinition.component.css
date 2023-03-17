@@ -1,4 +1,9 @@
-:host, mat-drawer-container, app-sidebar {
+:host {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+mat-drawer-container, mat-drawer, app-sidebar {
   height: 100%;
 }
 
@@ -91,7 +96,7 @@ table {
 }
 
 .mat-column-description {
-  width: 18em;
+  width: 24em;
 }
 
 .mat-column-expression {
@@ -100,7 +105,6 @@ table {
 
 .mat-column-calculated {
   width: 4em;
-  text-align: center;
 }
 
 .mat-column-interval {
@@ -109,7 +113,46 @@ table {
 
 .mat-column-priority {
   width: 4em;
-  text-align: center;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+tr.table-row:not(.expanded-row):hover {
+  background-color: var(--mat-primary-50);
+}
+
+tr.table-row:not(.expanded-row):active {
+  background-color: var(--mat-primary-100);
+}
+
+.table-row td {
+  border-bottom-width: 0;
+}
+
+.expandable-detail {
+  overflow: hidden;
+  display: grid;
+  grid-template: repeat(4, auto) / repeat(3, 1fr);
+  grid-auto-flow: column;
+  column-gap: 15px;
+}
+
+.detail-items-1 {
+  display: flex;
+  justify-content: space-between;
+  width: 15em;
+}
+
+.detail-items-2 {
+  display: flex;
+  justify-content: space-between;
+  width: 13em;
+}
+
+.detail-items-3 {
+  width: auto;
 }
 
 footer {
