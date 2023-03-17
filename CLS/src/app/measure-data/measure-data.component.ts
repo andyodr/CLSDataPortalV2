@@ -11,6 +11,8 @@ import { Subscription } from 'rxjs';
 import { ProgressBarMode } from '@angular/material/progress-bar';
 import { NavigationService } from '../_services/nav.service';
 import { HttpClient } from '@angular/common/http';
+import { LoggerService } from '../_services/logger.service';
+import { Hierarchy, RegionFilter } from '../_models/regionhierarchy';
 //import {MaterialModule} from '.../material/material.module';
 
 @Component({
@@ -56,8 +58,30 @@ export class MeasureDataComponent implements OnInit {
     explanation: 'explanation-value',
     action: 'action-value',
   } 
+
+  // title = "Region Hierarchy"
+  dataSource = new MatTableDataSource([] as Data[])
+  displayedColumns = ["name", "value", "units", "explanation", "action", "updated"]
+  @ViewChild(MatSort) sort!: MatSort
+  private userSubscription = new Subscription()
+  //disabledAll = false
+
+  //showError = false
+  //showContentPage = true
+  drawerTitle = "Filter"
+  hierarchy: RegionFilter[] = []
+  hierarchyLevels!: { name: string, id: number }[]
+  model = {
+    id: 0,
+    active: false,
+    name: "",
+    level: 0,
+    selectedParent: null as number | number[] | null
+  } 
+
   // Error handling within the component
-  errorMsg = "";   
+  //errorMsg = "";
+  errorMsg: any = ""   
   showError: boolean = true;
   
   rendered = function(){};
@@ -65,6 +89,7 @@ export class MeasureDataComponent implements OnInit {
   constructor(private measureDataService: MeasureDataService, 
     private router: Router, 
     private _: NavigationService,
+    private logger: LoggerService,
     private http: HttpClient/*, 
     private toastr: ToastrService*/) { }
 
@@ -74,6 +99,19 @@ export class MeasureDataComponent implements OnInit {
     //this.getMeasureData(this.filtered);
     //this.getData(this.filtered)
     this.getData2(this.filtered)
+  }
+
+    saveFilter() {
+      this.logger.logInfo("Do your stuff in here")
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.currentTarget as HTMLInputElement).value
+    this.dataSource.filter = filterValue.trim().toLowerCase()
+  }
+
+  identity(_: number, item: { id: number }) {
+    return item.id
   }
 
   //================================================================================================
@@ -205,6 +243,28 @@ export class MeasureDataComponent implements OnInit {
       this.processLocalError(this.title, err.statusText, -99, err.status, null);
     });
     this.loadTable(false);
+  }
+
+  getData3(filtered: any) {
+    this.userSubscription = this.measureDataService.getMeasureData(filtered).subscribe({
+      next: response => {
+          this.dataSource = new MatTableDataSource(response.data)
+          this.calendarId = response.calendarId;
+          this.data = response.data;
+          this.dataRange = response.range;
+          this.allow = response.allow;
+          this.locked = response.locked;
+          this.editValue= response.editValue;
+          this.showActionButtons = this.allow && !this.locked;
+          this.measureDataResponse = response;
+          this.dataSource.sort = this.sort
+          console.log("Response data : ", response.data);
+          // processLocalError here
+      },
+      error: (err: any) => {
+          this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
+      }
+  })
   }
 
   //================================================================================================
