@@ -59,7 +59,6 @@ export class MeasureDataComponent implements OnInit {
     action: 'action-value',
   } 
 
-  // title = "Region Hierarchy"
   dataSource = new MatTableDataSource([] as Data[])
   displayedColumns = ["name", "value", "units", "explanation", "action", "updated"]
   @ViewChild(MatSort) sort!: MatSort

@@ -1,17 +1,17 @@
 export interface Filter {
-    hierarchyId: number;
-    measureTypeId: number;
     intervalId: number;
     calendarId: number;
     year: number;
+    measureTypeId: number;
+    hierarchyId: number;
 }
 
 export interface measureDataFilter {
+    intervalId: number;
     calendarId: number;
     year: number;
-    hierarchyId: number;
     measureTypeId: number;
-    intervalId: number;
+    hierarchyId: number;
  }
 
 export interface Updated {
