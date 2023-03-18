@@ -104,7 +104,7 @@
           </button>
           <mat-menu #aMenu="matMenu">
             <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
-            <button mat-menu-item (click)="doAddDefinition()">Measure Definition</button>
+            <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
           </mat-menu>
         </div>
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">

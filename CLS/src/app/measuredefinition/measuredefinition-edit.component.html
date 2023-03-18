@@ -1,0 +1,47 @@
+<app-sidebar></app-sidebar>
+<div>
+  <h1>{{title}}</h1>
+  <div class="panel panel-default panel-body">
+    <a mat-fab color="primary" navigateBack="measuredefinition"><mat-icon>arrow_back</mat-icon></a>
+    <div class="panel-header">
+      <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
+        <mat-icon>save_alt</mat-icon> Save
+      </button>
+      <button mat-raised-button color="primary" aria-label="Refresh" (click)="userForm.reset(); regions.reset()">
+        <mat-icon>refresh</mat-icon> Refresh
+      </button>
+    </div>
+    <form #userForm>
+      <div>
+        <mat-form-field appearance="fill">
+          <mat-label>UserName</mat-label>
+          <input matInput name="userName" [(ngModel)]="model.userName" placeholder="GFreeman2" [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Role</mat-label>
+          <mat-select name="roleId" [(ngModel)]="model.roleId" [disabled]="disabledAll">
+            <mat-option *ngFor="let role of roles" [value]="role.id">
+              {{role.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-checkbox name="active" [(ngModel)]="model.active" color="primary">Active</mat-checkbox>
+      </div>
+      <div>
+        <mat-form-field appearance="fill">
+          <mat-label>Last Name</mat-label>
+          <input matInput name="lastName" [(ngModel)]="model.lastName" placeholder="Freeman" [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>First Name</mat-label>
+          <input matInput name="firstName" [(ngModel)]="model.firstName" placeholder="Gordon" [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Department</mat-label>
+          <input matInput name="department" [(ngModel)]="model.department" placeholder="Black Mesa Research" [disabled]="disabledAll">
+        </mat-form-field>
+      </div>
+      <app-region-tree #regions [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedRegions"></app-region-tree>
+    </form>
+  </div>
+</div>

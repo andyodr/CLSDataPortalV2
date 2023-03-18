@@ -75,10 +75,6 @@ export class MeasureDefinitionComponent implements OnInit {
         this.editingMeasureType = { ...this.selectedMeasureType }
     }
 
-    doAddDefinition() {
-        //this.drawer = { title: "Add Measure Definition", button: "Save", position: "end" }
-    }
-
     save() {
         if (this.drawer.position === "start") {
             this.loadTable()

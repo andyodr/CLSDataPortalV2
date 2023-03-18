@@ -30,7 +30,8 @@ import { ErrorsComponent } from './errors/errors.component';
 import { FilterPipe } from "./lib/filter.pipe"
 import { HomeComponent } from './home/home.component';
 import { MeasureDataComponent } from "./measure-data/measure-data.component"
-import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
+import { MeasureDefinitionComponent } from "./measuredefinition/measuredefinition.component"
+import { MeasureDefinitionEditComponent } from "./measuredefinition/measuredefinition-edit.component"
 import { MeasuresComponent } from './measures/measures.component'
 import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
 import { NavbarComponent } from "./nav/topbar.component"
@@ -59,6 +60,7 @@ import { UserListComponent } from "./users/userlist.component"
         HomeComponent,
         MeasureDataComponent,
         MeasureDefinitionComponent,
+        MeasureDefinitionEditComponent,
         MeasuresComponent,
         MultipleSheetsDialog,
         NavbarComponent,
