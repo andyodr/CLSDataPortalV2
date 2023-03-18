@@ -3,7 +3,9 @@
   overflow-y: hidden;
 }
 
-mat-drawer-container, mat-drawer, app-sidebar {
+mat-drawer-container,
+mat-drawer,
+app-sidebar {
   height: 100%;
 }
 
@@ -18,7 +20,7 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar ~ * {
+app-sidebar~* {
   grid-column: 2;
   padding: 20px;
 }
@@ -50,11 +52,12 @@ mat-drawer header h2 {
   padding: 15px;
 }
 
-div > button, div > a {
+div>button,
+div>a {
   min-width: 8em;
 }
 
-div.panel > button {
+div.panel>button {
   margin: 6px 11px 10px 0px;
 }
 
@@ -77,12 +80,12 @@ span.filter {
   align-items: center;
 }
 
-.panel-header > :first-child {
-    margin-right: auto;
+.panel-header> :first-child {
+  margin-right: auto;
 }
 
-.panel-header > button:not(:first-child) {
-    margin: 0px 20px 13px;
+.panel-header>button:not(:first-child) {
+  margin: 0px 20px 13px;
 }
 
 button mat-icon {
@@ -142,25 +145,39 @@ tr.table-row:not(.expanded-row):active {
 .expandable-detail {
   overflow: hidden;
   display: grid;
-  grid-template: repeat(4, auto) / repeat(3, 1fr);
-  grid-auto-flow: column;
-  column-gap: 15px;
+  grid-template: auto auto / repeat(3, 1fr);
+  align-items: center;
+  column-gap: 2em;
 }
 
 .detail-items-1 {
-  display: flex;
-  justify-content: space-between;
-  width: 15em;
+  grid-row: 1;
+  width: max-content;
+  display: grid;
+  grid-template: auto auto / auto auto;
+  column-gap: 1em;
+  line-height: 1.5;
 }
 
 .detail-items-2 {
-  display: flex;
-  justify-content: space-between;
-  width: 13em;
+  grid-row: 1;
+  width: max-content;
+  display: grid;
+  grid-template: auto auto / auto auto;
+  column-gap: 1em;
+  line-height: 1.5;
 }
 
 .detail-items-3 {
+  grid-column: 1 / -1;
   width: auto;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.expandable-detail a {
+  grid-row: 1 / 3;
+  justify-self: center;
 }
 
 footer {
