@@ -25,7 +25,8 @@ app-sidebar ~ * {
 
 mat-drawer form {
   display: flex;
-  padding: 20px;
+  flex-direction: column;
+  padding: 20px 90px 20px 40px;
 }
 
 mat-drawer form * {
@@ -73,8 +74,15 @@ span.filter {
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+}
+
+.panel-header > :first-child {
+    margin-right: auto;
+}
+
+.panel-header > button:not(:first-child) {
+    margin: 0px 20px 13px;
 }
 
 button mat-icon {

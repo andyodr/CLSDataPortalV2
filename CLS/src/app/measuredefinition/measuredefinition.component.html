@@ -1,22 +1,30 @@
 <mat-drawer-container>
-  <mat-drawer #drawer>
+  <mat-drawer [position]="drawer.position" #drwr>
     <header>
-      <h2>Filter</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drawer.close()">
+      <h2>{{drawer.title}}</h2>
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Save" (click)="loadTable(); drawer.close()">
-        <mat-icon>save_alt</mat-icon> Apply
+      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="save(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> {{drawer.button}}
       </button>
     </header>
     <form>
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'start'">
         <mat-label>Measure Type</mat-label>
         <mat-select name="level" [(ngModel)]="selectedMeasureType" [disabled]="disabledAll">
           <mat-option *ngFor="let measureType of measureTypes" [value]="measureType">
             {{measureType.name}}
           </mat-option>
         </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+        <mat-label>Measure Type Name</mat-label>
+        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Customer Service" [disabled]="disabledAll">
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+        <mat-label>Measure Type Description</mat-label>
+        <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description" placeholder="Customer Service" [disabled]="disabledAll">
       </mat-form-field>
     </form>
   </mat-drawer>
@@ -73,7 +81,7 @@
             </ngb-alert>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="drawer.open()">
+        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
         <span class="filter" *ngFor="let filter of filtersSelected">{{filter}}</span>
@@ -85,9 +93,19 @@
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
-          <button mat-raised-button color="accent" aria-label="Add" (click)="logger.logError('No')">
+          <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
+            <mat-icon>edit</mat-icon> Edit Type
+          </button>
+          <mat-menu #eMenu="matMenu">
+            <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
+          </mat-menu>
+          <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
             <mat-icon>add</mat-icon> Add
           </button>
+          <mat-menu #aMenu="matMenu">
+            <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
+            <button mat-menu-item (click)="doAddDefinition()">Measure Definition</button>
+          </mat-menu>
         </div>
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">
           <ng-container matColumnDef="name">

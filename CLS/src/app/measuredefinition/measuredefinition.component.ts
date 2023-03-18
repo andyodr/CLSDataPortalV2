@@ -30,6 +30,14 @@ export class MeasureDefinitionComponent implements OnInit {
     errorMsg: any = ""
     showError = false
     showContentPage = false
+    drawer = {
+        title: "Filter",
+        button: "Apply",
+        position: "start" as "start" | "end"
+    }
+
+    editingMeasureType!: MeasureType
+
     constructor(private api: MeasureDefinitionService, public logger: LoggerService) { }
 
     ngOnInit(): void {
@@ -51,6 +59,30 @@ export class MeasureDefinitionComponent implements OnInit {
                 this.dataSource.data = dto.data
             }
         })
+    }
+
+    doFilter() {
+        this.drawer = { title: "Filter", button: "Apply", position: "start" }
+    }
+
+    doAddType() {
+        this.drawer = { title: "Add Measure Type", button: "Save", position: "end" }
+        this.editingMeasureType = { id: 0, name: "", description: "" }
+    }
+
+    doEditType() {
+        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
+        this.editingMeasureType = { ...this.selectedMeasureType }
+    }
+
+    doAddDefinition() {
+        //this.drawer = { title: "Add Measure Definition", button: "Save", position: "end" }
+    }
+
+    save() {
+        if (this.drawer.position === "start") {
+            this.loadTable()
+        }
     }
 
     applyFilter(event: Event) {
