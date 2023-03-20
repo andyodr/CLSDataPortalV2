@@ -35,7 +35,8 @@
   font-feature-settings: "liga";
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -45,7 +46,10 @@ body {
   background-color: var(--mat-blue-gray-50);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: var(--mat-primary-600);
 }
 
@@ -54,8 +58,8 @@ h1, h2, h3, h4 {
   background-color: #fff;
   border: 1px solid transparent;
   border-radius: 2px;
-  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
-  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
 .panel .panel {
@@ -80,4 +84,12 @@ h1, h2, h3, h4 {
 
 .snackbar-error {
   background-color: #ba1212
+}
+
+:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout {
+  flex-direction: column-reverse;
+}
+
+:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout>span.mat-checkbox-inner-container {
+  margin: 2px auto;
 }

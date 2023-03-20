@@ -49,11 +49,3 @@ form {
     width: 100%;
   }
 }
-
-:host ::ng-deep form > div label.mat-checkbox-layout {
-  flex-direction: column-reverse;
-}
-
-:host ::ng-deep form > div .mat-checkbox-inner-container {
-  margin: 2px auto;
-}

@@ -22,17 +22,4 @@
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="7.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.25" />
   </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\tf\Projects\JNJ\Distribution\code\jjv-cls-data-portal\CLS.WebApi\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\tf\Projects\JNJ\Distribution\code\jjv-cls-data-portal\CLS.WebApi\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\DataImports\" />
-  </ItemGroup>
-
 </Project>
