@@ -44,7 +44,6 @@
 
               </div>
             </div>
-
             <!-- Table Section-->
             <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
               <table class="table table-bordered table-striped cf no-margin">
@@ -107,21 +106,17 @@
                           <mat-icon>cancel</mat-icon>
                         </button>
                       </div>
-                      <p ng-if="!allow" class="itgLock" uib-tooltip="Not Allowed"><span class="glyphicon glyphicon-eye-close"></span></p>
-
+                      <p *ngIf="!allow" class="itgLock" uib-tooltip="Not Allowed"><span class="glyphicon glyphicon-eye-close"></span></p>
                     </td>
                   </tr>
                 </tbody>
               </table>
               <footer class="table-footer">
-                <!-- <span> Showing {{filteredData.length}} entries	</span> -->
-                <span> Showing  entries	</span>
+                <span> Showing {{this.data.length}} entries </span>
               </footer>
             </section>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>

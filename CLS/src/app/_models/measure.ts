@@ -9,7 +9,7 @@
 //     lastUpdatedOn?: string;
 // }
 
-export interface MeasureResponse {
+export interface MeasureApiResponse {
     error: any
     hierarchy: string[]
     allow: boolean
@@ -28,4 +28,13 @@ export interface MeasureResponse {
     active: boolean
     expression: boolean
     rollup: boolean
+  }
+
+  export interface MeasureApiParams{
+    intervalId?: number;
+    calendarId: number;
+    year?: number;
+    measureTypeId: number;
+    hierarchyId: number; 
+ 
   }
