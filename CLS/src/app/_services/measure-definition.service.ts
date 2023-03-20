@@ -44,6 +44,16 @@ export interface MeasureDefinition {
     aggFunctionId?: number
 }
 
+export type Units = { id: number, name: string, shortName: string }
+
+export type MeasureDefinitionEditDto = {
+    units: Units[]
+    intervals: { id: number, name: string }[]
+    measureTypes: MeasureType[]
+    aggFunctions: { id: number, name: string }[]
+    data: MeasureDefinition[]
+}
+
 @Injectable({
     providedIn: "root"
 })
@@ -54,10 +64,19 @@ export class MeasureDefinitionService {
     constructor(private http: HttpClient) { }
 
     getMeasureDefinition(measureTypeId: number): Observable<{ data: MeasureDefinition[] }> {
-        return this.http.get<{ data: MeasureDefinition[] }>(`${this.baseUrl}/index/${measureTypeId}`)
+        return this.http.get<{ data: MeasureDefinition[] }>(`${ this.baseUrl }/index/${ measureTypeId }`)
     }
 
     getMeasureDefinitionFilter(): Observable<MeasureDefinitionFilter> {
         return this.http.get<MeasureDefinitionFilter>(this.baseUrl + "/filter")
+    }
+
+    getMeasureDefinitionEdit(measureDefinitionId?: number): Observable<MeasureDefinitionEditDto> {
+        if (measureDefinitionId == null) {
+            return this.http.get<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`)
+        }
+        else {
+            return this.http.get<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ measureDefinitionId }`)
+        }
     }
 }

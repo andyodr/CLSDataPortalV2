@@ -61,15 +61,6 @@ public static class Helper
 		else throw new Exception(Resource.ERR_STRING_TO_STRING);
 	}
 
-	public static bool nullBoolToBool(bool? value) {
-		bool result = false;
-		if (value is not null) {
-			result = (bool)value;
-		}
-
-		return result;
-	}
-
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}

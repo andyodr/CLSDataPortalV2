@@ -15,13 +15,13 @@ public class EditController : ControllerBase
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
-	[HttpGet]
+	[HttpGet("{measureDefinitionId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
-			units = new(),
-			intervals = new(),
-			measureTypes = new(),
-			aggFunctions = AggregationFunctions.list,
+			Units = new(),
+			Intervals = new(),
+			MeasureTypes = new(),
+			AggFunctions = AggregationFunctions.list,
 			Data = new()
 		};
 
@@ -35,17 +35,17 @@ public class EditController : ControllerBase
 
 			var units = _context.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units.AsNoTracking()) {
-				returnObject.units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
+				returnObject.Units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
 			}
 
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTracking()) {
-				returnObject.intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
+				returnObject.Intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTracking()) {
-				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
 			}
 
 			foreach (var md in _context.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
@@ -59,7 +59,7 @@ public class EditController : ControllerBase
 					Precision = md.Precision,
 					Priority = md.Priority,
 					FieldNumber = md.FieldNumber,
-					UnitId = md.Unit!.Id,
+					UnitId = md.UnitId,
 					Calculated = md.Calculated,
 
 					//find which interval Id to give
@@ -69,11 +69,11 @@ public class EditController : ControllerBase
 
 				bool daily, weekly, monthly, quarterly, yearly = false;
 
-				daily = Helper.nullBoolToBool(md.AggDaily) && currentMD.IntervalId != (int)Helper.intervals.daily;
-				weekly = Helper.nullBoolToBool(md.AggWeekly) && currentMD.IntervalId != (int)Helper.intervals.weekly;
-				monthly = Helper.nullBoolToBool(md.AggMonthly) && currentMD.IntervalId != (int)Helper.intervals.monthly;
-				quarterly = Helper.nullBoolToBool(md.AggQuarterly) && currentMD.IntervalId != (int)Helper.intervals.quarterly;
-				yearly = Helper.nullBoolToBool(md.AggYearly) && currentMD.IntervalId != (int)Helper.intervals.yearly;
+				daily = (md.AggDaily ?? false) && currentMD.IntervalId != (int)Helper.intervals.daily;
+				weekly = (md.AggWeekly ?? false) && currentMD.IntervalId != (int)Helper.intervals.weekly;
+				monthly = (md.AggMonthly ?? false) && currentMD.IntervalId != (int)Helper.intervals.monthly;
+				quarterly = (md.AggQuarterly ?? false) && currentMD.IntervalId != (int)Helper.intervals.quarterly;
+				yearly = (md.AggYearly ?? false) && currentMD.IntervalId != (int)Helper.intervals.yearly;
 
 				currentMD.Daily = daily;
 				currentMD.Weekly = weekly;
@@ -93,10 +93,10 @@ public class EditController : ControllerBase
 	[HttpPut]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, MeasureDefinitionViewModel value) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
-			units = new(),
-			intervals = new(),
-			measureTypes = new(),
-			aggFunctions = AggregationFunctions.list,
+			Units = new(),
+			Intervals = new(),
+			MeasureTypes = new(),
+			AggFunctions = AggregationFunctions.list,
 			Data = new()
 		};
 
@@ -112,16 +112,16 @@ public class EditController : ControllerBase
 
 			var units = _context.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
-				returnObject.units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
+				returnObject.Units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
 			}
 
 			foreach (var interval in intervals) {
-				returnObject.intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
+				returnObject.Intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
 			}
 
 			var mDef = _context.MeasureDefinition.Where(m => m.Id == value.Id).Single();
@@ -149,11 +149,11 @@ public class EditController : ControllerBase
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = Helper.nullBoolToBool(value.Daily) && value.IntervalId != (int)Helper.intervals.daily;
-			weekly = Helper.nullBoolToBool(value.Weekly) && value.IntervalId != (int)Helper.intervals.weekly;
-			monthly = Helper.nullBoolToBool(value.Monthly) && value.IntervalId != (int)Helper.intervals.monthly;
-			quarterly = Helper.nullBoolToBool(value.Quarterly) && value.IntervalId != (int)Helper.intervals.quarterly;
-			yearly = Helper.nullBoolToBool(value.Yearly) && value.IntervalId != (int)Helper.intervals.yearly;
+			daily = (value.Daily ?? false) && value.IntervalId != (int)Helper.intervals.daily;
+			weekly = (value.Weekly ?? false) && value.IntervalId != (int)Helper.intervals.weekly;
+			monthly = (value.Monthly ?? false) && value.IntervalId != (int)Helper.intervals.monthly;
+			quarterly = (value.Quarterly ?? false) && value.IntervalId != (int)Helper.intervals.quarterly;
+			yearly = (value.Yearly ?? false) && value.IntervalId != (int)Helper.intervals.yearly;
 			value.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
@@ -165,7 +165,7 @@ public class EditController : ControllerBase
 									 mDef.AggQuarterly != quarterly ||
 									 mDef.AggYearly != yearly;
 
-			// Check if some values were changed in order to update IsProcessed to 1 for measure data records 
+			// Check if some values were changed in order to update IsProcessed to 1 for measure data records
 			bool updateMeasureData = mDef.VariableName != value.VarName ||
 									 mDef.Expression != value.Expression ||
 									 mDef.AggFunction != value.AggFunctionId ||

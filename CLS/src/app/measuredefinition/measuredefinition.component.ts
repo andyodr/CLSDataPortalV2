@@ -25,7 +25,7 @@ export class MeasureDefinitionComponent implements OnInit {
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
-    selectedMeasureType!: MeasureType
+    selectedMeasureType: MeasureType = { id: 0, name: "" }
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -45,6 +45,7 @@ export class MeasureDefinitionComponent implements OnInit {
             next: filters => {
                 this.filters = filters
                 this.measureTypes = filters.measureTypes
+                this.selectedMeasureType = filters.measureTypes[0]
                 this.dataSource.sort = this.sort
                 this.loadTable()
             }
@@ -52,7 +53,6 @@ export class MeasureDefinitionComponent implements OnInit {
     }
 
     loadTable() {
-        this.selectedMeasureType ??= this.measureTypes[0]
         this.filtersSelected = [this.selectedMeasureType.name]
         this.api.getMeasureDefinition(this.selectedMeasureType.id).subscribe({
             next: dto => {
@@ -76,9 +76,7 @@ export class MeasureDefinitionComponent implements OnInit {
     }
 
     save() {
-        if (this.drawer.position === "start") {
-            this.loadTable()
-        }
+        this.loadTable()
     }
 
     applyFilter(event: Event) {

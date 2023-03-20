@@ -16,7 +16,7 @@ import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 
-const title = "Deliver Data Portal - "
+const title = "Deliver Data - "
 
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
