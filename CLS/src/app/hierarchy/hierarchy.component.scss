@@ -1,16 +1,26 @@
-:host, mat-drawer-container, app-sidebar {
+:host {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+mat-drawer-container, app-sidebar {
   height: 100%;
 }
 
 mat-drawer-content {
-  display: flex;
+  display: grid;
+  grid-template: 1fr / auto 1fr;
   background-color: inherit;
   height: 100%;
 }
 
-mat-drawer-content > app-sidebar + div {
+app-sidebar {
+  grid-row: 1 / -1;
+}
+
+app-sidebar ~ * {
+  grid-column: 2;
   padding: 20px;
-  flex: 1 auto;
 }
 
 .panel-body {
@@ -18,10 +28,10 @@ mat-drawer-content > app-sidebar + div {
 }
 
 .panel-header {
-  background-color: var(--mat-color-50);
+  background-color: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid var(--mat-color-100);
+  border: 1px solid var(--mat-primary-100);
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -36,7 +46,7 @@ mat-drawer-content > app-sidebar + div {
 
 mat-drawer {
   header {
-    background: linear-gradient(var(--mat-color-600), var(--mat-color-500) 33%, var(--mat-color-500));
+    background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
     padding: 15px 20px;
     display: flex;
     gap: 15px;
@@ -65,7 +75,7 @@ mat-drawer {
   }
 }
 
-button, a {
+div > button, div > a {
   min-width: 8em;
 }
 
@@ -94,7 +104,7 @@ table {
 }
 
 .mat-row:hover .mat-cell {
-  background-color: var(--mat-color-100);
+  background-color: var(--mat-primary-100);
 }
 
 .mat-row .empty-table {

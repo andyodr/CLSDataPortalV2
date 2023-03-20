@@ -33,14 +33,14 @@ export class RegionHierarchyComponent implements OnInit {
         selectedParent: null as number | number[] | null
     }
 
-    constructor(private hierarchyService: HierarchyService, public logger: LoggerService) { }
+    constructor(private api: HierarchyService, public logger: LoggerService) { }
 
     ngOnDestroy(): void {
         this.userSubscription.unsubscribe()
     }
 
     ngOnInit(): void {
-        this.userSubscription = this.hierarchyService.getHierarchy().subscribe({
+        this.userSubscription = this.api.getHierarchy().subscribe({
             next: response => {
                 this.dataSource = new MatTableDataSource(response.data)
                 this.hierarchyLevels = response.levels
@@ -81,10 +81,10 @@ export class RegionHierarchyComponent implements OnInit {
         }
 
         if (this.drawerTitle === "Add") {
-            var op = this.hierarchyService.addHierarchy({ levelId, name, parentId, active })
+            var op = this.api.addHierarchy({ levelId, name, parentId, active })
         }
         else {
-            var op = this.hierarchyService.updateHierarchy({ id, levelId, name, parentId, active })
+            var op = this.api.updateHierarchy({ id, levelId, name, parentId, active })
         }
 
         op.subscribe({

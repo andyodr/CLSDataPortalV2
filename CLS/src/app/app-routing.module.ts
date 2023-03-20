@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MeasureDataComponent } from './measure-data/measure-data.component';
 import { MeasureDefinitionComponent } from './measuredefinition/measuredefinition.component';
+import { MeasureDefinitionEditComponent } from "./measuredefinition/measuredefinition-edit.component"
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
@@ -15,17 +16,19 @@ import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 
+const title = "Deliver Data - "
+
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
     { path: 'measuredata', component: MeasureDataComponent },
     {
         path: "users", children: [
-            { path: "add", title: "Deliver Data Portal - Add User", component: UserAddComponent },
-            { path: "", title: "Deliver Data Portal - Users", component: UserListComponent },
-            { path: ":id", title: "Deliver Data Portal - Edit User", component: UserEditComponent }
+            { path: "add", title: `${title}Add User`, component: UserAddComponent },
+            { path: "", title: `${title}Users`, component: UserListComponent },
+            { path: ":id", title: `${title}Edit User`, component: UserEditComponent }
         ]
     },
-    { path: "hierarchy", title: "Deliver Data Portal - Region Hierarchy", component: RegionHierarchyComponent },
+    { path: "hierarchy", title: `${title}Region Hierarchy`, component: RegionHierarchyComponent },
     {
         path: '',
         runGuardsAndResolvers: 'always',
@@ -35,8 +38,14 @@ const routes: Routes = [
     },
     { path: 'targets', component: TargetsComponent },
     { path: 'measures', component: MeasuresComponent },
-    { path: 'measuredefinition', component: MeasureDefinitionComponent },
-    { path: "dataimports", title: "Deliver Data Portal - Data Imports", component: DataImportsComponent },
+    {
+        path: "measuredefinition", children: [
+            { path: "", title: `${title}Measure Definitions`, component: MeasureDefinitionComponent },
+            { path: "add", title: `${title}Add Measure Definition`, component: MeasureDefinitionEditComponent },
+            { path: ":id", title: `${title}Edit Measure Definition`, component: MeasureDefinitionEditComponent },
+        ]
+    },
+    { path: "dataimports", title: `${title}Data Imports`, component: DataImportsComponent },
     { path: 'errors', component: TestErrorComponent },
     { path: 'not-found', component: NotFoundComponent },
     { path: 'server-error', component: ServerErrorComponent },

@@ -2,11 +2,17 @@
 
 public class MeasureDefinitionIndexReturnObject
 {
-	public ErrorModel error { set; get; }
-	public FilterSaveObject filter { set; get; }
-	public List<UnitsObject> units { set; get; }
-	public List<IntervalsObject> intervals { set; get; }
-	public List<MeasureTypeFilterObject> measureTypes { set; get; }
-	public List<AggregationFunction> aggFunctions { get; set; }
-	public List<MeasureDefinitionViewModel> data { set; get; }
+	public ErrorModel? Error { get; set; }
+
+	public FilterSaveObject? Filter { get; set; }
+
+	public List<UnitsObject> Units { get; set; } = null!;
+
+	public List<IntervalsObject> Intervals { get; set; } = null!;
+
+	public List<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
+
+	public List<AggregationFunction> AggFunctions { get; set; } = null!;
+
+	public List<MeasureDefinitionViewModel>? Data { get; set; }
 }

@@ -1,11 +1,19 @@
-:host {
-  display: flex;
-  height: 100%;
+@use "@angular/material" as mat;
 
-  > app-sidebar + div {
-    padding: 20px;
-    flex: 1 auto;
-  }
+:host {
+  display: grid;
+  grid-template: 1fr / auto 1fr;
+  height: 100%;
+  background-color: mat.get-color-from-palette(mat.$blue-gray-palette, 50);
+}
+
+app-sidebar {
+  grid-row: 1 / -1;
+}
+
+app-sidebar ~ * {
+  padding: 20px;
+  grid-column: 2;
 }
 
 button {
@@ -30,7 +38,7 @@ button {
 }
 
 .panel-header {
-  background-color: var(--mat-color-50);
+  background-color: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px;
   border-bottom: 1px solid transparent;

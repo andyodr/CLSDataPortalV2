@@ -25,14 +25,13 @@ public class FilterController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new FilterReturnObject { measureTypes = new() };
-			var measureTypes = _context.MeasureType;
-			foreach (var measuretype in measureTypes.AsNoTracking()) {
-				returnObject.measureTypes.Add(new MeasureTypeFilterObject { Id = measuretype.Id, Name = measuretype.Name });
+			var returnObject = new FilterReturnObject { MeasureTypes = new() };
+			foreach (var measuretype in _context.MeasureType.AsNoTrackingWithIdentityResolution()) {
+				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measuretype.Id, Name = measuretype.Name });
 			}
 
 			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId ??= _context.MeasureType.FirstOrDefault()?.Id;
-			returnObject.filter = _user.savedFilters[Helper.pages.measureDefinition];
+			returnObject.Filter = _user.savedFilters[Helper.pages.measureDefinition];
 			return returnObject;
 		}
 		catch (Exception e) {

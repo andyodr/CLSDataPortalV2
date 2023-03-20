@@ -2,7 +2,7 @@
   display: flex;
   flex: 1 70px;
   color: white;
-  background-color: var(--mat-color-500);
+  background-color: var(--mat-primary-500);
 }
 
 .nav-logo-expanded, .nav-logo-collapsed, .nav-toggle {

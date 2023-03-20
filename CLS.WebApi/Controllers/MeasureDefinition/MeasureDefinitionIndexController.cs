@@ -15,7 +15,7 @@ public class IndexController : ControllerBase
 
 	public IndexController(ApplicationDbContext context) => _context = context;
 
-	[HttpGet]
+	[HttpGet("{measureTypeId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -25,7 +25,7 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new MeasureDefinitionIndexReturnObject { data = new() };
+			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new() };
 
 			//_userRepository.Find(u => u.Id == record.userId).UserName
 
@@ -42,65 +42,62 @@ public class IndexController : ControllerBase
 						   precision = md.Precision,
 						   priority = md.Priority,
 						   md.Unit,
-						   calculated = md.Calculated,
+						   md.Calculated,
 						   daily = md.AggDaily,
 						   weekly = md.AggWeekly,
 						   monthly = md.AggMonthly,
 						   quarterly = md.AggQuarterly,
 						   yearly = md.AggYearly,
-						   interval = md.ReportInterval,
+						   md.ReportInterval,
 						   aggFunction = md.AggFunction,
 						   fieldNumber = md.FieldNumber
 					   };
 
-			foreach (var md in mDef.AsNoTracking()) {
+			foreach (var md in mDef.AsNoTrackingWithIdentityResolution()) {
 				var currentMD = new MeasureDefinitionViewModel {
-					id = md.id,
-					name = md.name,
-					varName = md.varName,
-					description = md.description,
-					expression = md.expression,
-					precision = md.precision,
-					priority = md.priority,
-					fieldNumber = md.fieldNumber,
-					unitId = md.Unit.Id,
-					units = md.Unit.Short
+					Id = md.id,
+					Name = md.name,
+					MeasureTypeId = measureTypeId,
+					VarName = md.varName,
+					Description = md.description,
+					Expression = md.expression,
+					Precision = md.precision,
+					Priority = md.priority,
+					FieldNumber = md.fieldNumber,
+					UnitId = md.Unit.Id,
+					Units = md.Unit.Short,
+					Calculated = md.Calculated
 				};
 
-				if (md.calculated is null) {
-					currentMD.calculated = null;
-				}
-				else {
-					currentMD.calculated = (bool)md.calculated;
-				}
-
-				currentMD.interval = md.interval.Name;
-				currentMD.daily = md.daily;
-				currentMD.weekly = md.weekly;
-				currentMD.monthly = md.monthly;
-				currentMD.quarterly = md.quarterly;
-				currentMD.yearly = md.yearly;
-				switch ((Helper.intervals)md.interval.Id) {
+				currentMD.Interval = md.ReportInterval.Name;
+				currentMD.IntervalId = md.ReportInterval.Id;
+				currentMD.Daily = md.daily;
+				currentMD.Weekly = md.weekly;
+				currentMD.Monthly = md.monthly;
+				currentMD.Quarterly = md.quarterly;
+				currentMD.Yearly = md.yearly;
+				switch ((Helper.intervals)md.ReportInterval.Id) {
 					case Helper.intervals.daily:
-						currentMD.daily = false;
+						currentMD.Daily = false;
 						break;
 					case Helper.intervals.weekly:
-						currentMD.weekly = false;
+						currentMD.Weekly = false;
 						break;
 					case Helper.intervals.monthly:
-						currentMD.monthly = false;
+						currentMD.Monthly = false;
 						break;
 					case Helper.intervals.quarterly:
-						currentMD.quarterly = false;
+						currentMD.Quarterly = false;
 						break;
 					case Helper.intervals.yearly:
-						currentMD.yearly = false;
+						currentMD.Yearly = false;
 						break;
 				}
 
 				var afn = AggregationFunctions.list.Find(x => x.Id == md.aggFunction!);
-				currentMD.aggFunction = afn?.Name ?? string.Empty;
-				returnObject.data.Add(currentMD);
+				currentMD.AggFunction = afn?.Name ?? string.Empty;
+				currentMD.AggFunctionId = afn?.Id;
+				returnObject.Data.Add(currentMD);
 			}
 
 			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId = measureTypeId;

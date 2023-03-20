@@ -85,6 +85,9 @@
           <mat-form-field appearance="fill">
             <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
+            <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyFilter($event)">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
           <button mat-raised-button color="accent" aria-label="Add" (click)="add(); drawer.open()">
             <mat-icon>add_location</mat-icon> Add

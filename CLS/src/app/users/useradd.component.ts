@@ -24,10 +24,10 @@ export class UserAddComponent implements OnInit {
         selectedRegions: [] as number | number[] | null
     }
 
-    constructor(private userService: UserService, private logger: LoggerService) { }
+    constructor(private api: UserService, private logger: LoggerService) { }
 
     ngOnInit(): void {
-        this.userService.getRolesAndRegions().subscribe(r => {
+        this.api.getRolesAndRegions().subscribe(r => {
             this.roles = r.roles
             this.hierarchy = r.hierarchy
         })
@@ -36,7 +36,7 @@ export class UserAddComponent implements OnInit {
     save() {
         const { userName, firstName, lastName, roleId, department, active, selectedRegions: hierarchiesId } = this.model
         if (Array.isArray(hierarchiesId)) {
-            this.userService.addUser({
+            this.api.addUser({
                 userName, firstName, lastName, roleId, department,
                 active: active.toString(),
                 hierarchiesId

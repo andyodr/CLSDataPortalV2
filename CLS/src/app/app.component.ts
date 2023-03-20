@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
 
 	toggle: any = true;
 
-	constructor(private accountService: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) {
+	constructor(private api: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) {
 	 }
 
 	ngOnInit(): void {
@@ -29,10 +29,10 @@ export class AppComponent implements OnInit {
 		const userString = localStorage.getItem('user');
 		if (!userString) return;
 		const user: User = JSON.parse(userString!);
-		this.accountService.setCurrentUser(user);
+		this.api.setCurrentUser(user);
 	}
 
 	getCurrentUser() {
-		return this.accountService.getCurrentUser();
+		return this.api.getCurrentUser();
 	}
 }

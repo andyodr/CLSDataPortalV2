@@ -21,9 +21,9 @@ public class FilterController : ControllerBase
 	[HttpGet]
 	public ActionResult<FilterReturnObject> Get() {
 		var filter = new FilterReturnObject {
-			intervals = null,
-			measureTypes = new List<MeasureTypeFilterObject>(),
-			hierarchy = new List<RegionFilterObject>()
+			Intervals = null,
+			MeasureTypes = new List<MeasureTypeFilterObject>(),
+			Hierarchy = new List<RegionFilterObject>()
 		};
 
 		try {
@@ -39,7 +39,7 @@ public class FilterController : ControllerBase
 				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name, Description = m.Description })
 				.AsNoTracking();
 			foreach (var mtfo in measureTypes) {
-				filter.measureTypes.Add(mtfo);
+				filter.MeasureTypes.Add(mtfo);
 			}
 
 			var regions = _context.Hierarchy
@@ -47,7 +47,7 @@ public class FilterController : ControllerBase
 				.OrderBy(r => r.Id)
 				.AsNoTrackingWithIdentityResolution()
 				.ToArray();
-			filter.hierarchy.Add(new() {
+			filter.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
 				Sub = Helper.GetSubs(_context, regions.First().Id, _user),
@@ -56,7 +56,7 @@ public class FilterController : ControllerBase
 
 			_user.savedFilters[Helper.pages.target].measureTypeId ??= _context.MeasureType.First().Id;
 			_user.savedFilters[Helper.pages.target].hierarchyId ??= 1;
-			filter.filter = _user.savedFilters[Helper.pages.target];
+			filter.Filter = _user.savedFilters[Helper.pages.target];
 			return filter;
 		}
 

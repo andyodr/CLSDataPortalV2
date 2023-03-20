@@ -2,11 +2,17 @@
 
 public class FilterReturnObject
 {
-	public List<MeasureTypeFilterObject> measureTypes { set; get; }
-	public List<RegionFilterObject> hierarchy { set; get; }
-	public List<IntervalsObject>? intervals { set; get; }
-	public List<YearsObject>? years { set; get; }
-	public ErrorModel error { set; get; }
-	public FilterSaveObject filter { set; get; }
-	public CurrentCalendars currentCalendarIds { get; set; }
+	public List<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
+
+	public List<RegionFilterObject>? Hierarchy { get; set; }
+
+	public List<IntervalsObject>? Intervals { get; set; }
+
+	public List<YearsObject>? Years { get; set; }
+
+	public ErrorModel? Error { get; set; }
+
+	public FilterSaveObject Filter { get; set; } = null!;
+
+	public CurrentCalendars? CurrentCalendarIds { get; set; }
 }

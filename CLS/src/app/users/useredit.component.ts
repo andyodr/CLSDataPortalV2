@@ -26,12 +26,12 @@ export class UserEditComponent implements OnInit {
         selectedRegions: [] as number | number[] | null
     }
 
-    constructor(private route: ActivatedRoute, private userService: UserService, private logger: LoggerService) { }
+    constructor(private route: ActivatedRoute, private api: UserService, private logger: LoggerService) { }
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
             const id = Number(params.get("id"))
-            this.userService.getUserData(id).subscribe(ud => {
+            this.api.getUserData(id).subscribe(ud => {
                 const { userName, firstName, lastName, roleId, department, active, hierarchiesId } = ud.data[0]
                 this.roles = ud.roles
                 this.hierarchy = ud.hierarchy
@@ -52,7 +52,7 @@ export class UserEditComponent implements OnInit {
     save() {
         const { id, userName, firstName, lastName, roleId, department, active, selectedRegions: hierarchiesId } = this.model
         if (Array.isArray(hierarchiesId)) {
-            this.userService.updateUser({
+            this.api.updateUser({
                 id,
                 userName,
                 firstName,

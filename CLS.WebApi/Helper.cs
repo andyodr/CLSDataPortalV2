@@ -61,15 +61,6 @@ public static class Helper
 		else throw new Exception(Resource.ERR_STRING_TO_STRING);
 	}
 
-	public static bool nullBoolToBool(bool? value) {
-		bool result = false;
-		if (value is not null) {
-			result = (bool)value;
-		}
-
-		return result;
-	}
-
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
@@ -331,16 +322,16 @@ public static class Helper
 				//create Measure records
 				_ = dbc.Measure.Add(new() {
 					HierarchyId = id.id,
-					MeasureDefinitionId = measureDef.id ?? -1,
+					MeasureDefinitionId = measureDef.Id ?? -1,
 					Active = true,
-					Expression = measureDef.calculated,
+					Expression = measureDef.Calculated,
 					Rollup = true,
 					LastUpdatedOn = dtNow
 				});
 			}
 
 			var measures = from measure in dbc.Measure
-						   where measure.MeasureDefinitionId == measureDef.id
+						   where measure.MeasureDefinitionId == measureDef.Id
 						   select new { id = measure.Id };
 			//make target ids
 			foreach (var measure in measures) {
