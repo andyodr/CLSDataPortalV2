@@ -51,19 +51,24 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr data-ng-repeat="data in currentPageData track by $index" class="itgTableTr">
+                  <tr *ngFor="let data of measureResponse?.data" class="itgTableTr">
 
                     <td style="width:200px;">
                       <p class="itgPopupLink" ng-click="editOwner(data)">
                         <!-- <span class="pSpan" uib-tooltip="Owner: {{data.owner}}">{{data.name}}</span> -->
+                        <span popover-placement="right" uib-popover-template="dPopover.templateUrl" popover-trigger="mouseenter" ng-mouseover="mmPopover(data)">
+                          {{data.name}}
+                        </span>
                       </p>
                     </td>
 
-                    <td data-ng-repeat="region in data.hierarchy track by $index">
+                    <td *ngFor="let region in data.hierarchy">
                       <div class="magicWrap">
                         <!-- <input class="magic-checkbox" type="checkbox" id="A{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.active"
                           ng-disabled="rowsDisabled($parent.$index)" />
                         <label for="A{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Active"> A </label> -->
+                        <!-- <input class="magic-checkbox" type="checkbox" [id]="'A' + data.id + $parent.index + region.id" [(ngModel)]="region.active" [disabled]="rowsDisabled($parent.index)" />
+                        <label [for]="'A' + data.id + $parent.index + region.id" class="mar0 marR10" matTooltip="Active"> A </label> -->
                       </div>
                       <div class="magicWrap">
                         <!-- <input class="magic-checkbox" type="checkbox" id="B{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.expression"
@@ -76,28 +81,22 @@
                         <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>   -->
                       </div>
                     </td>
-
-                    <td ng-if="allow" class="mar0 itgTableTd itgWidth100 textAlignM">
-
-                      <!-- <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" ng-disabled="disabledAll" ng-click="edit(data, $index)" uib-tooltip="Edit">
-                        <span class="glyphicon glyphicon-pencil"></span>
+                    <td *ngIf="allow" class="mar0 itgTableTd itgWidth100 textAlignM" style="width: 250px;">
+                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" [disabled]="disabledAll" (click)="edit(data)" matTooltip="Edit">
+                        <mat-icon>edit</mat-icon>
                       </button>
-
-                      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit{{data.id}}" ng-click="save(data, $index)" uib-tooltip="Save">
-                        <span class="glyphicon glyphicon-ok"></span>
+                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit" [disabled]="disabledAll" (click)="save(data)" matTooltip="Save">
+                        <mat-icon>save</mat-icon>
                       </button>
-
-                      <button ui-wave type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit btnEdit{{data.id}}" ng-click="cancel(data, $index)" uib-tooltip="Cancel">
-                        <span class="glyphicon glyphicon-arrow-left"></span>
-                      </button>  -->
-
+                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit{{data.id}}" [disabled]="disabledAll" (click)="cancel(data)" matTooltip="Cancel">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
               <footer class="table-footer">
-                <!-- <span> Showing {{filteredData.length}} entries </span> -->
-                <span> Showing entries </span>
+                <span> Showing {{this.data.length}} entries </span>
               </footer>
             </section>
 
