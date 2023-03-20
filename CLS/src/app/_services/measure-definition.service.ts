@@ -24,7 +24,7 @@ export interface MeasureDefinition {
     id?: number
     name: string
     measureTypeId: number
-    interval: string
+    interval?: string
     intervalId: number
     varName: string
     description?: string
@@ -33,14 +33,14 @@ export interface MeasureDefinition {
     priority: number
     fieldNumber: number
     unitId: number
-    units: string
+    units?: string
     calculated?: boolean
     daily?: boolean
     weekly?: boolean
     monthly?: boolean
     quarterly?: boolean
     yearly?: boolean
-    aggFunction: string
+    aggFunction?: string
     aggFunctionId?: number
 }
 
@@ -78,5 +78,15 @@ export class MeasureDefinitionService {
         else {
             return this.http.get<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ measureDefinitionId }`)
         }
+    }
+
+    updateMeasureDefinition(id: number, dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
+        return this.http
+        .put<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
+    }
+
+    addMeasureDefinition(dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
+        return this.http
+        .post<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`, dto)
     }
 }

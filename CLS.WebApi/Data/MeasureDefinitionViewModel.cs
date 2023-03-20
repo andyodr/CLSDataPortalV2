@@ -8,7 +8,7 @@ public class MeasureDefinitionViewModel
 
 	public int MeasureTypeId { get; set; }
 
-	public string Interval { get; set; } = null!;
+	public string? Interval { get; set; }
 
 	public int IntervalId { get; set; }
 
@@ -26,7 +26,7 @@ public class MeasureDefinitionViewModel
 
 	public int UnitId { get; set; }
 
-	public string Units { get; set; } = null!;
+	public string? Units { get; set; }
 
 	public bool? Calculated { get; set; }
 
@@ -40,7 +40,7 @@ public class MeasureDefinitionViewModel
 
 	public bool? Yearly { get; set; }
 
-	public string AggFunction { get; set; } = null!;
+	public string? AggFunction { get; set; }
 
 	public byte? AggFunctionId { get; set; }
 }

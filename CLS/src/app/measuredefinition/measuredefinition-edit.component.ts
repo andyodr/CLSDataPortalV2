@@ -1,7 +1,10 @@
 import { Component, OnInit } from "@angular/core"
+import { MatCheckboxChange } from "@angular/material/checkbox"
+import { MatSelectChange } from "@angular/material/select"
 import { ActivatedRoute } from "@angular/router"
 import { Observable } from "rxjs"
 import { Intervals } from "../lib/app-constants"
+import { LoggerService } from "../_services/logger.service"
 import {
     MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService, MeasureType,
     Units
@@ -41,7 +44,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
         yearly: false,
         aggFunction: null as { id: number, name: string } | null
     }
-    constructor(private route: ActivatedRoute, private api: MeasureDefinitionService) { }
+    constructor(private route: ActivatedRoute, private api: MeasureDefinitionService, private logger: LoggerService) { }
 
     ngOnInit(): void {
         this.route.paramMap.subscribe(params => {
@@ -53,6 +56,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
             }
             else {
                 this.md.id = Number(paramId)
+                this.title = "Edit Measure Definition"
                 api = this.api.getMeasureDefinitionEdit(this.md.id)
             }
 
@@ -67,6 +71,31 @@ export class MeasureDefinitionEditComponent implements OnInit {
                 }
             })
         })
+    }
+
+    intervalChanged(_: MatSelectChange) {
+        if (this.md.id != null && this.md.interval?.id === this.dto.intervalId) {
+            this.md.weekly = this.dto.weekly ?? false
+            this.md.monthly = this.dto.monthly ?? false
+            this.md.quarterly = this.dto.quarterly ?? false
+            this.md.yearly = this.dto.yearly ?? false
+        }
+        else {
+            this.md.weekly = this.md.monthly = this.md.quarterly = this.md.yearly = false
+        }
+    }
+
+    cbChanged(_: MatCheckboxChange) {
+        if (this.md.weekly || this.md.monthly || this.md.quarterly || this.md.yearly) {
+            if (this.md.id != null && this.md.aggFunction == null) {
+                // restore formControl model state from dto
+                const aggFunction = this.aggFunctions.find(f => f.id === this.dto.aggFunctionId)
+                this.md.aggFunction = aggFunction ?? this.aggFunctions[0]
+            }
+        }
+        else {
+            this.md.aggFunction = null
+        }
     }
 
     refresh() {
@@ -98,5 +127,36 @@ export class MeasureDefinitionEditComponent implements OnInit {
         return false
     }
 
-    save() { }
+    save() {
+        const md = this.md
+        if (md.measureType != null && md.interval != null && md.unit != null && md.aggFunction != null ) {
+            const { name, measureType: { id: measureTypeId }, interval: { id: intervalId },
+                varName, description, expression, unit: { id: unitId },
+                weekly, monthly, quarterly, yearly, aggFunction: { id: aggFunctionId } } = md
+            let { precision, priority, fieldNumber } = md
+            precision ??= 0
+            priority ??= 0
+            fieldNumber ??= 0
+            if (md.id != null) {
+                const { id } = md
+                this.api.updateMeasureDefinition(md.id, {
+                    id, name, measureTypeId, intervalId, varName, description, expression, precision,
+                    priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
+                }).subscribe({
+                    next: () => this.logger.logSuccess("saved")
+                })
+            }
+            else {
+                this.api.addMeasureDefinition({
+                    name, measureTypeId, intervalId, varName, description, expression, precision,
+                    priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
+                }).subscribe({
+                    next: () => this.logger.logSuccess("saved")
+                })
+            }
+        }
+        else {
+            this.logger.logError("Missing parameters")
+        }
+    }
 }

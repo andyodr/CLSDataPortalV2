@@ -90,8 +90,8 @@ public class EditController : ControllerBase
 		}
 	}
 
-	[HttpPut]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id2, MeasureDefinitionViewModel value) {
+	[HttpPut("{id}")]
+	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionViewModel dto) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			Units = new(),
 			Intervals = new(),
@@ -124,13 +124,13 @@ public class EditController : ControllerBase
 				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var mDef = _context.MeasureDefinition.Where(m => m.Id == value.Id).Single();
+			var mDef = _context.MeasureDefinition.Where(m => m.Id == dto.Id).Single();
 
 			// Validates name and variable name
 			int validateCount = _context.MeasureDefinition
 			  .Where(m =>
-					  m.Id != value.Id &&
-					  (m.Name.Trim().ToLower() == value.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == value.VarName.Trim().ToLower())
+					  m.Id != dto.Id &&
+					  (m.Name.Trim().ToLower() == dto.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == dto.VarName.Trim().ToLower())
 					)
 			  .Count();
 
@@ -140,25 +140,25 @@ public class EditController : ControllerBase
 
 
 			// Get Values from Page
-			if (value.Expression is null) {
-				value.Calculated = false;
+			if (dto.Expression is null) {
+				dto.Calculated = false;
 			}
 			else {
-				value.Calculated = value.Expression.Trim().Length > 0;
-				value.Expression = value.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
+				dto.Calculated = dto.Expression.Trim().Length > 0;
+				dto.Expression = dto.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = (value.Daily ?? false) && value.IntervalId != (int)Helper.intervals.daily;
-			weekly = (value.Weekly ?? false) && value.IntervalId != (int)Helper.intervals.weekly;
-			monthly = (value.Monthly ?? false) && value.IntervalId != (int)Helper.intervals.monthly;
-			quarterly = (value.Quarterly ?? false) && value.IntervalId != (int)Helper.intervals.quarterly;
-			yearly = (value.Yearly ?? false) && value.IntervalId != (int)Helper.intervals.yearly;
-			value.AggFunctionId ??= (byte)enumAggFunctions.summation;
+			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Helper.intervals.daily;
+			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Helper.intervals.weekly;
+			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Helper.intervals.monthly;
+			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Helper.intervals.quarterly;
+			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Helper.intervals.yearly;
+			dto.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
 			var mDef_ = _context.Entry(mDef);
-			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != value.IntervalId ||
+			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != dto.IntervalId ||
 									 mDef.AggDaily != daily ||
 									 mDef.AggWeekly != weekly ||
 									 mDef.AggMonthly != monthly ||
@@ -166,29 +166,29 @@ public class EditController : ControllerBase
 									 mDef.AggYearly != yearly;
 
 			// Check if some values were changed in order to update IsProcessed to 1 for measure data records
-			bool updateMeasureData = mDef.VariableName != value.VarName ||
-									 mDef.Expression != value.Expression ||
-									 mDef.AggFunction != value.AggFunctionId ||
+			bool updateMeasureData = mDef.VariableName != dto.VarName ||
+									 mDef.Expression != dto.Expression ||
+									 mDef.AggFunction != dto.AggFunctionId ||
 									 createMeasureData;
 
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
-			if (value.Id is not null) {
-				mDef.Id = (long)value.Id;
+			if (dto.Id is not null) {
+				mDef.Id = (long)dto.Id;
 			}
 
-			mDef.Name = value.Name;
-			mDef_.Property("MeasureTypeId").CurrentValue = value.MeasureTypeId;
-			mDef.VariableName = value.VarName;
-			mDef.Description = value.Description;
-			mDef.Precision = value.Precision;
-			mDef.Priority = (short)value.Priority;
-			mDef.FieldNumber = value.FieldNumber;
-			mDef_.Property("UnitId").CurrentValue = value.UnitId;
-			mDef.Calculated = (bool)value.Calculated;
-			mDef.Expression = value.Expression;
-			mDef_.Property("ReportIntervalId").CurrentValue = value.IntervalId;
+			mDef.Name = dto.Name;
+			mDef_.Property("MeasureTypeId").CurrentValue = dto.MeasureTypeId;
+			mDef.VariableName = dto.VarName;
+			mDef.Description = dto.Description;
+			mDef.Precision = dto.Precision;
+			mDef.Priority = (short)dto.Priority;
+			mDef.FieldNumber = dto.FieldNumber;
+			mDef_.Property("UnitId").CurrentValue = dto.UnitId;
+			mDef.Calculated = (bool)dto.Calculated;
+			mDef.Expression = dto.Expression;
+			mDef_.Property("ReportIntervalId").CurrentValue = dto.IntervalId;
 			mDef.AggDaily = daily;
 			mDef.AggWeekly = weekly;
 			mDef.AggMonthly = monthly;
@@ -196,9 +196,9 @@ public class EditController : ControllerBase
 			mDef.AggYearly = yearly;
 
 			if (daily || weekly || monthly || quarterly || yearly) {
-				mDef.AggFunction = value.AggFunctionId;
+				mDef.AggFunction = dto.AggFunctionId;
 
-				if (mDef.Calculated != true && value.AggFunctionId == (byte)enumAggFunctions.expression) {
+				if (mDef.Calculated != true && dto.AggFunctionId == (byte)enumAggFunctions.expression) {
 					mDef.AggFunction = (byte)enumAggFunctions.summation;
 				}
 			}
@@ -210,7 +210,7 @@ public class EditController : ControllerBase
 			mDef.IsProcessed = (byte)Helper.IsProcessed.complete;
 
 			_context.SaveChanges();
-			returnObject.Data.Add(value);
+			returnObject.Data.Add(dto);
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
@@ -219,7 +219,7 @@ public class EditController : ControllerBase
 
 			// Create Measure Data records for current intervals if they don't exists
 			if (createMeasureData) {
-				Helper.CreateMeasureDataRecords(_context, value.IntervalId, mDef.Id);
+				Helper.CreateMeasureDataRecords(_context, dto.IntervalId, mDef.Id);
 				if (weekly)
 					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, mDef.Id);
 				if (monthly)
