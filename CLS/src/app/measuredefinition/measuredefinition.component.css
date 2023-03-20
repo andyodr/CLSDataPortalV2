@@ -16,10 +16,6 @@ mat-drawer-content {
   height: 100%;
 }
 
-app-sidebar {
-  grid-row: 1 / -1;
-}
-
 app-sidebar~* {
   grid-column: 2;
   padding: 20px;

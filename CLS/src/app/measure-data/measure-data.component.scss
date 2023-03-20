@@ -1,30 +1,38 @@
 :host {
-  display: flex;
   height: 100%;
-
-  > app-sidebar + div {
-    padding: 20px;
-    flex: 1 auto;
-  }
+  overflow-y: hidden;
 }
 
-:host, mat-drawer-container, app-sidebar {
+mat-drawer-container,
+mat-drawer,
+app-sidebar {
   height: 100%;
 }
 
 mat-drawer-content {
-  display: flex;
+  display: grid;
+  grid-template: 1fr / auto 1fr;
   background-color: inherit;
   height: 100%;
 }
 
-mat-drawer-content > app-sidebar + * {
+app-sidebar~* {
+  grid-column: 2;
   padding: 20px;
-  flex: 1 auto;
+}
+
+mat-drawer form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 90px 20px 40px;
+}
+
+mat-drawer form * {
+  flex: 1;
 }
 
 mat-drawer header {
-  background: linear-gradient(var(--mat-color-600), var(--mat-color-500) 33%, var(--mat-color-500));
+  background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
   padding: 15px 20px;
   display: flex;
   gap: 15px;
@@ -36,6 +44,34 @@ mat-drawer header h2 {
   margin: auto 2em;
 }
 
-button, a {
+.panel-body {
+  padding: 15px;
+}
+
+button,
+a {
   min-width: 8em;
+}
+
+div.panel>button {
+  margin: 6px 11px 10px 0px;
+}
+
+span.filter {
+  color: white;
+  background-color: gray;
+  margin: 9px;
+  padding: 4px 11px;
+}
+
+.panel-header {
+  background-color: var(--mat-primary-50);
+  border-color: #e2edeb;
+  padding: 10px 15px 0px;
+  border: 1px solid var(--mat-primary-100);
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  display: flex;
+  align-items: center;
 }
