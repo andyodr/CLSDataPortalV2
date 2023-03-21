@@ -70,7 +70,6 @@ export class TargetService {
     return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
   }
   
-  //Get Target from API 
   getTarget1(){
     return this.http.get<TargetApiResponse>(environment.baseUrl + 'api/targets/index?hierarchyId=1&measureTypeId=1').pipe(
       map((response: TargetApiResponse) => {

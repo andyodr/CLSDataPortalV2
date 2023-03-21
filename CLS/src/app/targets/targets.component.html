@@ -105,19 +105,19 @@
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
-          <!-- <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
+          <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
             <mat-icon>edit</mat-icon> Edit Type
-          </button> -->
-          <!-- <mat-menu #eMenu="matMenu">
+          </button>
+          <mat-menu #eMenu="matMenu">
             <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
-          </mat-menu> -->
-          <!-- <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
+          </mat-menu>
+          <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
             <mat-icon>add</mat-icon> Add
-          </button> -->
-          <!-- <mat-menu #aMenu="matMenu">
+          </button>
+          <mat-menu #aMenu="matMenu">
             <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
             <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
-          </mat-menu> -->
+          </mat-menu>
         </div>
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">
           <ng-container matColumnDef="name">

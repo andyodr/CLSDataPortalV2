@@ -166,8 +166,6 @@ export class TargetsComponent implements OnInit {
         this.showError = false
     }
 
-
-
      getTargets(filtered: TargetApiParams): void {
           this.showError = false;
           this.disabledAll = true;
@@ -253,6 +251,62 @@ export class TargetsComponent implements OnInit {
     //     this.errorMsg = ""
     //     this.showError = false
     // }
+
+    // applyToChildren() {
+    //     if (!this.allow) {
+    //       return;
+    //     }
+      
+    //     this.showError = false;
+    //     this.disabledAll = true;
+      
+    //     const title = 'Confirm';
+    //     const msg = 'Are you sure you want to apply to all children?';
+    //     this.dialogService.confirm(title, msg).then((response) => {
+    //       if (response) {
+    //         this.dataConfirmedReset();
+    //         this.dataConfirmed.isApplyToChildren = true;
+      
+    //         if (this.confirmed) {
+    //           this.confirmTarget();
+    //         } else {
+    //           this.applyToChildrenSave();
+    //         }
+    //       } else {
+    //         this.disabledAll = false;
+    //       }
+    //     });
+    //   }
+    // dataConfirmedReset() {
+    //     throw new Error('Method not implemented.');
+    // }
+      
+    //   applyToChildrenSave() {
+    //     this.progress(true);
+      
+    //     this.pagesService.targetsapply.update({
+    //       hierarchyId: this.hierarchyId,
+    //       measureTypeId: this.measureTypeId,
+    //       measureId: null,
+    //       target: null,
+    //       yellow: null,
+    //       allow: null,
+    //       applyToChildren: true,
+    //       isCurrentUpdate: this.dataConfirmed.isCurrentUpdate,
+    //       confirmIntervals: this.dataConfirmed.confirmIntervals,
+    //     }).subscribe((value) => {
+    //       if (itgIsNull(value.error)) {
+    //         this.logger.logSuccess('Success: Targets applied to children.');
+    //         this.progress(false);
+    //       } else {
+    //         this.processLocalError(this.title, value.error.message, value.error.id, null, value.error.authError);
+    //       }
+      
+    //       this.disabledAll = false;
+    //     }, (err) => {
+    //       this.processLocalError(this.title, err.statusText, null, err.status, null);
+    //     });
+    //   }
 
 }
 
