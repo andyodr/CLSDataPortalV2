@@ -4,6 +4,12 @@ import { BehaviorSubject, map } from 'rxjs'
 import { User } from '../_models/user'
 import { environment } from "../environments/environment"
 
+export type SignIn = {
+  userName: string,
+  password: string,
+  persistent: boolean
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,24 +19,14 @@ export class AccountService {
 
   constructor(private http: HttpClient) { }
 
-  login(model: any) {
+  login(model: SignIn) {
     var form = new FormData()
-    form.append("userName", model.username)
+    form.append("userName", model.userName)
     form.append("password", model.password)
+    form.append("persistent", model.persistent.toString())
     return this.http.post<User>(environment.baseUrl + 'api/SignIn', form).pipe(
       map((response: User) => {
         const user = response
-        if (user) {
-          localStorage.setItem('user', JSON.stringify(user))
-          this.currentUserSource.next(user)
-        }
-      })
-    )
-  }
-
-  register(model: any) {
-    return this.http.post<User>(environment.baseUrl + 'account/register', model).pipe(
-      map(user => {
         if (user) {
           localStorage.setItem('user', JSON.stringify(user))
           this.currentUserSource.next(user)
