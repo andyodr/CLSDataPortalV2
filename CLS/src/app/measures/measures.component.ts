@@ -34,7 +34,7 @@ export class MeasuresComponent implements OnInit {
     dataSource = new MatTableDataSource([] as Data[])
     //dataSource = new MatTableDataSource<Measure>()
     //dataSource = new MatTableDataSource<Data>()
-    displayedColumns = ["name", "id", "owner", "hierarchy"]
+    displayedColumns = ["name", "id", "owner", "hierarchy", "actions"]
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []

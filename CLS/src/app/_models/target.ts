@@ -22,11 +22,11 @@ export interface TargetApiResponse {
     locked: boolean;
     confirmed: boolean;
     filter: Filter;
-    data: Data[];
+    data: Target[];
     error?: any;
   }
   
-  export interface Data {
+  export interface Target {
     id: number;
     name: string;
     value?: number;
@@ -104,6 +104,41 @@ export interface TargetApiResponse {
     sub: any[]
     found: any
     error: any
+  }
+
+  //--------------------------------------------------------------------------------
+  //from PUT api/targets/Index and /Index/{id}
+  //--------------------------------------------------------------------------------
+
+  export interface TargetDto {
+    hierarchyId?: number
+    measureId?: number
+    measureTypeId?: number
+    target?: number
+    yellow?: number
+    applyToChildren: boolean
+    isCurrentUpdate: boolean
+    confirmIntervals?: ConfirmIntervals
+  }
+
+  // export interface TargetDto {
+  //   hierarchyId?: any
+  //   measureId?: any
+  //   measureTypeId?: any
+  //   target?: any
+  //   yellow?: any
+  //   applyToChildren: any
+  //   isCurrentUpdate: any
+  //   confirmIntervals: any
+  // }
+  
+  
+  export interface ConfirmIntervals {
+    daily: boolean
+    weekly: boolean
+    monthly: boolean
+    quarterly: boolean
+    yearly: boolean
   }
   
  

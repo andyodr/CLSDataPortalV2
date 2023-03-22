@@ -112,28 +112,20 @@ table {
   width: 12em;
 }
 
-.mat-column-varName {
+.mat-column-value {
   width: 6em;
 }
 
-.mat-column-description {
-  width: 24em;
-}
-
-.mat-column-expression {
-  width: 18em;
-}
-
-.mat-column-calculated {
-  width: 4em;
-}
-
-.mat-column-interval {
+.mat-column-yellow {
   width: 6em;
 }
 
-.mat-column-priority {
-  width: 4em;
+.mat-column-updated {
+  width: 8em;
+}
+
+.mat-column-actions {
+  width: 6em;
 }
 
 tr.detail-row {

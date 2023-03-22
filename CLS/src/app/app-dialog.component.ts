@@ -6,6 +6,7 @@ import { DomSanitizer } from "@angular/platform-browser"
     selector: "app-dialog",
     template: `
 <h1 mat-dialog-title>{{data.title}}</h1>
+<h2 mat-dialog-title>{{data.msg}}</h2>
 <mat-dialog-content class="mat-typography" [innerHtml]="data.htmlContent"></mat-dialog-content>
 <mat-dialog-actions>
 <button *ngIf="data.alert" mat-raised-button mat-dialog-close>Close</button>
@@ -16,7 +17,7 @@ import { DomSanitizer } from "@angular/platform-browser"
 export class AppDialog {
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        public data: { title: string, htmlContent?: string, alert?: boolean },
+        public data: { title: string, msg?: string, htmlContent?: string, alert?: boolean },
         private dom: DomSanitizer
     ) {
         if (data.htmlContent) {

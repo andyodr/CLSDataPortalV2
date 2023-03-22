@@ -1,4 +1,3 @@
-
 <mat-drawer-container>
   <mat-drawer [position]="drawer.position" #drwr>
     <header>
@@ -136,6 +135,14 @@
           <ng-container matColumnDef="hierarchy">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Hierarchy </th>
             <td mat-cell *matCellDef="let mdef">{{ mdef.hierarchy}}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell  *matHeaderCellDef > Actions </th>
+            <td mat-cell *matCellDef="let row" >
+              <button mat-raised-button color="primary" (click)="edit(data)">
+                <mat-icon>edit</mat-icon> 
+              </button>
+            </td>
           </ng-container>
           <ng-container matColumnDef="expandedDetail">
             <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
