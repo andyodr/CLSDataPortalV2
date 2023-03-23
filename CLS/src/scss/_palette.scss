@@ -5,12 +5,19 @@
   --mat-primary-200: hsl(188, 60%, 66%, 1);
   --mat-primary-300: hsl(189, 70%, 52%, 1);
   --mat-primary-400: hsl(190, 80%, 44%, 1);
-  --mat-primary-500: hsl(191, 85%, 36%, 1);
-  --mat-primary-600: hsl(191, 89%, 32%, 1);
-  --mat-primary-700: hsl(191, 93%, 28%, 1);
-  --mat-primary-800: hsl(191, 97%, 24%, 1);
+  --mat-primary-500: hsl(191, 98%, 25%, 1);
+  --mat-primary-600: hsl(191, 98%, 23%, 1);
+  --mat-primary-700: hsl(191, 99%, 22%, 1);
+  --mat-primary-800: hsl(191, 99%, 21%, 1);
   --mat-primary-900: hsl(191, 100%, 20%, 1);
   --mat-blue-gray-50: mat.get-color-from-palette(mat.$blue-gray-palette, 50);
+  --jaguar-teal: #006778;
+  --jaguar-gold: #D7A22A;
+  --jaguar-dark-gold: #9F792C;
+  --jaguar-black: #101820;
+  --vegas-gold: #D7A22A;
+  --jaguar-aqua: #00677F;
+  --jaguar-helmet-gold: #9F792C;
 }
 $teal-palette: (
  50 : var(--mat-primary-50),

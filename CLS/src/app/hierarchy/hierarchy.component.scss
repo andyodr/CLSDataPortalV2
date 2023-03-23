@@ -28,7 +28,7 @@ app-sidebar ~ * {
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
+  background: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
   border: 1px solid var(--mat-primary-100);
@@ -104,7 +104,7 @@ table {
 }
 
 .mat-row:hover .mat-cell {
-  background-color: var(--mat-primary-100);
+  background: var(--mat-primary-100);
 }
 
 .mat-row .empty-table {

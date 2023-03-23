@@ -6,70 +6,68 @@
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Save" (click)="saveFilter(); drwr.close()">
+      <button mat-raised-button aria-label="Save" (click)="loadTable(); drwr.close()">
         <mat-icon>save_alt</mat-icon> Save
       </button>
     </header>
-    <form>
-      <!-- <mat-checkbox name="active" [(ngModel)]="model.active" color="primary" labelPosition="before">Active</mat-checkbox> -->
-      <!-- Intervals -->
-      <!-- <div layout layout-sm="column">
-        <md-input-container flex>
-          <label>Intervals</label>
-          <md-select data-ng-model="fIntervalSelected" aria-label="Intervals" ng-change="intervalChange()"
-            data-ng-model-options="{trackBy: '$value.id'}">
-            <md-option data-ng-repeat="interval in fIntervals" ng-value="interval"> {{interval.name}} </md-option>
-          </md-select>
-        </md-input-container>
-      </div> -->
-
-      <!-- <mat-form-field appearance="fill">
-        <mat-label>Intervals</mat-label>
-        <input matInput name="interval" [(ngModel)]="model.name" placeholder="Intervals" [disabled]="disabledAll">
-      </mat-form-field>
-      <hr> -->
-      <!-- <mat-form-field appearance="fill" fxFlex>
-        <mat-label>Intervals</mat-label>
-        <mat-select [(ngModel)]="fIntervalSelected" aria-label="Intervals" (selectionChange)="intervalChange()">
-          <mat-option *ngFor="let interval of fIntervals" [value]="interval" [trackBy]="interval?.id">{{ interval?.name }}</mat-option>
-        </mat-select>
-      </mat-form-field> -->
+    <form class="panel-body">
       <mat-form-field appearance="fill">
         <mat-label>Intervals</mat-label>
-        <mat-select name="interval" [(ngModel)]="model.interval" [disabled]="disabledAll">
-          <mat-option *ngFor="let interval of intervalList" [value]="interval.id">
+        <mat-select name="fIntervalSelected" [(ngModel)]="model.fIntervalSelected" (selectionChange)="intervalChange()"
+          aria-label="Intervals">
+          <mat-option *ngFor="let interval of select.intervals; trackBy: identity" [value]="interval">
             {{interval.name}}
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <hr>
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="fill" [hidden]="model.fIntervalSelected?.id == Intervals.Daily">
         <mat-label>Year</mat-label>
-        <mat-select name="year" [(ngModel)]="model.year" [disabled]="disabledAll">
-          <mat-option *ngFor="let year of yearList" [value]="year.id">
-            {{year.name}}
+        <mat-select name="fYearSelected" [(ngModel)]="model.fYearSelected" (selectionChange)="intervalChange()"
+          aria-label="Year">
+          <mat-option *ngFor="let year of select.years; trackBy: identity" [value]="year">
+            {{year.year}}
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Weekly">
+        <mat-label>Week</mat-label>
+        <mat-select name="fWeekSelected" [(ngModel)]="model.fWeekSelected" (selectionChange)="weekChange()"
+          aria-label="Week">
+          <mat-option *ngFor="let week of select.weeks; trackBy: identity" [value]="week">
+            {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Monthly">
+        <mat-label>Month</mat-label>
+        <mat-select name="fMonthSelected" [(ngModel)]="model.fMonthSelected" (selectionChange)="monthChange()"
+          aria-label="Month">
+          <mat-option *ngFor="let month of select.months; trackBy: identity" [value]="month">
+            {{month.month}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Quarterly">
         <mat-label>Quarter</mat-label>
-        <mat-select name="quarter" [(ngModel)]="model.quarter" [disabled]="disabledAll">
-          <mat-option *ngFor="let quarter of quarterList" [value]="quarter.id">
-            {{quarter.name}}
+        <mat-select name="fQuarterSelected" [(ngModel)]="model.fQuarterSelected" (selectionChange)="quarterChange()"
+          aria-label="Quarter">
+          <mat-option *ngFor="let quarter of select.quarters; trackBy: identity" [value]="quarter">
+            Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate |
+            date:'mediumDate'}}
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <hr>
       <mat-form-field appearance="fill">
         <mat-label>Measure Type</mat-label>
-        <mat-select name="quarter" [(ngModel)]="model.quarter" [disabled]="disabledAll">
-          <mat-option *ngFor="let quarter of quarterList" [value]="quarter.id">
-            {{quarter.name}}
+        <mat-select name="fMeasureTypeSelected" [(ngModel)]="model.fMeasureTypeSelected" [disabled]="disabledAll">
+          <mat-option *ngFor="let measureType of select.measureTypes" [value]="measureType">
+            {{measureType.name}}
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <h4>Parent Hierarchy:</h4>
-      <!-- <app-region-tree #regions [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedParent"></app-region-tree> -->
+      <h4>Region Hierarchy:</h4>
+      <app-region-tree #regions [hierarchy]="select.hierarchy"
+        [(selectedRegions)]="model.selectedRegion"></app-region-tree>
     </form>
   </mat-drawer>
   <mat-drawer-content>
@@ -80,6 +78,7 @@
         <button mat-raised-button color="primary" (click)="drwr.open()">
           <mat-icon>filter_list</mat-icon>Filter
         </button>
+        <span class="filter" *ngFor="let filter of filterSelected">{{filter}}</span>
         <!-- Progress Section-->
         <!-- <aside data-ng-include="'app/layout/progress.html'"></aside> -->
         <!-- <ng-container *ngTemplateOutlet="progressTemplate"></ng-container> -->
@@ -117,7 +116,7 @@
                       <form class="disInline">
                         <input type="text" placeholder="Search..." class="form-control marL15 marR10"
                           style="width: 300px" [(ngModel)]="skMeasureData" [ngModelOptions]="{standalone: true}"
-                          (keyup)="populateTable()" [disabled]="disabledAll" />
+                          (keyup)="loadTable()" [disabled]="disabledAll" />
                       </form>
                       <h5 class="padL15">{{ this.dataRange }}</h5>
                     </div>
@@ -284,50 +283,6 @@
               </footer>
             </section>
           </div>
-
-          <script type="text/ng-template" id="mmPopoverTemplate.html">
-            <div class="form-group itgPopover">
-              <p>
-                Target = <span class="itgGreen">{{dPopover.target}}</span> / <span class="itgYellow">{{dPopover.yellow}}</span>
-              </p>
-              <div class="itgPopoverWrap">
-                <p>ID: <span>{{dPopover.id}}</span></p>
-                <p>Value: <span>{{dPopover.value}}</span></p>
-                <p ng-if="dPopover.calculated">Expression: <span>{{dPopover.expression}}</span></p>
-                <p ng-if="dPopover.calculated">Evaluated: <span>{{dPopover.evaluated}}</span></p>
-              </div>
-              <p class="padT10"><span>{{dPopover.description}}</span></p>
-            </div>
-          </script>
-
-          <script type="text/ng-template" id="mmUpdateTooltipTemplate.html">
-            <span>{{data.updated.by}}<br />{{data.updated.longDt}}</span>
-          </script>
-
-          <!-- <hr /> -->
-
-          <!-- {{measureDataResponse | json}} -->
-
-          <!-- <hr class="my-5" /> -->
-
-          <!-- <table class="table table-hover" *ngIf="measureDataResponse?.data">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Value</th>
-                <th scope="col">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let data of measureDataResponse?.data">
-                <td>{{ data.name }}</td>
-                <td>{{data.}}</td>
-                <td>{{ data.value }}</td>
-                <td>{{ data.description }}</td>
-              </tr>
-            </tbody>
-          </table> -->
-
         </div>
       </div>
     </div>

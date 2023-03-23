@@ -2,6 +2,8 @@ import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { Observable } from "rxjs"
 import { environment } from "../environments/environment"
+import { ErrorModel } from "../_models/error"
+import { RegionFilter } from "../_models/regionhierarchy"
 
 export type MeasureType = {
     id: number,
@@ -9,8 +11,25 @@ export type MeasureType = {
     description?: string
 }
 
-export type MeasureDefinitionFilter = {
+export type IntervalDto = {
+    id: number
+    name: string
+}
+
+export type CurrentCalendarIds = {
+    weeklyCalendarId: number
+    monthlyCalendarId: number
+    quarterlyCalendarId: number
+    yearlyCalendarId: number
+}
+
+export type FilterResponseDto = {
     measureTypes: MeasureType[]
+    hierarchy?: RegionFilter[]
+    intervals?: IntervalDto[]
+    years?: { id: number, year: number }[]
+    error: ErrorModel
+    currentCalendarIds?: CurrentCalendarIds
     filter: {
         hierarchyId?: number
         measureTypeId?: number
@@ -48,7 +67,7 @@ export type Units = { id: number, name: string, shortName: string }
 
 export type MeasureDefinitionEditDto = {
     units: Units[]
-    intervals: { id: number, name: string }[]
+    intervals: IntervalDto[]
     measureTypes: MeasureType[]
     aggFunctions: { id: number, name: string }[]
     data: MeasureDefinition[]
@@ -67,8 +86,8 @@ export class MeasureDefinitionService {
         return this.http.get<{ data: MeasureDefinition[] }>(`${ this.baseUrl }/index/${ measureTypeId }`)
     }
 
-    getMeasureDefinitionFilter(): Observable<MeasureDefinitionFilter> {
-        return this.http.get<MeasureDefinitionFilter>(this.baseUrl + "/filter")
+    getMeasureDefinitionFilter(): Observable<FilterResponseDto> {
+        return this.http.get<FilterResponseDto>(this.baseUrl + "/filter")
     }
 
     getMeasureDefinitionEdit(measureDefinitionId?: number): Observable<MeasureDefinitionEditDto> {

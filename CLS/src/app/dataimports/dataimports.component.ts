@@ -13,27 +13,14 @@ import { ProgressBarMode } from "@angular/material/progress-bar"
 import { ToggleService } from "../_services/toggle.service"
 import { ErrorModel } from "../_models/error"
 import { LoggerService } from "../_services/logger.service"
+import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
+import { IntervalDto } from "../_services/measure-definition.service"
 
 type DataOut = {
     dataImport: number
     calendarId?: number
     sheet: string
     data: { [name: string]: JsonValue }[]
-}
-
-type FiltersIntervalsData = {
-    error?: ErrorModel
-    id: number
-    number?: number | null
-    startDate?: string
-    endDate?: string
-    month?: string
-    locked?: boolean
-}
-
-type FiltersIntervalsBody = {
-    calendarId: number
-    data: FiltersIntervalsData[]
 }
 
 type DataImportItem = {
@@ -48,7 +35,7 @@ type DataImportItem = {
 type DataImportsMainObject = {
     error: ErrorModel
     calculationTime: string
-    intervals: { id: number, name: string }[]
+    intervals: IntervalDto[]
     years: { id: number, year: number }[]
     dataImport: DataImportItem[]
     intervalId?: number
@@ -84,8 +71,8 @@ export class DataImportsComponent implements OnInit {
     showIntervals = false
     selImportSelected!: DataImportItem
     Intervals = Intervals
-    fIntervals: { id: number, name: string }[] = []
-    fIntervalSelected?: { id: number, name: string }
+    fIntervals: IntervalDto[] = []
+    fIntervalSelected?: IntervalDto
     fYears: { id: number, year: number }[] = []
     fYearSelected: any = []
     fMonths: FiltersIntervalsData[] = []
@@ -123,6 +110,7 @@ export class DataImportsComponent implements OnInit {
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
         private http: HttpClient,
+        private api: MeasureDataService,
         private logger: LoggerService,
         private toggleService: ToggleService,
         @Inject(LOCALE_ID) private locale: string) { }
@@ -347,7 +335,7 @@ export class DataImportsComponent implements OnInit {
             .set("intervalID", this.fIntervalSelected?.id ?? 0)
             .set("year", this.fYearSelected.year)
             .set("isDataImport", true)
-        this.http.get<FiltersIntervalsBody>(environment.baseUrl + "api/filters/intervals", { params })
+        this.api.getFiltersIntervals(params)
             .subscribe({
                 next: body => {
                     if (body.data) {
@@ -387,7 +375,7 @@ export class DataImportsComponent implements OnInit {
         return false
     }
 
-    // Selection Import Types    
+    // Selection Import Types
     onSelImportChange() {
         if (this.selImportSelected != null) {
             this.showIntervals = this.selImportSelected.id == 1
@@ -463,7 +451,7 @@ export class DataImportsComponent implements OnInit {
 
                 // Could not find name
                 if (!bFound) {
-                    this.processDialogAlert("Column Validation", `Column '${headingTitle}' is not part of the import.`)
+                    this.processDialogAlert("Column Validation", `Column '${ headingTitle }' is not part of the import.`)
                     return
                 }
             }
@@ -476,7 +464,7 @@ export class DataImportsComponent implements OnInit {
                 }
 
                 if (heading.required && colNamesTrim.indexOf(heading.title) < 0) {
-                    this.processDialogAlert("Column Validation", `Column '${heading.title}' is required.`)
+                    this.processDialogAlert("Column Validation", `Column '${ heading.title }' is required.`)
                     return
                 }
             }
@@ -577,7 +565,7 @@ export class DataImportsComponent implements OnInit {
                             this.processUploadError(body.error)
                         }
                         else {
-                            this.logger.logSuccess(`✔️ ${MESSAGES.uploadSuccess}`)
+                            this.logger.logSuccess(`✔️ ${ MESSAGES.uploadSuccess }`)
                             this.setProgress(false)
                             this.clearClick()
                         }
@@ -616,7 +604,7 @@ export class DataImportsComponent implements OnInit {
 
     loadTable() {
         try {
-            // Validates data       
+            // Validates data
             if (this.jsonObj == null) {
                 this.errorMsg = "There is an error with the file."
                 return
@@ -647,7 +635,7 @@ export class DataImportsComponent implements OnInit {
             return true
         }
         catch (err: any) {
-            this.errorMsg = `Error ${err.name} ${err.message}`
+            this.errorMsg = `Error ${ err.name } ${ err.message }`
             return false
         }
     }

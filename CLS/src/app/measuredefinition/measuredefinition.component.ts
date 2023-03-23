@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from "@angular/core"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { LoggerService } from "../_services/logger.service"
-import { MeasureDefinition, MeasureDefinitionFilter, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
+import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
 
 @Component({
     selector: "app-measuredefinition",
@@ -18,7 +18,7 @@ import { MeasureDefinition, MeasureDefinitionFilter, MeasureDefinitionService, M
 })
 export class MeasureDefinitionComponent implements OnInit {
     title = "Measure Definition"
-    filters!: MeasureDefinitionFilter
+    filters!: FilterResponseDto
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasureDefinition>()
     displayedColumns = ["name", "varName", "description", "calculated", "interval", "priority"]
@@ -73,10 +73,6 @@ export class MeasureDefinitionComponent implements OnInit {
     doEditType() {
         this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
         this.editingMeasureType = { ...this.selectedMeasureType }
-    }
-
-    save() {
-        this.loadTable()
     }
 
     applyFilter(event: Event) {

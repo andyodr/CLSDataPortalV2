@@ -59,13 +59,13 @@ div.panel>button {
 
 span.filter {
   color: white;
-  background-color: gray;
+  background: dimgray;
   margin: 9px;
   padding: 4px 11px;
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
+  background: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
   border: 1px solid var(--mat-primary-100);
@@ -127,11 +127,11 @@ tr.detail-row {
 }
 
 tr.table-row:not(.expanded-row):hover {
-  background-color: var(--mat-primary-50);
+  background: var(--mat-primary-50);
 }
 
 tr.table-row:not(.expanded-row):active {
-  background-color: var(--mat-primary-100);
+  background: var(--mat-primary-100);
 }
 
 .table-row td {

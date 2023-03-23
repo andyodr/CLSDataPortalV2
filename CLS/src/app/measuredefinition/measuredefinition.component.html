@@ -5,7 +5,7 @@
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="save(); drwr.close()">
+      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="loadTable(); drwr.close()">
         <mat-icon>save_alt</mat-icon> {{drawer.button}}
       </button>
     </header>

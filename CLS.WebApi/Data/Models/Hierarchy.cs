@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi.Data.Models;
+namespace CLS.WebApi.Data.Models;
 
 public class Hierarchy
 {
@@ -20,6 +20,8 @@ public class Hierarchy
 	public string Name { get; set; } = null!;
 
 	public bool? Active { get; set; }
+
+	public List<UserHierarchy>? UserHierarchies { get; set; }
 
 	public byte IsProcessed { get; set; }
 

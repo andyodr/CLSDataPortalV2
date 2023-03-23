@@ -1,8 +1,25 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Data, MeasureDataIndexListObject, MeasureDataReceiveObject, MeasureDataResponse } from '../_models/measureData';
+import { ErrorModel } from '../_models/error';
+import { MeasureDataReceiveObject, MeasureDataResponse } from '../_models/measureData';
+import { FilterResponseDto } from "./measure-definition.service"
+
+export type FiltersIntervalsData = {
+  error?: ErrorModel
+  id: number
+  number?: number | null
+  startDate?: string
+  endDate?: string
+  month?: string
+  locked?: boolean
+}
+
+export type FiltersIntervalsDto = {
+  calendarId: number
+  data: FiltersIntervalsData[]
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +27,16 @@ import { Data, MeasureDataIndexListObject, MeasureDataReceiveObject, MeasureData
 export class MeasureDataService {
 
   private baseUrl = environment.baseUrl + 'api/measuredata/';
-  
+
   constructor(private http: HttpClient) { }
+
+  getFilters() {
+    return this.http.get<FilterResponseDto>(this.baseUrl + "filter")
+  }
+
+  getFiltersIntervals(params: HttpParams) {
+    return this.http.get<FiltersIntervalsDto>(environment.baseUrl + "api/filters/intervals", { params })
+  }
 
   // Get Measure Data from API
   //getMeasureData(measureData: MeasureData): Observable<MeasureData[]>{
@@ -35,7 +60,7 @@ export class MeasureDataService {
 
     //return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?',{params:params});
 
-    return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?',{params:params}).pipe(
+    return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?', { params: params }).pipe(
       map((response: MeasureDataResponse) => {
         const measureDataOnService = response
         console.log("=====Measure Data On Service======");
@@ -47,7 +72,7 @@ export class MeasureDataService {
     );
   }
 
-  getMeasureData(filtered : MeasureDataReceiveObject) {
+  getMeasureData(filtered: MeasureDataReceiveObject) {
 
     //query params
     let params = new HttpParams();
@@ -62,7 +87,7 @@ export class MeasureDataService {
 
     //return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?',{params:params});
 
-    return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?',{params:params}).pipe(
+    return this.http.get<MeasureDataResponse>(this.baseUrl + '/index?', { params: params }).pipe(
       map((response: MeasureDataResponse) => {
         const measureDataOnService = response
         console.log("=====Measure Data On Service======");
@@ -80,6 +105,3 @@ export class MeasureDataService {
 
 
 }
-
-
-

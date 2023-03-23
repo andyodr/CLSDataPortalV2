@@ -162,19 +162,19 @@ public static class Helper
 		return children;
 	}
 
-	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext context, int id, UserObject user) {
+	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext dbc, int id, UserObject user) {
 		var children = new List<RegionFilterObject>();
-		var hierarchyList = context.Hierarchy
+		var hierarchyList = dbc.Hierarchy
 			.Where(h => h.HierarchyParentId == id && h.Active == true)
 			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
 			.AsNoTrackingWithIdentityResolution()
 			.ToArray();
 		foreach (var rfo in hierarchyList) {
-			rfo.Sub = GetSubs(context, rfo.Id, user);
+			rfo.Sub = GetSubs(dbc, rfo.Id, user);
 			rfo.Count = rfo.Sub.Count;
 			rfo.Found = user.hierarchyIds.Contains(rfo.Id);
 			if (rfo.Found == false) {
-				var child = context.Hierarchy
+				var child = dbc.Hierarchy
 					.Where(c => c.HierarchyParentId == rfo.Id)
 					.Select(c => c.Id)
 					.Distinct()
