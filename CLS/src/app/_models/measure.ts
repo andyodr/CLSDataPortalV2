@@ -75,3 +75,16 @@ export interface MeasureApiResponse {
     name: string
     description?: string
   }
+
+  //--------------------------------------------------------------------------------
+  export interface TableData {
+    id: number;
+    name: string;
+    owner: string;
+    hierarchy: {
+      id: number;
+      active: boolean;
+      expression: boolean;
+      rollup: boolean;
+    }[];
+  }

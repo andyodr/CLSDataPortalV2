@@ -122,30 +122,50 @@
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
-            <td mat-cell *matCellDef="let mdef"> {{mdef.name}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
           </ng-container>
-          <ng-container matColumnDef="id">
+          <!-- <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-            <td mat-cell *matCellDef="let mdef"> {{mdef.id}} </td>
-          </ng-container>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container> -->
           <ng-container matColumnDef="owner">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
-            <td mat-cell *matCellDef="let mdef"> {{mdef.owner}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.owner}} </td>
           </ng-container>
-          <ng-container matColumnDef="hierarchy">
+          <!-- <ng-container matColumnDef="hierarchy">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Hierarchy </th>
-            <td mat-cell *matCellDef="let mdef">{{ mdef.hierarchy}}</td>
+            <td mat-cell *matCellDef="let element">{{ element.hierarchy}}</td>
+          </ng-container> -->
+          <ng-container *ngFor="let region of hierarchy; let i = index" matColumnDef="{{region}}">
+            <th mat-header-cell *matHeaderCellDef> {{i == 0 ? '(Parent)' : ''}} {{region}} </th>
+            <td mat-cell *matCellDef="let data">
+              <div class="magicWrap">
+                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].active" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
+                <mat-checkbox [(ngModel)]="data.hierarchy[i].active" ></mat-checkbox>
+                <label class="mar0 marR10" matTooltip="Active"> A </label>
+              </div>
+              <div class="magicWrap">
+                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].expression" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
+                <mat-checkbox [(ngModel)]="data.hierarchy[i].expression" ></mat-checkbox>
+                <label class="mar0 marR10" matTooltip="Calculated Expression"> E </label>
+              </div>
+              <div class="magicWrap">
+                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].rollup" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
+                <mat-checkbox [(ngModel)]="data.hierarchy[i].rollup"></mat-checkbox>
+                <label class="mar0 marR10" matTooltip="Rollup"> R </label>
+              </div>
+            </td>
           </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell  *matHeaderCellDef > Actions </th>
-            <td mat-cell *matCellDef="let row" >
-              <button mat-raised-button color="primary" (click)="edit(data)">
+            <td mat-cell *matCellDef="let element" >
+              <button mat-raised-button color="primary" (click)="edit(element)">
                 <mat-icon>edit</mat-icon> 
               </button>
             </td>
           </ng-container>
           <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
+            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedDynamicColumns.length">
               <div class="expandable-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
                 <p>{{mdef.description}}</p>
                 <div class="detail-items-1">
@@ -166,14 +186,23 @@
               </div>
             </td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
+          <tr mat-header-row *matHeaderRowDef="displayedDynamicColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedDynamicColumns;" class="table-row"
             [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
           <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
           </tr>
         </table>
+        <!-- <table mat-table [dataSource]="dataSource">
+          <ng-container *ngFor="let column of displayedDynamicColumns" [matColumnDef]="column.columnDef">
+            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+            <td mat-cell *matCellDef="let element">{{ column.cell(element) }}</td>
+          </ng-container>
+    
+          <tr mat-header-row *matHeaderRowDef="displayedDynamicColumns.map(column => column.columnDef)"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedDynamicColumns.map(column => column.columnDef)"></tr>
+        </table> -->
         <footer>
           <span> Showing {{dataSource.filteredData.length}} entries </span>
         </footer>

@@ -34,7 +34,10 @@ export class MeasuresComponent implements OnInit {
     dataSource = new MatTableDataSource([] as Data[])
     //dataSource = new MatTableDataSource<Measure>()
     //dataSource = new MatTableDataSource<Data>()
+
     displayedColumns = ["name", "id", "owner", "hierarchy", "actions"]
+    displayedDynamicColumns : string [] = []
+
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
@@ -174,6 +177,37 @@ export class MeasuresComponent implements OnInit {
         // Call Server
         this.measureService.getMeasure2(filtered).subscribe({
             next: response => {
+                
+                // const firstObject = response.data[0];
+                // this.displayedDynamicColumns = Object.keys(firstObject);
+
+                // Extract keys from the first object in the response array
+                //const keys = Object.keys(response.data[0].hierarchy[0]);
+                // Define column definitions for each key
+                // const columns = keys.map((key) => ({
+                //     key,
+                //     header: key.toUpperCase(),
+                //     cell: (element: { [x: string]: any; }) => element[key],
+                // }));
+
+                // // Extract the key names into the displayedColumns array
+                // this.displayedDynamicColumns = columns.map((column) => column.key);
+
+                // Get all unique keys in the hierarchy objects
+                // const hierarchyKeys = Array.from(
+                //     new Set(response.data.flatMap((element) => Object.keys(element.hierarchy[0])))
+                // );
+                
+                // // Generate the displayedColumns array with hierarchy keys
+                // const displayedDynamicColumns = ["id", "name", "owner", ...hierarchyKeys.map(key => `hierarchy.${key}`)];
+
+                // this.displayedDynamicColumns = displayedDynamicColumns;
+                // console.log("displayedDynamicColumns: ", this.displayedDynamicColumns);
+
+
+
+
+                //-----------------//
                 this.measureResponse = response;
                 this.data = response.data
                 console.log("Measures on Component: ", response);
@@ -183,6 +217,30 @@ export class MeasuresComponent implements OnInit {
                 this.allow = response.allow
                 //this.confirmed = response.confirmed
                 this.dataSource = new MatTableDataSource(response.data)
+                
+                //-------Test----------//
+
+                // add the 'name' and 'owner' properties to the displayed columns array
+                this.displayedDynamicColumns.push('name', 'owner');
+
+                // iterate over each object in the array
+                response.data[0].hierarchy.forEach(obj => {
+                    
+                    this.displayedDynamicColumns.push(obj.id.toString());
+                });
+
+                this.displayedDynamicColumns.push('actions');
+
+                console.log("displayedDynamicColumns: ", this.displayedDynamicColumns);
+
+
+
+
+                //-----------------//
+
+
+
+
                 //this.hierarchy = response.hierarchy;
                 this.dataSource.sort = this.sort
                 console.log("Datasource: ", this.dataSource)
