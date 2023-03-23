@@ -35,11 +35,6 @@ public class FilterController : ControllerBase
 		}
 	}
 
-	class RegionParentChildPair {
-		public RegionFilterObject? dto;
-		public RegionParentChildPair? parent;
-	}
-
 	// Used first time Measure Data page is open.
 	private IActionResult Filter() {
 		var filter = new FilterReturnObject {
@@ -74,67 +69,7 @@ public class FilterController : ControllerBase
 				filter.MeasureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var regions = _dbc.Hierarchy.AsNoTrackingWithIdentityResolution().Single(m => m.HierarchyLevel!.Id == 1);
-			//filter.hierarchy.Add(new RegionFilterObject { hierarchy = regions.Name, id = regions.Id, sub = Helper.getSubs(regions.Id, _user), count = 0 });
-
-			var hierarchies = _dbc.Hierarchy.FromSql($@"WITH p AS
-(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE HierarchyParentId IS NULL
-UNION ALL
-SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-FROM Hierarchy ch JOIN p ON ch.HierarchyParentId = p.Id
-WHERE ch.Active = 1)
-SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM p ORDER BY Id")
-				.AsEnumerable()
-				.Select(entity => new {
-					entity,
-					dto = new RegionFilterObject { Hierarchy = entity.Name, Id = entity.Id },
-					parent = null as RegionFilterObject })
-				.ToArray();
-			// populate Sub with children
-			var uh = _dbc.UserHierarchy
-				.Where(u => u.UserId == _user.userId)
-				.Select(u => u.HierarchyId)
-				.ToArray();
-			filter.Hierarchy.Add(hierarchies[0].dto);
-			// construct hierarchical lineage with all parent and child references
-			var lin = new RegionParentChildPair[hierarchies.Length];
-			for (var i = 0; i < lin.Length; i++) {
-				lin[i] = new RegionParentChildPair();
-			}
-
-			for (var i = 0; i < hierarchies.Length; i++) {
-				lin[i].dto = hierarchies[i].dto;
-				lin[i].dto!.Sub = new List<RegionFilterObject>();
-				for (var j = 0; j < lin.Length; j++) {
-					if (hierarchies[j].entity.HierarchyParentId == lin[i].dto!.Id) {
-						lin[i].dto!.Sub.Add(hierarchies[j].dto);
-						if (lin[j] is null) {
-							lin[j] = new RegionParentChildPair { parent = lin[i] };
-						}
-						else {
-							lin[j].parent = lin[i];
-						}
-					}
-				}
-			}
-
-			// find all lineages matching the user id
-			var matched = new HashSet<RegionFilterObject> { hierarchies[0].dto };
-			foreach (var pair in lin) {
-				if (pair.dto!.Sub.Count == 0 && uh.Contains(pair.dto.Id)) {
-					var found = pair;
-					while(found!.parent is not null) {
- 						matched.Add(found.dto!);
-						found = found.parent;
-					}
-				}
-			}
-
-			// prune sub of non-matched nodes
-			foreach (var node in matched) {
-				node.Sub = node.Sub.Where(h => matched.Contains(h)).ToArray();
-			}
+			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.userId));
 
 			// set current Calendar Ids
 			//try
