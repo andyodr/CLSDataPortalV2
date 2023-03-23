@@ -31,8 +31,7 @@
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Weekly">
         <mat-label>Week</mat-label>
-        <mat-select name="fWeekSelected" [(ngModel)]="model.fWeekSelected" (selectionChange)="weekChange()"
-          aria-label="Week">
+        <mat-select name="fWeekSelected" [(ngModel)]="model.fWeekSelected" aria-label="Week">
           <mat-option *ngFor="let week of select.weeks; trackBy: identity" [value]="week">
             {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
           </mat-option>
@@ -40,8 +39,7 @@
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Monthly">
         <mat-label>Month</mat-label>
-        <mat-select name="fMonthSelected" [(ngModel)]="model.fMonthSelected" (selectionChange)="monthChange()"
-          aria-label="Month">
+        <mat-select name="fMonthSelected" [(ngModel)]="model.fMonthSelected" aria-label="Month">
           <mat-option *ngFor="let month of select.months; trackBy: identity" [value]="month">
             {{month.month}}
           </mat-option>
@@ -49,8 +47,7 @@
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Quarterly">
         <mat-label>Quarter</mat-label>
-        <mat-select name="fQuarterSelected" [(ngModel)]="model.fQuarterSelected" (selectionChange)="quarterChange()"
-          aria-label="Quarter">
+        <mat-select name="fQuarterSelected" [(ngModel)]="model.fQuarterSelected" aria-label="Quarter">
           <mat-option *ngFor="let quarter of select.quarters; trackBy: identity" [value]="quarter">
             Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate |
             date:'mediumDate'}}
@@ -104,7 +101,6 @@
                     </aside>
                   </ng-template> -->
 
-        <!-- Table Section-->
         <div *ngIf="showContentPage" class="panel-body padT0">
           <div class="panel panel-default">
             <!-- Heading and Buttons Section-->

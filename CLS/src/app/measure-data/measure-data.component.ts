@@ -19,7 +19,6 @@ import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 })
 export class MeasureDataComponent implements OnInit {
     measureDataResponse: MeasureDataResponse | undefined;
-    @Output() progressEvent = new EventEmitter<boolean>();
 
     title = 'Measure Data'
     showContentPage = true
@@ -65,11 +64,6 @@ export class MeasureDataComponent implements OnInit {
     dataSource = new MatTableDataSource([] as Data[])
     displayedColumns = ["name", "value", "units", "explanation", "action", "updated"]
     @ViewChild(MatSort) sort!: MatSort
-    private userSubscription = new Subscription()
-    //disabledAll = false
-
-    //showError = false
-    //showContentPage = true
     drawerTitle = "Filter"
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { id: number, name: string }[]
@@ -105,7 +99,6 @@ export class MeasureDataComponent implements OnInit {
         private logger: LoggerService,
         private http: HttpClient) { }
 
-
     ngOnInit(): void {
         this.api.getFilters().subscribe({
             next: dto => {
@@ -120,12 +113,12 @@ export class MeasureDataComponent implements OnInit {
                     hierarchy: dto.hierarchy ?? []
                 }
 
-                this.model.fMeasureTypeSelected = dto.filter.measureTypeId ?
-                    dto.measureTypes.find(m => m.id === dto.filter.measureTypeId) :
+                const { intervalId, measureTypeId, hierarchyId } = dto.filter
+                this.model.fMeasureTypeSelected = measureTypeId ?
+                    dto.measureTypes.find(m => m.id === measureTypeId) :
                     dto.measureTypes.at(0)
-                const { hierarchyId } = dto.filter
                 this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
-                this.model.fIntervalSelected = dto.intervals?.find(n => n.id === Intervals.Monthly)
+                this.model.fIntervalSelected = dto.intervals?.find(n => n.id === intervalId)
                 this.model.fYearSelected = dto.years?.at(0)
                 this.intervalChange(true)
             }
@@ -172,12 +165,6 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
-    weekChange() { }
-
-    quarterChange() { }
-
-    monthChange() { }
-
     applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
@@ -208,10 +195,8 @@ export class MeasureDataComponent implements OnInit {
         this.api.getMeasureData(filtered).subscribe({
             next: response => {
                 this.measureDataResponse = response
-                this.progressEvent.emit(false)
             },
             error: error => {
-                this.progressEvent.emit(false)
                 //this.showError = true
                 //this.errorMsg = error.error
             }
@@ -321,30 +306,6 @@ export class MeasureDataComponent implements OnInit {
         this.loadTable();
     }
 
-    getData3(filtered: any) {
-        this.userSubscription = this.api.getMeasureData(filtered).subscribe({
-            next: response => {
-                this.dataSource = new MatTableDataSource(response.data)
-                this.calendarId = response.calendarId;
-                this.data = response.data;
-                this.dataRange = response.range;
-                this.allow = response.allow;
-                this.locked = response.locked;
-                this.editValue = response.editValue;
-                this.showActionButtons = this.allow && !this.locked;
-                this.measureDataResponse = response;
-                this.dataSource.sort = this.sort
-                console.log("Response data : ", response.data);
-                // processLocalError here
-            },
-            error: (err: any) => {
-                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
-            }
-        })
-    }
-
-    //================================================================================================
-
     loadTable(): void {
         this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
@@ -388,8 +349,6 @@ export class MeasureDataComponent implements OnInit {
     }
 
     progress(bool: boolean): void {
-        // emit progress event
-        this.progressEvent.emit(bool);
     }
 
     closeError(): void {

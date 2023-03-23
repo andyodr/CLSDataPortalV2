@@ -130,6 +130,7 @@ export class RegionTreeComponent {
             if (r) {
                 let node = this.nestedNodeMap.get(r)
                 if (node) {
+                    this.setPath(node)
                     let p: RegionFlatNode | undefined = node
                     do {
                         p = this.getParentNode(p!)
@@ -142,6 +143,17 @@ export class RegionTreeComponent {
                 }
             }
         }
+    }
+
+    setPath(node: RegionFlatNode) {
+        const path = [node]
+        while (true) {
+            const parent = this.getParentNode(path[0])
+            if (parent == null) break
+            path.unshift(parent)
+        }
+
+        this.path = path.map(n => this.flatNodeMap.get(n!)?.hierarchy ?? "?")
     }
 
     getLevel = (node: RegionFlatNode): number => node.level
@@ -254,14 +266,7 @@ export class RegionTreeComponent {
             let rh = this.flatNodeMap.get(node)
             if (rh !== undefined) {
                 if (!this.multiple) {
-                    const path = [node]
-                    while (true) {
-                        const parent = this.getParentNode(path[0])
-                        if (parent == null) break
-                        path.unshift(parent)
-                    }
-
-                    this.path = path.map(n => this.flatNodeMap.get(n!)?.hierarchy ?? "?")
+                    this.setPath(node)
                 }
             }
         }
