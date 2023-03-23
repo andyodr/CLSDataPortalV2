@@ -103,8 +103,7 @@ export class MeasureDataComponent implements OnInit {
     constructor(private api: MeasureDataService,
         private _: NavigationService,
         private logger: LoggerService,
-        private http: HttpClient/*,
-    private toastr: ToastrService*/) { }
+        private http: HttpClient) { }
 
 
     ngOnInit(): void {
@@ -349,37 +348,26 @@ export class MeasureDataComponent implements OnInit {
     loadTable(): void {
         this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
-
-        // app-region-tree binding is based on number IDs
-        // to get at the strings, access the properties in treeControl
-        const tree = this.treeControl
-        const path = [tree.checklistSelection.selected.at(0)]
-        while (true) {
-            let node = tree.getParentNode(path.at(0)!)
-            if (node == null) break
-            path.unshift(node)
-        }
-
-        this.filterSelected[2] = path.map(n => tree.flatNodeMap.get(n!)?.hierarchy ?? "?").join(" | ")
+        this.filterSelected[2] = this.treeControl?.path?.join(" | ") ?? "?"
 
         const { fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
         const p = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }
         switch (fIntervalSelected?.id) {
             case Intervals.Weekly:
-                if (!this.model.fWeekSelected) return
-                p.calendarId = this.model.fWeekSelected.id
+                if (!fWeekSelected) return
+                p.calendarId = fWeekSelected.id
                 break
             case Intervals.Monthly:
-                if (!this.model.fMonthSelected) return
-                p.calendarId = this.model.fMonthSelected.id
+                if (!fMonthSelected) return
+                p.calendarId = fMonthSelected.id
                 break
             case Intervals.Quarterly:
-                if (!this.model.fQuarterSelected) return
-                p.calendarId = this.model.fQuarterSelected.id
+                if (!fQuarterSelected) return
+                p.calendarId = fQuarterSelected.id
                 break
             case Intervals.Yearly:
-                if (!this.model.fYearSelected) return
-                p.calendarId = this.model.fYearSelected.id
+                if (!fYearSelected) return
+                p.calendarId = fYearSelected.id
                 break
         }
 
