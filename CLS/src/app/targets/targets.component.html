@@ -155,14 +155,14 @@
           </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell  *matHeaderCellDef> Actions </th>
-            <td mat-cell *matCellDef="let row" >
-              <button mat-raised-button color="primary" (click)="onEdit(row)" *ngIf="!isEditMode">
+            <td mat-cell *matCellDef="let element" >
+              <button mat-raised-button color="primary" (click)="onEdit(element)" *ngIf="!isEditMode || element != selectedRow">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-raised-button color="primary" (click)="onSave(row)" *ngIf="isEditMode">
+              <button mat-raised-button color="primary" (click)="onSave(element)" *ngIf="isEditMode && element == selectedRow">
                 <mat-icon>save</mat-icon>
               </button>
-              <button mat-raised-button color="warn" (click)="onCancel(row)" *ngIf="isEditMode">
+              <button mat-raised-button color="warn" (click)="onCancel(element)" *ngIf="isEditMode && element == selectedRow">
                 <mat-icon>cancel</mat-icon>
               </button>
             </td>
