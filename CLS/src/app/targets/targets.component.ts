@@ -38,6 +38,12 @@ export class TargetsComponent implements OnInit {
     displayedColumns = ["name", "value", "yellow", "updated", "actions"]
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
+    //----------------
+    isEditMode = false
+    selectedRow: Target | undefined
+    //isEditable: boolean[] = Array(5).fill(false);
+    //----------------
+
     measureTypes: MeasureType[] = []
     selectedMeasureType: MeasureType = { id: 0, name: "" }
     selectedHierarchy: Hierarchy = {
@@ -59,6 +65,22 @@ export class TargetsComponent implements OnInit {
 
     data: Target [] = [];
 
+    //----------------
+    //TargetDto Model
+    //----------------
+    // targetDto: TargetDto = {
+    //     hierarchyId: null,
+    //     measureTypeId: null,
+    //     measureId: null,
+    //     target: null,
+    //     yellow: null,
+    //     applyToChildren: false,
+    //     isCurrentUpdate: false,
+    //     confirmIntervals: null
+    // };
+    //----------------
+    //TargetDto Separate Properties
+    //----------------
     hierarchyId: number | null = null;
     measureTypeId: number | null = null;
     measureId: number | null = null
@@ -84,6 +106,7 @@ export class TargetsComponent implements OnInit {
         targetId: null,
         targetCount: null
     };
+
     
     private userSubscription = new Subscription()
     hierarchy: RegionFilter[] = []
@@ -155,6 +178,21 @@ export class TargetsComponent implements OnInit {
     doEditType() {
         this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
         this.editingMeasureType = { ...this.selectedMeasureType }
+    }
+
+    onEdit(element: Target) {
+        this.isEditMode = true;
+        // this.selectedRow = { ...targetRow };
+        this.selectedRow = element;
+    }
+
+    onSave(targetRow: Target) {
+        this.isEditMode = false
+        this.selectedRow = { ...targetRow };
+    }
+
+    onCancel(targetRow: Target) {
+        this.isEditMode = false
     }
 
     save() {

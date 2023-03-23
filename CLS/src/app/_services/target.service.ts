@@ -112,7 +112,7 @@ export class TargetService {
   }
 
   updateTarget(id: number, dto: TargetDto): Observable<TargetApiResponse> {
-    return this.http.put<TargetApiResponse>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
+    return this.http.put<TargetApiResponse>(`${ this.baseUrl }/measure/edit/${id}`, dto)
   }
 
   /*getTargetEdit(measureDefinitionId?: number): Observable<TargetDto> {
