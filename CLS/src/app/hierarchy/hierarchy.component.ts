@@ -65,17 +65,17 @@ export class RegionHierarchyComponent implements OnInit {
 
     edit(hid: number) {
         this.drawerTitle = "Edit"
-        let hierarchy = this.dataSource.data.find(h => h.id == hid)
-        this.model.id = hierarchy?.id ?? 0
-        this.model.active = hierarchy?.active ?? false
-        this.model.name = hierarchy?.name ?? ""
-        this.model.level = hierarchy?.levelId ?? 0
-        this.model.selectedParent = hierarchy?.parentId ?? null
+        const region = this.dataSource.data.find(h => h.id == hid)
+        this.model.id = region?.id ?? 0
+        this.model.active = region?.active ?? false
+        this.model.name = region?.name ?? ""
+        this.model.level = region?.levelId ?? 0
+        this.model.selectedParent = region?.parentId ?? null
     }
 
     save() {
         const { id, name, active, level: levelId, selectedParent: parentId } = this.model
-        if (typeof parentId !== "number") {
+        if (typeof parentId !== "number" || id === parentId) {
             this.logger.logWarning(`The parentId: ${parentId} is not valid here`)
             return
         }
