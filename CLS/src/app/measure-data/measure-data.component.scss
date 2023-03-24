@@ -1,3 +1,7 @@
+// :host {
+//   display: flex;
+//   height: 100%;
+
 :host {
   height: 100%;
   overflow-y: hidden;
@@ -12,26 +16,54 @@ app-sidebar {
 mat-drawer-content {
   display: grid;
   grid-template: 1fr / auto 1fr;
-  background: inherit;
+  background-color: inherit;
   height: 100%;
 }
 
-app-sidebar~* {
-  grid-column: 2;
-  padding: 20px;
+app-sidebar {
+  grid-row: 1 / -1;
 }
 
+// app-sidebar~* {
+//   grid-column: 2;
+//   padding: 20px;
+// }
+
+//   > app-sidebar + div {
+//     padding: 20px;
+//     flex: 1 auto;
+//   }
+// }
+
+
 mat-drawer form {
-  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 90px 20px 40px;
 }
+
+mat-drawer form * {
+  flex: 1;
+}
+
+// mat-drawer form {
+//   padding: 2em;
+// }
 
 mat-drawer header {
   background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
-  padding: 1em 1.25em;
+  padding: 15px 20px;
   display: flex;
+  //gap: 15px;
   gap: 1em;
   min-width: 33em;
 }
+
+// mat-drawer header h2 {
+//   color: white;
+//   display: flex;
+//   margin: auto 2em;
+// }
 
 mat-drawer header h2 {
   color: white;
@@ -60,10 +92,15 @@ mat-drawer form h5 {
   padding: 15px;
 }
 
-button,
-a {
+div>button,
+div>a {
   min-width: 8em;
 }
+
+// button,
+// a {
+//   min-width: 8em;
+// }
 
 div.panel>button {
   margin: 6px 11px 10px 0px;
@@ -71,13 +108,27 @@ div.panel>button {
 
 span.filter {
   color: white;
+  //background-color: gray;
   background: dimgray;
   margin: 9px;
   padding: 4px 11px;
 }
 
+// .dataRange {
+//   display: flex;
+//   justify-content: flex-end;
+//   margin-top: 10px;
+  
+//   h5 {
+//     font-size: 14px;
+//     font-weight: normal;
+//     margin: 0;
+//     padding-left: 15px;
+//   }
+// }
+
 .panel-header {
-  background: var(--mat-primary-50);
+  background-color: var(--mat-primary-50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
   border: 1px solid var(--mat-primary-100);
@@ -86,4 +137,108 @@ span.filter {
   border-top-left-radius: 2px;
   display: flex;
   align-items: center;
+}
+
+.panel-header> :first-child {
+  margin-right: auto;
+}
+
+.panel-header>button:not(:first-child) {
+  margin: 0px 20px 13px;
+}
+
+button mat-icon {
+  position: relative;
+  top: -1px;
+  left: -4px;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-name {
+  width: 4em;
+}
+
+.mat-column-value {
+  width: 2em;
+}
+
+.mat-column-units {
+  width: 2em;
+}
+
+.mat-column-explanation {
+  width: 6em;
+}
+
+.mat-column-action {
+  width: 6em;
+}
+
+.mat-column-updated {
+  width: 6em;
+}
+
+.mat-column-rowactions {
+  width: 4em;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+tr.table-row:not(.expanded-row):hover {
+  background-color: var(--mat-primary-50);
+}
+
+tr.table-row:not(.expanded-row):active {
+  background-color: var(--mat-primary-100);
+}
+
+.table-row td {
+  border-bottom-width: 0;
+}
+
+.expandable-detail {
+  overflow: hidden;
+  display: grid;
+  grid-template: auto auto / repeat(3, 1fr);
+  align-items: center;
+  column-gap: 2em;
+}
+
+.detail-items-1 {
+  grid-row: 1;
+  width: max-content;
+  display: grid;
+  grid-template: auto auto / auto auto;
+  column-gap: 1em;
+  line-height: 1.5;
+}
+
+.detail-items-2 {
+  grid-row: 1;
+  width: max-content;
+  display: grid;
+  grid-template: auto auto / auto auto;
+  column-gap: 1em;
+  line-height: 1.5;
+}
+
+.detail-items-3 {
+  grid-column: 1 / -1;
+  width: auto;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.expandable-detail a {
+  grid-row: 1 / 3;
+  justify-self: center;
+}
+
+footer {
+  padding: 15px;
 }

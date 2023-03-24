@@ -109,23 +109,23 @@ table {
 }
 
 .mat-column-name {
-  width: 12em;
-}
-
-.mat-column-value {
-  width: 6em;
-}
-
-.mat-column-yellow {
-  width: 6em;
-}
-
-.mat-column-updated {
   width: 8em;
 }
 
-.mat-column-actions {
+.mat-column-value {
+  width: 4em;
+}
+
+.mat-column-yellow {
+  width: 4em;
+}
+
+.mat-column-updated {
   width: 6em;
+}
+
+.mat-column-actions {
+  width: 4em;
 }
 
 tr.detail-row {
