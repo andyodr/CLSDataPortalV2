@@ -1,4 +1,232 @@
-<app-sidebar></app-sidebar>
+<mat-drawer-container>
+  <mat-drawer [position]="drawer.position" #drwr>
+    <header>
+      <h2>{{drawer.title}}</h2>
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
+        <mat-icon>close</mat-icon> Cancel
+      </button>
+      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="save(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> {{drawer.button}}
+      </button>
+    </header>
+    <form>
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'start'">
+        <mat-label>Measure Type</mat-label>
+        <mat-select name="level" [(ngModel)]="selectedMeasureType" [disabled]="disabledAll">
+          <mat-option *ngFor="let measureType of measureTypes" [value]="measureType">
+            {{measureType.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+        <mat-label>Measure Type Name</mat-label>
+        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Customer Service"
+          [disabled]="disabledAll">
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+        <mat-label>Measure Type Description</mat-label>
+        <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
+          placeholder="Customer Service" [disabled]="disabledAll">
+      </mat-form-field>
+    </form>
+  </mat-drawer>
+  <mat-drawer-content>
+    <app-sidebar></app-sidebar>
+    <div>
+      <h1>{{title}}</h1>
+      <div class="panel panel-default panel-body">
+        <!-- Error Section-->
+        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
+          [closeError]="closeError"></app-errors>
+        <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeError()">
+              <p>{{errorMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric">
+                        <div class="th"> <span>Row</span></div>
+                      </th>
+                      <th class="numeric">
+                        <div class="th"> <span>Error Message</span></div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
+          </div>
+        </div>
+        <div class="panel panel-default" [hidden]="!showError">
+          <div class="panel-body padB0 marB0 noBorder">
+            <ngb-alert type="danger" (closed)="closeError()">
+              <p>{{errorMsg.heading}}</p>
+              <section class="table-flip-scroll table-dynamic overflowAuto">
+                <table class="table table-bordered table-striped cf no-margin">
+                  <thead class="cf">
+                    <tr>
+                      <th class="numeric">
+                        <div class="th"> <span>Row</span></div>
+                      </th>
+                      <th class="numeric">
+                        <div class="th"> <span>Error Message</span></div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </ngb-alert>
+          </div>
+        </div>
+        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
+          <mat-icon>filter_list</mat-icon> Filter
+        </button>
+        <span class="filter" *ngFor="let filter of filtersSelected">{{filter}}</span>
+        <div class="panel-header">
+          <mat-form-field appearance="fill">
+            <mat-label>Filter</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
+            <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="input.value=''; applyFilter($event)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <!-- <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
+            <mat-icon>edit</mat-icon> Edit Type
+          </button>
+          <mat-menu #eMenu="matMenu">
+            <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
+          </mat-menu>
+          <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
+            <mat-icon>add</mat-icon> Add
+          </button>
+          <mat-menu #aMenu="matMenu">
+            <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
+            <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
+          </mat-menu> -->
+          <button mat-raised-button color="primary" aria-label="Apply Children" (click)="applyToChildrenAction()">
+            <mat-icon>check_circle</mat-icon> Apply to Children
+          </button>
+        </div>
+        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Target Value </th>
+            <td mat-cell *matCellDef="let element">
+              <ng-container *ngIf="!isEditMode || element != selectedRow">{{element.value}}</ng-container>
+              <ng-container *ngIf="isEditMode && element == selectedRow">
+                <mat-form-field>
+                  <input matInput type="number" [(ngModel)]="element.value" [disabled]="disabledAll">
+                </mat-form-field>
+              </ng-container>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="yellow">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Target Yellow </th>
+            <td mat-cell *matCellDef="let element">
+              <ng-container *ngIf="!isEditMode || element != selectedRow">{{element.yellow}}</ng-container>
+              <ng-container *ngIf="isEditMode && element == selectedRow">
+                <mat-form-field>
+                  <input matInput type="number" [(ngModel)]="element.yellow" [disabled]="disabledAll">
+                </mat-form-field>
+              </ng-container>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="updated">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Updated </th>
+            <td mat-cell *matCellDef="let element">{{ element.updated.shortDt}}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell  *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let element" >
+              <button mat-raised-button color="primary" (click)="onEdit(element)" *ngIf="!isEditMode || element != selectedRow">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-raised-button color="primary" (click)="onSave(element)" *ngIf="isEditMode && element == selectedRow">
+                <mat-icon>save</mat-icon>
+              </button>
+              <button mat-raised-button color="warn" (click)="onCancel(element)" *ngIf="isEditMode && element == selectedRow">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
+              <div class="expandable-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
+                <div class="detail-items-1">
+                  <b>ID</b><span>{{mdef.id}}</span>
+                  <b>Units</b><span>{{mdef.units}}</span>
+                  <b>Expression</b><span>{{mdef.expression}}</span>
+                </div>
+                <div class="detail-items-2">
+                  <b>Evaluated</b><span>{{mdef.evaluated}}</span>
+                  <b>Calculated</b><span>{{mdef.calculated}}</span>
+                  <b>Description</b><span>{{mdef.description}}</span>
+                  <b>Explanation</b><span>{{mdef.explanation}}</span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
+            [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
+          </tr>
+        </table>
+        <footer>
+          <span> Showing {{dataSource.filteredData.length}} entries </span>
+        </footer>
+      </div>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <app-sidebar></app-sidebar>
 <div class="page page-table" data-ng-controller="TargetsCtrl">
   <div class="row ui-section">
     <div class="col-lg-8 clearfix">
@@ -8,21 +236,21 @@
 
       <div class="panel panel-default">
 
-        <!-- Progress Section-->
+
         <aside data-ng-include="'app/layout/progress.html'"></aside>
 
-        <!-- Error Section-->
+
         <aside data-ng-include="'app/layout/errors.html'"></aside>
 
-        <!-- Filter Section-->
+
         <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
 
-        <!-- Table Section-->
+
         <div ng-show="showContentPage" class="panel-body padT0">
 
           <div class="panel panel-default itgTable">
 
-            <!-- Heading and Buttons Section-->
+
             <div class="panel-heading">
               <div class="row">
 
@@ -44,7 +272,7 @@
 
               </div>
             </div>
-            <!-- Table Section-->
+
             <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
               <table class="table table-bordered table-striped cf no-margin">
                 <thead class="cf">
@@ -135,4 +363,4 @@
 
 <script type="text/ng-template" id="tUpdateTooltipTemplate.html">
   <span>{{data.updated.by}}<br />{{data.updated.longDt}}</span>
-</script>
+</script> -->

@@ -9,6 +9,10 @@
 //     isProcessed?: string
 // }
 
+// Path: CLS\src\app\_models\target.ts
+  //--------------------------------------------------------------------------------
+  //from GET api/targets/Index with hierarchyId and measureTypeId parameters
+  //--------------------------------------------------------------------------------
 
 export interface TargetApiResponse {
     range?: string;
@@ -18,19 +22,11 @@ export interface TargetApiResponse {
     locked: boolean;
     confirmed: boolean;
     filter: Filter;
-    data: Data[];
+    data: Target[];
     error?: any;
   }
   
-  export interface Filter {
-    intervalId?: number;
-    calendarId?: number;
-    year?: number;
-    measureTypeId: number;
-    hierarchyId: number;
-  }
-  
-  export interface Data {
+  export interface Target {
     id: number;
     name: string;
     value?: number;
@@ -63,3 +59,87 @@ export interface TargetApiResponse {
     hierarchyId: number; 
  
   }
+
+  //--------------------------------------------------------------------------------
+  //from GET api/targets/ common for index and filter
+  //--------------------------------------------------------------------------------
+  export interface Filter {
+    intervalId?: number;
+    calendarId?: number;
+    year?: number;
+    measureTypeId: number;
+    hierarchyId: number;
+  }
+  
+  //--------------------------------------------------------------------------------
+  //from GET api/targets/Filter with no parameters
+  //--------------------------------------------------------------------------------
+
+
+  export interface TargetFilter {
+    measureTypes: MeasureType[]
+    hierarchy: Hierarchy[]
+    intervals: any
+    years: any
+    error: any
+    filter: Filter
+    currentCalendarIds: any
+  }
+
+  // export interface TargetFilter {
+  //   hierarchies: any;
+  //   measureTypes: MeasureType[]
+  // }
+  
+  export interface MeasureType {
+    id: number
+    name: string
+    description?: string
+  }
+  
+  export interface Hierarchy {
+    hierarchy: string
+    id: number
+    count: number
+    sub: any[]
+    found: any
+    error: any
+  }
+
+  //--------------------------------------------------------------------------------
+  //from PUT api/targets/Index and /Index/{id}
+  //--------------------------------------------------------------------------------
+
+  export interface TargetDto {
+    hierarchyId?: number
+    measureId?: number
+    measureTypeId?: number
+    target?: number
+    yellow?: number
+    applyToChildren: boolean
+    isCurrentUpdate: boolean
+    confirmIntervals?: ConfirmIntervals
+  }
+
+  // export interface TargetDto {
+  //   hierarchyId?: any
+  //   measureId?: any
+  //   measureTypeId?: any
+  //   target?: any
+  //   yellow?: any
+  //   applyToChildren: any
+  //   isCurrentUpdate: any
+  //   confirmIntervals: any
+  // }
+  
+  
+  export interface ConfirmIntervals {
+    daily: boolean
+    weekly: boolean
+    monthly: boolean
+    quarterly: boolean
+    yearly: boolean
+  }
+  
+ 
+  
