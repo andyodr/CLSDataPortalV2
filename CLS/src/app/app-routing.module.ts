@@ -9,6 +9,7 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './_guards/auth.guard';
+import { CalendarSettingsComponent as CalendarSettingsComponent } from "./calendar/settings.component"
 import { UserListComponent } from "./users/userlist.component"
 import { UserAddComponent } from "./users/useradd.component"
 import { UserEditComponent } from "./users/useredit.component"
@@ -23,12 +24,13 @@ const routes: Routes = [
     { path: 'measuredata', component: MeasureDataComponent },
     {
         path: "users", children: [
-            { path: "add", title: `${title}Add User`, component: UserAddComponent },
-            { path: "", title: `${title}Users`, component: UserListComponent },
-            { path: ":id", title: `${title}Edit User`, component: UserEditComponent }
+            { path: "add", title: `${ title }Add User`, component: UserAddComponent },
+            { path: "", title: `${ title }Users`, component: UserListComponent },
+            { path: ":id", title: `${ title }Edit User`, component: UserEditComponent }
         ]
     },
-    { path: "hierarchy", title: `${title}Region Hierarchy`, component: RegionHierarchyComponent },
+    { path: "settings", title: `${ title }Settings`, component: CalendarSettingsComponent },
+    { path: "hierarchy", title: `${ title }Region Hierarchy`, component: RegionHierarchyComponent },
     {
         path: '',
         runGuardsAndResolvers: 'always',
@@ -40,12 +42,12 @@ const routes: Routes = [
     { path: 'measures', component: MeasuresComponent },
     {
         path: "measuredefinition", children: [
-            { path: "", title: `${title}Measure Definitions`, component: MeasureDefinitionComponent },
-            { path: "add", title: `${title}Add Measure Definition`, component: MeasureDefinitionEditComponent },
-            { path: ":id", title: `${title}Edit Measure Definition`, component: MeasureDefinitionEditComponent },
+            { path: "", title: `${ title }Measure Definitions`, component: MeasureDefinitionComponent },
+            { path: "add", title: `${ title }Add Measure Definition`, component: MeasureDefinitionEditComponent },
+            { path: ":id", title: `${ title }Edit Measure Definition`, component: MeasureDefinitionEditComponent },
         ]
     },
-    { path: "dataimports", title: `${title}Data Imports`, component: DataImportsComponent },
+    { path: "dataimports", title: `${ title }Data Imports`, component: DataImportsComponent },
     { path: 'errors', component: TestErrorComponent },
     { path: 'not-found', component: NotFoundComponent },
     { path: 'server-error', component: ServerErrorComponent },

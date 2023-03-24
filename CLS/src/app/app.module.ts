@@ -24,6 +24,7 @@ import { AppDialog } from './app-dialog.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BsDropdownModule } from "ngx-bootstrap/dropdown"
+import { CalendarSettingsComponent } from "./calendar/settings.component"
 import { DataImportsComponent } from './dataimports/dataimports.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { ErrorsComponent } from './errors/errors.component';
@@ -48,12 +49,13 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { UploadDirective } from "./dataimports/upload.directive"
 import { UserAddComponent } from "./users/useradd.component"
 import { UserEditComponent } from "./users/useredit.component"
-import { UserListComponent } from "./users/userlist.component"
+import { UserListComponent } from "./users/userlist.component";
 
 @NgModule({
     declarations: [
         AppComponent,
         AppDialog,
+        CalendarSettingsComponent,
         DataImportsComponent,
         ErrorsComponent,
         FilterPipe,
