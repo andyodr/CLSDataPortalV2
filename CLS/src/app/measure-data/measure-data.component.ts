@@ -70,6 +70,7 @@ export class MeasureDataComponent implements OnInit {
 
     dataSource = new MatTableDataSource([] as Data[])
     displayedColumns = ["name", "value", "units", "explanation", "action", "updated", "rowactions"]
+    //displayedColumns = ["name", "value", "explanation",]
     @ViewChild(MatSort) sort!: MatSort
     //------------------ Filter Drawer ------------------
     //drawerTitle = "Filter"

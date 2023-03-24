@@ -76,8 +76,8 @@
         <!-- Error Section -->
         <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
         [closeError]="closeError"></app-errors>
-        <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
-          <div class="panel-body padB0 marB0 noBorder">
+        <div class="panel panel-default" *ngIf="showError">
+          <div class="panel-body">
             <ngb-alert type="danger" (closed)="closeError()">
               <p>{{errorMsg.heading}}</p>
               <section class="table-flip-scroll table-dynamic overflowAuto">
@@ -133,9 +133,6 @@
         <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
-        <!-- <button mat-raised-button color="primary" (click)="drwr.open()">
-          <mat-icon>filter_list</mat-icon>Filter
-        </button> -->
         <span class="filter" *ngFor="let filter of filtersSelected">{{filter}}</span>
         <div class="panel-header">
           <mat-form-field appearance="fill">
@@ -147,11 +144,11 @@
           </button>
           </mat-form-field>
           <div class="dataRange">
-            <h5 class="padL15">{{ this.dataRange }}</h5>
+            <h5>{{ this.dataRange }}</h5>
           </div>
-          <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
+          <!-- <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
             <mat-icon>edit</mat-icon> Edit Type
-          </button>
+          </button> -->
           <mat-menu #eMenu="matMenu">
             <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
           </mat-menu>
@@ -162,9 +159,9 @@
             <button mat-menu-item >Measure Type</button>
             <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
           </mat-menu>
-          <button mat-raised-button color="primary" aria-label="Apply Children">
+          <!-- <button mat-raised-button color="primary" aria-label="Apply Children">
             <mat-icon>check_circle</mat-icon> Apply to Children
-          </button>
+          </button> -->
           <mat-form-field appearance="fill" class="mar0" style="min-width:140px; width:220px;">
             <mat-label>Select</mat-label>
             <mat-select [(ngModel)]="selCalSelected" [disabled]="disabledAll || btnDisabled"
