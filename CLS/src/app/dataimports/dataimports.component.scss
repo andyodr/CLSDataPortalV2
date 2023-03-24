@@ -77,13 +77,12 @@ button {
 
 .drop {
   border: 4px dashed #bbb;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
-  height: auto;
-  padding: 50px 25px;
-  font-size: 30px;
+  padding: 2em;
+  font-size: 2em;
+  line-height: 1;
   color: #bbb;
+  text-align: center;
 }
 
 .interval-icon {

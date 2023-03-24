@@ -7,17 +7,19 @@
   font-family: "Material Icons";
   font-style: normal;
   font-weight: 400;
-  src: url(/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: url(/MaterialIcons-Regular.eot);
+  /* For IE6-8 */
   src: local("Material Icons"), local("MaterialIcons-Regular"),
-  /*url(/assets/fonts/MaterialIcons-Regular.woff2) format("woff2"),*/
-  url(/assets/fonts/MaterialIcons-Regular.ttf) format("truetype");
+    /*url(/assets/fonts/MaterialIcons-Regular.woff2) format("woff2"),*/
+    url(/assets/fonts/MaterialIcons-Regular.ttf) format("truetype");
 }
 
 .material-icons {
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
-  font-size: 24px; /* Preferred icon size */
+  font-size: 24px;
+  /* Preferred icon size */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -35,27 +37,31 @@
   font-feature-settings: "liga";
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: var(--mat-blue-gray-50);
+  background: var(--mat-blue-gray-50);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: var(--mat-primary-600);
 }
 
 .panel {
   margin-bottom: 20px;
-  background-color: #fff;
+  background: #fff;
   border: 1px solid transparent;
   border-radius: 2px;
-  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
-  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
 .panel .panel {
@@ -67,17 +73,25 @@ h1, h2, h3, h4 {
 }
 
 .snackbar-success {
-  background-color: #1c680d
+  background: #1c680d
 }
 
 .snackbar-info {
-  background-color: #074080
+  background: #074080
 }
 
 .snackbar-warning {
-  background-color: #fb0
+  background: #fb0
 }
 
 .snackbar-error {
-  background-color: #ba1212
+  background: #ba1212
+}
+
+:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout {
+  flex-direction: column-reverse;
+}
+
+:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout>span.mat-checkbox-inner-container {
+  margin: 2px auto;
 }

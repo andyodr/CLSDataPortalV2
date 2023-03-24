@@ -6,6 +6,7 @@ import { Observable } from "rxjs"
 import { Intervals } from "../lib/app-constants"
 import { LoggerService } from "../_services/logger.service"
 import {
+    IntervalDto,
     MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService, MeasureType,
     Units
 } from "../_services/measure-definition.service"
@@ -22,7 +23,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
     disabledAll = false
     measureTypes: MeasureType[] = []
     units: Units[] = []
-    intervals: { id: number, name: string }[] = []
+    intervals: IntervalDto[] = []
     Intervals = Intervals
     aggFunctions: { id: number, name: string }[] = []
     dto!: MeasureDefinition
@@ -37,7 +38,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
         fieldNumber: null as number | null,
         expression: "",
         priority: null as number | null,
-        interval: null as { id: number, name: string } | null,
+        interval: null as IntervalDto | null,
         weekly: false,
         monthly: false,
         quarterly: false,

@@ -17,47 +17,64 @@ export class RegionTreeComponent {
 
     set hierarchy(value: RegionFilter[]) {
         this.treeData.data = this._hierarchy = value
-        this.setInitialSelections(value, this.selectedRegions)
+        if (this.selectedRegions && this.checklistSelection) {
+            if (Array.isArray(this.selectedRegions)) {
+                this.setInitialSelections(value, this.selectedRegions)
+            }
+            else {
+                this.setInitialSelection(value, this.selectedRegions)
+            }
+        }
     }
 
     private _hierarchy!: RegionFilter[]
 
     @Input()
     get selectedRegions() {
-        if (typeof this._selectedRegions === "number") {
-            return this._selectedRegions
+        if (this.multiple) {
+            if (!this.checklistSelection) {
+                return []
+            }
+
+            return this.checklistSelection.selected
+                .map(fn => this.flatNodeMap.get(fn))
+                .filter((rf): rf is RegionFilter => !!rf)
+                .map(rf => rf.id)
         }
-        else if (this._selectedRegions == null) {
+        else if ((this.checklistSelection?.selected.length ?? 0) === 0) {
             return null
         }
         else {
-            return [...this._selectedRegions.keys()]
+            return this.flatNodeMap.get(this.checklistSelection!.selected[0])?.id ?? -1
         }
     }
 
     set selectedRegions(value: number | number[] | null) {
         if (Array.isArray(value)) {
-            this._selectedRegions = new Set<number>(value)
+            if (!this.checklistSelection) {
+                this.checklistSelection = new SelectionModel<RegionFlatNode>(true)
+            }
+
             if (this.hierarchy) {
                 this.setInitialSelections(this.hierarchy, value)
             }
         }
         else {
-            this._selectedRegions = value
             if (this.hierarchy) {
-                if (this.checklistSelection.isMultipleSelection()) {
+                if (!this.checklistSelection) {
                     this.checklistSelection = new SelectionModel<RegionFlatNode>(false)
                 }
 
-                this.setInitialSelections(this.hierarchy, value)
+                this.setInitialSelection(this.hierarchy, value)
             }
         }
     }
 
-    private _selectedRegions: number | Set<number> | null = null
     @Output() selectedRegionsChange = new EventEmitter<number | number[] | null>()
 
-    checklistSelection = new SelectionModel<RegionFlatNode>(true)
+    path: string[] = ["?"]
+    get multiple() { return this.checklistSelection?.isMultipleSelection() ?? false }
+    checklistSelection?: SelectionModel<RegionFlatNode>
     flatNodeMap = new Map<RegionFlatNode, RegionFilter>()
     nestedNodeMap = new Map<RegionFilter, RegionFlatNode>()
     treeControl: FlatTreeControl<RegionFlatNode>
@@ -89,20 +106,22 @@ export class RegionTreeComponent {
         return new Map<number, RegionFilter>(fh.map(rf => [rf.id, rf]))
     }
 
-    setInitialSelections(hierarchy: RegionFilter[], selected: number | number[] | null): void {
-        if (Array.isArray(selected)) {
-            if (selected.length > 0) {
-                let m = this.createHierarchyMap(hierarchy)
-                let initiallySelectedRegions: RegionFlatNode[] = selected
-                    .map(id => m.get(id)).filter((rf): rf is RegionFilter => !!rf)
-                    .map(rf => this.nestedNodeMap.get(rf)).filter((fn): fn is RegionFlatNode => !!fn)
-                this.checklistSelection.select(...initiallySelectedRegions)
-                this.treeControl.expand(this.treeControl.dataNodes[0])
-            }
-
+    /** Before calling, checklistSelection must be created */
+    setInitialSelections(hierarchy: RegionFilter[], selected: number[]): void {
+        if (selected.length > 0) {
+            let m = this.createHierarchyMap(hierarchy)
+            let initiallySelectedRegions: RegionFlatNode[] = selected
+                .map(id => m.get(id)).filter((rf): rf is RegionFilter => !!rf)
+                .map(rf => this.nestedNodeMap.get(rf)).filter((fn): fn is RegionFlatNode => !!fn)
+            this.checklistSelection!.select(...initiallySelectedRegions)
+            this.treeControl.expand(this.treeControl.dataNodes[0])
         }
-        else if (selected == null) {
-            this.checklistSelection.clear()
+    }
+
+    /** Before calling, checklistSelection must be created */
+    setInitialSelection(hierarchy: RegionFilter[], selected: number | null): void {
+        if (selected == null) {
+            this.checklistSelection!.clear()
             this.treeControl.collapseAll()
         }
         else {
@@ -110,19 +129,32 @@ export class RegionTreeComponent {
             let r = this.createHierarchyMap(hierarchy).get(selected)
             if (r) {
                 let node = this.nestedNodeMap.get(r)
-                if (node) {
-                    let p: RegionFlatNode | undefined = node
-                    do {
-                        p = this.getParentNode(p!)
-                        if (p) {
-                            this.treeControl.expand(p)
-                        }
-                    } while (p)
+                if (!node) return
+                // updates DOM after parent change detection, so it must be delayed
+                Promise.resolve().then(() => this.setPath(node!))
+                let p: RegionFlatNode | undefined = node
+                do {
+                    p = this.getParentNode(p!)
+                    if (p) {
+                        this.treeControl.expand(p)
+                    }
+                } while (p)
 
-                    this.checklistSelection.select(node)
-                }
+                this.checklistSelection!.select(node)
             }
         }
+    }
+
+    /** Set the region path hierarchy from root to selected node */
+    setPath(selectedNode: RegionFlatNode) {
+        const path = [selectedNode]
+        while (true) {
+            const parent = this.getParentNode(path[0])
+            if (parent == null) break
+            path.unshift(parent)
+        }
+
+        this.path = path.map(n => this.flatNodeMap.get(n!)?.hierarchy ?? "?")
     }
 
     getLevel = (node: RegionFlatNode): number => node.level
@@ -141,30 +173,22 @@ export class RegionTreeComponent {
         return flatNode
     }
 
+    /** supports template [checked] binding */
     descendantsAllSelected(node: RegionFlatNode): boolean {
-        if (this.checklistSelection.isMultipleSelection()) {
-            const descendants = this.treeControl.getDescendants(node)
-            const descAllSelected =
-                descendants.length > 0 &&
-                descendants.every(child => {
-                    return this.checklistSelection.isSelected(child)
-                })
-            return descAllSelected
-        }
-        else {
-            return this.checklistSelection.isSelected(node)
-        }
+        const descendants = this.treeControl.getDescendants(node)
+        const descAllSelected =
+            descendants.length > 0 &&
+            descendants.every(child => {
+                return this.checklistSelection!.isSelected(child)
+            })
+        return descAllSelected && this.multiple || this.checklistSelection!.isSelected(node)
     }
 
+    /** supports template [indeterminate] binding */
     descendantsPartiallySelected(node: RegionFlatNode): boolean {
-        if (this.checklistSelection.isMultipleSelection()) {
-            const descendants = this.treeControl.getDescendants(node)
-            const result = descendants.some(child => this.checklistSelection.isSelected(child))
-            return result && !this.descendantsAllSelected(node)
-        }
-        else {
-            return false
-        }
+        const descendants = this.treeControl.getDescendants(node)
+        const result = descendants.some(child => this.checklistSelection!.isSelected(child))
+        return result && !this.descendantsAllSelected(node)
     }
 
     getParentNode(node: RegionFlatNode): RegionFlatNode | undefined {
@@ -186,20 +210,21 @@ export class RegionTreeComponent {
     }
 
     updateRootNodeSelection(node: RegionFlatNode): void {
+        if (!this.checklistSelection) return
         const nodeSelected = this.checklistSelection.isSelected(node)
         const descendants = this.treeControl.getDescendants(node)
         const descAllSelected =
             descendants.length > 0 &&
             descendants.every(child => {
-                return this.checklistSelection.isSelected(child)
+                return this.checklistSelection!.isSelected(child)
             })
         if (nodeSelected && !descAllSelected) {
             this.checklistSelection.deselect(node)
-            this.removeSelected(node)
+            this.removeIds(node)
         }
         else if (!nodeSelected && descAllSelected) {
             this.checklistSelection.select(node)
-            this.addSelected(node)
+            this.addIds(node)
         }
     }
 
@@ -211,36 +236,38 @@ export class RegionTreeComponent {
         }
     }
 
+    /** Called by template */
     regionSelectionToggle(node: RegionFlatNode): void {
+        if (!this.checklistSelection) return
         this.checklistSelection.toggle(node)
-        if (this.checklistSelection.isMultipleSelection()) {
-            const descendants = this.treeControl.getDescendants(node)
-            if (this.checklistSelection.isSelected(node)) {
+        const descendants = this.treeControl.getDescendants(node)
+        if (this.checklistSelection.isSelected(node)) {
+            if (this.multiple) {
                 this.checklistSelection.select(...descendants)
-                this.addSelected(node, ...descendants)
-            }
-            else {
-                this.checklistSelection.deselect(...descendants)
-                this.removeSelected(node, ...descendants)
             }
 
-            // Force update for the parent
-            descendants.forEach(child => this.checklistSelection.isSelected(child))
+            this.addIds(...this.checklistSelection.selected)
+        }
+        else {
+            this.removeIds(node, ...descendants)
+            if (this.multiple) {
+                this.checklistSelection.deselect(...descendants)
+            }
         }
 
-        this.addSelected(node)
-        this.checkAllParentsSelection(node)
+        // Force update for the parent
+        descendants.forEach(child => this.checklistSelection!.isSelected(child))
+        if (this.multiple) {
+            this.checkAllParentsSelection(node)
+        }
     }
 
-    addSelected(...nodes: RegionFlatNode[]) {
+    addIds(...nodes: RegionFlatNode[]) {
         for (let node of nodes) {
             let rh = this.flatNodeMap.get(node)
             if (rh !== undefined) {
-                if (typeof this._selectedRegions === "number" || this._selectedRegions == null) {
-                    this._selectedRegions = rh.id
-                }
-                else {
-                    this._selectedRegions.add(rh.id)
+                if (!this.multiple) {
+                    this.setPath(node)
                 }
             }
         }
@@ -248,25 +275,11 @@ export class RegionTreeComponent {
         this.selectedRegionsChange.emit(this.selectedRegions)
     }
 
-    removeSelected(...nodes: RegionFlatNode[]) {
-        for (let node of nodes) {
-            let rh = this.flatNodeMap.get(node)
-            if (rh !== undefined) {
-                if (typeof this._selectedRegions === "object" && this._selectedRegions != null) {
-                    this._selectedRegions.delete(rh.id)
-                }
-                else {
-                    if (this._selectedRegions === rh.id) {
-                        this._selectedRegions = null
-                    }
-                }
-            }
-        }
-
+    removeIds(...nodes: RegionFlatNode[]) {
         this.selectedRegionsChange.emit(this.selectedRegions)
     }
 
     reset() {
-        this.checklistSelection.clear()
+        this.checklistSelection?.clear()
     }
 }

@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +13,12 @@ namespace CLS.WebApi.Controllers.MeasureData;
 public class FilterController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
 	public FilterController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	[HttpGet]
@@ -46,20 +46,17 @@ public class FilterController : ControllerBase
 		};
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (!(Helper.CreateUserObject(User) is UserObject _user)) {
 				return Unauthorized();
 			}
 
 			//USE SAVED FILTER
-			var intervals = _context.Interval.OrderBy(i => i.Id);
+			var intervals = _dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTrackingWithIdentityResolution()) {
 				filter.Intervals.Add(new() { id = interval.Id, name = interval.Name });
 			}
 
-			var cals = _context.Calendar
+			var cals = _dbc.Calendar
 						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Helper.intervals.yearly)
 						.OrderByDescending(y => y.Year);
 
@@ -67,22 +64,12 @@ public class FilterController : ControllerBase
 				filter.Years.Add(new YearsObject { id = cal.Id, year = cal.Year });
 			}
 
-			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTrackingWithIdentityResolution()) {
 				filter.MeasureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			var regions = _context.Hierarchy.AsNoTrackingWithIdentityResolution().Single(m => m.HierarchyLevel!.Id == 1);
-			//filter.hierarchy.Add(new RegionFilterObject { hierarchy = regions.Name, id = regions.Id, sub = Helper.getSubs(regions.Id, _user), count = 0 });
-
-			filter.Hierarchy.Add(new() {
-				Hierarchy = regions.Name,
-				Id = regions.Id,
-				Found = true,
-				Sub = Helper.GetSubs(_context, regions.Id, _user),
-				Count = 0
-			});
-
+			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.userId));
 
 			// set current Calendar Ids
 			//try
@@ -103,20 +90,20 @@ public class FilterController : ControllerBase
 
 			// set Previous Calendar Ids
 			try {
-				filter.CurrentCalendarIds.weeklyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.weekly);
-				filter.CurrentCalendarIds.monthlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.monthly);
-				filter.CurrentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.quarterly);
-				filter.CurrentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_context.Calendar, (int)Helper.intervals.yearly);
+				filter.CurrentCalendarIds.weeklyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.weekly);
+				filter.CurrentCalendarIds.monthlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.monthly);
+				filter.CurrentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.quarterly);
+				filter.CurrentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.yearly);
 			}
 			catch (Exception e) {
-				filter.Error = Helper.ErrorProcessing(_context, e, _user.userId);
+				filter.Error = Helper.ErrorProcessing(_dbc, e, _user.userId);
 			}
 
 
 			//set filter values
 			// Get Previous Calendar Id
 			if (_user.savedFilters[Helper.pages.measureData].calendarId is null) {
-				_user.savedFilters[Helper.pages.measureData].calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval);
+				_user.savedFilters[Helper.pages.measureData].calendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
 			}
 
 			if (_user.savedFilters[Helper.pages.measureData].hierarchyId is null) {
@@ -128,14 +115,14 @@ public class FilterController : ControllerBase
 			}
 
 			if (_user.savedFilters[Helper.pages.measureData].measureTypeId is null) {
-				_user.savedFilters[Helper.pages.measureData].measureTypeId = _context.MeasureType.FirstOrDefault()?.Id;
+				_user.savedFilters[Helper.pages.measureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
 			}
 
 			//if( _user.savedFilters[Helper.pages.measureData].year == null )
-			//  _user.savedFilters[Helper.pages.measureData].year = 
+			//  _user.savedFilters[Helper.pages.measureData].year =
 			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Year;
 			if (_user.savedFilters[Helper.pages.measureData].year is null) {
-				_user.savedFilters[Helper.pages.measureData].year = _context.Calendar.Find(_user.savedFilters[Helper.pages.measureData].calendarId)?.Year;
+				_user.savedFilters[Helper.pages.measureData].year = _dbc.Calendar.Find(_user.savedFilters[Helper.pages.measureData].calendarId)?.Year;
 			}
 
 			filter.Filter = _user.savedFilters[Helper.pages.measureData];
@@ -143,7 +130,7 @@ public class FilterController : ControllerBase
 			return Ok(filter);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
 		}
 	}
 
@@ -161,7 +148,7 @@ public class FilterController : ControllerBase
 			_user.savedFilters[Helper.pages.measureData].intervalId = values.intervalId;
 
 			if (values.intervalId == (int)Helper.intervals.weekly) {
-				var cal = _context.Calendar.OrderBy(c => c.WeekNumber).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
+				var cal = _dbc.Calendar.OrderBy(c => c.WeekNumber).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
 					returnObject.Add(new GetIntervalsObject {
 						id = c.Id,
@@ -173,7 +160,7 @@ public class FilterController : ControllerBase
 				}
 			}
 			else if (values.intervalId == (int)Helper.intervals.monthly) {
-				var cal = _context.Calendar.OrderBy(c => c.Month).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
+				var cal = _dbc.Calendar.OrderBy(c => c.Month).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
 					returnObject.Add(new GetIntervalsObject {
 						id = c.Id,
@@ -185,7 +172,7 @@ public class FilterController : ControllerBase
 				}
 			}
 			else if (values.intervalId == (int)Helper.intervals.quarterly) {
-				var data = _context.Calendar.OrderBy(c => c.Quarter).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
+				var data = _dbc.Calendar.OrderBy(c => c.Quarter).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				var dataObject = data.Select(d => new GetIntervalsObject {
 					id = d.Id,
 					number = d.WeekNumber,
@@ -205,7 +192,7 @@ public class FilterController : ControllerBase
 			return Ok(returnObject);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
 		}
 	}
 }
