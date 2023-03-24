@@ -124,18 +124,18 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
             <td mat-cell *matCellDef="let element"> {{element.name}} </td>
           </ng-container>
-          <!-- <ng-container matColumnDef="id">
+          <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-          </ng-container> -->
+          </ng-container>
           <ng-container matColumnDef="owner">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
             <td mat-cell *matCellDef="let element"> {{element.owner}} </td>
           </ng-container>
-          <!-- <ng-container matColumnDef="hierarchy">
+          <ng-container matColumnDef="hierarchy">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Hierarchy </th>
             <td mat-cell *matCellDef="let element">{{ element.hierarchy}}</td>
-          </ng-container> -->
+          </ng-container>
           <ng-container *ngFor="let region of hierarchy; let i = index" matColumnDef="{{region}}">
             <th mat-header-cell *matHeaderCellDef> {{i == 0 ? '(Parent)' : ''}} {{region}} </th>
             <td mat-cell *matCellDef="let data">
@@ -165,7 +165,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedDynamicColumns.length">
+            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
               <div class="expandable-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
                 <p>{{mdef.description}}</p>
                 <div class="detail-items-1">
@@ -186,8 +186,8 @@
               </div>
             </td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedDynamicColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedDynamicColumns;" class="table-row"
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
             [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
           <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
           <tr class="mat-row" *matNoDataRow>

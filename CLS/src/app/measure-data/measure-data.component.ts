@@ -11,11 +11,18 @@ import { LoggerService } from '../_services/logger.service';
 import { Hierarchy, RegionFilter, RegionFlatNode } from '../_models/regionhierarchy';
 import { FilterResponseDto, IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
     selector: 'app-measure-data',
     templateUrl: './measure-data.component.html',
-    styleUrls: ['./measure-data.component.scss']
+    styleUrls: ['./measure-data.component.scss'],
+    animations: [
+        trigger("detailExpand", [
+            state("false", style({ height: "0px", minHeight: "0" })),
+            state("true", style({ height: "*" })),
+            transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
+        ])]
 })
 export class MeasureDataComponent implements OnInit {
     measureDataResponse: MeasureDataResponse | undefined;
@@ -62,9 +69,31 @@ export class MeasureDataComponent implements OnInit {
     }
 
     dataSource = new MatTableDataSource([] as Data[])
-    displayedColumns = ["name", "value", "units", "explanation", "action", "updated"]
+    displayedColumns = ["name", "value", "units", "explanation", "action", "updated", "rowactions"]
     @ViewChild(MatSort) sort!: MatSort
-    drawerTitle = "Filter"
+    //------------------ Filter Drawer ------------------
+    //drawerTitle = "Filter"
+    drawer = {
+        title: "Filter",
+        button: "Apply",
+        position: "start" as "start" | "end"
+    }
+    filtersSelected: string[] = []
+    editingMeasureType!: any
+    selectedMeasureType: MeasureType = { id: 0, name: "" }
+    //----------------
+    isEditMode = false
+    selectedRow: Data | undefined
+    //isEditable: boolean[] = Array(5).fill(false);
+    //dataSource = new MatTableDataSource<Target>()
+    //dataSource = new MatTableDataSource<Data>()
+    expandDetail = new ToggleQuery()
+
+
+
+    //----------------
+
+
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { id: number, name: string }[]
     intervalList!: IntervalDto[]
@@ -92,7 +121,7 @@ export class MeasureDataComponent implements OnInit {
     errorMsg: any = ""
     showError: boolean = true;
 
-    rendered = function () { };
+    //rendered = function () { };
 
     constructor(private api: MeasureDataService,
         private logger: LoggerService,
@@ -169,8 +198,28 @@ export class MeasureDataComponent implements OnInit {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
+    doEditType() {
+        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
+        this.editingMeasureType = { ...this.selectedMeasureType }
+    }
+
     identity(_: number, item: { id: number }) {
         return item.id
+    }
+
+    onEdit(element: Data) {
+        this.isEditMode = true;
+        // this.selectedRow = { ...targetRow };
+        this.selectedRow = element;
+    }
+
+    onSave(targetRow: Data) {
+        this.isEditMode = false
+        this.selectedRow = { ...targetRow };
+    }
+
+    onCancel(targetRow: Data) {
+        this.isEditMode = false
     }
 
     //================================================================================================
@@ -291,6 +340,9 @@ export class MeasureDataComponent implements OnInit {
                     this.editValue = value.editValue;
                     this.showActionButtons = this.allow && !this.locked;
                     this.measureDataResponse = value;
+                    this.dataSource = new MatTableDataSource(value.data)
+                    this.dataSource.sort = this.sort
+                    console.log("Datasource: ", this.dataSource)
                     this.loadTable();
                     this.progress(false);
                 } else {
@@ -302,6 +354,7 @@ export class MeasureDataComponent implements OnInit {
                 this.processLocalError(this.title, err.statusText, -99, err.status, null);
             }
         });
+        //console.log(object);
         this.loadTable();
     }
 
@@ -337,6 +390,10 @@ export class MeasureDataComponent implements OnInit {
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
         params.hierarchyId = this.model.selectedRegion
         // this.getData(p)
+    }
+
+    doFilter() {
+        this.drawer = { title: "Filter", button: "Apply", position: "start" }
     }
 
     isBoolShow(str: string | boolean): boolean {
@@ -779,5 +836,17 @@ export class MeasureDataComponent implements OnInit {
         //   );
 
         this.cancel(data);
+    }
+}
+
+
+class ToggleQuery {
+    expanded!: any
+    toggle(t: any) {
+        this.expanded = t === this.expanded ? null : t
+    }
+
+    query(t: any) {
+        return this.expanded === t
     }
 }
