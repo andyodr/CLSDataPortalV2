@@ -95,7 +95,6 @@ export class MeasureDataComponent implements OnInit {
     rendered = function () { };
 
     constructor(private api: MeasureDataService,
-        private _: NavigationService,
         private logger: LoggerService,
         private http: HttpClient) { }
 
@@ -312,31 +311,31 @@ export class MeasureDataComponent implements OnInit {
         this.filterSelected[2] = this.treeControl?.path?.join(" | ") ?? "?"
 
         const { fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
-        const p = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }
+        const params = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }
         switch (fIntervalSelected?.id) {
             case Intervals.Weekly:
                 if (!fWeekSelected) return
-                p.calendarId = fWeekSelected.id
+                params.calendarId = fWeekSelected.id
                 break
             case Intervals.Monthly:
                 if (!fMonthSelected) return
-                p.calendarId = fMonthSelected.id
+                params.calendarId = fMonthSelected.id
                 break
             case Intervals.Quarterly:
                 if (!fQuarterSelected) return
-                p.calendarId = fQuarterSelected.id
+                params.calendarId = fQuarterSelected.id
                 break
             case Intervals.Yearly:
                 if (!fYearSelected) return
-                p.calendarId = fYearSelected.id
+                params.calendarId = fYearSelected.id
                 break
         }
 
         if (!this.model.fMeasureTypeSelected) return
-        p.measureTypeId = this.model.fMeasureTypeSelected.id
+        params.measureTypeId = this.model.fMeasureTypeSelected.id
 
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
-        p.hierarchyId = this.model.selectedRegion
+        params.hierarchyId = this.model.selectedRegion
         // this.getData(p)
     }
 

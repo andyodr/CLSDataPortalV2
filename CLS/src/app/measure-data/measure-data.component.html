@@ -63,6 +63,7 @@
         </mat-select>
       </mat-form-field>
       <h4>Region Hierarchy:</h4>
+      <h5>{{ regions.path.at(-1) }}</h5>
       <app-region-tree #regions [hierarchy]="select.hierarchy"
         [(selectedRegions)]="model.selectedRegion"></app-region-tree>
     </form>

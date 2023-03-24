@@ -72,6 +72,7 @@ export class RegionTreeComponent {
 
     @Output() selectedRegionsChange = new EventEmitter<number | number[] | null>()
 
+    path: string[] = ["?"]
     get multiple() { return this.checklistSelection?.isMultipleSelection() ?? false }
     checklistSelection?: SelectionModel<RegionFlatNode>
     flatNodeMap = new Map<RegionFlatNode, RegionFilter>()
@@ -79,7 +80,6 @@ export class RegionTreeComponent {
     treeControl: FlatTreeControl<RegionFlatNode>
     treeFlattener!: MatTreeFlattener<RegionFilter, RegionFlatNode>
     treeData!: MatTreeFlatDataSource<RegionFilter, RegionFlatNode>
-    path!: string[]
     constructor() {
         this.treeFlattener = new MatTreeFlattener(
             this.transformer,
@@ -129,24 +129,25 @@ export class RegionTreeComponent {
             let r = this.createHierarchyMap(hierarchy).get(selected)
             if (r) {
                 let node = this.nestedNodeMap.get(r)
-                if (node) {
-                    this.setPath(node)
-                    let p: RegionFlatNode | undefined = node
-                    do {
-                        p = this.getParentNode(p!)
-                        if (p) {
-                            this.treeControl.expand(p)
-                        }
-                    } while (p)
+                if (!node) return
+                // updates DOM after parent change detection, so it must be delayed
+                Promise.resolve().then(() => this.setPath(node!))
+                let p: RegionFlatNode | undefined = node
+                do {
+                    p = this.getParentNode(p!)
+                    if (p) {
+                        this.treeControl.expand(p)
+                    }
+                } while (p)
 
-                    this.checklistSelection!.select(node)
-                }
+                this.checklistSelection!.select(node)
             }
         }
     }
 
-    setPath(node: RegionFlatNode) {
-        const path = [node]
+    /** Set the region path hierarchy from root to selected node */
+    setPath(selectedNode: RegionFlatNode) {
+        const path = [selectedNode]
         while (true) {
             const parent = this.getParentNode(path[0])
             if (parent == null) break

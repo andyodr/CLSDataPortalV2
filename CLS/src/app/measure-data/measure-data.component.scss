@@ -25,8 +25,21 @@ mat-drawer form {
   padding: 2em;
 }
 
-mat-drawer form>:first-child,
-mat-drawer form>:nth-child(4) {
+mat-drawer header {
+  background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
+  padding: 1em 1.25em;
+  display: flex;
+  gap: 1em;
+  min-width: 33em;
+}
+
+mat-drawer header h2 {
+  color: white;
+  margin: auto auto auto 2em;
+}
+
+mat-drawer form>mat-form-field:first-of-type,
+mat-drawer form>mat-form-field:last-of-type {
   display: block;
 }
 
@@ -34,17 +47,13 @@ mat-drawer form>:nth-child(2) {
   margin-right: .625em;
 }
 
-mat-drawer header {
-  background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
-  padding: 15px 20px;
-  display: flex;
-  gap: 15px;
+mat-drawer form :is(h4, h5) {
+  display: inline-block;
 }
 
-mat-drawer header h2 {
-  color: white;
-  display: flex;
-  margin: auto 2em;
+mat-drawer form h5 {
+  margin-left: 2em;
+  font-size: 14px;
 }
 
 .panel-body {
