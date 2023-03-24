@@ -308,7 +308,7 @@ export class MeasureDataComponent implements OnInit {
     loadTable(): void {
         this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
-        this.filterSelected[2] = this.treeControl?.path?.join(" | ") ?? "?"
+        this.filterSelected[2] = this.treeControl?.ancestorPath?.join(" | ") ?? "?"
 
         const { fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
         const params = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }

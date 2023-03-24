@@ -72,7 +72,8 @@ export class RegionTreeComponent {
 
     @Output() selectedRegionsChange = new EventEmitter<number | number[] | null>()
 
-    path: string[] = ["?"]
+    ancestorPath: string[] = ["?"]
+    descendantPath: string[] = ["?"]
     get multiple() { return this.checklistSelection?.isMultipleSelection() ?? false }
     checklistSelection?: SelectionModel<RegionFlatNode>
     flatNodeMap = new Map<RegionFlatNode, RegionFilter>()
@@ -131,7 +132,7 @@ export class RegionTreeComponent {
                 let node = this.nestedNodeMap.get(r)
                 if (!node) return
                 // updates DOM after parent change detection, so it must be delayed
-                Promise.resolve().then(() => this.setPath(node!))
+                Promise.resolve().then(() => this.setPaths(node!))
                 let p: RegionFlatNode | undefined = node
                 do {
                     p = this.getParentNode(p!)
@@ -146,16 +147,20 @@ export class RegionTreeComponent {
     }
 
     /** Set the region path hierarchy from root to selected node */
-    setPath(selectedNode: RegionFlatNode) {
-        const path = [selectedNode]
-        while (true) {
-            const parent = this.getParentNode(path[0])
-            if (parent == null) break
+    setPaths(selectedNode: RegionFlatNode) {
+        const path: RegionFlatNode[] = []
+        let parent: RegionFlatNode | undefined = selectedNode
+        while (parent) {
             path.unshift(parent)
+            parent = this.getParentNode(path[0])
         }
 
-        this.path = path.map(n => this.flatNodeMap.get(n!)?.hierarchy ?? "?")
-    }
+        this.ancestorPath = path.map(n => this.flatNodeMap.get(n!)?.hierarchy ?? "?")
+        let _ = path.splice(0, Infinity, selectedNode)
+        this.descendantPath = path
+            .map(n => ([selectedNode, ...(this.flatNodeMap.get(n!)?.sub ?? [])])
+            .map(n => n.hierarchy)).flat()
+   }
 
     getLevel = (node: RegionFlatNode): number => node.level
     isExpandable = (node: RegionFlatNode): boolean => node.expandable
@@ -267,7 +272,7 @@ export class RegionTreeComponent {
             let rh = this.flatNodeMap.get(node)
             if (rh !== undefined) {
                 if (!this.multiple) {
-                    this.setPath(node)
+                    this.setPaths(node)
                 }
             }
         }
