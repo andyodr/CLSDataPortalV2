@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ public class IndexController : ControllerBase
 	/// Get settings for selected year
 	/// </summary>
 	[HttpGet]
-	public ActionResult<SettingsGetReturnObject> Get(int year) {
+	public ActionResult<SettingsGetReturnObject> Get(int? year) {
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -34,8 +34,8 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new SettingsGetReturnObject { locked = new(), users = new(), years = new() };
-			var calendarRecords = _context.Calendar.Where(c => c.Year == year && c.Interval.Id == (int)Helper.intervals.monthly);
+			var returnObject = new SettingsGetReturnObject { Locked = new(), Users = new(), Years = new() };
+			var calendarRecords = _context.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.Interval.Id == (int)Helper.intervals.monthly);
 			var settings = _context.Setting;
 			if (!settings.Any()) {
 				return BadRequest(Resource.SETTINGS_NO_RECORDS);
@@ -50,26 +50,26 @@ public class IndexController : ControllerBase
 						.OrderByDescending(y => y.Year);
 
 			foreach (var yyear in years) {
-				returnObject.years.Add(yyear.Year);
+				returnObject.Years.Add(yyear.Year);
 			}
 
-			returnObject.year = year;
+			returnObject.Year = year ?? DateTime.Today.Year;
 			//returnObject.numberOfDays = settings.First().NumberOfDays;
 			var setting = settings.AsNoTracking().First();
-			returnObject.active = !setting.Active;
-			returnObject.lastCalculatedOn = setting.LastCalculatedOn.ToString();
+			returnObject.Active = !setting.Active;
+			returnObject.LastCalculatedOn = setting.LastCalculatedOn.ToString();
 
-			returnObject.calculateHH = Helper.CalculateScheduleInt(setting.CalculateSchedule, "HH", ":");
-			returnObject.calculateMM = Helper.CalculateScheduleInt(setting.CalculateSchedule, "MM", ":");
-			returnObject.calculateSS = Helper.CalculateScheduleInt(setting.CalculateSchedule, "SS", ":");
+			returnObject.CalculateHH = Helper.CalculateScheduleInt(setting.CalculateSchedule, "HH", ":");
+			returnObject.CalculateMM = Helper.CalculateScheduleInt(setting.CalculateSchedule, "MM", ":");
+			returnObject.CalculateSS = Helper.CalculateScheduleInt(setting.CalculateSchedule, "SS", ":");
 
 			foreach (var record in calendarRecords) {
-				returnObject.locked.Add(new() {
-					id = record.Id,
-					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
-					startDate = record.StartDate?.ToString("d"),
-					endDate = record.EndDate?.ToString("d"),
-					locked = record.Locked
+				returnObject.Locked.Add(new() {
+					Id = record.Id,
+					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
+					StartDate = record.StartDate?.ToString("d"),
+					EndDate = record.EndDate?.ToString("d"),
+					Locked = record.Locked
 				});
 			}
 
@@ -93,7 +93,7 @@ public class IndexController : ControllerBase
 
 				}
 				else {
-					returnObject.users.Add(currentUser);
+					returnObject.Users.Add(currentUser);
 				}
 			}
 
@@ -115,7 +115,7 @@ public class IndexController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var returnObject = new SettingsGetReturnObject { locked = new(), years = new() };
+			var returnObject = new SettingsGetReturnObject { Locked = new(), Years = new() };
 			var calendarRecords = _context.Calendar
 				.Where(c => c.Year == value.Year && c.Interval.Id == (int)Helper.intervals.monthly)
 				.OrderBy(c => c.Month);
@@ -123,7 +123,7 @@ public class IndexController : ControllerBase
 				.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.Year >= DateTime.Now.Year - 3)
 				.OrderBy(c => c.Month);
 			foreach (var record in calendarRecords.Where(c => c.Month != null)) {
-				record.Locked = value.Locked?.ElementAt((int)record.Month! - 1)?.locked ?? false;
+				record.Locked = value.Locked?.ElementAt((int)record.Month! - 1)?.Locked ?? false;
 				record.LastUpdatedOn = lastUpdatedOn;
 			}
 
@@ -148,25 +148,25 @@ public class IndexController : ControllerBase
 			);
 
 			foreach (var yyear in years) {
-				returnObject.years.Add(yyear.Year);
+				returnObject.Years.Add(yyear.Year);
 			}
 
-			returnObject.year = value.Year;
+			returnObject.Year = value.Year;
 			//returnObject.numberOfDays = settings.NumberOfDays;
-			returnObject.active = !settings.Active;
-			returnObject.lastCalculatedOn = settings.LastCalculatedOn.ToString();
+			returnObject.Active = !settings.Active;
+			returnObject.LastCalculatedOn = settings.LastCalculatedOn.ToString();
 
-			returnObject.calculateHH = Helper.CalculateScheduleInt(settings.CalculateSchedule, "HH", ":");
-			returnObject.calculateMM = Helper.CalculateScheduleInt(settings.CalculateSchedule, "MM", ":");
-			returnObject.calculateSS = Helper.CalculateScheduleInt(settings.CalculateSchedule, "SS", ":");
+			returnObject.CalculateHH = Helper.CalculateScheduleInt(settings.CalculateSchedule, "HH", ":");
+			returnObject.CalculateMM = Helper.CalculateScheduleInt(settings.CalculateSchedule, "MM", ":");
+			returnObject.CalculateSS = Helper.CalculateScheduleInt(settings.CalculateSchedule, "SS", ":");
 
 			foreach (var record in calendarRecords) {
-				returnObject.locked.Add(new CalendarLock {
-					id = record.Id,
-					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
-					startDate = record.StartDate?.ToString("dd/MM/yyyy"),
-					endDate = record.EndDate?.ToString("dd/MM/yyyy"),
-					locked = record.Locked
+				returnObject.Locked.Add(new CalendarLock {
+					Id = record.Id,
+					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
+					StartDate = record.StartDate?.ToString("dd/MM/yyyy"),
+					EndDate = record.EndDate?.ToString("dd/MM/yyyy"),
+					Locked = record.Locked
 				});
 			}
 

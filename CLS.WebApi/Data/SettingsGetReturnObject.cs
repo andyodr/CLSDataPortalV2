@@ -2,15 +2,23 @@
 
 public class SettingsGetReturnObject
 {
-	public ErrorModel error { set; get; }
-	public List<int> years { set; get; }
-	public int year { set; get; }
-	//public int? numberOfDays { set; get; }
-	public int? calculateHH { get; set; }
-	public int? calculateMM { get; set; }
-	public int? calculateSS { get; set; }
-	public bool? active { set; get; }
-	public string? lastCalculatedOn { set; get; }
-	public List<CalendarLock> locked { set; get; }
-	public List<UserSettingObject> users { set; get; }
+	public ErrorModel Error { get; set; } = null!;
+
+	public List<int>? Years { get; set; }
+
+	public int Year { get; set; }
+
+	public int? CalculateHH { get; set; }
+
+	public int? CalculateMM { get; set; }
+
+	public int? CalculateSS { get; set; }
+
+	public bool? Active { get; set; }
+
+	public string? LastCalculatedOn { get; set; }
+
+	public List<CalendarLock>? Locked { get; set; }
+
+	public List<UserSettingObject> Users { get; set; } = null!;
 }

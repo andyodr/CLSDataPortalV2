@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -33,10 +33,10 @@ public class UsersController : ControllerBase
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(Model model) {
 		try {
-			var value = new SettingsGetReturnObject { users = new() };
+			var value = new SettingsGetReturnObject { Users = new() };
 			var user = model.Users;
-			value.year = model.Year;
-			value.users.Add(user);
+			value.Year = model.Year;
+			value.Users.Add(user);
 
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -55,15 +55,15 @@ public class UsersController : ControllerBase
 					.Where(u => u.User.Id == model.Users.Id && u.CalendarId == record.Id);
 				if (calendarLock.Any()) {
 					var c = calendarLock.First();
-					c.LockOverride = value.users.First().Locks?.ElementAt((int)record.Month! - 1).lo;
+					c.LockOverride = value.Users.First().Locks?.ElementAt((int)record.Month! - 1).lo;
 					c.LastUpdatedOn = lastUpdatedOn;
 				}
 				else {
 					_context.UserCalendarLock.Add(new() {
 						Calendar = record,
 						LastUpdatedOn = lastUpdatedOn,
-						LockOverride = value.users.First().Locks?.ElementAt((int)record.Month! - 1).lo
-					}).Property("UserId").CurrentValue = value.users.First().Id;
+						LockOverride = value.Users.First().Locks?.ElementAt((int)record.Month! - 1).lo
+					}).Property("UserId").CurrentValue = value.Users.First().Id;
 				}
 			}
 

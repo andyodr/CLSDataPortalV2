@@ -698,19 +698,6 @@ public static class Helper
 		}
 	}
 
-	internal static bool StartSQLJob(ApplicationDbContext dbc, string spName) {
-		// Create measure dtaa records if don't exist
-		var jobName = spName;
-		try {
-			_ = dbc.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={jobName}");
-
-			return true;
-		}
-		catch {
-			return false;
-		}
-	}
-
 	public static double? RoundNullable(this double? value, int digits) {
 		return value switch {
 			double v => Math.Round(v, digits, MidpointRounding.AwayFromZero),
