@@ -1,6 +1,6 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { NgModule } from "@angular/core"
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from "@angular/forms"
 import { MatButtonModule } from "@angular/material/button"
 import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatDialogModule } from '@angular/material/dialog'
@@ -46,6 +46,7 @@ import { SidebarComponent } from "./nav/sidebar.component"
 import { TableComponent } from "./lib/table/table.component"
 import { TargetsComponent } from './targets/targets.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
+import { TimeInputComponent } from "./lib/time/time-input.component"
 import { UploadDirective } from "./dataimports/upload.directive"
 import { UserAddComponent } from "./users/useradd.component"
 import { UserEditComponent } from "./users/useredit.component"
@@ -76,6 +77,7 @@ import { UserListComponent } from "./users/userlist.component";
         TableComponent,
         TargetsComponent,
         TestErrorComponent,
+        TimeInputComponent,
         UploadDirective,
         UserAddComponent,
         UserEditComponent,
@@ -90,7 +92,6 @@ import { UserListComponent } from "./users/userlist.component";
         MatButtonModule,
         MatCheckboxModule,
         MatDialogModule,
-        MatSidenavModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -98,14 +99,15 @@ import { UserListComponent } from "./users/userlist.component";
         MatProgressBarModule,
         MatRadioModule,
         MatSelectModule,
+        MatSidenavModule,
         MatSnackBarModule,
         MatSortModule,
         MatTableModule,
         MatTooltipModule,
         MatTreeModule,
         NgbModule,
-        BsDropdownModule.forRoot(),
-
+        ReactiveFormsModule,
+        BsDropdownModule.forRoot()
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

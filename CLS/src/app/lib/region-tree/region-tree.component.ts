@@ -14,7 +14,6 @@ export class RegionTreeComponent {
     get hierarchy(): RegionFilter[] {
         return this._hierarchy
     }
-
     set hierarchy(value: RegionFilter[]) {
         this.treeData.data = this._hierarchy = value
         if (this.selectedRegions && this.checklistSelection) {
@@ -48,7 +47,6 @@ export class RegionTreeComponent {
             return this.flatNodeMap.get(this.checklistSelection!.selected[0])?.id ?? -1
         }
     }
-
     set selectedRegions(value: number | number[] | null) {
         if (Array.isArray(value)) {
             if (!this.checklistSelection) {
