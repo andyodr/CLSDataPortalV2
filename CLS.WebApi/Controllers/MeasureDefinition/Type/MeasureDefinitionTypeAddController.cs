@@ -48,14 +48,14 @@ public class AddController : ControllerBase
 				Resource.MEASURE_TYPE,
 				@"Added / ID=" + measureType.Id.ToString(),
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			returnObject.data = value;
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

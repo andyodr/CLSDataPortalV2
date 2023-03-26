@@ -75,13 +75,13 @@ public class UsersController : ControllerBase
 				Resource.SETTINGS,
 				@"Updated Users",
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			return value;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

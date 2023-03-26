@@ -80,7 +80,7 @@ public class IndexController : ControllerBase
 			returnObject.confirmed = _config.usesSpecialHieararhies;
 
 			returnObject.allow = false;
-			if (_user.userRoleId == (int)Helper.userRoles.systemAdministrator)
+			if (_user.RoleId == (int)Helper.userRoles.systemAdministrator)
 				returnObject.allow = _user.hierarchyIds.Contains(hierarchyId);
 
 			_user.savedFilters[Helper.pages.target].hierarchyId = hierarchyId;
@@ -89,7 +89,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -138,16 +138,16 @@ public class IndexController : ControllerBase
 			target.LastUpdatedOn = lastUpdatedOn;
 			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
 
-			// Create new target and save if there are multiple targets for the same measure  
+			// Create new target and save if there are multiple targets for the same measure
 			if ((targetCount > 1 || !target.Active) && value.measureId is not null) {
-				// Create new target and save      
+				// Create new target and save
 				var newTarget = _context.Target.Add(new() {
 					Active = true,
 					Value = targetValue,
 					YellowValue = targetYellow,
 					MeasureId = value.measureId ?? 0L,
 					LastUpdatedOn = lastUpdatedOn,
-					UserId = _user.userId,
+					UserId = _user.Id,
 					IsProcessed = (byte)Helper.IsProcessed.complete
 				}).Entity;
 
@@ -156,7 +156,7 @@ public class IndexController : ControllerBase
 
 				// Update Target Id for all Measure Data records for current intervals
 				if (value.isCurrentUpdate ?? false) {
-					UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, value.measureId ?? 0L, _user.userId, lastUpdatedOn);
+					UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, value.measureId ?? 0L, _user.Id, lastUpdatedOn);
 				}
 
 				Helper.AddAuditTrail(_context,
@@ -167,7 +167,7 @@ public class IndexController : ControllerBase
 							" / Value=" + newTarget.Value.ToString() +
 							" / Yellow=" + newTarget.YellowValue.ToString(),
 					lastUpdatedOn,
-					_user.userId
+					_user.Id
 				);
 			}
 
@@ -177,14 +177,14 @@ public class IndexController : ControllerBase
 				Yellow = value.yellow,
 				TargetId = returnTargetId,
 				TargetCount = _context.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
-				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.userName)
+				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
 			});
 
 			returnObject.data = measureDataList;
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -205,7 +205,7 @@ public class IndexController : ControllerBase
 
 			// getAllChildren will add the parent and the children to the list
 			if (hierarchyIds.Count > 1) {
-				// Remove the parent. No needed anymore 
+				// Remove the parent. No needed anymore
 				hierarchyIds.RemoveAt(0);
 
 				var measureDefs = from measureDef in _context.MeasureDefinition
@@ -252,20 +252,20 @@ public class IndexController : ControllerBase
 						target.Active = false;
 						_context.Target.Update(target);
 
-						// Create new target and save if there are multiple targets for the same measure      
+						// Create new target and save if there are multiple targets for the same measure
 						var newTarget = _context.Target.Add(new() {
 							Active = true,
 							Value = pTarget.First().Value,
 							YellowValue = pTarget.First().YellowValue,
 							MeasureId = measureId,
 							LastUpdatedOn = lastUpdatedOn,
-							UserId = _user.userId,
+							UserId = _user.Id,
 							IsProcessed = (byte)Helper.IsProcessed.complete
 						}).Entity;
 
 						// Update Target Id for all Measure Data records for current intervals
 						if (value.isCurrentUpdate ?? false) {
-							UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, measureId, _user.userId, lastUpdatedOn);
+							UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, measureId, _user.Id, lastUpdatedOn);
 						}
 
 						_ = _context.SaveChanges();
@@ -277,7 +277,7 @@ public class IndexController : ControllerBase
 								   " / Value=" + newTarget.Value.ToString() +
 								   " / Yellow=" + newTarget.YellowValue.ToString(),
 						   lastUpdatedOn,
-						   _user.userId
+						   _user.Id
 						);
 					}
 				}
@@ -286,7 +286,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 

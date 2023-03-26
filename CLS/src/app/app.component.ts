@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from './_models/user';
+import { AuthenticatedUser } from './_models/user';
 import { AccountService } from './_services/account.service';
 import { NavSettingsService } from './_services/nav-settings.service';
 import { ToggleService } from './_services/toggle.service';
@@ -10,8 +10,6 @@ import { ToggleService } from './_services/toggle.service';
 	styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-	title = 'CLSDataPortalV2';
-
 	toggle: any = true;
 
 	constructor(private api: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) {
@@ -25,11 +23,11 @@ export class AppComponent implements OnInit {
 	}
 
 	setCurrentUser() {
-		//const user: User = JSON.parse(localStorage.getItem('user')!);
-		const userString = localStorage.getItem('user');
-		if (!userString) return;
-		const user: User = JSON.parse(userString!);
-		this.api.setCurrentUser(user);
+		const userString = localStorage.getItem('user')
+		if (!userString) return
+		const user: AuthenticatedUser = JSON.parse(userString!)
+        if (!user) return
+		this.api.setCurrentUser(user)
 	}
 
 	getCurrentUser() {

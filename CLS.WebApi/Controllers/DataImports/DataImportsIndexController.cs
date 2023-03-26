@@ -71,7 +71,7 @@ public class IndexController : ControllerBase
 			DataImportObject measureData = Helper.DataImportHeading(Helper.dataImports.measureData);
 			returnObject.dataImport.Add(measureData);
 
-			if (_user.userRoleId == (int)Helper.userRoles.systemAdministrator) {
+			if (_user.RoleId == (int)Helper.userRoles.systemAdministrator) {
 				DataImportObject targetData = Helper.DataImportHeading(Helper.dataImports.target);
 				returnObject.dataImport.Add(targetData);
 
@@ -86,7 +86,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

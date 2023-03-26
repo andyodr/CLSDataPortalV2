@@ -34,7 +34,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -73,7 +73,7 @@ public class EditController : ControllerBase
 					Resource.MEASURE_TYPE,
 					@"Updated / ID=" + measureType.Id.ToString(),
 					lastUpdatedOn,
-					_user.userId
+					_user.Id
 				);
 			}
 
@@ -81,7 +81,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

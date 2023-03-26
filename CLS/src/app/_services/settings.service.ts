@@ -1,8 +1,9 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { Observable } from "rxjs";
-import { environment } from "../environments/environment";
-import { ErrorModel } from "../_models/error";
+import { Router } from "@angular/router"
+import { catchError, Observable, throwError } from "rxjs"
+import { environment } from "../environments/environment"
+import { ErrorModel } from "../_models/error"
 
 export type CalendarLock = {
     id: number
@@ -36,9 +37,16 @@ export type SettingsResponseDto = {
 })
 export class CalendarSettingsService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   getSettings(): Observable<SettingsResponseDto> {
-    return this.http.get<SettingsResponseDto>(environment.baseUrl + "api/settings/index")
+    return this.http
+        .get<SettingsResponseDto>(environment.baseUrl + "api/settings/index")
+        .pipe(catchError((err: HttpErrorResponse) => {
+            if (err.status == 401) {
+                this.router.navigate(["/"])
+            }
+            return throwError(() => new Error(err.message))
+        }))
   }
 }

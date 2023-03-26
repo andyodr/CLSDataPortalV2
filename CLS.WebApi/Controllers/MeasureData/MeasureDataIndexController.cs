@@ -63,7 +63,7 @@ public class IndexController : ControllerBase
 			returnObject.locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (_context.Setting.AsNoTracking().First().Active == true) {
-				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.userId, calendar, _context);
+				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _context);
 			}
 
 			var measures = _context.MeasureData
@@ -180,7 +180,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -220,7 +220,7 @@ public class IndexController : ControllerBase
 			measureData.Value = value.MeasureValue;
 			measureData.Explanation = value.Explanation;
 			measureData.Action = value.Action;
-			_context.Entry(measureData).Property("UserId").CurrentValue = _user.userId;
+			_context.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
 			measureData.IsProcessed = (byte)Helper.IsProcessed.measureData;
 			measureData.LastUpdatedOn = lastUpdatedOn;
 			_context.SaveChanges();
@@ -234,7 +234,7 @@ public class IndexController : ControllerBase
 						" / Explanation=" + value.Explanation +
 						" / Action=" + value.Action,
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			measureDataList.Add(
@@ -242,7 +242,7 @@ public class IndexController : ControllerBase
 				  Value = value.MeasureValue,
 				  Explanation = value.Explanation,
 				  Action = value.Action,
-				  Updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.userName)
+				  Updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.UserName)
 			  }
 			);
 			returnObject.data = measureDataList;
@@ -262,7 +262,7 @@ public class IndexController : ControllerBase
 
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 

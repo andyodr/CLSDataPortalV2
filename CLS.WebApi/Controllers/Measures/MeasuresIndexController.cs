@@ -78,7 +78,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -119,7 +119,7 @@ public class IndexController : ControllerBase
 							EnumIsProcessed = Helper.IsProcessed.complete;
 						}
 
-						Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, EnumIsProcessed);
+						Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
 						Helper.AddAuditTrail(_context,
 							Resource.WEB_PAGES,
@@ -130,7 +130,7 @@ public class IndexController : ControllerBase
 									" / Expression=" + measure.Expression.ToString() +
 									" / Rollup=" + measure.Rollup.ToString(),
 							lastUpdatedOn,
-							_user.userId
+							_user.Id
 						);
 					}
 				}
@@ -142,7 +142,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

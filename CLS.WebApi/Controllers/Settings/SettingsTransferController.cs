@@ -39,7 +39,7 @@ public class TransferController : ControllerBase
 					Resource.SETTINGS,
 					@"Transfer / SQL Job Run=" + _config.sQLJobSSIS,
 					DateTime.Now,
-					_user.userId
+					_user.Id
 				);
 
 				return Ok();
@@ -49,7 +49,7 @@ public class TransferController : ControllerBase
 			}
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

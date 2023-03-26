@@ -1,16 +1,20 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class UserObject
 {
-	public int userId { get; set; }
+	public int Id { get; set; }
 
-	public string userName { get; set; } = null!;
+	public string UserName { get; set; } = null!;
 
-	public string? firstName { get; set; }
+	public string? FirstName { get; set; }
 
-	public int userRoleId { get; set; }
+	public string? LastName { get; set; }
 
-	public string userRole { get; set; } = null!;
+	public string? Department { get; set; }
+
+	public int RoleId { get; set; }
+
+	public string Role { get; set; } = null!;
 
 	public DateTimeOffset? expiresUtc { get; set; }
 

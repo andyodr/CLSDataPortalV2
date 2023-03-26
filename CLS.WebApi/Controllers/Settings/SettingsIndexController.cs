@@ -71,7 +71,7 @@ public class IndexController : ControllerBase
 
 			result.Users = _dbc.User
 				.Where(u => u.Active == true
-					&& (u.UserName != _config.byPassUserName || _user.userName == _config.byPassUserName))
+					&& (u.UserName != _config.byPassUserName || _user.UserName == _config.byPassUserName))
 				.Select(u => new UserSettingObject {
 					Id = u.Id,
 					UserName = u.UserName,
@@ -87,7 +87,7 @@ public class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -131,7 +131,7 @@ public class IndexController : ControllerBase
 				Resource.SETTINGS,
 				@"Updated",
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			foreach (var yyear in years) {
@@ -160,7 +160,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

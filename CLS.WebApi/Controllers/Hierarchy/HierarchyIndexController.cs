@@ -72,7 +72,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 
 	}
@@ -111,7 +111,7 @@ public class IndexController : ControllerBase
 			newHierarchy.ParentId = parent?.Id;
 			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_dbc, _user.userId, newHierarchy.Id);
+			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_dbc, _user.Id, newHierarchy.Id);
 			_dbc.SaveChanges();
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
@@ -130,7 +130,7 @@ public class IndexController : ControllerBase
 				Resource.HIERARCHY,
 				@"Added / ID=" + newHierarchy.Id.ToString(),
 				DateTime.Now,
-				_user.userId
+				_user.Id
 			);
 
 			var regions = _dbc.Hierarchy.OrderBy(r => r.Id).ToArray();
@@ -144,7 +144,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -199,14 +199,14 @@ public class IndexController : ControllerBase
 				Resource.HIERARCHY,
 				@"Updated / ID=" + newHierarchy.Id.ToString(),
 				updatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			returnObject.Data.Add(newHierarchy);
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -267,7 +267,7 @@ public class IndexController : ControllerBase
 				@"Deleted / ID=" + id.ToString() +
 						" / Name=" + hierarchyName,
 				DateTime.Now,
-				_user.userId
+				_user.Id
 			);
 
 			var regions = _dbc.Hierarchy.OrderBy(r => r.Id).ToArray();
@@ -280,7 +280,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId)); ;
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id)); ;
 		}
 	}
 

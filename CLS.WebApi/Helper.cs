@@ -530,8 +530,8 @@ public static class Helper
 		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 		if (claimUserId is string userId) {
 			return new UserObject {
-				userId = int.Parse(userId),
-				userName = userClaim.Identity!.Name!
+				Id = int.Parse(userId),
+				UserName = userClaim.Identity!.Name!
 			};
 		}
 		else {

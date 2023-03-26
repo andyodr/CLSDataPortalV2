@@ -2,7 +2,7 @@
 <div>
   <h1>Settings</h1>
   <div class="panel panel-body mat-elevation-z4">
-    <div class="panel-header">
+    <header class="panel-header">
       <dl class="form-group mar0 marT10 padL20 textTransformNone">
         <dt>Last Calculated:</dt>
         <dd>{{lastCalculatedOn | date:'yyyy-MMM-dd h:mm:ss a'}}</dd>
@@ -10,7 +10,7 @@
       <button mat-raised-button color="accent" aria-label="Add" (click)="transfer()">
         <mat-icon>swap_horiz</mat-icon> Transfer <!--sync_alt, swap_horiz, multiple_stop-->
       </button>
-    </div>
+    </header>
     <main class="panel panel-body panel-default">
       <div>
         <mat-form-field appearance="fill">

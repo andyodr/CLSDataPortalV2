@@ -70,7 +70,7 @@ public class EditController : ControllerBase
 				}
 
 				if (user.Id == (int)Helper.userRoles.powerUser) {
-					if (_user.userId == (int)Helper.userRoles.powerUser) {
+					if (_user.Id == (int)Helper.userRoles.powerUser) {
 						result.Data.Add(currentUser);
 					}
 				}
@@ -83,7 +83,7 @@ public class EditController : ControllerBase
 		}
 		catch (Exception e) {
 			int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -155,13 +155,13 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 				"User Updated",
 				@"ID=" + id.ToString() + " / Username=" + user.UserName,
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

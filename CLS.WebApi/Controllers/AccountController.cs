@@ -23,7 +23,7 @@ public class AccountController : Controller
 		_dbc = context;
 	}
 
-	public class RequestModel
+	public class RequestDto
 	{
 		[Required]
 		public string UserName { get; set; } = null!;
@@ -39,7 +39,7 @@ public class AccountController : Controller
 	/// </summary>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> SignIn([FromForm] RequestModel form) {
+	public async Task<IActionResult> SignIn([FromForm] RequestDto form) {
 		bool continueLogin = true;
 		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
@@ -56,7 +56,7 @@ public class AccountController : Controller
 
 		// Validates against Active Directory
 		if (continueLogin) {
-			if (user!.userName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
+			if (user!.UserName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
 					&& form.Password == _config.byPassUserPassword) {
 				authenticationType = "bypass";
 			}
@@ -74,9 +74,9 @@ public class AccountController : Controller
 		// Success
 		if (continueLogin) {
 			var claims = new List<Claim> {
-				new(ClaimTypes.NameIdentifier, user!.userId.ToString()),
-				new(ClaimTypes.Name, user.userName),
-				new(ClaimTypes.Role, user.userRole),
+				new(ClaimTypes.NameIdentifier, user!.Id.ToString()),
+				new(ClaimTypes.Name, user.UserName),
+				new(ClaimTypes.Role, user.Role),
 				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
 			};
 
@@ -87,15 +87,19 @@ public class AccountController : Controller
 				Resource.SECURITY,
 				"SEC-01",
 				"Login",
-				@"ID=" + user.userId.ToString() + " / Username=" + user.userName,
+				@"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
 				DateTime.Now,
-				user.userId
+				user.Id
 			);
 
 			return Ok(new {
-				Id = user.userId,
-				Name = user.userName,
-				Role = user.userRole,
+				user.Id,
+				user.UserName,
+				user.FirstName,
+				user.LastName,
+				user.Department,
+				user.Role,
+				user.RoleId,
 				TableauLink = _config.tableauLink,
 				Persist = form.Persistent
 			});
@@ -129,8 +133,7 @@ public class AccountController : Controller
 		return SignOut();
 	}
 
-	[NonAction]
-	public static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
+	private static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
 		var entity = dbc.User
 			.Where(u => u.UserName == userName)
 			.Include(u => u.UserRole)
@@ -139,11 +142,13 @@ public class AccountController : Controller
 			.AsSplitQuery()
 			.AsNoTrackingWithIdentityResolution().Single();
 		var localUser = new UserObject {
-			userId = entity.Id,
-			userRoleId = entity.UserRole!.Id,
-			userName = entity.UserName,
-			firstName = entity.FirstName,
-			userRole = entity.UserRole.Name,
+			Id = entity.Id,
+			RoleId = entity.UserRole!.Id,
+			UserName = entity.UserName,
+			FirstName = entity.FirstName,
+			LastName = entity.LastName,
+			Department = entity.Department,
+			Role = entity.UserRole.Name,
 			LastModified = entity.LastUpdatedOn
 		};
 		localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
