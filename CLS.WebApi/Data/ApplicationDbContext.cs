@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using CLS.WebApi.Data.Models;
 
@@ -70,6 +70,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 		modelBuilder.Entity<User>().HasKey(u => u.Id);
 		modelBuilder.Entity<User>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<UserCalendarLock>().HasKey(u => u.Id);
+		modelBuilder.Entity<UserCalendarLock>().HasOne(u => u.User)
+			.WithMany(u => u.UserCalendarLocks)
+			.HasForeignKey(u => u.UserId);
+		modelBuilder.Entity<UserCalendarLock>().HasOne(u => u.Calendar)
+			.WithMany(u => u.UserCalendarLocks)
+			.HasForeignKey(u => u.CalendarId);
 		modelBuilder.Entity<UserCalendarLock>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");
 		modelBuilder.Entity<UserHierarchy>().HasKey(u => u.Id);
 		modelBuilder.Entity<UserHierarchy>().Property(t => t.LastUpdatedOn).HasDefaultValueSql("GETDATE()");

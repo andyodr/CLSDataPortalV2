@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -197,7 +197,7 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			//apply precision and validate unit if value != null 
+			//apply precision and validate unit if value != null
 			if (value.MeasureValue is not null) {
 				var precision = from md in _context.MeasureData.Where(md => md.Id == value.MeasureDataId)
 								join m in _context.Measure

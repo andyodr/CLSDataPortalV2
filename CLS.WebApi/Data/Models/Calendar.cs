@@ -1,29 +1,33 @@
-﻿namespace CLS.WebApi.Data.Models;
+namespace CLS.WebApi.Data.Models;
 
 public class Calendar
 {
 	/// <summary>
 	/// The unique id and primary key for this Calendar
 	/// </summary>
-	public int Id { set; get; }
+	public int Id { get; set; }
 
-	public Interval Interval { set; get; } = null!;
+	public int IntervalId { get; set; }
 
-	public byte? WeekNumber { set; get; }
+	public Interval Interval { get; set; } = null!;
 
-	public byte? Month { set; get; }
+	public byte? WeekNumber { get; set; }
 
-	public byte? Quarter { set; get; }
+	public byte? Month { get; set; }
 
-	public short Year { set; get; }
+	public byte? Quarter { get; set; }
 
-	public DateTime? StartDate { set; get; }
+	public short Year { get; set; }
 
-	public DateTime? EndDate { set; get; }
+	public DateTime? StartDate { get; set; }
 
-	public bool Locked { set; get; }
+	public DateTime? EndDate { get; set; }
+
+	public bool Locked { get; set; }
 
 	public byte IsProcessed { get; set; }
 
-	public DateTime LastUpdatedOn { set; get; }
+	public List<UserCalendarLock> UserCalendarLocks { get; set; } = null!;
+
+	public DateTime LastUpdatedOn { get; set; }
 }

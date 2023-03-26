@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi.Data.Models;
+namespace CLS.WebApi.Data.Models;
 
 public class User
 {
@@ -16,9 +16,9 @@ public class User
 
 	public bool? Active { get; set; } = true;
 
-	public DateTime LastUpdatedOn { get; set; }
-
 	public List<UserHierarchy>? UserHierarchies { get; } = new();
 
 	public List<UserCalendarLock>? UserCalendarLocks { get; } = new();
+
+	public DateTime LastUpdatedOn { get; set; }
 }
