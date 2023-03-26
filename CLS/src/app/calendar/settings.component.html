@@ -1,2 +1,158 @@
 <app-sidebar></app-sidebar>
-<h1>Settings</h1>
+<div>
+  <h1>Settings</h1>
+  <div class="panel panel-body mat-elevation-z4">
+    <div class="panel-header">
+      <dl class="form-group mar0 marT10 padL20 textTransformNone">
+        <dt>Last Calculated:</dt>
+        <dd>{{lastCalculatedOn | date:'yyyy-MMM-dd h:mm:ss a'}}</dd>
+      </dl>
+      <button mat-raised-button color="accent" aria-label="Add" (click)="transfer()">
+        <mat-icon>swap_horiz</mat-icon> Transfer <!--sync_alt, swap_horiz, multiple_stop-->
+      </button>
+    </div>
+    <main class="panel panel-body panel-default">
+      <div>
+        <mat-form-field appearance="fill">
+          <mat-label>Year</mat-label>
+          <mat-select [(ngModel)]="yearSelected" aria-label="Year" (selectionChange)="intervalChange()">
+            <mat-option *ngFor="let year of years" [value]="year">
+              {{year}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
+          <mat-icon>save_alt</mat-icon> Save
+        </button>
+      </div>
+      <div>
+        <section class="panel panel-default main-settings">
+          <header class="table-header">
+            <mat-icon>apps</mat-icon> Main Settings
+          </header>
+          <mat-checkbox name="yearly" [(ngModel)]="active" color="primary" [disabled]="disabledAll">
+            Do Not Use
+          </mat-checkbox>
+          <mat-form-field appearance="fill">
+            <mat-label>Calculation Schedule</mat-label>
+            <app-time-input required [(ngModel)]="calcSchedule"></app-time-input>
+            <mat-icon matSuffix>timer</mat-icon>
+            <mat-hint>HH : MM : SS</mat-hint>
+          </mat-form-field>
+        </section>
+        <section class="panel panel-default locks">
+          <header class="table-header">
+            <mat-icon>apps</mat-icon> Monthly Lock Data
+          </header>
+          <table mat-table [dataSource]="locks" [trackBy]="identity">
+            <ng-container matColumnDef="month">
+              <th mat-header-cell *matHeaderCellDef>Month</th>
+              <td mat-cell *matCellDef="let row">{{row.month}}</td>
+            </ng-container>
+            <ng-container matColumnDef="startDate">
+              <th mat-header-cell *matHeaderCellDef>Start Date</th>
+              <td mat-cell *matCellDef="let row">{{row.startDate}}</td>
+            </ng-container>
+            <ng-container matColumnDef="endDate">
+              <th mat-header-cell *matHeaderCellDef>End Date</th>
+              <td mat-cell *matCellDef="let row">{{row.endDate}}</td>
+            </ng-container>
+            <ng-container matColumnDef="locked">
+              <th mat-header-cell *matHeaderCellDef>Lock</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-icon>{{row.locked === true || row.locked === "true" ? "check": ""}}</mat-icon>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="locksColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: locksColumns;"></tr>
+          </table>
+        </section>
+        <section class="panel panel-default locks">
+          <header class="table-header">
+            <mat-icon>apps</mat-icon> Users Monthly Lock Override
+          </header>
+          <table mat-table [dataSource]="users" [trackBy]="identity">
+            <ng-container matColumnDef="userName">
+              <th mat-header-cell *matHeaderCellDef>Username</th>
+              <td mat-cell *matCellDef="let row">{{row.userName}}</td>
+            </ng-container>
+            <ng-container matColumnDef="lo1">
+              <th mat-header-cell *matHeaderCellDef> January </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo1" [(ngModel)]="row.locks[0].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo2">
+              <th mat-header-cell *matHeaderCellDef> February </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo2" [(ngModel)]="row.locks[1].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo3">
+              <th mat-header-cell *matHeaderCellDef> March </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo3" [(ngModel)]="row.locks[2].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo4">
+              <th mat-header-cell *matHeaderCellDef> April </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo4" [(ngModel)]="row.locks[3].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo5">
+              <th mat-header-cell *matHeaderCellDef> May </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo5" [(ngModel)]="row.locks[4].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo6">
+              <th mat-header-cell *matHeaderCellDef> June </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo6" [(ngModel)]="row.locks[5].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo7">
+              <th mat-header-cell *matHeaderCellDef> July </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo7" [(ngModel)]="row.locks[6].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo8">
+              <th mat-header-cell *matHeaderCellDef> August </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo8" [(ngModel)]="row.locks[7].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo9">
+              <th mat-header-cell *matHeaderCellDef> September </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo9" [(ngModel)]="row.locks[8].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo10">
+              <th mat-header-cell *matHeaderCellDef> October </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo10" [(ngModel)]="row.locks[9].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo11">
+              <th mat-header-cell *matHeaderCellDef> November </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo11" [(ngModel)]="row.locks[10].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lo12">
+              <th mat-header-cell *matHeaderCellDef> December </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox name="lo12" [(ngModel)]="row.locks[11].lo" disabled></mat-checkbox>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="usersColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: usersColumns;"></tr>
+          </table>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

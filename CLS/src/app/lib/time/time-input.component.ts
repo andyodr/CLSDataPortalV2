@@ -170,7 +170,7 @@ export class TimeInputComponent implements MatFormFieldControl<TimeSpan>, Contro
 
     setDescribedByIds(ids: string[]) {
         const controlElement = this._elementRef.nativeElement.querySelector(
-            ".app-time-input-container",
+            ".time-input-container",
         )!
         controlElement.setAttribute("aria-describedby", ids.join(" "))
     }

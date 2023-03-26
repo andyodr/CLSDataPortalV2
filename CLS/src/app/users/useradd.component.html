@@ -15,7 +15,7 @@
       <div>
         <mat-form-field appearance="fill">
           <mat-label>UserName</mat-label>
-          <input matInput name="userName" [(ngModel)]="model.userName" placeholder="GFreeman2" [disabled]="disabledAll">
+          <input matInput name="userName" [(ngModel)]="model.userName" placeholder="Ex. GFreeman2" [disabled]="disabledAll">
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Role</mat-label>
@@ -30,15 +30,15 @@
       <div>
         <mat-form-field appearance="fill">
           <mat-label>Last Name</mat-label>
-          <input matInput name="lastName" [(ngModel)]="model.lastName" placeholder="Freeman" [disabled]="disabledAll">
+          <input matInput name="lastName" [(ngModel)]="model.lastName" placeholder="Ex. Freeman" [disabled]="disabledAll">
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>First Name</mat-label>
-          <input matInput name="firstName" [(ngModel)]="model.firstName" placeholder="Gordon" [disabled]="disabledAll">
+          <input matInput name="firstName" [(ngModel)]="model.firstName" placeholder="Ex. Gordon" [disabled]="disabledAll">
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Department</mat-label>
-          <input matInput name="department" [(ngModel)]="model.department" placeholder="Black Mesa Research" [disabled]="disabledAll">
+          <input matInput name="department" [(ngModel)]="model.department" placeholder="Ex. Black Mesa Research" [disabled]="disabledAll">
         </mat-form-field>
       </div>
       <app-region-tree #regions [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedRegions"></app-region-tree>

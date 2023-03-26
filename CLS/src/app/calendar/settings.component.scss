@@ -2,13 +2,112 @@
   display: grid;
   grid-template: 1fr / auto 1fr;
   height: 100%;
+  background: #f1f2f3;
 }
 
 app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar ~ * {
+app-sidebar~* {
   padding: 20px;
   grid-column: 2;
+}
+
+button,
+a {
+  min-width: 8em;
+  margin: 0px 20px 13px;
+}
+
+.panel-body {
+  padding: 1em;
+}
+
+.panel-header {
+  background: var(--mat-primary-50);
+  border-color: #e2edeb;
+  padding: 1em 1em 0px;
+  border: 1px solid var(--mat-primary-100);
+  border-bottom: 1px solid transparent;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header {
+  background: var(--mat-primary-50);
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  padding: 1ch 1em;
+  display: flex;
+  align-items: center;
+}
+
+.table-header>:first-child {
+  margin: auto .25ch auto 0px;
+}
+
+main {
+  margin-top: 1.5em;
+}
+
+main>:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+main>:nth-child(2) {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+.main-settings {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
+:is(.main-settings, .locks) .panel-header {
+  padding: 1ch;
+}
+
+.main-settings>mat-checkbox {
+  margin: 2ch auto 1ch auto;
+}
+
+.main-settings>:last-child {
+  margin: 1em;
+}
+
+.locks {
+  min-width: 38em;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-cell.mat-column-lo1,
+.mat-cell.mat-column-lo2,
+.mat-cell.mat-column-lo3,
+.mat-cell.mat-column-lo4,
+.mat-cell.mat-column-lo5,
+.mat-cell.mat-column-lo6,
+.mat-cell.mat-column-lo7,
+.mat-cell.mat-column-lo8,
+.mat-cell.mat-column-lo9,
+.mat-cell.mat-column-lo10,
+.mat-cell.mat-column-lo11,
+.mat-cell.mat-column-lo12 {
+  min-width: 5em;
+
+  mat-checkbox {
+    margin-left: 1em;
+  }
 }
