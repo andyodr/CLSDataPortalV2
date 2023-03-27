@@ -127,7 +127,7 @@ public class UploadController : ControllerBase
 				}
 
 				foreach (var row in listTarget) {
-					ValidateTargetRows(row, _user.userId);
+					ValidateTargetRows(row, _user.Id);
 				}
 
 				if (returnObject.Error.Count != 0) {
@@ -138,7 +138,7 @@ public class UploadController : ControllerBase
 				else {
 					TaskList.Clear();
 					foreach (var row in listTarget) {
-						ImportTargetRecords(row, _user.userId);
+						ImportTargetRecords(row, _user.Id);
 					}
 
 					returnObject.Data = null;
@@ -149,7 +149,7 @@ public class UploadController : ControllerBase
 						Resource.DATA_IMPORT,
 						@"Target Imported" + " / sheetName=" + sheetName,
 						DateTime.Now,
-						_user.userId
+						_user.Id
 					);
 
 					return returnObject;
@@ -163,7 +163,7 @@ public class UploadController : ControllerBase
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
 					if (value == null) {  continue; }
-					ValidateCustomerRows(value, _user.userId);
+					ValidateCustomerRows(value, _user.Id);
 					value!.rowNumber = rowNumber++;
 					listCustomer.Add(value);
 				}
@@ -187,7 +187,7 @@ public class UploadController : ControllerBase
 						Resource.DATA_IMPORT,
 						@"Customer Imported" + " / sheetName=" + sheetName,
 						DateTime.Now,
-						_user.userId
+						_user.Id
 					);
 
 					return returnObject;
@@ -204,7 +204,7 @@ public class UploadController : ControllerBase
 
 				// From settings page, DO NOT USE = !Active
 				if (_context.Setting.First().Active == true) {
-					if (Helper.IsDataLocked(calendar.Interval.Id, _user.userId, calendar, _context)) {
+					if (Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _context)) {
 						throw new Exception(Resource.DI_ERR_USER_DATE);
 					}
 				}
@@ -232,7 +232,7 @@ public class UploadController : ControllerBase
 				}
 
 				foreach (var row in listMeasureData) {
-					ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.userId);
+					ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
 				}
 
 				if (returnObject.Error.Count != 0) {
@@ -243,7 +243,7 @@ public class UploadController : ControllerBase
 				else {
 					TaskList.Clear();
 					foreach(var row in listMeasureData) {
-						ImportMeasureDataRecords(row, _user.userId);
+						ImportMeasureDataRecords(row, _user.Id);
 					}
 
 					returnObject.Data = null;
@@ -261,7 +261,7 @@ public class UploadController : ControllerBase
 							" / Week=" + calendar.WeekNumber.ToString() +
 							" / sheetName=" + sheetName,
 						DateTime.Now,
-						_user.userId
+						_user.Id
 					);
 
 					return returnObject;
@@ -270,7 +270,7 @@ public class UploadController : ControllerBase
 		}
 		catch (Exception e) {
 			returnObject = new() { Error = new() };
-			var newReturn = Helper.ErrorProcessingDataImport(_context, e, _user!.userId);
+			var newReturn = Helper.ErrorProcessingDataImport(_context, e, _user!.Id);
 			returnObject.Error.Add(new() { id = newReturn.error.Id, row = null, message = newReturn.error.Message });
 			return returnObject;
 		}
@@ -280,7 +280,7 @@ public class UploadController : ControllerBase
 		try {
 			var returnObject = new DataImportsMainObject {
 				years = new(),
-				//calculationTime = new CalculationTimeObject(), 
+				//calculationTime = new CalculationTimeObject(),
 				calculationTime = "00:01:00",
 				dataImport = new(),
 				intervals = new(),
@@ -316,7 +316,7 @@ public class UploadController : ControllerBase
 			DataImportObject measureData = Helper.DataImportHeading(Helper.dataImports.measureData);
 			returnObject.dataImport.Add(measureData);
 
-			if (user.userRoleId == (int)Helper.userRoles.systemAdministrator) {
+			if (user.RoleId == (int)Helper.userRoles.systemAdministrator) {
 				DataImportObject targetData = Helper.DataImportHeading(Helper.dataImports.target);
 				returnObject.dataImport.Add(targetData);
 
@@ -330,7 +330,7 @@ public class UploadController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			Helper.ErrorProcessing(_context, e, _user.userId);
+			Helper.ErrorProcessing(_context, e, _user.Id);
 			return null;
 		}
 	}

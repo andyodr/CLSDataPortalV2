@@ -106,7 +106,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

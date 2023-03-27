@@ -1,8 +1,10 @@
-﻿namespace CLS.WebApi.Data.Models;
+namespace CLS.WebApi.Data.Models;
 
 public class UserCalendarLock
 {
 	public int Id { get; set; }
+
+	public int UserId { get; set; }
 
 	public User User { get; set; } = null!;
 

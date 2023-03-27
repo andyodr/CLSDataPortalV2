@@ -58,7 +58,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -106,7 +106,7 @@ public class EditController : ControllerBase
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.userId, lastUpdatedOn, Helper.IsProcessed.complete);
+					Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, Helper.IsProcessed.complete);
 
 					Helper.AddAuditTrail(_context,
 						Resource.WEB_PAGES,
@@ -115,7 +115,7 @@ public class EditController : ControllerBase
 						@"Updated Owner / ID=" + measure.Id.ToString() +
 								" / Owner=" + measure.Owner,
 						lastUpdatedOn,
-						_user.userId
+						_user.Id
 					);
 				}
 			}
@@ -128,7 +128,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

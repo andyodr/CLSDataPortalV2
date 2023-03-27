@@ -69,7 +69,7 @@ public class FilterController : ControllerBase
 				filter.MeasureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
 			}
 
-			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.userId));
+			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id));
 
 			// set current Calendar Ids
 			//try
@@ -96,7 +96,7 @@ public class FilterController : ControllerBase
 				filter.CurrentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.yearly);
 			}
 			catch (Exception e) {
-				filter.Error = Helper.ErrorProcessing(_dbc, e, _user.userId);
+				filter.Error = Helper.ErrorProcessing(_dbc, e, _user.Id);
 			}
 
 
@@ -130,7 +130,7 @@ public class FilterController : ControllerBase
 			return Ok(filter);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -192,7 +192,7 @@ public class FilterController : ControllerBase
 			return Ok(returnObject);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

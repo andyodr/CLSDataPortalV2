@@ -14,6 +14,10 @@ export interface User {
     active?: string
 }
 
+export interface AuthenticatedUser extends User {
+    persist: boolean
+}
+
 export interface RolesAndRegions {
     hierarchy: RegionFilter[]
     roles: UserRole[]

@@ -2,9 +2,13 @@
 
 public class CalendarLock
 {
-	public int id { set; get; }
-	public string month { set; get; }
-	public string? startDate { set; get; }
-	public string? endDate { set; get; }
-	public bool? locked { set; get; }
+	public int Id { get; set; }
+
+	public string? Month { get; set; }
+
+	public string? StartDate { get; set; }
+
+	public string? EndDate { get; set; }
+
+	public bool? Locked { get; set; }
 }

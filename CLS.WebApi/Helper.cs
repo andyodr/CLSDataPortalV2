@@ -530,8 +530,8 @@ public static class Helper
 		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 		if (claimUserId is string userId) {
 			return new UserObject {
-				userId = int.Parse(userId),
-				userName = userClaim.Identity!.Name!
+				Id = int.Parse(userId),
+				UserName = userClaim.Identity!.Name!
 			};
 		}
 		else {
@@ -690,19 +690,6 @@ public static class Helper
 		int p_interval = intervalId, p_days_offset = 0;
 		try {
 			_ = dbc.Database.ExecuteSql($"EXEC [dbo].[spMeasureData] {p_interval} {p_days_offset}");
-
-			return true;
-		}
-		catch {
-			return false;
-		}
-	}
-
-	internal static bool StartSQLJob(ApplicationDbContext dbc, string spName) {
-		// Create measure dtaa records if don't exist
-		var jobName = spName;
-		try {
-			_ = dbc.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={jobName}");
 
 			return true;
 		}

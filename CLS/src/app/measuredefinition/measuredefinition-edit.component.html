@@ -15,12 +15,12 @@
       <div class="field-group">
         <mat-form-field appearance="fill">
           <mat-label>Measure Definition Name</mat-label>
-          <input matInput name="mdName" [(ngModel)]="md.name" required="true" placeholder="Cycle Count Performance"
+          <input matInput name="mdName" [(ngModel)]="md.name" required="true" placeholder="Ex. Cycle Count Performance"
             [disabled]="disabledAll">
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Variable Name</mat-label>
-          <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="EEMCS" [disabled]="disabledAll">
+          <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS" [disabled]="disabledAll">
         </mat-form-field>
         <mat-form-field class="select-field" appearance="fill">
           <mat-label>Measure Type</mat-label>
@@ -34,7 +34,7 @@
       <mat-form-field class="width-100" appearance="fill">
         <mat-label>Description</mat-label>
         <input matInput name="description" [(ngModel)]="md.description"
-          placeholder="Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
+          placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
       </mat-form-field>
       <div class="field-group">
         <mat-form-field class="number-field" appearance="fill">
@@ -56,7 +56,7 @@
       </div>
       <mat-form-field class="width-100" appearance="fill">
         <mat-label>Expression</mat-label>
-        <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="E=MC²"
+        <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
           [disabled]="disabledAll"></textarea>
       </mat-form-field>
       <div class="field-group">

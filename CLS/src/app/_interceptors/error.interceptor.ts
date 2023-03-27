@@ -31,11 +31,12 @@ export class ErrorInterceptor implements HttpInterceptor {
                 throw modalStateErrors.flat();
               }else {
                 this.logger.logError(error.error + error.status.toString());
-          
+
               }
               break;
             case 401:
-              this.logger.logError('Unauthorised ' + error.status.toString());
+              this.logger.logError("Unauthorised " + error.status.toString())
+              this.router.navigate(["/"])
               break;
             case 404:
               this.router.navigateByUrl('/not-found');

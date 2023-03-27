@@ -86,7 +86,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -214,7 +214,7 @@ public class EditController : ControllerBase
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				Helper.UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.userId);
+				Helper.UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.Id);
 			}
 
 			// Create Measure Data records for current intervals if they don't exists
@@ -236,13 +236,13 @@ public class EditController : ControllerBase
 				Resource.MEASURE_DEFINITION,
 				@"Updated / ID=" + mDef.Id.ToString(),
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

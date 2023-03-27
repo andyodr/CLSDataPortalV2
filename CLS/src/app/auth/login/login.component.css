@@ -65,3 +65,7 @@ input:focus {
 .login-form-btn:hover {
     background-color: #eee;
 }
+
+.checkbox {
+  padding: .5ch;
+}

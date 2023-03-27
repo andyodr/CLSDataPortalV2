@@ -20,13 +20,13 @@
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
         <mat-label>Measure Type Name</mat-label>
-        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Customer Service"
+        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Ex. Customer Service"
           [disabled]="disabledAll">
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
         <mat-label>Measure Type Description</mat-label>
         <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
-          placeholder="Customer Service" [disabled]="disabledAll">
+          placeholder="Ex. Customer Service" [disabled]="disabledAll">
       </mat-form-field>
     </form>
   </mat-drawer>
@@ -160,7 +160,7 @@
             <th mat-header-cell  *matHeaderCellDef > Actions </th>
             <td mat-cell *matCellDef="let element" >
               <button mat-raised-button color="primary" (click)="edit(element)">
-                <mat-icon>edit</mat-icon> 
+                <mat-icon>edit</mat-icon>
               </button>
             </td>
           </ng-container>
@@ -199,7 +199,7 @@
             <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
             <td mat-cell *matCellDef="let element">{{ column.cell(element) }}</td>
           </ng-container>
-    
+
           <tr mat-header-row *matHeaderRowDef="displayedDynamicColumns.map(column => column.columnDef)"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedDynamicColumns.map(column => column.columnDef)"></tr>
         </table> -->
@@ -244,21 +244,21 @@
 
       <div class="panel panel-default">
 
-        
+
         <aside data-ng-include="'app/layout/progress.html'"></aside>
 
-        
+
         <aside data-ng-include="'app/layout/errors.html'"></aside>
 
-        
+
         <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
 
-        
+
         <div ng-show="showContentPage" class="panel-body padT0">
 
           <div class="panel panel-default">
 
-            
+
             <div class="panel-heading">
               <div class="row">
                 <form>
@@ -268,7 +268,7 @@
               </div>
             </div>
 
-            
+
             <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
               <table class="table table-bordered table-striped cf no-margin">
                 <thead class="cf">
@@ -309,12 +309,12 @@
                       <div class="magicWrap">
                         <input class="magic-checkbox" type="checkbox" id="B{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.expression"
                           ng-disabled="rowsDisabled($parent.$index)" />
-                        <label for="B{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Calculated Expression"> E </label> 
+                        <label for="B{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Calculated Expression"> E </label>
                       </div>
                       <div class="magicWrap">
                         <input class="magic-checkbox" type="checkbox" id="C{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.rollup"
                           ng-disabled="rowsDisabled($parent.$index)" />
-                        <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>  
+                        <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>
                       </div>
                     </td>
                     <td *ngIf="allow" class="mar0 itgTableTd itgWidth100 textAlignM" style="width: 250px;">

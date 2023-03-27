@@ -1,6 +1,7 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace CLS.WebApi.Controllers.Settings;
@@ -30,24 +31,25 @@ public class TransferController : ControllerBase
 			}
 
 			// Runs SQL Job
-			if (Helper.StartSQLJob(_context, _config.sQLJobSSIS)) {
+			try {
+				_ = _context.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={_config.sQLJobSSIS}");
 				Helper.AddAuditTrail(_context,
 					Resource.WEB_PAGES,
 					"WEB-09",
 					Resource.SETTINGS,
 					@"Transfer / SQL Job Run=" + _config.sQLJobSSIS,
 					DateTime.Now,
-					_user.userId
+					_user.Id
 				);
 
 				return Ok();
 			}
-			else {
+			catch {
 				return BadRequest(string.Format($"Transfer / {Resource.SQL_JOB_ERR}", _config.sQLJobSSIS));
 			}
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

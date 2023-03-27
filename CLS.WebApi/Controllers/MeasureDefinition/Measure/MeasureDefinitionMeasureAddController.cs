@@ -49,7 +49,7 @@ public class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -149,7 +149,7 @@ public class AddController : ControllerBase
 			result.Data.Add(dto);
 
 			// Create Measure and Target records
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.userId, dto);
+			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.Id, dto);
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
 			}
@@ -171,13 +171,13 @@ public class AddController : ControllerBase
 				Resource.MEASURE_DEFINITION,
 				@"Added / ID=" + currentMD.Id.ToString(),
 				lastUpdatedOn,
-				_user.userId
+				_user.Id
 			);
 
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.userId));
+			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

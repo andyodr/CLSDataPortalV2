@@ -60,12 +60,6 @@ h4 {
   background: #fff;
   border: 1px solid transparent;
   border-radius: 2px;
-  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-}
-
-.panel .panel {
-  box-shadow: none;
 }
 
 .panel-default {
@@ -94,4 +88,8 @@ h4 {
 
 :is(app-useradd, app-useredit) form>div label.mat-checkbox-layout>span.mat-checkbox-inner-container {
   margin: 2px auto;
+}
+
+.tooltips {
+  background: var(--jaguar-black);
 }

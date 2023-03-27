@@ -20,13 +20,13 @@
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
         <mat-label>Measure Type Name</mat-label>
-        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Customer Service"
+        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Ex. Customer Service"
           [disabled]="disabledAll">
       </mat-form-field>
       <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
         <mat-label>Measure Type Description</mat-label>
         <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
-          placeholder="Customer Service" [disabled]="disabledAll">
+          placeholder="Ex. Customer Service" [disabled]="disabledAll">
       </mat-form-field>
     </form>
   </mat-drawer>

@@ -8,9 +8,12 @@
   <div class="nav-toggle">
     <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
   </div>
-  <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true" aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
+  <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true"
+      aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
   <div class="dropdown" *ngIf="(api.currentUser$ | async) as user" dropdown style="cursor: pointer;">
-    <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.userName | titlecase}} </a>
+    <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>
+      Welcome {{user.firstName || user.userName}}
+    </a>
     <div class="dropdown-menu mt-3" *dropdownMenu>
       <a class="dropdown-item" [routerLink]="['users']">User Management</a>
       <a class="dropdown-item" [routerLink]="['settings']">Settings</a>
