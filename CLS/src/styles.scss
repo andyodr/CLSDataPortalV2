@@ -89,3 +89,7 @@ h4 {
 :is(app-useradd, app-useredit) form>div label.mat-checkbox-layout>span.mat-checkbox-inner-container {
   margin: 2px auto;
 }
+
+.tooltips {
+  background: var(--jaguar-black);
+}

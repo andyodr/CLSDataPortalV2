@@ -81,7 +81,12 @@ public class AccountController : Controller
 			};
 
 			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
-			var properties = new AuthenticationProperties { IsPersistent = form.Persistent ?? false };
+			var properties = new AuthenticationProperties();
+			if (form.Persistent ?? false) {
+				properties.IsPersistent = true;
+				properties.ExpiresUtc = DateTime.Today.AddMonths(6);
+			}
+
 			await HttpContext.SignInAsync(principal, properties);
 			Helper.AddAuditTrail(_dbc,
 				Resource.SECURITY,
