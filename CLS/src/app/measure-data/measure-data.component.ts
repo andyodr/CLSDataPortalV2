@@ -79,7 +79,6 @@ export class MeasureDataComponent implements OnInit {
         button: "Apply",
         position: "start" as "start" | "end"
     }
-    filtersSelected: string[] = []
     editingMeasureType!: any
     selectedMeasureType: MeasureType = { id: 0, name: "" }
     //----------------
