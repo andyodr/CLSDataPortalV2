@@ -8,14 +8,14 @@
         <dd>{{lastCalculatedOn | date:'yyyy-MMM-dd h:mm:ss a'}}</dd>
       </dl>
       <button mat-raised-button color="accent" aria-label="Add" (click)="transfer()">
-        <mat-icon>swap_horiz</mat-icon> Transfer <!--sync_alt, swap_horiz, multiple_stop-->
+        <mat-icon>swap_horiz</mat-icon> Transfer <!--other possible icons: sync_alt, swap_horiz, multiple_stop-->
       </button>
     </header>
     <main class="panel panel-body panel-default">
       <div>
         <mat-form-field appearance="fill">
           <mat-label>Year</mat-label>
-          <mat-select [(ngModel)]="yearSelected" aria-label="Year" (selectionChange)="intervalChange()">
+          <mat-select [(ngModel)]="yearSelected" aria-label="Year" (selectionChange)="intervalChange(yearSelected)">
             <mat-option *ngFor="let year of years" [value]="year">
               {{year}}
             </mat-option>

@@ -24,7 +24,7 @@ public class IndexController : ControllerBase
 	/// <summary>
 	/// Get settings for selected year
 	/// </summary>
-	[HttpGet]
+	[HttpGet("{year:range(2000,9999)?}")]
 	public ActionResult<SettingsGetReturnObject> Get(int? year) {
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {

@@ -39,9 +39,10 @@ export class CalendarSettingsService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  getSettings(): Observable<SettingsResponseDto> {
+  getSettings(year?: number): Observable<SettingsResponseDto> {
+    const url = environment.baseUrl + "api/settings/index"
     return this.http
-        .get<SettingsResponseDto>(environment.baseUrl + "api/settings/index")
+        .get<SettingsResponseDto>(year ? `${url}/${year}` : url)
         .pipe(catchError((err: HttpErrorResponse) => {
             if (err.status == 401) {
                 this.router.navigate(["/"])

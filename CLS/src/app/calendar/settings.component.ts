@@ -21,7 +21,15 @@ export class CalendarSettingsComponent implements OnInit {
     constructor(private api: CalendarSettingsService) { }
 
     ngOnInit(): void {
-        this.api.getSettings().subscribe({
+        this.intervalChange()
+    }
+
+    /** this button runs a job that execs 2 password-protected SSIS packages */
+    transfer() {
+    }
+
+    intervalChange(year?: number) {
+        this.api.getSettings(year).subscribe({
             next: dto => {
                 this.years = dto.years ?? []
                 this.yearSelected = dto.year
@@ -33,13 +41,6 @@ export class CalendarSettingsComponent implements OnInit {
                 this.loadTable()
             }
         })
-    }
-
-    /** clicking this button runs a job that execs 2 password-protected SSIS packages */
-    transfer() {
-    }
-
-    intervalChange() {
     }
 
     save() {
