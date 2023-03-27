@@ -2,7 +2,7 @@
 
 public class MeasureDataReceiveObject
 {
-	public int? CalendarId { get; set; }
+	public int CalendarId { get; set; }
 
 	public string? Day { get; set; }
 
@@ -14,7 +14,7 @@ public class MeasureDataReceiveObject
 
 	public double? MeasureValue { get; set; }
 
-	public string Explanation { get; set; } = null!;
+	public string? Explanation { get; set; } = null!;
 
-	public string Action { get; set; } = null!;
+	public string? Action { get; set; } = null!;
 }
