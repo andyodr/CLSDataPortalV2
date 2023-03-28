@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../environments/environment';
 import { ErrorModel } from '../_models/error';
-import { MeasureDataReceiveObject, MeasureDataResponse } from '../_models/measureData';
+import { MeasureDataDto, MeasureDataReceiveObject, MeasureDataResponse } from '../_models/measureData';
 import { FilterResponseDto } from "./measure-definition.service"
 
 export type FiltersIntervalsData = {
@@ -36,6 +36,15 @@ export class MeasureDataService {
 
   getFiltersIntervals(params: HttpParams) {
     return this.http.get<FiltersIntervalsDto>(environment.baseUrl + "api/filters/intervals", { params })
+  }
+
+  getMeasureDataList(params: HttpParams) {
+    return this.http.get<MeasureDataResponse>(this.baseUrl + "/index", {params}).pipe(
+      map((response: MeasureDataResponse) => {
+        console.log("Measure Data Response : ", response)
+        return response
+      })
+    )
   }
 
   // Get Measure Data from API

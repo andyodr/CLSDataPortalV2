@@ -20,7 +20,7 @@ export interface Updated {
     shortDt: string;
 }
 
-export interface Data {
+export interface MeasureDataDto {
     id: number;
     name: string;
     value?: number;
@@ -47,7 +47,7 @@ export interface MeasureDataResponse {
     locked: boolean;
     confirmed: boolean;
     filter: Filter;
-    data: Data[];
+    data: MeasureDataDto[];
     error?: any;
 }
 
