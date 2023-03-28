@@ -32,6 +32,20 @@ export type SettingsResponseDto = {
     users: UserSettingDto[]
 }
 
+export type SettingsRequestDto = {
+    year: number
+    calculateHH: number
+    calculateMM: number
+    calculateSS: number
+    active: boolean
+    locked: CalendarLock[]
+}
+
+export type UpdateUserSettingDto = {
+    year: number
+    user: UserSettingDto
+}
+
 @Injectable({
   providedIn: "root"
 })
@@ -39,14 +53,16 @@ export class CalendarSettingsService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  getSettings(): Observable<SettingsResponseDto> {
-    return this.http
-        .get<SettingsResponseDto>(environment.baseUrl + "api/settings/index")
-        .pipe(catchError((err: HttpErrorResponse) => {
-            if (err.status == 401) {
-                this.router.navigate(["/"])
-            }
-            return throwError(() => new Error(err.message))
-        }))
+  getSettings(year?: number): Observable<SettingsResponseDto> {
+    const url = environment.baseUrl + "api/settings/index"
+    return this.http.get<SettingsResponseDto>(year ? `${url}/${year}` : url)
+  }
+
+  updateSettings(body: SettingsRequestDto) {
+    return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/index", body)
+  }
+
+  updateUser(body: UpdateUserSettingDto) {
+    return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/users", body)
   }
 }

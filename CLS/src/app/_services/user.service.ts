@@ -16,13 +16,7 @@ export class UserService {
     // Get Users from API
     getUsers(): Observable<User[]> {
         //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-        return this.http.get<User[]>(this.baseUrl + '/index').pipe(
-            map((response: User[]) => {
-                const usersOnService = response
-                console.log("Users On Service : ", usersOnService);
-                return usersOnService
-            }),
-        );
+        return this.http.get<User[]>(this.baseUrl + '/index')
     }
 
     getUserData(id: number) {
@@ -40,63 +34,4 @@ export class UserService {
     getRolesAndRegions() {
         return this.http.get<RolesAndRegions>(`${this.baseUrl}add`)
     }
-
-    //el tipo
-    /*getUsers():Observable<User[]>{
-      //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-      return this.http.get<User[]>(this.baseUrl + '/index').pipe(
-        map(response => ({
-          const allUsersData = response
-          console.log("All Users Data : ", allUsersData);
-          this.users = response 
-        })
-      );
-    }*/
-
-    //el tipo cambiado
-
-    /*getUsers(){
-      //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-      return this.http.get<User[]>(this.baseUrl + '/index').subscribe(
-        response => {
-          this.users = response.data
-          const allUsersData = response.data
-          console.log("All Users Data : ", allUsersData);
-          this.users = response.data
-        });
-    }*/
-
-
-    /*getUsers(): Observable<User[]>{
-      //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-      return this.http.get<User[]>(this.baseUrl + '/index').pipe(
-        map((response: User[]) => { this.users = response })
-      );
-    }*/
-
-
-    /*getUser(id: number): Observable<User> {
-      return this.http.get<User>(`${this.baseUrl}/${id}`);
-    }
-  
-    deleteUser(id: number): Observable<void> {
-      return this.http.delete<void>(`${this.baseUrl}/${id}`);
-    }
-  
-  
-    /*getById(id: string) {
-        return this.http.get<User>(`${baseUrl}/${id}`);
-    }
-  
-    create(params: any) {
-        return this.http.post(baseUrl, params);
-    }
-  
-    update(id: string, params: any) {
-        return this.http.put(`${baseUrl}/${id}`, params);
-    }
-  
-    delete(id: string) {
-        return this.http.delete(`${baseUrl}/${id}`);
-    }*/
 }
