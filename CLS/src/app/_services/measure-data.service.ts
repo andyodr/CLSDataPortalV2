@@ -38,6 +38,15 @@ export class MeasureDataService {
     return this.http.get<FiltersIntervalsDto>(environment.baseUrl + "api/filters/intervals", { params })
   }
 
+  getMeasureDataList(params: HttpParams) {
+    return this.http.get<MeasureDataDto>(this.baseUrl + "/index", {params}).pipe(
+      map((response: MeasureDataDto) => {
+        console.log("Measure Data Response : ", response)
+        return response
+      })
+    )
+  }
+
   // Get Measure Data from API
   //getMeasureData(measureData: MeasureData): Observable<MeasureData[]>{
   getMeasureData1() {

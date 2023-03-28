@@ -12,19 +12,19 @@ namespace CLS.WebApi.Controllers.MeasureData;
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	/// <summary>
 	/// Get a MeasureDataIndexListObject
 	/// </summary>
 	[HttpGet]
-	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject model) {
+	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
 		var returnObject = new MeasureDataIndexListObject { data = new() };
 		DateTime? date = new();
 
@@ -36,18 +36,18 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			returnObject.allow = _user.hierarchyIds.Contains(model.HierarchyId);
+			returnObject.allow = _user.hierarchyIds.Contains(dto.HierarchyId);
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, model.HierarchyId);
+			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
 
-			returnObject.calendarId = model.CalendarId;
-			if (string.IsNullOrEmpty(model.Day)) {
+			returnObject.calendarId = dto.CalendarId;
+			if (string.IsNullOrEmpty(dto.Day)) {
 				date = null;
 			}
 			else {
-				date = Convert.ToDateTime(model.Day);
-				var cal = _context.Calendar
+				date = Convert.ToDateTime(dto.Day);
+				var cal = _dbc.Calendar
 					.Where(c => c.StartDate == date)
 					.AsNoTrackingWithIdentityResolution().ToArray();
 				if (cal.Length > 0) {
@@ -55,21 +55,21 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			var calendar = _context.Calendar
+			var calendar = _dbc.Calendar
 				.Where(c => c.Id == returnObject.calendarId)
 				.Include(c => c.Interval)
 				.AsNoTrackingWithIdentityResolution().First();
 
 			returnObject.locked = false;
 			// From settings page, DO NOT USE = !Active
-			if (_context.Setting.AsNoTracking().First().Active == true) {
-				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _context);
+			if (_dbc.Setting.AsNoTracking().First().Active == true) {
+				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
 			}
 
-			var measures = _context.MeasureData
+			var measures = _dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
-					&& m.Measure.HierarchyId == model.HierarchyId
-					&& m.Measure.MeasureDefinition!.MeasureTypeId == model.MeasureTypeId
+					&& m.Measure.HierarchyId == dto.HierarchyId
+					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
 					&& m.CalendarId == returnObject.calendarId)
 				.Include(md => md.Target)
 				.Include(md => md.User)
@@ -78,23 +78,23 @@ public class IndexController : ControllerBase
 				.Select(md => new {
 					lastUpdatedOn = md.LastUpdatedOn,
 					md.User,
-					value = md.Value,
+					md.Value,
 					target = md.Target!.Value,
-					yellow = md.Target.YellowValue,
-					id = md.Id,
-					name = md.Measure!.MeasureDefinition!.Name,
-					precision = md.Measure.MeasureDefinition.Precision,
-					description = md.Measure.MeasureDefinition.Description,
-					expression = md.Measure.MeasureDefinition.Expression,
+					md.Target.YellowValue,
+					md.Id,
+					md.Measure!.MeasureDefinition!.Name,
+					md.Measure.MeasureDefinition.Precision,
+					md.Measure.MeasureDefinition.Description,
+					md.Measure.MeasureDefinition.Expression,
 					md.Measure.MeasureDefinition.Unit,
-					explanation = md.Explanation,
-					action = md.Action,
-					hId = md.Measure.HierarchyId,
-					calculated = Helper.IsMeasureCalculated(_context, md.Measure.Expression ?? false, model.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
+					md.Explanation,
+					md.Action,
+					md.Measure.HierarchyId,
+					calculated = Helper.IsMeasureCalculated(_dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
 				});
 
 			// Find all measure definition variables.
-			var allVarNames = from m in _context.MeasureDefinition.Where(m => m.MeasureType.Id == model.MeasureTypeId)
+			var allVarNames = from m in _dbc.MeasureDefinition.Where(m => m.MeasureType.Id == dto.MeasureTypeId)
 							  select new { m.Id, m.VariableName };
 
 			foreach (var record in measures.AsNoTrackingWithIdentityResolution()) {
@@ -107,33 +107,33 @@ public class IndexController : ControllerBase
 					newObject.Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User.UserName);
 				}
 
-				newObject.Id = record.id;
-				newObject.Name = record.name;
-				newObject.Explanation = record.explanation;
-				newObject.Description = record.description;
-				newObject.Action = record.action;
+				newObject.Id = record.Id;
+				newObject.Name = record.Name;
+				newObject.Explanation = record.Explanation;
+				newObject.Description = record.Description;
+				newObject.Action = record.Action;
 				newObject.UnitId = record.Unit.Id;
 				newObject.Units = record.Unit.Short;
 				newObject.Target = record.target;
-				newObject.Yellow = record.yellow;
-				newObject.Value = record.value;
+				newObject.Yellow = record.YellowValue;
+				newObject.Value = record.Value;
 
 				if (record.target is not null) {
-					newObject.Target = Math.Round((double)record.target, record.precision, MidpointRounding.AwayFromZero);
+					newObject.Target = Math.Round((double)record.target, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
-				if (record.yellow is not null) {
-					newObject.Yellow = Math.Round((double)record.yellow, record.precision, MidpointRounding.AwayFromZero);
+				if (record.YellowValue is not null) {
+					newObject.Yellow = Math.Round((double)record.YellowValue, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
-				if (record.value is not null) {
-					newObject.Value = Math.Round((double)record.value, record.precision, MidpointRounding.AwayFromZero);
+				if (record.Value is not null) {
+					newObject.Value = Math.Round((double)record.Value, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
 				newObject.Calculated = record.calculated;
 
 				// Evaluates expressions
-				newObject.Expression = record.expression;
+				newObject.Expression = record.Expression;
 				newObject.Evaluated = string.Empty;
 				if (newObject.Calculated && !string.IsNullOrEmpty(newObject.Expression)) {
 					var varNames = new List<VariableName>();
@@ -146,11 +146,11 @@ public class IndexController : ControllerBase
 					if (varNames.Count > 0) {
 						string sExpression = newObject.Expression;
 						foreach (var item in varNames) {
-							var measure = _context.Measure
-								.Where(m => m.MeasureDefinitionId == item.id && m.HierarchyId == model.HierarchyId)
+							var measure = _dbc.Measure
+								.Where(m => m.MeasureDefinitionId == item.id && m.HierarchyId == dto.HierarchyId)
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
-								var measureData = _context.MeasureData
+								var measureData = _dbc.MeasureData
 									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == returnObject.calendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
@@ -168,19 +168,19 @@ public class IndexController : ControllerBase
 				returnObject.data.Add(newObject);
 			}
 
-			returnObject.range = BuildRangeString(model.CalendarId);
-			if (model.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
-				_user.savedFilters[Helper.pages.measureData].calendarId = model.CalendarId;
+			returnObject.range = BuildRangeString(dto.CalendarId);
+			if (dto.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
+				_user.savedFilters[Helper.pages.measureData].calendarId = dto.CalendarId;
 				_user.savedFilters[Helper.pages.measureData].intervalId = calendar.Interval.Id;
 				_user.savedFilters[Helper.pages.measureData].year = calendar.Year;
 			}
-			_user.savedFilters[Helper.pages.measureData].hierarchyId = model.HierarchyId;
+			_user.savedFilters[Helper.pages.measureData].hierarchyId = dto.HierarchyId;
 			returnObject.filter = _user.savedFilters[Helper.pages.measureData];
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -199,10 +199,10 @@ public class IndexController : ControllerBase
 
 			//apply precision and validate unit if value != null
 			if (value.MeasureValue is not null) {
-				var precision = from md in _context.MeasureData.Where(md => md.Id == value.MeasureDataId)
-								join m in _context.Measure
+				var precision = from md in _dbc.MeasureData.Where(md => md.Id == value.MeasureDataId)
+								join m in _dbc.Measure
 								on md.Measure!.Id equals m.Id
-								join mdef in _context.MeasureDefinition
+								join mdef in _dbc.MeasureDefinition
 								on m.MeasureDefinition!.Id equals mdef.Id
 								select new { mdef.Precision, mdef.Unit };
 
@@ -216,16 +216,16 @@ public class IndexController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var measureData = _context.MeasureData.Where(m => m.Id == value.MeasureDataId).First();
+			var measureData = _dbc.MeasureData.Where(m => m.Id == value.MeasureDataId).First();
 			measureData.Value = value.MeasureValue;
 			measureData.Explanation = value.Explanation;
 			measureData.Action = value.Action;
-			_context.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
+			_dbc.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
 			measureData.IsProcessed = (byte)Helper.IsProcessed.measureData;
 			measureData.LastUpdatedOn = lastUpdatedOn;
-			_context.SaveChanges();
+			_dbc.SaveChanges();
 
-			Helper.AddAuditTrail(_context,
+			Helper.AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-01",
 				Resource.MEASURE_DATA,
@@ -262,13 +262,13 @@ public class IndexController : ControllerBase
 
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	private string BuildRangeString(int? calendarID) {
 		int interval = -1;
-		var cal = _context.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
+		var cal = _dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
 		if (calendarID is null) {
 			interval = (int)Helper.intervals.daily;
 		}
