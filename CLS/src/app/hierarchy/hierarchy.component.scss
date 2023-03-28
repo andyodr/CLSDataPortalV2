@@ -3,7 +3,8 @@
   overflow-y: hidden;
 }
 
-mat-drawer-container, app-sidebar {
+mat-drawer-container,
+app-sidebar {
   height: 100%;
 }
 
@@ -18,7 +19,7 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar ~ * {
+app-sidebar~* {
   grid-column: 2;
   padding: 20px;
 }
@@ -40,7 +41,7 @@ app-sidebar ~ * {
   align-items: center;
 }
 
-.panel-header > :last-child {
+.panel-header> :last-child {
   margin: 10px 22px 22px;
 }
 
@@ -75,7 +76,7 @@ mat-drawer {
   }
 }
 
-div > button, div > a {
+.mat-raised-button {
   min-width: 8em;
 }
 

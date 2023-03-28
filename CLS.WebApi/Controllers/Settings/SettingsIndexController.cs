@@ -63,8 +63,8 @@ public class IndexController : ControllerBase
 				result.Locked.Add(new() {
 					Id = record.Id,
 					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
-					StartDate = record.StartDate?.ToString("d"),
-					EndDate = record.EndDate?.ToString("d"),
+					StartDate = record.StartDate?.ToString("yyyy-MM-dd"),
+					EndDate = record.EndDate?.ToString("yyyy-MM-dd"),
 					Locked = record.Locked
 				});
 			}
@@ -151,8 +151,8 @@ public class IndexController : ControllerBase
 				returnObject.Locked.Add(new CalendarLock {
 					Id = record.Id,
 					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(record.Month ?? 13),
-					StartDate = record.StartDate?.ToString("dd/MM/yyyy"),
-					EndDate = record.EndDate?.ToString("dd/MM/yyyy"),
+					StartDate = record.StartDate?.ToString("yyyy-MM-dd"),
+					EndDate = record.EndDate?.ToString("yyyy-MM-dd"),
 					Locked = record.Locked
 				});
 			}

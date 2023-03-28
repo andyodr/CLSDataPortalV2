@@ -14,7 +14,7 @@ import { LoggerService } from "../_services/logger.service"
 })
 export class RegionHierarchyComponent implements OnInit {
     title = "Region Hierarchy"
-    dataSource = new MatTableDataSource([] as Hierarchy[])
+    dataSource = new MatTableDataSource<Hierarchy>()
     displayedColumns = ["name", "parentName", "level", "active"]
     @ViewChild(MatSort) sort!: MatSort
     private userSubscription = new Subscription()

@@ -92,8 +92,7 @@ mat-drawer form h5 {
   padding: 15px;
 }
 
-div>button,
-div>a {
+.mat-raised-button {
   min-width: 8em;
 }
 
@@ -118,7 +117,7 @@ span.filter {
 //   display: flex;
 //   justify-content: flex-end;
 //   margin-top: 10px;
-  
+
 //   h5 {
 //     font-size: 14px;
 //     font-weight: normal;
