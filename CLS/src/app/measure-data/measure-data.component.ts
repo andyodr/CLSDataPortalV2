@@ -1,17 +1,17 @@
 import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { Intervals, MSG_ERROR_PROCESSING } from '../lib/app-constants';
-import { MeasureDataDto, MeasureDataIndexListObject, MeasureDataReceiveObject, MeasureDataResponse } from '../_models/measureData';
+import { FilterResponseDto, IntervalDto, MeasureDataDto, MeasureDataResponse } from '../_models/measureData';
 import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { NavigationService } from '../_services/nav.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
 import { Hierarchy, RegionFilter, RegionFlatNode } from '../_models/regionhierarchy';
-import { FilterResponseDto, IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MeasureType } from '../_services/measure-definition.service';
 
 @Component({
     selector: 'app-measure-data',
@@ -25,19 +25,29 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
         ])]
 })
 export class MeasureDataComponent implements OnInit {
+
     measureDataResponse: MeasureDataResponse | undefined;
 
-    title = 'Measure Data'
+    //------------------ Table Properties ------------------
+    measureDataList: MeasureDataDto[] = [];
+    measureDataRow: MeasureDataDto | undefined
+    dataSource = new MatTableDataSource<MeasureDataDto>()
+    displayedColumns = ["name", "value", "units", "explanation", "action", "updated", "rowactions"]
+    @ViewChild(MatSort) sort!: MatSort
+    editingMeasureType!: any
+    selectedMeasureType: MeasureType = { id: 0, name: "" }
+
+    isEditMode = false
+    selectedRow: MeasureDataDto | undefined
+    expandDetail = new ToggleQuery()
+
+    //------------------ Local Properties ------------------
+    title = 'Measure Data';
     showContentPage = true
     Intervals = Intervals
     dataRange = "";
-    measureData: MeasureDataDto[] = [];
-    calendarId?: number;
-    day?: string;
-    hierarchyId = null;
-    measureTypeId = null;
-    explanation = null;
-    action = null;
+
+   
     disabledAll = true;
     btnDisabled = false;
     skMeasureData = "";
@@ -45,8 +55,19 @@ export class MeasureDataComponent implements OnInit {
     editValue = false;
     showActionButtons = true;
     editBgColor = true;
+
     filteredPage = null;
+
     locked: boolean | undefined
+
+    //------------------ Filter Properties ------------------
+    //------------------ Filter Drawer ------------------
+    //drawerTitle = "Filter"
+    drawer = {
+        title: "Filter",
+        button: "Apply",
+        position: "start" as "start" | "end"
+    }
     filters!: FilterResponseDto
     @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
     select = {
@@ -59,46 +80,22 @@ export class MeasureDataComponent implements OnInit {
         hierarchy: [] as RegionFilter[]
     }
     filterSelected: string[] = []
-    filtered: MeasureDataReceiveObject = {
-        calendarId: 649,
-        day: "3/9/2023",
-        hierarchyId: 1,
-        measureTypeId: 1,
-        explanation: 'explanation-value',
-        action: 'action-value'
-    }
-
-    dataSource = new MatTableDataSource<MeasureDataDto>()
-    displayedColumns = ["name", "value", "units", "explanation", "action", "updated", "rowactions"]
-    //displayedColumns = ["name", "value", "explanation",]
-    @ViewChild(MatSort) sort!: MatSort
-    //------------------ Filter Drawer ------------------
-    //drawerTitle = "Filter"
-    drawer = {
-        title: "Filter",
-        button: "Apply",
-        position: "start" as "start" | "end"
-    }
-    editingMeasureType!: any
-    selectedMeasureType: MeasureType = { id: 0, name: "" }
-    //----------------
-    isEditMode = false
-    selectedRow: MeasureDataDto | undefined
-    //isEditable: boolean[] = Array(5).fill(false);
-    //dataSource = new MatTableDataSource<Target>()
-    //dataSource = new MatTableDataSource<Data>()
-    expandDetail = new ToggleQuery()
-
-
-
-    //----------------
-
+    // filtered: MeasureDataReceiveObject = {
+    //     calendarId: 649,
+    //     day: "3/9/2023",
+    //     hierarchyId: 1,
+    //     measureTypeId: 1,
+    //     explanation: 'explanation-value',
+    //     action: 'action-value'
+    // }
 
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { id: number, name: string }[]
     intervalList!: IntervalDto[]
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
+
+    //------------------ Filter Drawer Model ------------------
     model = {
         fIntervalSelected: undefined as IntervalDto | undefined,
         fYearSelected: undefined as { id: number, year: number } | undefined,
@@ -113,19 +110,22 @@ export class MeasureDataComponent implements OnInit {
         year: 0,
         quarter: 0,
         measureType: 0,
-        selectedRegion: null as number | number[] | null
+        selectedRegion: null as number | number[] | null,
+        explanation: "",
+        action: ""
     }
 
-    // Error handling within the component
-    //errorMsg = "";
+    //----------------- Error handling within the component
     errorMsg: any = ""
-    showError: boolean = true;
+    showError: boolean = false;
+    calendarId: any;
+    day: any;
+    hierarchyId: any;
+    measureTypeId: any;
 
-    //rendered = function () { };
 
-    constructor(private measureDataService: MeasureDataService,
-        private logger: LoggerService,
-        private http: HttpClient) { }
+
+    constructor(private measureDataService: MeasureDataService, private logger: LoggerService) { }
 
     ngOnInit(): void {
         this.measureDataService.getFilters().subscribe({
@@ -142,13 +142,11 @@ export class MeasureDataComponent implements OnInit {
                 }
 
                 const { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
-                this.model.fMeasureTypeSelected = measureTypeId ?
-                    dtoFilter.measureTypes.find(m => m.id === measureTypeId) :
-                    dtoFilter.measureTypes.at(0)
+                this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
                 this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
                 this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
                 this.model.fYearSelected = dtoFilter.years?.at(0)
-                //this.intervalChange(true)
+                this.intervalChange(true)
             }
         })
         //this.getData2(this.filtered)
@@ -178,7 +176,7 @@ export class MeasureDataComponent implements OnInit {
                     case Intervals.Monthly:
                         this.select.months = dto.data
                         const { months } = this.select
-                        this.model.fWeekSelected = months.find(w => w.id === calendarId)
+                        this.model.fMonthSelected = months.find(w => w.id === calendarId)
                         break
                     case Intervals.Quarterly:
                         this.select.quarters = dto.data
@@ -226,14 +224,23 @@ export class MeasureDataComponent implements OnInit {
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
         params.hierarchyId = this.model.selectedRegion
         // this.getData(p)
-        //this.getMeasureDataList(params)
+        this.getMeasureDataList(params)
         //this.getData2(this.filtered)
     }
 
     getMeasureDataList(parameters: { calendarId: any; measureTypeId: any; hierarchyId: any; } | undefined) {
         this.showError = false;
-        //this.disabledAll = true;
-        //this.dataRange = "";
+        this.disabledAll = true;
+        this.dataRange = "";
+
+        //this.filteredPage = parameters!.calendarId;
+        this.calendarId = parameters!.calendarId;
+        //this.day = filtered.day;
+        this.hierarchyId = parameters!.hierarchyId;
+        this.measureTypeId = parameters!.measureTypeId;
+
+        this.progress(true);
+
         let params = new HttpParams()
             .set("calendarId", (parameters!.calendarId).toString())
             .set("hierarchyId", (parameters!.hierarchyId).toString())
@@ -241,20 +248,32 @@ export class MeasureDataComponent implements OnInit {
             console.log(" get measure data list params", params.toString());
         this.measureDataService.getMeasureDataList(params).subscribe({
             next: measureDataResponse => {
-                this.measureData = measureDataResponse.data
+                this.measureDataList = measureDataResponse.data
                 this.dataSource = new MatTableDataSource(measureDataResponse.data)
                 this.dataSource.sort = this.sort
+                console.log("Datasource on getMeasureDataList: ", this.dataSource)
+
+                this.calendarId = measureDataResponse.calendarId;
+                this.measureDataList = measureDataResponse.data;
+                this.dataRange = measureDataResponse.range;
+                this.allow = measureDataResponse.allow;
+                this.locked = measureDataResponse.locked;
+                this.editValue = measureDataResponse.editValue;
+                this.showActionButtons = this.allow && !this.locked;
+                this.measureDataResponse = measureDataResponse;
+                this.disabledAll = false;
+
+
+                //this.loadTable();
+                this.progress(false);
                 this.logger.logInfo("Measure Data List Loaded")
             },
             error: err => {
                 this.logger.logError(err.message)
                 this.errorMsg = err
                 this.showError = true
-                //this.processError(err.message)
-                //this.processLocalError(err.message)
                 this.processLocalError(this.title, err.statusText, null, err.status, null);
             }
-            
         })
     }
 
@@ -269,7 +288,11 @@ export class MeasureDataComponent implements OnInit {
         this.editingMeasureType = { ...this.selectedMeasureType }
     }
 
-    identity(_: number, item: { id: number }) {
+    // identity(_: number, item: { id: number }) {
+    //     return item.id
+    // }
+
+    identity(index: number, item: any) {
         return item.id
     }
 
@@ -279,9 +302,10 @@ export class MeasureDataComponent implements OnInit {
         this.selectedRow = element;
     }
 
-    onSave(targetRow: MeasureDataDto) {
+    onSave(measureDataRow: MeasureDataDto) {
         this.isEditMode = false
-        this.selectedRow = { ...targetRow };
+        //this.selectedRow = { ...this.measureDataRow };
+        this.selectedRow = { ...measureDataRow };
     }
 
     onCancel(targetRow: MeasureDataDto) {
@@ -290,146 +314,48 @@ export class MeasureDataComponent implements OnInit {
 
     //================================================================================================
     // Called from FilterCtrl only
-    getMeasureData(filtered: any) {
-        //this.showError = false;
+
+
+    getData(filtered: any) {
+        this.showError = false;
         this.disabledAll = true;
         this.dataRange = "";
 
         this.filteredPage = filtered;
+        this.calendarId = filtered.calendarId;
+        this.day = filtered.day;
+        this.hierarchyId = filtered.hierarchyId;
+        this.measureTypeId = filtered.measureTypeId;
+        this.progress(true);
+        this.measureDataService.getMeasureDataList(filtered).subscribe({
+            next: response => {
+                if (this.itgIsNull(response.error)) {
+                    this.calendarId = response.calendarId;
+                    this.measureDataList = response.data;
+                    this.dataRange = response.range;
+                    this.allow = response.allow;
+                    this.locked = response.locked;
+                    this.editValue = response.editValue;
+                    this.showActionButtons = this.allow && !this.locked;
+                    this.measureDataResponse = response;
+                    this.dataSource = new MatTableDataSource(response.data)
+                    this.dataSource.sort = this.sort
+                    console.log("Datasource: ", this.dataSource)
+                    this.loadTable();
+                    this.progress(false);
+                } else {
+                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
+                }
+                this.disabledAll = false;
+            },
+            error: error => {
+                this.showError = true;
+                this.processLocalError(this.title, error.statusText, -99, error.status, null);
+            }
+        })
+        //console.log(object);
+        //this.loadTable();
     }
-
-    // getData(filtered: any) {
-    //     this.showError = false;
-    //     this.disabledAll = true;
-    //     this.dataRange = "";
-
-    // getMeasData1() {
-    //     this.measureDataService.getMeasureData1().subscribe({
-    //         next: response => {
-    //             this.measureDataResponse = response
-    //         }
-    //     })
-    // }
-
-    // getData(filtered: any) {
-    //     this.showError = false;
-    //     this.disabledAll = true;
-    //     this.dataRange = "";
-
-    //     this.filteredPage = filtered;
-    //     this.calendarId = filtered.calendarId;
-    //     this.day = filtered.day;
-    //     this.hierarchyId = filtered.hierarchyId;
-    //     this.measureTypeId = filtered.measureTypeId;
-    //     this.progress(true);
-    //     this.measureDataService.getMeasureData(filtered).subscribe({
-    //         next: response => {
-    //             if (this.itgIsNull(response.error)) {
-    //                 this.calendarId = response.calendarId;
-    //                 this.data = response.data;
-    //                 this.dataRange = response.range;
-    //                 this.allow = response.allow;
-    //                 this.locked = response.locked;
-    //                 this.editValue = response.editValue;
-    //                 this.showActionButtons = this.allow && !this.locked;
-    //                 this.measureDataResponse = response;
-    //                 //this.loadTable();
-    //                 this.progress(false);
-    //             } else {
-    //                 this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
-    //             }
-    //             this.disabledAll = false;
-    //         },
-    //         error: error => {
-    //             this.showError = true;
-    //             this.processLocalError(this.title, error.statusText, -99, error.status, null);
-    //         }
-    //     })
-    // }
-
-    // getData2(filtered: any) {
-    //     this.showError = false;
-    //     this.disabledAll = true;
-    //     this.dataRange = "";
-    //     this.filteredPage = filtered;
-    //     this.calendarId = filtered.calendarId;
-    //     this.day = filtered.day;
-    //     this.hierarchyId = filtered.hierarchyId;
-    //     this.measureTypeId = filtered.measureTypeId;
-    //     this.progress(true);
-    //     this.http.get('/api/measureData/index?', {
-    //         params: {
-    //             calendarId: filtered.calendarId,
-    //             day: filtered.day,
-    //             hierarchyId: filtered.hierarchyId,
-    //             measureTypeId: filtered.measureTypeId,
-    //             //measureDataId: null,
-    //             //measureValue: null,
-    //             explanation: filtered.explanation,
-    //             action: filtered.action
-    //         }
-    //     }).subscribe({
-    //         next: (value: any) => {
-    //             if (this.itgIsNull(value.error)) {
-    //                 this.calendarId = value.calendarId;
-    //                 this.data = value.data;
-    //                 this.dataRange = value.range;
-    //                 this.allow = value.allow;
-    //                 this.locked = value.locked;
-    //                 this.editValue = value.editValue;
-    //                 this.showActionButtons = this.allow && !this.locked;
-    //                 this.measureDataResponse = value;
-    //                 this.dataSource = new MatTableDataSource(value.data)
-    //                 this.dataSource.sort = this.sort
-    //                 console.log("Datasource: ", this.dataSource)
-    //                 this.loadTable();
-    //                 this.progress(false);
-    //             } else {
-    //                 this.processLocalError(this.title, value.error.message, value.error.id, null, value.error.authError);
-    //             }
-    //             this.disabledAll = false;
-    //         },
-    //         error: (err: any) => {
-    //             this.processLocalError(this.title, err.statusText, -99, err.status, null);
-    //         }
-    //     });
-    //     //console.log(object);
-    //     this.loadTable();
-    // }
-
-    // loadTable(): void {
-    //     this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
-    //     this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
-    //     this.filterSelected[2] = this.treeControl?.ancestorPath?.join(" | ") ?? "?"
-
-    //     const { fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
-    //     const params = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }
-    //     switch (fIntervalSelected?.id) {
-    //         case Intervals.Weekly:
-    //             if (!fWeekSelected) return
-    //             params.calendarId = fWeekSelected.id
-    //             break
-    //         case Intervals.Monthly:
-    //             if (!fMonthSelected) return
-    //             params.calendarId = fMonthSelected.id
-    //             break
-    //         case Intervals.Quarterly:
-    //             if (!fQuarterSelected) return
-    //             params.calendarId = fQuarterSelected.id
-    //             break
-    //         case Intervals.Yearly:
-    //             if (!fYearSelected) return
-    //             params.calendarId = fYearSelected.id
-    //             break
-    //     }
-
-    //     if (!this.model.fMeasureTypeSelected) return
-    //     params.measureTypeId = this.model.fMeasureTypeSelected.id
-
-    //     if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
-    //     params.hierarchyId = this.model.selectedRegion
-    //     // this.getData(p)
-    // }
 
     doFilter() {
         this.drawer = { title: "Filter", button: "Apply", position: "start" }
@@ -462,31 +388,6 @@ export class MeasureDataComponent implements OnInit {
         return title + message  // TODO: finish
     }
 
-    // Popover
-    dPopover = {
-        templateUrl: 'mmPopoverTemplate.html',
-        id: '',
-        title: '',
-        value: '',
-        target: '',
-        yellow: '',
-        expression: '',
-        evaluated: '',
-        description: '',
-        calculated: false
-    };
-
-    mmPopover(data: any): void {
-        this.dPopover.id = data.id;
-        this.dPopover.title = data.name;
-        this.dPopover.value = this.itgStrNullToEmpty(data.value);
-        this.dPopover.target = this.itgStrNullToEmpty(data.target);
-        this.dPopover.yellow = this.itgStrNullToEmpty(data.yellow);
-        this.dPopover.expression = data.expression;
-        this.dPopover.evaluated = data.evaluated;
-        this.dPopover.description = data.description;
-        this.dPopover.calculated = data.calculated;
-    }
 
     //------------------------------------------------------------------------------------
 
