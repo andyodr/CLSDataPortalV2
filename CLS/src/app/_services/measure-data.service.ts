@@ -51,7 +51,7 @@ export class MeasureDataService {
   getMeasureDataList(params: HttpParams) {
     return this.http.get<MeasureDataResponse>(this.baseUrl + "index/", {params}).pipe(
       map((response: MeasureDataResponse) => {
-        console.log("Measure Data Response : ", response)
+        //console.log("Measure Data Response : ", response)
         return response
       })
     )

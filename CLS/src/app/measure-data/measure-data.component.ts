@@ -32,7 +32,7 @@ export class MeasureDataComponent implements OnInit {
     measureDataList: MeasureDataDto[] = [];
     measureDataRow: MeasureDataDto | undefined
     dataSource = new MatTableDataSource<MeasureDataDto>()
-    displayedColumns = ["name", "value", "units", "explanation", "action", "updated", "rowactions"]
+    displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
     @ViewChild(MatSort) sort!: MatSort
     editingMeasureType!: any
     selectedMeasureType: MeasureType = { id: 0, name: "" }
@@ -112,16 +112,20 @@ export class MeasureDataComponent implements OnInit {
         measureType: 0,
         selectedRegion: null as number | number[] | null,
         explanation: "",
-        action: ""
+        action: "",
+        selCalSelected: 0,
     }
 
     //----------------- Error handling within the component
     errorMsg: any = ""
     showError: boolean = false;
     calendarId: any;
-    day: any;
     hierarchyId: any;
     measureTypeId: any;
+
+    measureDataListNew: MeasureDataDto[] = [];
+    dataSourceCopy: any;
+    
 
 
 
@@ -249,7 +253,7 @@ export class MeasureDataComponent implements OnInit {
         this.measureDataService.getMeasureDataList(params).subscribe({
             next: measureDataResponse => {
                 this.measureDataList = measureDataResponse.data
-                this.dataSource = new MatTableDataSource(measureDataResponse.data)
+                this.dataSource.data = measureDataResponse.data
                 this.dataSource.sort = this.sort
                 console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
@@ -262,8 +266,6 @@ export class MeasureDataComponent implements OnInit {
                 this.showActionButtons = this.allow && !this.locked;
                 this.measureDataResponse = measureDataResponse;
                 this.disabledAll = false;
-
-
                 //this.loadTable();
                 this.progress(false);
                 this.logger.logInfo("Measure Data List Loaded")
@@ -283,14 +285,226 @@ export class MeasureDataComponent implements OnInit {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
+    //-----------Selection Calculated
+    selCalculated = [
+        { id: 0, name: "Manual and Calculated" },
+        { id: 1, name: "Manual" },
+        { id: 2, name: "Calculated" }
+    ];
+
+    itgSelCal = { calculated: 0, manual: 1, all: 2 };
+
+    onSelCalChange(): void {
+        console.log("onSelCalChange: ", this.model.selCalSelected);
+
+        if (this.model.selCalSelected == 2) {
+            this.dataSource.data = this.measureDataList.filter(item => item.calculated);
+            //console.log("onSelCalChange calculated length: ", this.dataSource.data.length);
+            //console.log("onSelCalChange calculated: ", this.dataSource.data);
+        }
+        if (this.model.selCalSelected == 1) {
+            this.dataSource.data = this.measureDataList.filter(item => !item.calculated);
+            //console.log("onSelCalChange manual lenght: ", this.dataSource.data.length);
+            //console.log("onSelCalChange manual: ", this.dataSource.data);
+        }
+        if (this.model.selCalSelected == 0) {
+            this.dataSource.data = this.measureDataList
+            //console.log("onSelCalChange both lenght: ", this.dataSource.data.length);
+            //console.log("onSelCalChange both: ", this.dataSource.data);
+        }
+        this.dataSource._updateChangeSubscription();
+        console.log("Datasource on onSelCalChange: ", this.dataSource.data)
+    }
+
+    // -----------------------------------------------------------------------------
+    // Buttons
+    // -----------------------------------------------------------------------------
+
+    refresh() {
+        //if ( !itgIsNull(filteredPage) ){
+        if (this.filterSelected) {
+            this.loadTable();
+        }
+    }
+
+    edit(data: any) {
+        if (!this.allow || this.locked) { return; }
+
+        this.disabledAll = true;
+        const id = data.id;
+
+        if (this.editValue && !data.calculated) {
+            this.editBgColor = false;
+        }
+        const idB = document.querySelector(`.tdB${ id }`);
+        if (idB) {
+            idB.innerHTML = '';
+            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
+        }
+        const idC = document.querySelector(`.tdC${ id }`);
+        if (idC) {
+            idC.innerHTML = '';
+            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
+        }
+    }
+
+    edit2(data: any) {
+        //this.disabledAll = true;
+        this.editValue = true;
+        console.log("edit2");
+        console.log("edit2 data: ", data);
+        console.log("edit2 editValue: ", this.editValue);
+        if (!this.allow || this.locked) { return; }
+        console.log("edit2 data: ", data);
+        this.disabledAll = false;
+        const id = data.id;
+
+        if (this.editValue && !data.calculated) {
+            this.editBgColor = false;
+        }
+
+        const idB = document.querySelector(`.tdB${ id }`);
+        if (idB) {
+            idB.innerHTML = '';
+            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
+        }
+        const idC = document.querySelector(`.tdC${ id }`);
+        if (idC) {
+            idC.innerHTML = '';
+            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
+        }
+    }
+
+
+
+    cancel(data: any) {
+        this.disabledAll = false;
+        this.editValue = false;
+        const id = data.id;
+        console.log("cancel");
+        console.log("cancel data: ", data);
+        console.log("cancel editValue: ", this.editValue);
+
+        if (this.editValue && !data.calculated) {
+            if (this.editValue) {
+                this.editBgColor = true;
+                const idA = document.querySelector(`.tdA${ id }`);
+                if (idA) {
+                    idA.classList.add(this.getBgColor(data));
+                    idA.innerHTML = `<span>${ this.itgStrNullToEmpty(data.value) }</span>`;
+                }
+            }
+        }
+        const idB = document.querySelector(`.tdB${ id }`);
+        if (idB) {
+            idB.innerHTML = `<span>${ this.itgStrNullToEmpty(data.explanation) }</span>`;
+        }
+        const idC = document.querySelector(`.tdC${ id }`);
+        if (idC) {
+            idC.innerHTML = `<span>${ this.itgStrNullToEmpty(data.action) }</span>`;
+        }
+    }
+
+    save(data: any): void {
+        if (!this.allow || this.locked) {
+            return;
+        }
+
+        this.showError = false;
+        this.disabledAll = true;
+        let msg = '';
+        const id = data.id;
+        let mVal = data.value;
+
+        if (this.editValue && !data.calculated) {
+            const mVal = (<HTMLInputElement>document.querySelector('.mVal' + id)).value;
+            if (!this.itgIsEmpty(mVal)) {
+                if (!this.itgIsNumeric(mVal)) {
+                    (<HTMLInputElement>document.querySelector('.mVal' + id)).focus();
+                    const msg = 'Measure Value must be a Number.';
+                    //return dialog.alert(this.title, msg);
+                };
+            }
+        }
+
+        const mExp = (<HTMLInputElement>document.querySelector('.mExp' + id)).value.trim();
+        const mAct = (<HTMLInputElement>document.querySelector('.mAct' + id)).value.trim();
+
+        data.explanation = this.itgStrNullToEmpty(data.explanation);
+        data.action = this.itgStrNullToEmpty(data.action);
+
+        const dataNew = { ...data };
+
+        if (this.itgIsEmpty(mVal)) {
+            dataNew.value = null;
+        } else {
+            dataNew.value = Number(mVal);
+        }
+
+        dataNew.explanation = mExp;
+        dataNew.action = mAct;
+
+        // if (this.isEqual(data, dataNew)) {
+        //   msg =
+        //     "There are no changes for <br /> '" +
+        //     dataNew.name +
+        //     "'.<br /> Unable to Save.";
+        //   return dialog.alert(this.title, msg);
+        // }
+
+        // Call Server - PUT
+        this.progress(true);
+
+        // this.pages.measureData
+        //   .update(
+        //     {
+        //       calendarId: this.calendarId,
+        //       day: null,
+        //       hierarchyId: this.hierarchyId,
+        //       measureTypeId: this.measureTypeId,
+        //       measureDataId: data.id,
+        //       measureValue: mVal,
+        //       explanation: mExp,
+        //       action: mAct,
+        //     },
+        //     (value) => {
+        //       if (itgIsNull(value.error) && value.data.length > 0) {
+        //         data.value = value.data[0].value;
+        //         data.explanation = value.data[0].explanation;
+        //         data.action = value.data[0].action;
+        //         data.updated = value.data[0].updated;
+        //         //logger.logSuccess('Measure ' + data.name + ' updated.');
+        //         this.progress(false);
+        //         this.cancel(data);
+        //       } else {
+        //         this.processLocalError(
+        //           this.title,
+        //           value.error.message,
+        //           value.error.id,
+        //           null,
+        //           value.error.authError
+        //         );
+        //       }
+        //       this.disabledAll = false;
+        //     },
+        //     (err: { statusText: string; status: number | null; }) => {
+        //       this.processLocalError(this.title, err.statusText, null, err.status, null);
+        //     }
+        //   );
+
+        this.cancel(data);
+    }
+
+
+
+
+
+
+
     doEditType() {
         this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
         this.editingMeasureType = { ...this.selectedMeasureType }
     }
-
-    // identity(_: number, item: { id: number }) {
-    //     return item.id
-    // }
 
     identity(index: number, item: any) {
         return item.id
@@ -310,51 +524,6 @@ export class MeasureDataComponent implements OnInit {
 
     onCancel(targetRow: MeasureDataDto) {
         this.isEditMode = false
-    }
-
-    //================================================================================================
-    // Called from FilterCtrl only
-
-
-    getData(filtered: any) {
-        this.showError = false;
-        this.disabledAll = true;
-        this.dataRange = "";
-
-        this.filteredPage = filtered;
-        this.calendarId = filtered.calendarId;
-        this.day = filtered.day;
-        this.hierarchyId = filtered.hierarchyId;
-        this.measureTypeId = filtered.measureTypeId;
-        this.progress(true);
-        this.measureDataService.getMeasureDataList(filtered).subscribe({
-            next: response => {
-                if (this.itgIsNull(response.error)) {
-                    this.calendarId = response.calendarId;
-                    this.measureDataList = response.data;
-                    this.dataRange = response.range;
-                    this.allow = response.allow;
-                    this.locked = response.locked;
-                    this.editValue = response.editValue;
-                    this.showActionButtons = this.allow && !this.locked;
-                    this.measureDataResponse = response;
-                    this.dataSource = new MatTableDataSource(response.data)
-                    this.dataSource.sort = this.sort
-                    console.log("Datasource: ", this.dataSource)
-                    this.loadTable();
-                    this.progress(false);
-                } else {
-                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
-                }
-                this.disabledAll = false;
-            },
-            error: error => {
-                this.showError = true;
-                this.processLocalError(this.title, error.statusText, -99, error.status, null);
-            }
-        })
-        //console.log(object);
-        //this.loadTable();
     }
 
     doFilter() {
@@ -389,20 +558,49 @@ export class MeasureDataComponent implements OnInit {
     }
 
 
-    //------------------------------------------------------------------------------------
+    //================================================================================================
+    // Called from FilterCtrl only
 
-    // Selection Calculated
-    selCalculated = [
-        { id: 0, name: "Calculated" },
-        { id: 1, name: "Manual" },
-        { id: 2, name: "Manual and Calculated" }
-    ];
-    //selCalSelected = selCalculated[itgSelCal.all];
-    //this.selCalSelected = this.selCalculated[itgSelCal.all];
-    selCalSelected = this.selCalculated[0];
 
-    onselCalChange(): void {
-        this.loadTable()
+    getData(filtered: any) {
+        this.showError = false;
+        this.disabledAll = true;
+        this.dataRange = "";
+
+        this.filteredPage = filtered;
+        this.calendarId = filtered.calendarId;
+        //this.day = filtered.day;
+        this.hierarchyId = filtered.hierarchyId;
+        this.measureTypeId = filtered.measureTypeId;
+        this.progress(true);
+        this.measureDataService.getMeasureDataList(filtered).subscribe({
+            next: response => {
+                if (this.itgIsNull(response.error)) {
+                    this.calendarId = response.calendarId;
+                    this.measureDataList = response.data;
+                    this.dataRange = response.range;
+                    this.allow = response.allow;
+                    this.locked = response.locked;
+                    this.editValue = response.editValue;
+                    this.showActionButtons = this.allow && !this.locked;
+                    this.measureDataResponse = response;
+                    this.dataSource = new MatTableDataSource(response.data)
+                    this.dataSource.sort = this.sort
+                    console.log("Datasource: ", this.dataSource)
+                    this.loadTable();
+                    this.progress(false);
+                } else {
+                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
+                }
+                this.disabledAll = false;
+            },
+            error: error => {
+                this.showError = true;
+                this.processLocalError(this.title, error.statusText, -99, error.status, null);
+            }
+        })
+        //console.log(object);
+        //this.loadTable();
     }
 
     // -----------------------------------------------------------------------------
@@ -544,239 +742,6 @@ export class MeasureDataComponent implements OnInit {
         return !isNaN(parseFloat(data)) && isFinite(data);
     }
 
-    // -----------------------------------------------------------------------------
-    // Buttons
-    // -----------------------------------------------------------------------------
-
-    refresh() {
-        //if ( !itgIsNull(filteredPage) ){
-        if (this.filteredPage) {
-            this.getMeasureDataList(this.filteredPage);
-        }
-    }
-
-    edit(data: any) {
-        if (!this.allow || this.locked) { return; }
-
-        this.disabledAll = true;
-        const id = data.id;
-
-        if (this.editValue && !data.calculated) {
-            this.editBgColor = false;
-            const idA = document.querySelector(`.tdA${ id }`);
-            if (idA) {
-                idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
-                idA.innerHTML = '';
-            }
-
-            let dirVal = 'only-digits';
-            // if (data.unitId === itgUnits.percentage) {
-            //   dirVal = 'zero-to-one';
-            // }
-
-            const mVal = this.itgStrNullToEmpty(data.value);
-            const mVal2 = `<input type="text" class="form-control mVal mVal${ id }"
-        value="${ mVal }" maxlength="24" [(ngModel)]="mVal"
-        (ngModelChange)="getBorderColor(${ data.target },${ data.yellow })" ${ dirVal }>`;
-
-            if (idA) {
-                idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
-                idA.innerHTML = '';
-                //idA.appendChild(mVal2);
-            }
-        }
-
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = '';
-            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = '';
-            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
-        }
-
-        // document.querySelector(`.edit${id}`).style.display = 'none';
-        // document.querySelector(`.btnEdit${id}`).style.display = 'block';
-        // document.querySelectorAll('.btnEdit').forEach((btn) => btn.setAttribute('disabled', 'true'));
-        // document.querySelector(`.btnEdit${id}`).removeAttribute('disabled');
-    }
-
-    edit2(data: any) {
-        //this.disabledAll = true;
-        this.editValue = true;
-        console.log("edit2");
-        console.log("edit2 data: ", data);
-        console.log("edit2 editValue: ", this.editValue);
-        if (!this.allow || this.locked) { return; }
-        console.log("edit2 data: ", data);
-        this.disabledAll = false;
-        const id = data.id;
-
-        if (this.editValue && !data.calculated) {
-            this.editBgColor = false;
-            const idA = document.querySelector(`.tdA${ id }`);
-            if (idA) {
-                idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
-                idA.innerHTML = '';
-            }
-
-            let dirVal = 'only-digits';
-            // if (data.unitId === itgUnits.percentage) {
-            //   dirVal = 'zero-to-one';
-            // }
-
-            const mVal = this.itgStrNullToEmpty(data.value);
-            const mVal2 = `<input type="text" class="form-control mVal mVal${ id }"
-        value="${ mVal }" maxlength="24" [(ngModel)]="mVal"
-        (ngModelChange)="getBorderColor(${ data.target },${ data.yellow })" ${ dirVal }>`;
-
-            if (idA) {
-                idA.classList.remove('bg-warning2', 'bg-success2', 'bg-danger2');
-                idA.innerHTML = '';
-                //idA.appendChild(mVal2);
-            }
-        }
-
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = '';
-            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = '';
-            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
-        }
-
-        // document.querySelector(`.edit${id}`).style.display = 'none';
-        // document.querySelector(`.btnEdit${id}`).style.display = 'block';
-        // document.querySelectorAll('.btnEdit').forEach((btn) => btn.setAttribute('disabled', 'true'));
-        // document.querySelector(`.btnEdit${id}`).removeAttribute('disabled');
-    }
-
-
-
-    cancel(data: any) {
-        this.disabledAll = false;
-        this.editValue = false;
-        const id = data.id;
-        console.log("cancel");
-        console.log("cancel data: ", data);
-        console.log("cancel editValue: ", this.editValue);
-
-        if (this.editValue && !data.calculated) {
-            if (this.editValue) {
-                this.editBgColor = true;
-                const idA = document.querySelector(`.tdA${ id }`);
-                if (idA) {
-                    idA.classList.add(this.getBgColor(data));
-                    idA.innerHTML = `<span>${ this.itgStrNullToEmpty(data.value) }</span>`;
-                }
-            }
-        }
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = `<span>${ this.itgStrNullToEmpty(data.explanation) }</span>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = `<span>${ this.itgStrNullToEmpty(data.action) }</span>`;
-        }
-        // document.querySelector(`.btnEdit${id}`).style.display = 'none';
-        // document.querySelector(`.edit${id}`).style.display = 'block';
-    }
-
-    save(data: any): void {
-        if (!this.allow || this.locked) {
-            return;
-        }
-
-        this.showError = false;
-        this.disabledAll = true;
-        let msg = '';
-        const id = data.id;
-        let mVal = data.value;
-
-        if (this.editValue && !data.calculated) {
-            const mVal = (<HTMLInputElement>document.querySelector('.mVal' + id)).value;
-            if (!this.itgIsEmpty(mVal)) {
-                if (!this.itgIsNumeric(mVal)) {
-                    (<HTMLInputElement>document.querySelector('.mVal' + id)).focus();
-                    const msg = 'Measure Value must be a Number.';
-                    //return dialog.alert(this.title, msg);
-                };
-            }
-        }
-
-        const mExp = (<HTMLInputElement>document.querySelector('.mExp' + id)).value.trim();
-        const mAct = (<HTMLInputElement>document.querySelector('.mAct' + id)).value.trim();
-
-        data.explanation = this.itgStrNullToEmpty(data.explanation);
-        data.action = this.itgStrNullToEmpty(data.action);
-
-        const dataNew = { ...data };
-
-        if (this.itgIsEmpty(mVal)) {
-            dataNew.value = null;
-        } else {
-            dataNew.value = Number(mVal);
-        }
-
-        dataNew.explanation = mExp;
-        dataNew.action = mAct;
-
-        // if (this.isEqual(data, dataNew)) {
-        //   msg =
-        //     "There are no changes for <br /> '" +
-        //     dataNew.name +
-        //     "'.<br /> Unable to Save.";
-        //   return dialog.alert(this.title, msg);
-        // }
-
-        // Call Server - PUT
-        this.progress(true);
-
-        // this.pages.measureData
-        //   .update(
-        //     {
-        //       calendarId: this.calendarId,
-        //       day: null,
-        //       hierarchyId: this.hierarchyId,
-        //       measureTypeId: this.measureTypeId,
-        //       measureDataId: data.id,
-        //       measureValue: mVal,
-        //       explanation: mExp,
-        //       action: mAct,
-        //     },
-        //     (value) => {
-        //       if (itgIsNull(value.error) && value.data.length > 0) {
-        //         data.value = value.data[0].value;
-        //         data.explanation = value.data[0].explanation;
-        //         data.action = value.data[0].action;
-        //         data.updated = value.data[0].updated;
-        //         //logger.logSuccess('Measure ' + data.name + ' updated.');
-        //         this.progress(false);
-        //         this.cancel(data);
-        //       } else {
-        //         this.processLocalError(
-        //           this.title,
-        //           value.error.message,
-        //           value.error.id,
-        //           null,
-        //           value.error.authError
-        //         );
-        //       }
-        //       this.disabledAll = false;
-        //     },
-        //     (err: { statusText: string; status: number | null; }) => {
-        //       this.processLocalError(this.title, err.statusText, null, err.status, null);
-        //     }
-        //   );
-
-        this.cancel(data);
-    }
 }
 
 

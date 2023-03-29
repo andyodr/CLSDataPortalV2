@@ -152,10 +152,11 @@
           </div>
           <mat-form-field appearance="fill" class="mar0" style="min-width:140px; width:220px;">
             <mat-label>Select</mat-label>
-            <mat-select [(ngModel)]="selCalSelected" [disabled]="disabledAll || btnDisabled"
-              (selectionChange)="onselCalChange()">
-              <mat-option *ngFor="let calculated of selCalculated" [value]="calculated">{{
-                calculated.name }}</mat-option>
+            <mat-select [(ngModel)]="model.selCalSelected" [disabled]="disabledAll || btnDisabled"
+              (selectionChange)="onSelCalChange()">
+              <mat-option *ngFor="let calculated of selCalculated" [value]="calculated.id">
+                {{calculated.name }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
           <button mat-raised-button color="primary" aria-label="Edit Type" aria-label="Refresh" [disabled]="disabledAll" (click)="refresh()" matTooltip="Refresh Table">
@@ -168,6 +169,10 @@
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
             <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+          </ng-container>
+          <ng-container matColumnDef="calculated">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>
+            <td mat-cell *matCellDef="let element"> <mat-icon>{{ element.calculated === true ? "check": "" }}</mat-icon> </td>
           </ng-container>
           <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
