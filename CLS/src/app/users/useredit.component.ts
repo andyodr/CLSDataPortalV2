@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core"
 import { ActivatedRoute } from "@angular/router"
-import { RegionFilter } from "../_models/regionhierarchy"
+import { RegionFilter } from "../_services/hierarchy.service"
 import { UserRole } from "../_models/user"
 import { LoggerService } from "../_services/logger.service"
 import { UserService } from "../_services/user.service"

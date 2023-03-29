@@ -1,7 +1,3 @@
-// :host {
-//   display: flex;
-//   height: 100%;
-
 :host {
   height: 100%;
   overflow-y: hidden;
@@ -29,20 +25,12 @@ app-sidebar~* {
   padding: 20px;
 }
 
-//   > app-sidebar + div {
-//     padding: 20px;
-//     flex: 1 auto;
-//   }
-// }
-
 mat-drawer form {
-  display: flex;
-  flex-direction: column;
-  padding: 20px 90px 20px 40px;
+  padding: 20px 70px 20px 40px;
 }
 
 mat-drawer form * {
-  flex: 1;
+  display: block;
 }
 
 mat-drawer header {
@@ -54,8 +42,23 @@ mat-drawer header {
 
 mat-drawer header h2 {
   color: white;
-  display: flex;
+  display: inline-block;
   margin: auto 2em;
+}
+
+mat-drawer form h4,
+mat-drawer form h5 {
+  display: inline-block;
+  margin-bottom: 1ch;
+}
+
+mat-drawer form h5 {
+  margin-left: 2em;
+  font-size: 14px;
+}
+
+app-region-tree {
+  border: 1px solid var(--mat-primary-100);
 }
 
 .panel-body {
@@ -107,24 +110,8 @@ table {
   width: 100%;
 }
 
-.mat-column-name {
-  width: 12em;
-}
-
-.mat-column-id {
-  width: 6em;
-}
-
-.mat-column-owner {
-  width: 6em;
-}
-
-.mat-column-hierarchy {
-  width: 24em;
-}
-
-.mat-column-actions {
-  width: 8em;
+td mat-checkbox {
+  margin: 3px 2ch 3px 1ch;
 }
 
 tr.detail-row {

@@ -1,5 +1,5 @@
+import { RegionFilter } from "../_services/hierarchy.service"
 import { ErrorModel } from "./error"
-import { RegionFilter } from "./regionhierarchy"
 
 //Interface for User Model
 export interface User {

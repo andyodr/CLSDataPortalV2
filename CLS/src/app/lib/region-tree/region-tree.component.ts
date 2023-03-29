@@ -2,7 +2,7 @@ import { SelectionModel } from "@angular/cdk/collections"
 import { FlatTreeControl } from "@angular/cdk/tree"
 import { Component, EventEmitter, Input, Output } from "@angular/core"
 import { MatTreeFlatDataSource, MatTreeFlattener } from "@angular/material/tree"
-import { RegionFilter, RegionFlatNode } from "../../_models/regionhierarchy"
+import { RegionFilter, RegionFlatNode } from "src/app/_services/hierarchy.service"
 
 @Component({
     selector: "app-region-tree",
@@ -133,10 +133,8 @@ export class RegionTreeComponent {
                 Promise.resolve().then(() => this.setPaths(node!))
                 let p: RegionFlatNode | undefined = node
                 do {
+                    this.treeControl.expand(p)
                     p = this.getParentNode(p!)
-                    if (p) {
-                        this.treeControl.expand(p)
-                    }
                 } while (p)
 
                 this.checklistSelection!.select(node)

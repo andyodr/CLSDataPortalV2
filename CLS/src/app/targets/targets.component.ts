@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { filter, Subscription } from 'rxjs';
 import { AppDialog } from '../app-dialog.component';
 import { processError } from '../lib/app-constants';
-import { Hierarchy, RegionFilter } from '../_models/regionhierarchy';
+import { Hierarchy, RegionFilter } from '../_services/hierarchy.service';
 import { Target, MeasureType, TargetApiParams, TargetApiResponse, TargetFilter, TargetDto, ConfirmIntervals } from '../_models/target';
 import { LoggerService } from '../_services/logger.service';;
 import { TargetService } from '../_services/target.service';
@@ -107,7 +107,7 @@ export class TargetsComponent implements OnInit {
         targetCount: null
     };
 
-    
+
     private userSubscription = new Subscription()
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { name: string, id: number }[]
@@ -122,7 +122,7 @@ export class TargetsComponent implements OnInit {
         hierarchyId: 1,
         measureTypeId: 1,
     }
-    
+
 
     constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog, private snackBar: MatSnackBar ) { }
 
@@ -139,7 +139,7 @@ export class TargetsComponent implements OnInit {
                 this.dataSource.sort = this.sort;
                 //this.dataSource = filters.data;
                 console.log("filters datasort sort: ", this.dataSource.sort);
-                
+
                 this.measureTypes = filters.measureTypes;
                 console.log("filters measureTypes: ", this.measureTypes);
                 this.selectedMeasureType = filters.measureTypes[0];
@@ -267,12 +267,12 @@ export class TargetsComponent implements OnInit {
         this.disabledAll = true;
         const dialogRef = this.dialog.open(AppDialog, {
             width: '450px',
-            data: { 
-                title: 'Confirm', 
-                msg: 'Are you sure you want to apply to all children?' 
+            data: {
+                title: 'Confirm',
+                msg: 'Are you sure you want to apply to all children?'
             }
         });
-        
+
         dialogRef.afterClosed().subscribe(result => {
         console.log('The dialog was closed');
             if (result) {
@@ -293,7 +293,7 @@ export class TargetsComponent implements OnInit {
     }
 
     dataConfirmedReset(): void {
-        this.dataConfirmed = { 
+        this.dataConfirmed = {
           target: null,
           yellow: null,
           data: null,
@@ -302,7 +302,7 @@ export class TargetsComponent implements OnInit {
           confirmIntervals: null,
           targetId: null,
           targetCount: null
-        };      
+        };
     }
 
     confirmTarget(): void {
@@ -381,7 +381,7 @@ export class TargetsComponent implements OnInit {
                     this.logger.logSuccess('Measure ' + this.dataConfirmed.data.name + ' updated.');
                     this.logger.logSuccess('Success: Target saved.');
                     //this.progress(false);
-                    this.cancel(this.dataConfirmed.data);                    
+                    this.cancel(this.dataConfirmed.data);
                 } else {
                     this.logger.logError('Error: Target not saved.');
                 }
@@ -390,7 +390,7 @@ export class TargetsComponent implements OnInit {
             error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
             complete: () => { this.disabledAll = false; }
         });
-    } 
+    }
 }
 
 class ToggleQuery {

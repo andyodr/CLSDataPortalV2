@@ -1,16 +1,16 @@
 <mat-drawer-container>
-  <mat-drawer [position]="drawer.position" #drwr>
+  <mat-drawer #drwr>
     <header>
-      <h2>{{drawer.title}}</h2>
+      <h2>Filter</h2>
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="save(); drwr.close()">
-        <mat-icon>save_alt</mat-icon> {{drawer.button}}
+      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> Apply
       </button>
     </header>
     <form>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'start'">
+      <mat-form-field appearance="fill">
         <mat-label>Measure Type</mat-label>
         <mat-select name="level" [(ngModel)]="selectedMeasureType" [disabled]="disabledAll">
           <mat-option *ngFor="let measureType of measureTypes" [value]="measureType">
@@ -18,16 +18,9 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
-        <mat-label>Measure Type Name</mat-label>
-        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Ex. Customer Service"
-          [disabled]="disabledAll">
-      </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
-        <mat-label>Measure Type Description</mat-label>
-        <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
-          placeholder="Ex. Customer Service" [disabled]="disabledAll">
-      </mat-form-field>
+      <h4>Region Hierarchy:</h4>
+      <h5>{{ regions.ancestorPath.at(-1) }}</h5>
+      <app-region-tree #regions [hierarchy]="hierarchy" [(selectedRegions)]="selectedRegion"></app-region-tree>
     </form>
   </mat-drawer>
   <mat-drawer-content>
@@ -92,7 +85,7 @@
             </ngb-alert>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
+        <button mat-raised-button color="primary" (click)="drwr.open()">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
         <span class="filter" *ngFor="let filter of filtersSelected">{{filter}}</span>
@@ -105,104 +98,49 @@
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
-          <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
-            <mat-icon>edit</mat-icon> Edit Type
-          </button>
-          <mat-menu #eMenu="matMenu">
-            <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
-          </mat-menu>
-          <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
-            <mat-icon>add</mat-icon> Add
-          </button>
-          <mat-menu #aMenu="matMenu">
-            <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
-            <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
-          </mat-menu>
         </div>
-        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8" [trackBy]="identity">
-          <ng-container matColumnDef="name">
+        <table mat-table [dataSource]="dataSource" matSort [trackBy]="identity">
+          <ng-container matColumnDef="measureDefinition">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
-            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            <td mat-cell *matCellDef="let row">{{row.measureDefinition}}</td>
           </ng-container>
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns.slice(1); index as i">
+            <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].active" matTooltip="Active" color="primary"> A
+              </mat-checkbox>
+              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].expression" matTooltip="Calculated Expression"
+                color="primary"> E </mat-checkbox>
+              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].rollup" matTooltip="Rollup" color="primary"> R
+              </mat-checkbox>
+            </td>
           </ng-container>
-          <ng-container matColumnDef="owner">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
-            <td mat-cell *matCellDef="let element"> {{element.owner}} </td>
-          </ng-container>
-          <ng-container matColumnDef="hierarchy">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Hierarchy </th>
-            <td mat-cell *matCellDef="let element">{{ element.hierarchy}}</td>
-          </ng-container>
-          <ng-container *ngFor="let region of hierarchy; let i = index" matColumnDef="{{region}}">
+          <!-- <ng-container *ngFor="let region of hierarchy; let i = index" matColumnDef="{{region}}">
             <th mat-header-cell *matHeaderCellDef> {{i == 0 ? '(Parent)' : ''}} {{region}} </th>
             <td mat-cell *matCellDef="let data">
               <div class="magicWrap">
-                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].active" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
-                <mat-checkbox [(ngModel)]="data.hierarchy[i].active" ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="data.hierarchy[i].active"></mat-checkbox>
                 <label class="mar0 marR10" matTooltip="Active"> A </label>
               </div>
               <div class="magicWrap">
-                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].expression" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
-                <mat-checkbox [(ngModel)]="data.hierarchy[i].expression" ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="data.hierarchy[i].expression"></mat-checkbox>
                 <label class="mar0 marR10" matTooltip="Calculated Expression"> E </label>
               </div>
               <div class="magicWrap">
-                <!-- <mat-checkbox [(ngModel)]="data.hierarchy[i].rollup" [disabled]="rowsDisabled(i)"></mat-checkbox> -->
                 <mat-checkbox [(ngModel)]="data.hierarchy[i].rollup"></mat-checkbox>
                 <label class="mar0 marR10" matTooltip="Rollup"> R </label>
               </div>
             </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell  *matHeaderCellDef > Actions </th>
-            <td mat-cell *matCellDef="let element" >
-              <button mat-raised-button color="primary" (click)="edit(element)">
-                <mat-icon>edit</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
-              <div class="expandable-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
-                <p>{{mdef.description}}</p>
-                <div class="detail-items-1">
-                  <b>ID</b><span>{{mdef.id}}</span>
-                  <b>Owner</b><span>{{mdef.owner}}</span>
-                  <b>Expression</b><span>{{mdef.expression}}</span>
-                </div>
-                <div class="detail-items-2">
-                  <b>Evaluated</b><span>{{mdef.evaluated}}</span>
-                  <b>Calculated</b><span>{{mdef.calculated}}</span>
-                  <b>Description</b><span>{{mdef.description}}</span>
-                  <b>Explanation</b><span>{{mdef.explanation}}</span>
-                </div>
-                <div class="detail-items-3"><b>{{mdef.expression ? 'Expression' : ''}}</b> {{mdef.expression}}</div>
-                <a mat-raised-button [routerLink]="[mdef.id]" color="primary" aria-label="Edit Definition">
-                  <mat-icon>edit</mat-icon> Edit Definition
-                </a>
-              </div>
-            </td>
-          </ng-container>
+          </ng-container> -->
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
             [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr> -->
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
           </tr>
         </table>
-        <!-- <table mat-table [dataSource]="dataSource">
-          <ng-container *ngFor="let column of displayedDynamicColumns" [matColumnDef]="column.columnDef">
-            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-            <td mat-cell *matCellDef="let element">{{ column.cell(element) }}</td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedDynamicColumns.map(column => column.columnDef)"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedDynamicColumns.map(column => column.columnDef)"></tr>
-        </table> -->
         <footer>
           <span> Showing {{dataSource.filteredData.length}} entries </span>
         </footer>

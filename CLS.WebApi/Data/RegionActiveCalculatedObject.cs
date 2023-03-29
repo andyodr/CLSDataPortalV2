@@ -1,9 +1,12 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class RegionActiveCalculatedObject
 {
-	public long id { set; get; }
-	public bool active { set; get; }
-	public bool expression { set; get; }
-	public bool rollup { set; get; }
+	public long Id { get; set; }
+
+	public bool Active { get; set; }
+
+	public bool Expression { get; set; }
+
+	public bool Rollup { get; set; }
 }

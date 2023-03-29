@@ -34,13 +34,10 @@ public class FilterController : ControllerBase
 				return Unauthorized();
 			}
 
-			var measureTypes = _context.MeasureType
+			filter.MeasureTypes = _context.MeasureType
 				.OrderBy(m => m.Id)
 				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name, Description = m.Description })
-				.AsNoTracking();
-			foreach (var mtfo in measureTypes) {
-				filter.MeasureTypes.Add(mtfo);
-			}
+				.ToArray();
 
 			var regions = _context.Hierarchy
 				.Where(m => m.HierarchyLevel!.Id == 1)

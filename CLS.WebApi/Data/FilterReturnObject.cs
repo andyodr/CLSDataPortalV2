@@ -2,7 +2,7 @@
 
 public class FilterReturnObject
 {
-	public List<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
+	public IList<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
 
 	public List<RegionFilterObject>? Hierarchy { get; set; }
 
@@ -15,4 +15,6 @@ public class FilterReturnObject
 	public FilterSaveObject Filter { get; set; } = null!;
 
 	public CurrentCalendars? CurrentCalendarIds { get; set; }
+
+	public RegionIndexGetReturnObject Measures { get; set; } = null!;
 }

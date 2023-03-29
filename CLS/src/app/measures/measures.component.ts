@@ -2,12 +2,19 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
 import { processError } from '../lib/app-constants';
-import { Data, MeasureApiParams, MeasureApiResponse, MeasureFilter, MeasureType } from '../_models/measure';
-import { Hierarchy, RegionFilter } from '../_models/regionhierarchy';
+import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
+import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { LoggerService } from '../_services/logger.service';
-import { MeasureService } from '../_services/measure.service';
+import { MeasureType } from "../_services/measure-definition.service"
+import { MeasureApiResponse, MeasureFilter,
+    MeasureService, MeasureApiParams, RegionActiveCalculatedDto } from "../_services/measure.service"
+
+interface MeasuresTableRow {
+    id: number
+    measureDefinition: string
+    [key: string]: number | string | RegionActiveCalculatedDto
+}
 
 @Component({
   selector: 'app-measures',
@@ -21,23 +28,15 @@ import { MeasureService } from '../_services/measure.service';
       ])]
 })
 export class MeasuresComponent implements OnInit {
-
-
     measureResponse: MeasureApiResponse | undefined;
-    @Output() progressEvent = new EventEmitter<boolean>();
 
     //Declarations
     title = "Measures"
     //filters: any = null;
     filters!: MeasureFilter
     filtersSelected: string[] = []
-    dataSource = new MatTableDataSource([] as Data[])
-    //dataSource = new MatTableDataSource<Measure>()
-    //dataSource = new MatTableDataSource<Data>()
-
-    displayedColumns = ["name", "id", "owner", "hierarchy", "actions"]
-    displayedDynamicColumns : string [] = []
-
+    dataSource = new MatTableDataSource<MeasuresTableRow>()
+    displayedColumns = ["measureDefinition"]
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
@@ -51,15 +50,7 @@ export class MeasuresComponent implements OnInit {
     errorMsg: any = ""
     showError = false
     showContentPage = false
-    drawer = {
-        title: "Filter",
-        button: "Apply",
-        position: "start" as "start" | "end"
-    }
-
     editingMeasureType!: MeasureType
-
-    data: Data [] = [];
     hierarchyId: number | null = null;
     measureTypeId: number | null = null;
     btnDisabled = false;
@@ -77,9 +68,9 @@ export class MeasuresComponent implements OnInit {
         targetCount: null
     };
 
-    private userSubscription = new Subscription()
     hierarchy: RegionFilter[] = []
-    hierarchyLevels!: { name: string, id: number }[]
+    selectedRegion = null as number | number[] | null
+    @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
     model = {
         id: 0,
         active: false,
@@ -92,64 +83,46 @@ export class MeasuresComponent implements OnInit {
         measureTypeId: 1,
     }
 
-    constructor(private measureService: MeasureService, public logger: LoggerService ) { }
+    constructor(private api: MeasureService, public logger: LoggerService ) { }
 
     ngOnInit(): void {
-
-        //console.log("target init");
-        //this.targetService.getTarget()
-        //this.getTargets(this.filtered)
-        this.measureService.getMeasureFilter().subscribe({
-            next: filters => {
-                this.filters = filters;
-                console.log("filters on component: ", this.filters);
-
-                this.dataSource.sort = this.sort;
-                //this.dataSource = filters.data;
-                console.log("filters datasort sort: ", this.dataSource.sort);
-                
-                this.measureTypes = filters.measureTypes;
-                console.log("filters measureTypes: ", this.measureTypes);
-                this.selectedMeasureType = filters.measureTypes[0];
-                console.log("filters selected measure Types: ", this.selectedMeasureType);
-
-                this.hierarchy = filters.hierarchy;
-                console.log("filters hierarchy: ", this.hierarchy);
-                //this.selectedHierarchy = filters.hierarchy[0];
-                console.log("filters selected hierarchy: ", this.selectedHierarchy);
-
-
-                //this.loadTable()
-                this.getMeasures(this.filtered);
+        this.api.getMeasureFilter().subscribe({
+            next: dto => {
+                this.filters = dto
+                this.measureTypes = dto.measureTypes
+                this.selectedMeasureType = dto.measureTypes[0]
+                this.hierarchy = dto.hierarchy
+                this.selectedRegion = dto.filter.hierarchyId ?? dto.hierarchy.at(0)?.id ?? 1
+                // delay because it depends on output from a child component
+                setTimeout(() => this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")])
+                this.dataSource.sort = this.sort
+                this.dataSource.data = dto.measures.data.map(d => ({
+                    id: d.id,
+                    measureDefinition: d.name,
+                    ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.measures.hierarchy[i], r]))
+                }))
+                this.displayedColumns.splice(1, Infinity, ...dto.measures.hierarchy)
             }
         })
     }
 
     loadTable() {
-        this.filtersSelected = [this.selectedMeasureType.name]
-        this.measureService.getMeasure2(this.filtered).subscribe({
+        this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")]
+        const params = {
+            measureTypeId: this.selectedMeasureType.id,
+            hierarchyId: typeof this.selectedRegion === "number" ? this.selectedRegion : (this.hierarchy.at(0)?.id ?? 1)
+        }
+
+        this.api.getMeasures(params).subscribe({
             next: dto => {
-                this.dataSource.data = dto.data
+                this.dataSource.data = dto.data.map(d => ({
+                    id: d.id,
+                    measureDefinition: d.name,
+                    ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.hierarchy[i], r]))
+                }))
+                this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
             }
         })
-    }
-
-    doFilter() {
-        this.drawer = { title: "Filter", button: "Apply", position: "start" }
-    }
-
-    doAddType() {
-        this.drawer = { title: "Add Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { id: 0, name: "", description: "" }
-    }
-
-    doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
-    }
-
-    save() {
-        this.loadTable()
     }
 
     applyFilter(event: Event) {
@@ -157,12 +130,9 @@ export class MeasuresComponent implements OnInit {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
-    identity(_: number, item: Data) {
+    identity(_: number, item: { id: number }) {
         return item.id
     }
-    // identity(_: number, item: { id: number }) {
-    //     return item.id
-    // }
 
     closeError() {
         this.errorMsg = ""
@@ -175,9 +145,9 @@ export class MeasuresComponent implements OnInit {
         //this.data = null;
         console.log("get target on the component");
         // Call Server
-        this.measureService.getMeasure2(filtered).subscribe({
-            next: response => {
-                
+        this.api.getMeasures(filtered).subscribe({
+            next: dto => {
+
                 // const firstObject = response.data[0];
                 // this.displayedDynamicColumns = Object.keys(firstObject);
 
@@ -197,53 +167,37 @@ export class MeasuresComponent implements OnInit {
                 // const hierarchyKeys = Array.from(
                 //     new Set(response.data.flatMap((element) => Object.keys(element.hierarchy[0])))
                 // );
-                
+
                 // // Generate the displayedColumns array with hierarchy keys
                 // const displayedDynamicColumns = ["id", "name", "owner", ...hierarchyKeys.map(key => `hierarchy.${key}`)];
 
                 // this.displayedDynamicColumns = displayedDynamicColumns;
                 // console.log("displayedDynamicColumns: ", this.displayedDynamicColumns);
 
-
-
-
-                //-----------------//
-                this.measureResponse = response;
-                this.data = response.data
-                console.log("Measures on Component: ", response);
-                //this.dataSource = new MatTableDataSource(response.data)
-                //console.log("Datasource: ", this.dataSource);
-                //this.dataSource.sort = this.sort
-                this.allow = response.allow
+                this.measureResponse = dto;
+                this.allow = dto.allow
                 //this.confirmed = response.confirmed
-                this.dataSource = new MatTableDataSource(response.data)
-                
+                this.dataSource.data = dto.data.map(d => ({
+                    id: d.id,
+                    measureDefinition: d.name,
+                    ...Object.fromEntries(d.hierarchy.map((k, i) => [dto.hierarchy[i], k]))
+                }))
+                this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
+
                 //-------Test----------//
 
                 // add the 'name' and 'owner' properties to the displayed columns array
-                this.displayedDynamicColumns.push('name', 'owner');
+                this.displayedColumns.push('name', 'owner');
 
                 // iterate over each object in the array
-                response.data[0].hierarchy.forEach(obj => {
-                    
-                    this.displayedDynamicColumns.push(obj.id.toString());
+                dto.data[0].hierarchy.forEach(obj => {
+
+                    this.displayedColumns.push(obj.id.toString());
                 });
 
-                this.displayedDynamicColumns.push('actions');
-
-                console.log("displayedDynamicColumns: ", this.displayedDynamicColumns);
-
-
-
-
-                //-----------------//
-
-
-
+                this.displayedColumns.push('actions');
 
                 //this.hierarchy = response.hierarchy;
-                this.dataSource.sort = this.sort
-                console.log("Datasource: ", this.dataSource)
                 this.disabledAll = false;
             },
             error: (err: any) => {
@@ -253,7 +207,7 @@ export class MeasuresComponent implements OnInit {
     }
 
 
-    
+
     // getFiltersFromMain(): void {
     //   this.showError = false;
     //   this.disabledAll = true;
@@ -294,7 +248,6 @@ export class MeasuresComponent implements OnInit {
     }
 
 }
-
 
 class ToggleQuery {
     expanded!: any

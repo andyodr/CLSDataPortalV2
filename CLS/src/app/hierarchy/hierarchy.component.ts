@@ -3,7 +3,7 @@ import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { Subscription } from "rxjs"
 import { processError } from "../lib/app-constants"
-import { Hierarchy, RegionFilter } from "../_models/regionhierarchy"
+import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { HierarchyService } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
 

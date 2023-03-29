@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core"
 import { Observable } from "rxjs"
 import { environment } from "../environments/environment"
 import { ErrorModel } from "../_models/error"
-import { RegionFilter } from "../_models/regionhierarchy"
+import { RegionFilter } from "../_services/hierarchy.service"
 
 export type MeasureType = {
     id: number,
@@ -23,6 +23,14 @@ export type CurrentCalendarIds = {
     yearlyCalendarId: number
 }
 
+export type Filter = {
+    hierarchyId?: number
+    measureTypeId?: number
+    intervalId?: number
+    calendarId?: number
+    year?: number
+}
+
 export type FilterResponseDto = {
     measureTypes: MeasureType[]
     hierarchy?: RegionFilter[]
@@ -30,13 +38,7 @@ export type FilterResponseDto = {
     years?: { id: number, year: number }[]
     error: ErrorModel
     currentCalendarIds?: CurrentCalendarIds
-    filter: {
-        hierarchyId?: number
-        measureTypeId?: number
-        intervalId?: number
-        calendarId?: number
-        year?: number
-    }
+    filter: Filter
 }
 
 export interface MeasureDefinition {
