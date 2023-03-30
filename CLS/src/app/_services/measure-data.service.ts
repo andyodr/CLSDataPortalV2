@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { ErrorModel } from '../_models/error';
-import { FilterResponseDto, MeasureDataDto, MeasureDataResponse } from '../_models/measureData';
+import { FilterResponseDto, MeasureDataDto, MeasureDataEditDto, MeasureDataResponse } from '../_models/measureData';
 
 
 export type FiltersIntervalsData = {
@@ -51,15 +51,14 @@ export class MeasureDataService {
   getMeasureDataList(params: HttpParams) {
     return this.http.get<MeasureDataResponse>(this.baseUrl + "index/", {params}).pipe(
       map((response: MeasureDataResponse) => {
-        //console.log("Measure Data Response : ", response)
+        console.log("Measure Data Response : ", response)
         return response
       })
     )
   }
 
-  // updateMeasureData(id: number, dto: MeasureDataDto): Observable<MeasureDataEditDto> {
-  //   return this.http
-  //   .put<MeasureDataEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
-  // }
+  updateMeasureData(measureDataId: number, bodyDto: MeasureDataEditDto): Observable<MeasureDataEditDto> {
+    return this.http.put<MeasureDataEditDto>(`${ this.baseUrl }/measure/edit/${ measureDataId }`, bodyDto)
+  }
 
 }

@@ -119,12 +119,15 @@ export class MeasureDataComponent implements OnInit {
     //----------------- Error handling within the component
     errorMsg: any = ""
     showError: boolean = false;
-    calendarId: any;
-    hierarchyId: any;
-    measureTypeId: any;
+
+    calendarId!: number;
+    day!: string;
+    hierarchyId!: number;
+    measureTypeId!: number;
 
     measureDataListNew: MeasureDataDto[] = [];
     dataSourceCopy: any;
+    
     
 
 
@@ -258,6 +261,13 @@ export class MeasureDataComponent implements OnInit {
                 console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
                 this.calendarId = measureDataResponse.calendarId;
+                // this.day = measureDataResponse.day;
+                this.hierarchyId = parameters?.hierarchyId;
+                this.measureTypeId = parameters?.measureTypeId;
+                // this.measureDataId = measureDataResponse.measureDataId;
+                // this.measureValue = measureDataResponse.measureValue;
+                // this.explanation = measureDataResponse.explanation;
+                // this.action = measureDataResponse.action;
                 this.measureDataList = measureDataResponse.data;
                 this.dataRange = measureDataResponse.range;
                 this.allow = measureDataResponse.allow;
@@ -327,7 +337,206 @@ export class MeasureDataComponent implements OnInit {
         }
     }
 
-    edit(data: any) {
+    
+    doEditType() {
+        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
+        this.editingMeasureType = { ...this.selectedMeasureType }
+    }
+
+    identity(index: number, item: any) {
+        return item.id
+    }
+
+    onEdit(measureDataRow: MeasureDataDto) {
+        this.isEditMode = true;
+        // this.selectedRow = { ...targetRow };
+        this.selectedRow = measureDataRow;
+    }
+
+    onSave(measureDataRow: MeasureDataDto) {
+        
+        //this.isEditMode = false
+
+        this.showError = false;
+        this.disabledAll = true;
+
+        this.selectedRow = { ...measureDataRow };
+
+        if (!this.allow || this.locked) {
+            return;
+        }
+
+        const measureDataRowNew = { ...measureDataRow };
+
+        const measureDataId = parseInt(measureDataRow.id);
+        const measureDataValue = measureDataRow.value;
+        const measureDataExplanation = this.model.explanation;
+        const measureDataAction = this.model.action;
+
+        const body = {
+            "calendarId": this.calendarId,
+            "day": this.day,
+            "hierarchyId": this.hierarchyId,
+            "measureTypeId": this.measureTypeId,
+            "measureDataId": measureDataId,
+            "measureValue": measureDataValue,
+            "explanation": measureDataExplanation,
+            "action": measureDataAction
+           }
+
+        if (this.measureDataRow == measureDataRow) {
+          this.logger.logInfo("There are no changes for " + this.measureDataRow + ". Unable to Save.")
+        }
+
+        // Call Server - PUT
+        this.progress(true);
+
+        // this.measureDataService.updateMeasureData(measureDataId, body).subscribe({
+        //     next: measureDataResponse => {
+        //         this.logger.logInfo("Measure Data Updated")
+        //         this.progress(false);
+        //         this.disabledAll = false;
+        //         this.loadTable();
+        //     },
+        //     error: err => {
+        //         this.logger.logError(err.message)
+        //         this.errorMsg = err
+        //         this.showError = true
+        //         this.processLocalError(this.title, err.statusText, null, err.status, null);
+        //     }
+        // })
+
+
+        // this.pages.measureData
+        //   .update(
+        //     {
+        //       calendarId: this.calendarId,
+        //       day: null,
+        //       hierarchyId: this.hierarchyId,
+        //       measureTypeId: this.measureTypeId,
+        //       measureDataId: data.id,
+        //       measureValue: mVal,
+        //       explanation: mExp,
+        //       action: mAct,
+        //     },
+        //     (value) => {
+        //       if (itgIsNull(value.error) && value.data.length > 0) {
+        //         data.value = value.data[0].value;
+        //         data.explanation = value.data[0].explanation;
+        //         data.action = value.data[0].action;
+        //         data.updated = value.data[0].updated;
+        //         //logger.logSuccess('Measure ' + data.name + ' updated.');
+        //         this.progress(false);
+        //         this.cancel(data);
+        //       } else {
+        //         this.processLocalError(
+        //           this.title,
+        //           value.error.message,
+        //           value.error.id,
+        //           null,
+        //           value.error.authError
+        //         );
+        //       }
+        //       this.disabledAll = false;
+        //     },
+        //     (err: { statusText: string; status: number | null; }) => {
+        //       this.processLocalError(this.title, err.statusText, null, err.status, null);
+        //     }
+        //   );
+
+        this.onCancel(measureDataRow);
+    }
+
+    onCancel(measureDataRow: MeasureDataDto) {
+        this.isEditMode = false
+    }
+
+    doFilter() {
+        this.drawer = { title: "Filter", button: "Apply", position: "start" }
+    }
+
+    isBoolShow(str: string | boolean): boolean {
+        return ((str === "true") || (str === true));
+    }
+
+    toggleFilterOpen(): void {
+        // toggle filter side nav
+    }
+
+    progress(bool: boolean): void {
+    }
+
+    closeError(): void {
+        this.errorMsg = "";
+        this.showError = false;
+    }
+
+
+
+
+
+
+
+
+
+    processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
+        this.errorMsg = this.processError(title, message, id, status);
+        this.progress(false);
+        this.disabledAll = false;
+        this.showContentPage = (authError !== true);
+    }
+
+    processError(title: string, message: string, id: number | null, status: number | null): string {
+        return title + message  // TODO: finish
+    }
+
+
+    //================================================================================================
+    // Called from FilterCtrl only
+
+
+    oldgetData(filtered: any) {
+        this.showError = false;
+        this.disabledAll = true;
+        this.dataRange = "";
+
+        this.filteredPage = filtered;
+        this.calendarId = filtered.calendarId;
+        //this.day = filtered.day;
+        this.hierarchyId = filtered.hierarchyId;
+        this.measureTypeId = filtered.measureTypeId;
+        this.progress(true);
+        this.measureDataService.getMeasureDataList(filtered).subscribe({
+            next: response => {
+                if (this.itgIsNull(response.error)) {
+                    this.calendarId = response.calendarId;
+                    this.measureDataList = response.data;
+                    this.dataRange = response.range;
+                    this.allow = response.allow;
+                    this.locked = response.locked;
+                    this.editValue = response.editValue;
+                    this.showActionButtons = this.allow && !this.locked;
+                    this.measureDataResponse = response;
+                    this.dataSource = new MatTableDataSource(response.data)
+                    this.dataSource.sort = this.sort
+                    console.log("Datasource: ", this.dataSource)
+                    this.loadTable();
+                    this.progress(false);
+                } else {
+                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
+                }
+                this.disabledAll = false;
+            },
+            error: error => {
+                this.showError = true;
+                this.processLocalError(this.title, error.statusText, -99, error.status, null);
+            }
+        })
+        //console.log(object);
+        //this.loadTable();
+    }
+
+    oldedit(data: any) {
         if (!this.allow || this.locked) { return; }
 
         this.disabledAll = true;
@@ -348,7 +557,7 @@ export class MeasureDataComponent implements OnInit {
         }
     }
 
-    edit2(data: any) {
+    oldedit2(data: any) {
         //this.disabledAll = true;
         this.editValue = true;
         console.log("edit2");
@@ -377,7 +586,7 @@ export class MeasureDataComponent implements OnInit {
 
 
 
-    cancel(data: any) {
+    oldcancel(data: any) {
         this.disabledAll = false;
         this.editValue = false;
         const id = data.id;
@@ -405,7 +614,7 @@ export class MeasureDataComponent implements OnInit {
         }
     }
 
-    save(data: any): void {
+    oldsave(data: any): void {
         if (!this.allow || this.locked) {
             return;
         }
@@ -492,115 +701,7 @@ export class MeasureDataComponent implements OnInit {
         //     }
         //   );
 
-        this.cancel(data);
-    }
-
-
-
-
-
-
-
-    doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
-    }
-
-    identity(index: number, item: any) {
-        return item.id
-    }
-
-    onEdit(element: MeasureDataDto) {
-        this.isEditMode = true;
-        // this.selectedRow = { ...targetRow };
-        this.selectedRow = element;
-    }
-
-    onSave(measureDataRow: MeasureDataDto) {
-        this.isEditMode = false
-        //this.selectedRow = { ...this.measureDataRow };
-        this.selectedRow = { ...measureDataRow };
-    }
-
-    onCancel(targetRow: MeasureDataDto) {
-        this.isEditMode = false
-    }
-
-    doFilter() {
-        this.drawer = { title: "Filter", button: "Apply", position: "start" }
-    }
-
-    isBoolShow(str: string | boolean): boolean {
-        return ((str === "true") || (str === true));
-    }
-
-    toggleFilterOpen(): void {
-        // toggle filter side nav
-    }
-
-    progress(bool: boolean): void {
-    }
-
-    closeError(): void {
-        this.errorMsg = "";
-        this.showError = false;
-    }
-
-    processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
-        this.errorMsg = this.processError(title, message, id, status);
-        this.progress(false);
-        this.disabledAll = false;
-        this.showContentPage = (authError !== true);
-    }
-
-    processError(title: string, message: string, id: number | null, status: number | null): string {
-        return title + message  // TODO: finish
-    }
-
-
-    //================================================================================================
-    // Called from FilterCtrl only
-
-
-    getData(filtered: any) {
-        this.showError = false;
-        this.disabledAll = true;
-        this.dataRange = "";
-
-        this.filteredPage = filtered;
-        this.calendarId = filtered.calendarId;
-        //this.day = filtered.day;
-        this.hierarchyId = filtered.hierarchyId;
-        this.measureTypeId = filtered.measureTypeId;
-        this.progress(true);
-        this.measureDataService.getMeasureDataList(filtered).subscribe({
-            next: response => {
-                if (this.itgIsNull(response.error)) {
-                    this.calendarId = response.calendarId;
-                    this.measureDataList = response.data;
-                    this.dataRange = response.range;
-                    this.allow = response.allow;
-                    this.locked = response.locked;
-                    this.editValue = response.editValue;
-                    this.showActionButtons = this.allow && !this.locked;
-                    this.measureDataResponse = response;
-                    this.dataSource = new MatTableDataSource(response.data)
-                    this.dataSource.sort = this.sort
-                    console.log("Datasource: ", this.dataSource)
-                    this.loadTable();
-                    this.progress(false);
-                } else {
-                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
-                }
-                this.disabledAll = false;
-            },
-            error: error => {
-                this.showError = true;
-                this.processLocalError(this.title, error.statusText, -99, error.status, null);
-            }
-        })
-        //console.log(object);
-        //this.loadTable();
+        this.oldcancel(data);
     }
 
     // -----------------------------------------------------------------------------

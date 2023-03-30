@@ -43,6 +43,17 @@ export interface MeasureDataDto {
     updated: Updated;
 }
 
+export interface MeasureDataEditDto {
+    calendarId: number;
+    day: string;
+    hierarchyId: number;
+    measureTypeId: number;
+    measureDataId: number;
+    measureValue: number;
+    explanation: string;
+    action: string;
+}
+
 export interface MeasureDataResponse {
     range: string;
     calendarId: number;

@@ -188,7 +188,7 @@
               <ng-container *ngIf="!isEditMode || element != selectedRow">{{element.explanation}}</ng-container>
               <ng-container *ngIf="isEditMode && element == selectedRow">
                 <mat-form-field>
-                  <input matInput type="string" [(ngModel)]="element.explanation" [disabled]="disabledAll">
+                  <input matInput type="string" [(ngModel)]="model.explanation" [disabled]="disabledAll">
                 </mat-form-field>
               </ng-container>
             </td>
@@ -199,7 +199,7 @@
               <ng-container *ngIf="!isEditMode || element != selectedRow">{{element.action}}</ng-container>
               <ng-container *ngIf="isEditMode && element == selectedRow">
                 <mat-form-field>
-                  <input matInput type="string" [(ngModel)]="element.action" [disabled]="disabledAll">
+                  <input matInput type="string" [(ngModel)]="model.action" [disabled]="disabledAll">
                 </mat-form-field>
               </ng-container>
             </td>
@@ -214,7 +214,7 @@
               <button mat-raised-button color="primary" (click)="onEdit(element)" *ngIf="!isEditMode || element != selectedRow">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-raised-button color="primary" (click)="onSave(element.id)" *ngIf="isEditMode && element == selectedRow">
+              <button mat-raised-button color="primary" (click)="onSave(element)" *ngIf="isEditMode && element == selectedRow">
                 <mat-icon>save</mat-icon>
               </button>
               <button mat-raised-button color="warn" (click)="onCancel(element)" *ngIf="isEditMode && element == selectedRow">
