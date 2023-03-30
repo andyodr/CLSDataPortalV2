@@ -1,4 +1,5 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
+using CLS.WebApi.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +18,14 @@ public class UploadController : ControllerBase
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private DataImportReturnObject returnObject = new() { Data = new(), Error = new() };
 	private int calendarId = -1;
 	private UserObject _user = new();
 
 	public UploadController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	public class Model
@@ -89,18 +90,18 @@ public class UploadController : ControllerBase
 					var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
 					value.RowNumber = rowNumber++;
 					//value.unitId = _measureDefinitionRepository.Find(md=> md.Id == value.MeasureID).UnitId;
-					var mRecord = _context.MeasureDefinition.Where(md => md.Id == value.MeasureID);
+					var mRecord = _dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
 					if (mRecord.Any()) {
 						value.Precision = mRecord.First().Precision;
 						listTarget.Add(value);
 					}
 					else {
-						returnObject.Error.Add(new DataImportErrorReturnObject { row = value.RowNumber, message = Resource.DI_ERR_TARGET_NO_EXIST });
+						returnObject.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 					}
 				}
 
 				if (returnObject.Error.Count != 0) {
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -118,10 +119,10 @@ public class UploadController : ControllerBase
 										select t.RowNumber;
 
 					foreach (var itemRow in duplicateRows) {
-						returnObject.Error.Add(new() { row = itemRow, message = Resource.DI_ERR_TARGET_REPEATED });
+						returnObject.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
 					}
 
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -131,7 +132,7 @@ public class UploadController : ControllerBase
 				}
 
 				if (returnObject.Error.Count != 0) {
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -143,7 +144,7 @@ public class UploadController : ControllerBase
 
 					returnObject.Data = null;
 
-					Helper.AddAuditTrail(_context,
+					Helper.AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
@@ -169,7 +170,7 @@ public class UploadController : ControllerBase
 				}
 
 				if (returnObject.Error.Count != 0) {
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -181,7 +182,7 @@ public class UploadController : ControllerBase
 
 					returnObject.Data = null;
 
-					Helper.AddAuditTrail(_context,
+					Helper.AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
@@ -199,12 +200,12 @@ public class UploadController : ControllerBase
 			else {
 				var calId = jsonObject["calendarId"];
 				calendarId = int.Parse(calId!.ToString());
-				var calendar = _context.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
+				var calendar = _dbc.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
 				var listMeasureData = new List<SheetDataMeasureData>();
 
 				// From settings page, DO NOT USE = !Active
-				if (_context.Setting.First().Active == true) {
-					if (Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _context)) {
+				if (_dbc.Setting.First().Active == true) {
+					if (Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc)) {
 						throw new Exception(Resource.DI_ERR_USER_DATE);
 					}
 				}
@@ -213,7 +214,7 @@ public class UploadController : ControllerBase
 					var value = token.Deserialize<SheetDataMeasureData>(webDefaults);
 					value!.rowNumber = rowNumber++;
 
-					var mRecord = _context.MeasureDefinition.Where(md => md.Id == value.MeasureID);
+					var mRecord = _dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
 
 					if (mRecord.Any()) {
 						value.unitId = mRecord.First().UnitId;
@@ -221,12 +222,12 @@ public class UploadController : ControllerBase
 						listMeasureData.Add(value);
 					}
 					else {
-						returnObject.Error.Add(new() { row = value.rowNumber, message = Resource.DI_ERR_NO_MEASURE });
+						returnObject.Error.Add(new() { Row = value.rowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 					}
 				}
 
 				if (returnObject.Error.Count != 0) {
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -236,7 +237,7 @@ public class UploadController : ControllerBase
 				}
 
 				if (returnObject.Error.Count != 0) {
-					var temp = returnObject.Error.OrderBy(e => e.row);
+					var temp = returnObject.Error.OrderBy(e => e.Row);
 					returnObject.Error = temp.ToList();
 					return returnObject;
 				}
@@ -248,13 +249,13 @@ public class UploadController : ControllerBase
 
 					returnObject.Data = null;
 
-					Helper.AddAuditTrail(_context,
+					Helper.AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
 						@"Measure Data Imported" +
 							" / CalendarId=" + calendar.Id.ToString() +
-							" / Interval=" + _context.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
+							" / Interval=" + _dbc.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
 							" / Year=" + calendar.Year.ToString() +
 							" / Quarter=" + calendar.Quarter.ToString() +
 							" / Month=" + calendar.Month.ToString() +
@@ -269,60 +270,44 @@ public class UploadController : ControllerBase
 			}
 		}
 		catch (Exception e) {
-			returnObject = new() { Error = new() };
-			var newReturn = Helper.ErrorProcessingDataImport(_context, e, _user!.Id);
-			returnObject.Error.Add(new() { id = newReturn.error.Id, row = null, message = newReturn.error.Message });
-			return returnObject;
+			var record = _dbc.AuditTrail.Add(new AuditTrail {
+				UpdatedBy = _user!.Id,
+				Type = Resource.WEB_PAGES,
+				Code = "WEB-06",
+				Data = e.Message + "\n" + (e.StackTrace?.ToString() ?? string.Empty),
+				Description = Resource.DATA_IMPORT,
+				LastUpdatedOn = DateTime.Now
+			}).Entity;
+			_dbc.SaveChanges();
+			return new DataImportReturnObject { Error = new() { new() { Id = record.Id, Row = null, Message = e.Message } } };
 		}
 	}
 
 	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
 			var returnObject = new DataImportsMainObject {
-				years = new(),
-				//calculationTime = new CalculationTimeObject(),
-				calculationTime = "00:01:00",
-				dataImport = new(),
-				intervals = new(),
-				intervalId = _config.DefaultInterval,
-				calendarId = Helper.FindPreviousCalendarId(_context.Calendar, _config.DefaultInterval)
+				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly)
+						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
+				CalculationTime = "00:01:00",
+				DataImport = new List<DataImportObject>() { Helper.DataImportHeading(Helper.dataImports.measureData) },
+				Intervals = _dbc.Interval.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
+				IntervalId = _config.DefaultInterval,
+				CalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
 			};
 
 			//returnObject.calculationTime.current = DateTime.Now;
-			string sCalculationTime = _context.Setting.First().CalculateSchedule ?? string.Empty;
-			returnObject.calculationTime = Helper.CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
+			string sCalculationTime = _dbc.Setting.First().CalculateSchedule ?? string.Empty;
+			returnObject.CalculationTime = Helper.CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
 										   Helper.CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
 										   Helper.CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
-			//years
-			var years = _context.Calendar
-						.Where(c => c.Interval.Id == (int)Helper.intervals.yearly)
-						.OrderByDescending(y => y.Year);
-
-			foreach (var year in years) {
-				returnObject.years.Add(new() { year = year.Year, id = year.Id });
-			}
-
-			//intervals
-			var intervals = _context.Interval;
-			foreach (var interval in intervals) {
-				returnObject.intervals.Add(new IntervalsObject {
-					id = interval.Id,
-					name = interval.Name
-				});
-			}
-
-			//dataImport
-			DataImportObject measureData = Helper.DataImportHeading(Helper.dataImports.measureData);
-			returnObject.dataImport.Add(measureData);
-
 			if (user.RoleId == (int)Helper.userRoles.systemAdministrator) {
 				DataImportObject targetData = Helper.DataImportHeading(Helper.dataImports.target);
-				returnObject.dataImport.Add(targetData);
+				returnObject.DataImport.Add(targetData);
 
 				if (_config.usesCustomer) {
 					DataImportObject customerRegionData = Helper.DataImportHeading(Helper.dataImports.customer);
-					returnObject.dataImport.Add(customerRegionData);
+					returnObject.DataImport.Add(customerRegionData);
 				}
 
 			}
@@ -330,7 +315,7 @@ public class UploadController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			Helper.ErrorProcessing(_context, e, _user.Id);
+			Helper.ErrorProcessing(_dbc, e, _user.Id);
 			return null;
 		}
 	}
@@ -346,17 +331,17 @@ public class UploadController : ControllerBase
 		//    return false;
 		//  }
 		//}
-		var hierarchy = _context.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
+		var hierarchy = _dbc.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
 		if (!hierarchy.Any()) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_EXIST });
+			returnObject.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_EXIST });
 			return false;
 		}
 		else if (!hierarchy.Any(x => x)) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_ACTIVE });
+			returnObject.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACTIVE });
 			return false;
 		}
-		else if (!_context.UserHierarchy.Where(u => u.Id == userId && u.HierarchyId == hierarchyId).Any()) {
-			returnObject.Error.Add(new() { row = rowNumber, message = Resource.DI_ERR_HIERARCHY_NO_ACCESS });
+		else if (!_dbc.UserHierarchy.Where(u => u.Id == userId && u.HierarchyId == hierarchyId).Any()) {
+			returnObject.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACCESS });
 			return false;
 		}
 
@@ -369,12 +354,12 @@ public class UploadController : ControllerBase
 	private void ValidateMeasureDataRows(SheetDataMeasureData row, int intervalId, int calendarId, int userId) {
 		//check for null values
 		if (row.MeasureID is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_MEASURE_NULL });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_MEASURE_NULL });
 			return;
 		}
 
 		if (row.HierarchyID is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
@@ -382,19 +367,19 @@ public class UploadController : ControllerBase
 		IsHierarchyValidated(row.rowNumber, row.HierarchyID ?? -1, row.Value, userId);
 
 		//check measureData
-		if (!_context.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
+		if (!_dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
 				&& md.Measure.MeasureDefinitionId == row.MeasureID
 				&& md.CalendarId == calendarId).Any()) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_NO_MEASURE_DATA });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_NO_MEASURE_DATA });
 		}
 
 		//check Measure Definition Unit
 		if (row.Value is double v && row.unitId == 1 && (v < 0 || v > 1)) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.VAL_VALUE_UNIT });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.VAL_VALUE_UNIT });
 		}
 
 		//check Measure
-		var mco = _context.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
+		var mco = _dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
 			&& m.MeasureDefinitionId == row.MeasureID)
 			.Include(m => m.MeasureDefinition)
 			.ToArray();
@@ -411,16 +396,16 @@ public class UploadController : ControllerBase
 				};
 				var bMdExpression = r.Expression ?? false;
 				var hId = r.HierarchyId;
-				if (Helper.IsMeasureCalculated(_context, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
+				if (Helper.IsMeasureCalculated(_dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
 					returnObject.Error.Add(new() {
-						row = row.rowNumber,
-						message = Resource.DI_ERR_CALCULATED
+						Row = row.rowNumber,
+						Message = Resource.DI_ERR_CALCULATED
 					});
 				}
 			}
 		}
 		else {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_NO_MEASURE });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 		}
 	}
 
@@ -431,7 +416,7 @@ public class UploadController : ControllerBase
 				_ => null
 			};
 
-			_ = _context.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
+			_ = _dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
 				&& md.Measure.MeasureDefinitionId == row.MeasureID && md.CalendarId == calendarId)
 				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, 1)
 					.SetProperty(md => md.UserId, userId)
@@ -441,7 +426,7 @@ public class UploadController : ControllerBase
 					.SetProperty(md => md.Action, md => row.Action ?? md.Action));
 		}
 		catch {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_UPLOADING });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_UPLOADING });
 		}
 	}
 
@@ -451,18 +436,18 @@ public class UploadController : ControllerBase
 	private void ValidateTargetRows(SheetDataTarget row, int userId) {
 		//check for null values
 		if (row.MeasureID is null) {
-			returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_MEASURE_NULL });
+			returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_MEASURE_NULL });
 			return;
 		}
 
 		if (row.HierarchyID is null) {
-			returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
+			returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
 		//check userHierarchy
 		IsHierarchyValidated(row.RowNumber, (int)row.HierarchyID, null, userId);
-		var units = _context.Target.Where(t => t.Active == true
+		var units = _dbc.Target.Where(t => t.Active == true
 				&& t.Measure!.MeasureDefinitionId == row.MeasureID
 				&& t.Measure.HierarchyId == row.HierarchyID)
 			.Select(t => t.Measure!.MeasureDefinition!.UnitId)
@@ -471,21 +456,21 @@ public class UploadController : ControllerBase
 		if (units.Any()) {
 			foreach (var unit in units) {
 				if (row.Target != null && unit == 1 && (row.Target < 0 || row.Target > 1)) {
-					returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.VAL_TARGET_UNIT });
+					returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_TARGET_UNIT });
 				}
 
 				if (row.Yellow != null && unit == 1 && (row.Yellow < 0 || row.Yellow > 1)) {
-					returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.VAL_YELLOW_UNIT });
+					returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_YELLOW_UNIT });
 				}
 			}
 		}
 		else {
-			returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_TARGET_NO_EXIST });
+			returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 		}
 	}
 
 	private void ImportTargetRecords(SheetDataTarget row, int userId) {
-		var q1 = _context.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
+		var q1 = _dbc.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 			&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Value != null)
 			.Select(t => new { t.MeasureId, t.Value })
 			.FirstOrDefault();
@@ -493,7 +478,7 @@ public class UploadController : ControllerBase
 		if (measureId > 0) {
 			try {
 				if (q1?.Value is null) {
-					_ = _context.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
+					_ = _dbc.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 						&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Active == true)
 						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, 2)
 							.SetProperty(t => t.Value, row.Target)
@@ -501,23 +486,23 @@ public class UploadController : ControllerBase
 							.SetProperty(t => t.UserId, userId));
 				}
 				else {
-					_ = _context.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
+					_ = _dbc.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 						&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Active == true)
 						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, 2)
 							.SetProperty(t => t.Active, false)
 							.SetProperty(t => t.LastUpdatedOn, DateTime.Now));
-					_ = _context.Target.Add(new() {
+					_ = _dbc.Target.Add(new() {
 						MeasureId = measureId,
 						Value = row.Target,
 						YellowValue = row.Yellow.RoundNullable(row.Precision),
 						Active = true,
 						UserId = userId
 					});
-					_ = _context.SaveChanges();
+					_ = _dbc.SaveChanges();
 				}
 			}
 			catch {
-				returnObject.Error.Add(new() { row = row.RowNumber, message = Resource.DI_ERR_UPLOADING });
+				returnObject.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_UPLOADING });
 			}
 		}
 	}
@@ -528,12 +513,12 @@ public class UploadController : ControllerBase
 	private void ValidateCustomerRows(SheetDataCustomer row, int userId) {
 		//check for null values
 		if (row.HierarchyId is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_HIERARCHY_NULL });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
 		if (row.CalendarId is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_CALENDAR_NULL });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_CALENDAR_NULL });
 			return;
 		}
 
@@ -541,14 +526,14 @@ public class UploadController : ControllerBase
 		_ = IsHierarchyValidated(row.rowNumber, (int)row.HierarchyId, null, userId);
 
 		//check if CalendarId exists
-		if (_context.Calendar.Find(row.CalendarId) is null) {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_CALENDAR_NO_EXIST });
+		if (_dbc.Calendar.Find(row.CalendarId) is null) {
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_CALENDAR_NO_EXIST });
 		}
 	}
 
 	private void ImportCustomerRecords(SheetDataCustomer row) {
 		try {
-			_ = _context.CustomerRegion.Add(new() {
+			_ = _dbc.CustomerRegion.Add(new() {
 				HierarchyId = row.HierarchyId ?? -1,
 				CalendarId = row.CalendarId ?? -1,
 				CustomerGroup = row.CustomerGroup,
@@ -574,10 +559,10 @@ public class UploadController : ControllerBase
 				CreditStatusCheck = row.CreditStatusCheck,
 				CreditCode = row.CreditCode
 			});
-			_ = _context.SaveChanges();
+			_ = _dbc.SaveChanges();
 		}
 		catch {
-			returnObject.Error.Add(new() { row = row.rowNumber, message = Resource.DI_ERR_UPLOADING });
+			returnObject.Error.Add(new() { Row = row.rowNumber, Message = Resource.DI_ERR_UPLOADING });
 		}
 	}
 }

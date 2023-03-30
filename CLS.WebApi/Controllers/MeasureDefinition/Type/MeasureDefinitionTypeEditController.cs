@@ -24,11 +24,11 @@ public class EditController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new MeasureTypeModel { data = new() };
+			var returnObject = new MeasureTypeModel { Data = new() };
 			foreach (var measType in _context.MeasureType.Where(m => m.Id == id)) {
-				returnObject.data.Id = measType.Id;
-				returnObject.data.Name = measType.Name;
-				returnObject.data.Description = measType.Description;
+				returnObject.Data.Id = measType.Id;
+				returnObject.Data.Name = measType.Name;
+				returnObject.Data.Description = measType.Description;
 			}
 
 			return returnObject;
@@ -48,7 +48,7 @@ public class EditController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new MeasureTypeModel { data = new() };
+			var returnObject = new MeasureTypeModel { Data = new() };
 
 			// Validates name
 			int validateCount = _context.MeasureType
@@ -77,7 +77,7 @@ public class EditController : ControllerBase
 				);
 			}
 
-			returnObject.data = value;
+			returnObject.Data = value;
 			return returnObject;
 		}
 		catch (Exception e) {

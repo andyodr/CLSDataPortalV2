@@ -35,12 +35,12 @@ public class EditController : ControllerBase
 
 			var units = _context.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units.AsNoTracking()) {
-				returnObject.Units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
+				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
 			var intervals = _context.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTracking()) {
-				returnObject.Intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
+				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
@@ -112,11 +112,11 @@ public class EditController : ControllerBase
 
 			var units = _context.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
-				returnObject.Units.Add(new UnitsObject { id = unit.Id, name = unit.Name, shortName = unit.Short });
+				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
 			foreach (var interval in intervals) {
-				returnObject.Intervals.Add(new IntervalsObject { id = interval.Id, name = interval.Name });
+				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);

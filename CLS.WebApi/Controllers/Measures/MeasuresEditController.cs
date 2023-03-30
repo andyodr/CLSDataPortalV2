@@ -47,14 +47,14 @@ public class EditController : ControllerBase
 							  .AsNoTrackingWithIdentityResolution().First();
 
 				var hierarchyOwner = new RegionOwnerObject {
-					id = hierarchy.Id,
-					name = hierarchy.Name
+					Id = hierarchy.Id,
+					Name = hierarchy.Name
 				};
 				data.Hierarchy.Add(hierarchyOwner);
 				data.Owner = measure.Owner;
 			}
 
-			returnObject.data.Add(data);
+			returnObject.Data.Add(data);
 			return returnObject;
 		}
 		catch (Exception e) {
@@ -94,8 +94,8 @@ public class EditController : ControllerBase
 			var lastUpdatedOn = DateTime.Now;
 			foreach (var hierarchy in hierarchies) {
 				data.Hierarchy.Add(new() {
-					id = hierarchy.Id,
-					name = hierarchy.Name
+					Id = hierarchy.Id,
+					Name = hierarchy.Name
 				});
 
 				var measure = _context.Measure
@@ -124,7 +124,7 @@ public class EditController : ControllerBase
 				_context.SaveChanges();
 			}
 
-			returnObject.data.Add(data);
+			returnObject.Data.Add(data);
 			return returnObject;
 		}
 		catch (Exception e) {

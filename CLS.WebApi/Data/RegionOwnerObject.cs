@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class RegionOwnerObject
 {
-	public long id { get; set; }
-	public string name { get; set; }
+	public long Id { get; set; }
+
+	public string Name { get; set; } = null!;
 }

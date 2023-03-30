@@ -98,56 +98,48 @@ public class IndexController : ControllerBase
 							  select new { m.Id, m.VariableName };
 
 			foreach (var record in measures.AsNoTrackingWithIdentityResolution()) {
-				var newObject = new MeasureDataReturnObject();
-
-				if (record.User is null) {
-					newObject.Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, Resource.SYSTEM);
-				}
-				else {
-					newObject.Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User.UserName);
-				}
-
-				newObject.Id = record.Id;
-				newObject.Name = record.Name;
-				newObject.Explanation = record.Explanation;
-				newObject.Description = record.Description;
-				newObject.Action = record.Action;
-				newObject.UnitId = record.Unit.Id;
-				newObject.Units = record.Unit.Short;
-				newObject.Target = record.target;
-				newObject.Yellow = record.YellowValue;
-				newObject.Value = record.Value;
+				var measureDataDto = new MeasureDataReturnObject {
+					Id = record.Id,
+					Name = record.Name,
+					Explanation = record.Explanation,
+					Description = record.Description,
+					Action = record.Action,
+					UnitId = record.Unit.Id,
+					Units = record.Unit.Short,
+					Target = record.target,
+					Yellow = record.YellowValue,
+					Value = record.Value,
+					Calculated = record.calculated,
+					Expression = record.Expression,
+					Evaluated = String.Empty,
+					Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User?.UserName ?? Resource.SYSTEM)
+				};
 
 				if (record.target is not null) {
-					newObject.Target = Math.Round((double)record.target, record.Precision, MidpointRounding.AwayFromZero);
+					measureDataDto.Target = Math.Round((double)record.target, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
 				if (record.YellowValue is not null) {
-					newObject.Yellow = Math.Round((double)record.YellowValue, record.Precision, MidpointRounding.AwayFromZero);
+					measureDataDto.Yellow = Math.Round((double)record.YellowValue, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
 				if (record.Value is not null) {
-					newObject.Value = Math.Round((double)record.Value, record.Precision, MidpointRounding.AwayFromZero);
+					measureDataDto.Value = Math.Round((double)record.Value, record.Precision, MidpointRounding.AwayFromZero);
 				}
 
-				newObject.Calculated = record.calculated;
-
-				// Evaluates expressions
-				newObject.Expression = record.Expression;
-				newObject.Evaluated = string.Empty;
-				if (newObject.Calculated && !string.IsNullOrEmpty(newObject.Expression)) {
+				if (measureDataDto.Calculated && !string.IsNullOrEmpty(measureDataDto.Expression)) {
 					var varNames = new List<VariableName>();
 					foreach (var item in allVarNames) {
-						if (newObject.Expression.Contains(item.VariableName)) {
-							varNames.Add(new VariableName { id = item.Id, varName = item.VariableName });
+						if (measureDataDto.Expression.Contains(item.VariableName)) {
+							varNames.Add(new VariableName { Id = item.Id, VarName = item.VariableName });
 						}
 					}
 					// Search measure data values from variables
 					if (varNames.Count > 0) {
-						string sExpression = newObject.Expression;
+						string sExpression = measureDataDto.Expression;
 						foreach (var item in varNames) {
 							var measure = _dbc.Measure
-								.Where(m => m.MeasureDefinitionId == item.id && m.HierarchyId == dto.HierarchyId)
+								.Where(m => m.MeasureDefinitionId == item.Id && m.HierarchyId == dto.HierarchyId)
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
 								var measureData = _dbc.MeasureData
@@ -155,17 +147,17 @@ public class IndexController : ControllerBase
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
 									if (measureData.First().Value is not null) {
-										sExpression = sExpression.Replace("Data[\"" + item.varName + "\"]", measureData.First().Value.ToString());
+										sExpression = sExpression.Replace("Data[\"" + item.VarName + "\"]", measureData.First().Value.ToString());
 									}
 								}
 							}
 						}
 
-						newObject.Evaluated = sExpression;
+						measureDataDto.Evaluated = sExpression;
 					}
 				}
 
-				returnObject.Data.Add(newObject);
+				returnObject.Data.Add(measureDataDto);
 			}
 
 			returnObject.Range = BuildRangeString(dto.CalendarId);

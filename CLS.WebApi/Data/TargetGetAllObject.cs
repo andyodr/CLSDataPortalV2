@@ -1,20 +1,20 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class TargetGetAllObject
 {
-	public int hierarchyId { set; get; }
+	public int HierarchyId { get; set; }
 
-	public long? measureId { set; get; }
+	public long? MeasureId { get; set; }
 
-	public int measureTypeId { set; get; }
+	public int MeasureTypeId { get; set; }
 
-	public double? target { set; get; }
+	public double? Target { get; set; }
 
-	public double? yellow { set; get; }
+	public double? Yellow { get; set; }
 
-	public bool? applyToChildren { set; get; }
+	public bool? ApplyToChildren { get; set; }
 
-	public bool? isCurrentUpdate { get; set; }
+	public bool? IsCurrentUpdate { get; set; }
 
-	public TargetConfirmInterval confirmIntervals { get; set; }
+	public TargetConfirmInterval ConfirmIntervals { get; set; } = null!;
 }

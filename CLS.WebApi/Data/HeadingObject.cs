@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class HeadingObject
 {
-	public string title { set; get; }
-	public bool required { set; get; }
+	public string Title { get; set; } = null!;
+
+	public bool Required { get; set; }
 }

@@ -42,7 +42,7 @@ public class EditController : ControllerBase
 
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				result.Roles.Add(new() { id = role.Id, name = role.Name });
+				result.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
 			var users = _context.User

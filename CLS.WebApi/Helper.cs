@@ -111,29 +111,6 @@ public static class Helper
 		};
 	}
 
-	internal static MeasureTypeModel ErrorProcessingDataImport(ApplicationDbContext dbc, Exception e, int userId) {
-		var returnModel = new MeasureTypeModel();
-		int errorId = -1;
-		string errorMessage = string.Empty;
-		var record = dbc.AuditTrail.Add(new AuditTrail {
-			UpdatedBy = userId,
-			Type = Resource.WEB_PAGES,
-			Code = "WEB-06",
-			Data = e.Message + "\n" + (e.StackTrace?.ToString() ?? string.Empty),
-			Description = Resource.DATA_IMPORT,
-			LastUpdatedOn = DateTime.Now
-		}).Entity;
-		dbc.SaveChanges();
-		errorId = (int)record.Id;
-		errorMessage = e.Message;
-		var errorObject = new ErrorModel {
-			Id = errorId,
-			Message = errorMessage
-		};
-		returnModel.error = errorObject;
-		return returnModel;
-	}
-
 	internal static ICollection<RegionFilterObject> GetSubsLevel(ApplicationDbContext dbc, int id) {
 		var children = dbc.Hierarchy
 			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 4)
@@ -250,51 +227,51 @@ public static class Helper
 	}
 
 	internal static DataImportObject DataImportHeading(dataImports dataImport) {
-		DataImportObject result = new DataImportObject { heading = new() };
+		DataImportObject result = new DataImportObject { Heading = new List<HeadingObject>() };
 
 		if (dataImport == dataImports.target) {
-			result.id = (int)dataImports.target;
-			result.name = "Target";
-			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new HeadingObject { title = "measureid", required = true });
-			result.heading.Add(new HeadingObject { title = "target", required = true });
-			result.heading.Add(new HeadingObject { title = "yellow", required = false });
+			result.Id = (int)dataImports.target;
+			result.Name = "Target";
+			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "target", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "yellow", Required = false });
 		}
 		else if (dataImport == dataImports.customer) {
-			result.id = (int)dataImports.customer;
-			result.name = "Customer Region";
-			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new HeadingObject { title = "calendarid", required = true });
-			result.heading.Add(new HeadingObject { title = "customergroup", required = false });
-			result.heading.Add(new HeadingObject { title = "customersubgroup", required = false });
-			result.heading.Add(new HeadingObject { title = "purchasetype", required = false });
-			result.heading.Add(new HeadingObject { title = "tradechannel", required = false });
-			result.heading.Add(new HeadingObject { title = "tradechannelgroup", required = false });
-			result.heading.Add(new HeadingObject { title = "sales", required = false });
-			result.heading.Add(new HeadingObject { title = "numorders", required = false });
-			result.heading.Add(new HeadingObject { title = "numlines", required = false });
-			result.heading.Add(new HeadingObject { title = "ordertype", required = false });
-			result.heading.Add(new HeadingObject { title = "numlateorders", required = false });
-			result.heading.Add(new HeadingObject { title = "numlatelines", required = false });
-			result.heading.Add(new HeadingObject { title = "numordlens", required = false });
-			result.heading.Add(new HeadingObject { title = "ordqty", required = false });
-			result.heading.Add(new HeadingObject { title = "headerstatuscode", required = false });
-			result.heading.Add(new HeadingObject { title = "headerstatus", required = false });
-			result.heading.Add(new HeadingObject { title = "blockcode", required = false });
-			result.heading.Add(new HeadingObject { title = "blocktext", required = false });
-			result.heading.Add(new HeadingObject { title = "rejectioncode", required = false });
-			result.heading.Add(new HeadingObject { title = "rejectiontext", required = false });
-			result.heading.Add(new HeadingObject { title = "creditstatuscheck", required = false });
-			result.heading.Add(new HeadingObject { title = "creditcode", required = false });
+			result.Id = (int)dataImports.customer;
+			result.Name = "Customer Region";
+			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "calendarid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "customergroup", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "customersubgroup", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "purchasetype", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "tradechannel", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "tradechannelgroup", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "sales", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "numorders", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "numlines", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "ordertype", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "numlateorders", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "numlatelines", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "numordlens", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "ordqty", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "headerstatuscode", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "headerstatus", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "blockcode", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "blocktext", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "rejectioncode", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "rejectiontext", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "creditstatuscheck", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "creditcode", Required = false });
 		}
 		else {
-			result.id = (int)dataImports.measureData;
-			result.name = "Measure Data";
-			result.heading.Add(new HeadingObject { title = "hierarchyid", required = true });
-			result.heading.Add(new HeadingObject { title = "measureid", required = true });
-			result.heading.Add(new HeadingObject { title = "value", required = true });
-			result.heading.Add(new HeadingObject { title = "explanation", required = false });
-			result.heading.Add(new HeadingObject { title = "action", required = false });
+			result.Id = (int)dataImports.measureData;
+			result.Name = "Measure Data";
+			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "value", Required = true });
+			result.Heading.Add(new HeadingObject { Title = "explanation", Required = false });
+			result.Heading.Add(new HeadingObject { Title = "action", Required = false });
 		}
 
 		return result;
@@ -472,8 +449,8 @@ public static class Helper
 
 	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string? userName) {
 		var update = new UpdatedObject();
-		update.by = userName;
-		update.longDt = lastUpdatedOn.ToString();
+		update.By = userName;
+		update.LongDt = lastUpdatedOn.ToString();
 
 		//// Convert to seconds
 		//int seconds = (int)DateTime.Now.Subtract(lastUpdatedOn).TotalSeconds;
@@ -504,24 +481,24 @@ public static class Helper
 					if (dateSpan.Hours == 0) {
 						// Less than a minute
 						if (dateSpan.Minutes == 0)
-							update.shortDt = dateSpan.Seconds.ToString() + " secs";
+							update.ShortDt = dateSpan.Seconds.ToString() + " secs";
 						else
-							update.shortDt = dateSpan.Minutes.ToString() + " mins";
+							update.ShortDt = dateSpan.Minutes.ToString() + " mins";
 					}
 					else
-						update.shortDt = dateSpan.Hours.ToString() + " hours " + dateSpan.Minutes.ToString() + " mins";
+						update.ShortDt = dateSpan.Hours.ToString() + " hours " + dateSpan.Minutes.ToString() + " mins";
 				}
 				else
-					update.shortDt = dateSpan.Days.ToString() + " days " + dateSpan.Hours.ToString() + " hours";
+					update.ShortDt = dateSpan.Days.ToString() + " days " + dateSpan.Hours.ToString() + " hours";
 			}
 			else
-				update.shortDt = dateSpan.Months.ToString() + " months " + dateSpan.Days.ToString() + " days";
+				update.ShortDt = dateSpan.Months.ToString() + " months " + dateSpan.Days.ToString() + " days";
 
 			return update;
 		}
 
 		// Over a year
-		update.shortDt = dateSpan.Years.ToString() + " years " + dateSpan.Months.ToString() + " months";
+		update.ShortDt = dateSpan.Years.ToString() + " years " + dateSpan.Months.ToString() + " months";
 
 		return update;
 	}

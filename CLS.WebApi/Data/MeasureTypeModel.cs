@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class MeasureTypeModel
 {
-	public ErrorModel error { set; get; }
-	public MeasureTypeObject data { set; get; }
+	public ErrorModel? Error { get; set; }
+
+	public MeasureTypeObject Data { get; set; } = null!;
 }
