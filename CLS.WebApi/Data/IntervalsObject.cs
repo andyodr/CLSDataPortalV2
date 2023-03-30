@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class IntervalsObject
 {
-	public int id { set; get; }
-	public string name { set; get; }
+	public int Id { get; set; }
+
+	public string Name { get; set; } = null!;
 }

@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -106,29 +106,29 @@ public class IndexController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			int targetCount = _dbc.Target.Where(t => t.Measure!.Id == value.measureId).Count();
+			int targetCount = _dbc.Target.Where(t => t.Measure!.Id == value.MeasureId).Count();
 			var target = _dbc.Target
-				.Where(t => t.Measure!.Id == value.measureId && t.Active == true)
+				.Where(t => t.Measure!.Id == value.MeasureId && t.Active == true)
 				.Include(t => t.Measure)
 				.ThenInclude(m => m!.MeasureDefinition)
 				.First();
 
 			double? targetValue = null, targetYellow = null;
 			var measureDef = target.Measure!.MeasureDefinition;
-			if (value.target is not null) {
-				if (measureDef!.UnitId == 1 && (value.target < 0d || value.target > 1d)) {
+			if (value.Target is not null) {
+				if (measureDef!.UnitId == 1 && (value.Target < 0d || value.Target > 1d)) {
 					return BadRequest(Resource.VAL_VALUE_UNIT);
 				}
 
-				targetValue = Math.Round((double)value.target, measureDef.Precision, MidpointRounding.AwayFromZero);
+				targetValue = Math.Round((double)value.Target, measureDef.Precision, MidpointRounding.AwayFromZero);
 			}
 
-			if (value.yellow is not null) {
-				if (measureDef!.UnitId == 1 && (value.yellow < 0d || value.yellow > 1d)) {
+			if (value.Yellow is not null) {
+				if (measureDef!.UnitId == 1 && (value.Yellow < 0d || value.Yellow > 1d)) {
 					return BadRequest(Resource.VAL_VALUE_UNIT);
 				}
 
-				targetYellow = Math.Round((double)value.yellow, measureDef.Precision, MidpointRounding.AwayFromZero);
+				targetYellow = Math.Round((double)value.Yellow, measureDef.Precision, MidpointRounding.AwayFromZero);
 			}
 
 			// Set current target to inactive if there are multiple targets
@@ -139,13 +139,13 @@ public class IndexController : ControllerBase
 			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
 
 			// Create new target and save if there are multiple targets for the same measure
-			if ((targetCount > 1 || !target.Active) && value.measureId is not null) {
+			if ((targetCount > 1 || !target.Active) && value.MeasureId is not null) {
 				// Create new target and save
 				var newTarget = _dbc.Target.Add(new() {
 					Active = true,
 					Value = targetValue,
 					YellowValue = targetYellow,
-					MeasureId = value.measureId ?? 0L,
+					MeasureId = value.MeasureId ?? 0L,
 					LastUpdatedOn = lastUpdatedOn,
 					UserId = _user.Id,
 					IsProcessed = (byte)Helper.IsProcessed.complete
@@ -155,8 +155,8 @@ public class IndexController : ControllerBase
 				returnTargetId = newTarget.Id;
 
 				// Update Target Id for all Measure Data records for current intervals
-				if (value.isCurrentUpdate ?? false) {
-					UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, value.measureId ?? 0L, _user.Id, lastUpdatedOn);
+				if (value.IsCurrentUpdate ?? false) {
+					UpdateCurrentTargets(newTarget.Id, value.ConfirmIntervals, value.MeasureId ?? 0L, _user.Id, lastUpdatedOn);
 				}
 
 				Helper.AddAuditTrail(_dbc,
@@ -173,10 +173,10 @@ public class IndexController : ControllerBase
 
 			_dbc.SaveChanges();
 			measureDataList.Add(new() {
-				Target = value.target,
-				Yellow = value.yellow,
+				Target = value.Target,
+				Yellow = value.Yellow,
 				TargetId = returnTargetId,
-				TargetCount = _dbc.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
+				TargetCount = _dbc.Target.Where(t => t.Measure!.Id == value.MeasureId).Count(),
 				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
 			});
 
@@ -201,7 +201,7 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var hierarchyIds = GetAllChildren(value.hierarchyId);
+			var hierarchyIds = GetAllChildren(value.HierarchyId);
 
 			// getAllChildren will add the parent and the children to the list
 			if (hierarchyIds.Count > 1) {
@@ -209,7 +209,7 @@ public class IndexController : ControllerBase
 				hierarchyIds.RemoveAt(0);
 
 				var measureDefs = from measureDef in _dbc.MeasureDefinition
-								  where measureDef.MeasureType!.Id == value.measureTypeId
+								  where measureDef.MeasureType!.Id == value.MeasureTypeId
 								  select new { id = measureDef.Id };
 
 				var masterList = from h in hierarchyIds
@@ -220,7 +220,7 @@ public class IndexController : ControllerBase
 
 				foreach (var record in masterList) {
 					// Get parent target
-					var pMeasure = _dbc.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == value.hierarchyId);
+					var pMeasure = _dbc.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == value.HierarchyId);
 					if (!pMeasure.Any()) {
 						continue;
 					}
@@ -264,8 +264,8 @@ public class IndexController : ControllerBase
 						}).Entity;
 
 						// Update Target Id for all Measure Data records for current intervals
-						if (value.isCurrentUpdate ?? false) {
-							UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, measureId, _user.Id, lastUpdatedOn);
+						if (value.IsCurrentUpdate ?? false) {
+							UpdateCurrentTargets(newTarget.Id, value.ConfirmIntervals, measureId, _user.Id, lastUpdatedOn);
 						}
 
 						_ = _dbc.SaveChanges();

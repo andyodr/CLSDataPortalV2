@@ -1,8 +1,10 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class DataImportObject
 {
-	public int id { set; get; }
-	public string name { set; get; }
-	public List<HeadingObject> heading { set; get; }
+	public int Id { get; set; }
+
+	public string Name { get; set; } = null!;
+
+	public IList<HeadingObject> Heading { get; set; } = null!;
 }

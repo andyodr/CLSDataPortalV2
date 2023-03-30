@@ -1,10 +1,10 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class DataImportErrorReturnObject
 {
-	public long? id;
+	public long? Id;
 
-	public int? row { get; set; }
+	public int? Row { get; set; }
 
-	public string message { get; set; }
+	public string Message { get; set; } = null!;
 }

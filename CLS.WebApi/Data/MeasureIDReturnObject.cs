@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class MeasureIDReturnObject
 {
-	public ICollection<MeasureTypeDataObject> data { set; get; } = new List<MeasureTypeDataObject>();
-	public ErrorModel error { set; get; }
+	public IList<MeasureTypeDataObject> Data { get; set; } = new List<MeasureTypeDataObject>();
+
+	public ErrorModel? Error { get; set; }
 }

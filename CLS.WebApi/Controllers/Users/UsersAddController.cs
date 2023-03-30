@@ -40,7 +40,7 @@ public class AddController : ControllerBase
 			});
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
-				returnObject.Roles.Add(new() { id = role.Id, name = role.Name });
+				returnObject.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
 			return returnObject;

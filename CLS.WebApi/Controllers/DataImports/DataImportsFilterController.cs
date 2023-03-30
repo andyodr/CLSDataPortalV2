@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,28 +23,28 @@ public class FilterController : ControllerBase
 			if (intervalId == (int)Helper.intervals.weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
-					number = c.WeekNumber,
-					startDate = c.StartDate,
-					endDate = c.EndDate,
-					month = null
+					Number = c.WeekNumber,
+					StartDate = c.StartDate,
+					EndDate = c.EndDate,
+					Month = null
 				}).ToArray();
 			}
 			else if (intervalId == (int)Helper.intervals.quarterly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
-					number = c.Quarter,
-					startDate = c.StartDate,
-					endDate = c.EndDate,
-					month = null
+					Number = c.Quarter,
+					StartDate = c.StartDate,
+					EndDate = c.EndDate,
+					Month = null
 				}).ToArray();
 			}
 			else if (intervalId == (int)Helper.intervals.monthly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
-					number = c.Month,
-					startDate = null,
-					endDate = null,
-					month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
+					Number = c.Month,
+					StartDate = null,
+					EndDate = null,
+					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
 				}).ToArray();
 			}
 			else {
@@ -53,9 +53,9 @@ public class FilterController : ControllerBase
 		}
 		catch (Exception e) {
 			var errorId = LogError(e.Message, e.InnerException, e.StackTrace);
-			var returnObject = new DataImportFilterGetAllObject();
-			returnObject.error.Id = errorId;
-			returnObject.error.Message = e.Message;
+			var returnObject = new DataImportFilterGetAllObject { Error = new() };
+			returnObject.Error.Id = errorId;
+			returnObject.Error.Message = e.Message;
 			return BadRequest(returnObject);
 		}
 	}

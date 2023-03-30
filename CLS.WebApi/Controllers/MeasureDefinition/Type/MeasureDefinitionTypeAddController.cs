@@ -24,7 +24,7 @@ public class AddController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new MeasureTypeModel { data = new() };
+			var returnObject = new MeasureTypeModel { Data = new() };
 
 			// Validates name
 			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.Name.Trim().ToLower()).Count();
@@ -51,7 +51,7 @@ public class AddController : ControllerBase
 				_user.Id
 			);
 
-			returnObject.data = value;
+			returnObject.Data = value;
 			return returnObject;
 		}
 		catch (Exception e) {

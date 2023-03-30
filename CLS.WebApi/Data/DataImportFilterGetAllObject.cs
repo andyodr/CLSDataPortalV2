@@ -1,11 +1,16 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class DataImportFilterGetAllObject
 {
-	public ErrorModel error { get; set; }
+	public ErrorModel? Error { get; set; }
+
 	public int id { get; set; }
-	public int? number { get; set; }
-	public DateTime? startDate { get; set; }
-	public DateTime? endDate { get; set; }
-	public string? month { get; set; }
+
+	public int? Number { get; set; }
+
+	public DateTime? StartDate { get; set; }
+
+	public DateTime? EndDate { get; set; }
+
+	public string? Month { get; set; }
 }

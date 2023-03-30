@@ -52,7 +52,7 @@ public class FilterController : ControllerBase
 			//USE SAVED FILTER
 			var intervals = _dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTrackingWithIdentityResolution()) {
-				filter.Intervals.Add(new() { id = interval.Id, name = interval.Name });
+				filter.Intervals.Add(new() { Id = interval.Id, Name = interval.Name });
 			}
 
 			var cals = _dbc.Calendar
