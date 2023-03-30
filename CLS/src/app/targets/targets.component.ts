@@ -124,7 +124,7 @@ export class TargetsComponent implements OnInit {
     }
 
 
-    constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog, private snackBar: MatSnackBar ) { }
+    constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
 

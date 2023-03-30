@@ -12,6 +12,8 @@ import { Hierarchy, RegionFilter, RegionFlatNode } from '../_services/hierarchy.
 import { FilterResponseDto, IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
+import { AppDialog } from '../app-dialog.component';
 
 
 @Component({
@@ -133,7 +135,7 @@ export class MeasureDataComponent implements OnInit {
 
 
 
-    constructor(private measureDataService: MeasureDataService, private logger: LoggerService) { }
+    constructor(private measureDataService: MeasureDataService, private logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.measureDataService.getFilters().subscribe({
@@ -352,6 +354,8 @@ export class MeasureDataComponent implements OnInit {
         this.isEditMode = true;
         // this.selectedRow = { ...targetRow };
         this.selectedRow = measureDataRow;
+        this.model.explanation = measureDataRow.explanation;
+        this.model.action = measureDataRow.action;
     }
 
     onSave(measureDataRow: MeasureDataDto) {
@@ -363,9 +367,11 @@ export class MeasureDataComponent implements OnInit {
 
         this.selectedRow = { ...measureDataRow };
 
-        if (!this.allow || this.locked) {
-            return;
-        }
+        console.log("onSave MeasureDataRow: ", measureDataRow);
+
+        // if (!this.allow || this.locked) {
+        //     return;
+        // }
 
         const measureDataRowNew = { ...measureDataRow };
 
@@ -385,27 +391,39 @@ export class MeasureDataComponent implements OnInit {
             "action": measureDataAction
            }
 
-        if (this.measureDataRow == measureDataRow) {
-          this.logger.logInfo("There are no changes for " + this.measureDataRow + ". Unable to Save.")
+        if (measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
+            this.logger.logInfo("There are no changes for " + measureDataRow.name + ". Unable to Save.")
+            const dialogRef = this.dialog.open(AppDialog, {
+                width: '450px',
+                data: {
+                    title: 'Alert',
+                    msg: 'There are no changes for ' + measureDataRow.name + '. Unable to Save.'
+                }
+            });
         }
 
         // Call Server - PUT
-        this.progress(true);
+        //this.progress(true);
 
-        // this.measureDataService.updateMeasureData(measureDataId, body).subscribe({
-        //     next: measureDataResponse => {
-        //         this.logger.logInfo("Measure Data Updated")
-        //         this.progress(false);
-        //         this.disabledAll = false;
-        //         this.loadTable();
-        //     },
-        //     error: err => {
-        //         this.logger.logError(err.message)
-        //         this.errorMsg = err
-        //         this.showError = true
-        //         this.processLocalError(this.title, err.statusText, null, err.status, null);
-        //     }
-        // })
+        console.log("measureDataId on updateMeasureData", measureDataId);
+        console.log("body on updateMeasureData", body);
+        
+
+        this.measureDataService.updateMeasureData(body).subscribe({
+            next: measureDataResponse => {
+                this.logger.logInfo("Measure Data Updated")
+                console.log("measureDataId on updateMeasureData", measureDataResponse);
+                this.progress(false);
+                this.disabledAll = false;
+                this.loadTable();
+            },
+            error: err => {
+                this.logger.logError(err.message)
+                this.errorMsg = err
+                this.showError = true
+                this.processLocalError(this.title, err.statusText, null, err.status, null);
+            }
+        })
 
 
         // this.pages.measureData
@@ -445,7 +463,8 @@ export class MeasureDataComponent implements OnInit {
         //     }
         //   );
 
-        this.onCancel(measureDataRow);
+        //this.onCancel(measureDataRow);
+        //this.loadTable();
     }
 
     onCancel(measureDataRow: MeasureDataDto) {
@@ -471,14 +490,6 @@ export class MeasureDataComponent implements OnInit {
         this.errorMsg = "";
         this.showError = false;
     }
-
-
-
-
-
-
-
-
 
     processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
         this.errorMsg = this.processError(title, message, id, status);

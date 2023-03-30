@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { ErrorModel } from '../_models/error';
-import { FilterResponseDto, MeasureDataDto, MeasureDataEditDto, MeasureDataResponse } from '../_models/measureData';
+import { FilterResponseDto, MeasureDataDto, MeasureDataPutDto, MeasureDataResponse } from '../_models/measureData';
 
 
 export type FiltersIntervalsData = {
@@ -57,8 +57,21 @@ export class MeasureDataService {
     )
   }
 
-  updateMeasureData(measureDataId: number, bodyDto: MeasureDataEditDto): Observable<MeasureDataEditDto> {
-    return this.http.put<MeasureDataEditDto>(`${ this.baseUrl }/measure/edit/${ measureDataId }`, bodyDto)
+  updateMeasureData(body:MeasureDataPutDto): Observable<MeasureDataResponse> {
+    return this.http.put<MeasureDataResponse>(this.baseUrl + "Index/", body).pipe(
+      map((response: MeasureDataResponse) => {
+        console.log("Measure Data Response : ", response)
+        return response
+      })
+    )
   }
+      
+    // .pipe(
+    //   map((response: MeasureDataEditDto) => {
+    //     console.log("Measure Data Edit Response : ", response)
+    //     return response
+    //   })
+    // )
+  
 
 }
