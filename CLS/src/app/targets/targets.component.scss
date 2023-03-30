@@ -58,6 +58,21 @@ mat-drawer header h2 {
   margin: auto 2em;
 }
 
+mat-drawer form h4,
+mat-drawer form h5 {
+  display: inline-block;
+  margin-bottom: 1ch;
+}
+
+mat-drawer form h5 {
+  margin-left: 2em;
+  font-size: 14px;
+}
+
+app-region-tree {
+  border: 1px solid var(--mat-primary-100);
+}
+
 .panel-body {
   padding: 15px;
 }

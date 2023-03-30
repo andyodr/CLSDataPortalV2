@@ -11,6 +11,7 @@ import { Hierarchy, RegionFilter } from '../_services/hierarchy.service';
 import { Target, MeasureType, TargetApiParams, TargetApiResponse, TargetFilter, TargetDto, ConfirmIntervals } from '../_models/target';
 import { LoggerService } from '../_services/logger.service';;
 import { TargetService } from '../_services/target.service';
+import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 
 @Component({
     selector: 'app-targets',
@@ -31,7 +32,8 @@ export class TargetsComponent implements OnInit {
     title = "Targets"
     //filters: any = null;
     filters!: TargetFilter
-    filtersSelected: string[] = []
+    filtersDisplay: string[] = []
+    @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
     dataSource = new MatTableDataSource([] as Target[])
     //dataSource = new MatTableDataSource<Target>()
     //dataSource = new MatTableDataSource<Data>()
@@ -44,25 +46,10 @@ export class TargetsComponent implements OnInit {
     //isEditable: boolean[] = Array(5).fill(false);
     //----------------
 
-    measureTypes: MeasureType[] = []
-    selectedMeasureType: MeasureType = { id: 0, name: "" }
-    selectedHierarchy: Hierarchy = {
-        id: 0, name: "",
-        levelId: 0,
-        parentId: 0
-    }
     disabledAll = false
     errorMsg: any = ""
     showError = false
     showContentPage = false
-    drawer = {
-        title: "Filter",
-        button: "Apply",
-        position: "start" as "start" | "end"
-    }
-
-    editingMeasureType!: MeasureType
-
     data: Target [] = [];
 
     //----------------
@@ -108,21 +95,15 @@ export class TargetsComponent implements OnInit {
     };
 
 
-    private userSubscription = new Subscription()
+    measureTypes: MeasureType[] = []
+    selectedMeasureType?: MeasureType
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { name: string, id: number }[]
-    model = {
-        id: 0,
-        active: false,
-        name: "",
-        level: 0,
-        selectedParent: null as number | number[] | null
-    }
+    selectedHierarchy = null as number | number[] | null
     filtered: TargetApiParams = {
         hierarchyId: 1,
         measureTypeId: 1,
     }
-
 
     constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog, private snackBar: MatSnackBar ) { }
 
@@ -142,42 +123,52 @@ export class TargetsComponent implements OnInit {
 
                 this.measureTypes = filters.measureTypes;
                 console.log("filters measureTypes: ", this.measureTypes);
-                this.selectedMeasureType = filters.measureTypes[0];
-                console.log("filters selected measure Types: ", this.selectedMeasureType);
-
                 this.hierarchy = filters.hierarchy;
-                console.log("filters hierarchy: ", this.hierarchy);
-                //this.selectedHierarchy = filters.hierarchy[0];
-                console.log("filters selected hierarchy: ", this.selectedHierarchy);
-
+                const { hierarchyId, measureTypeId } = filters.filter
+                this.selectedMeasureType = filters.measureTypes.find(t => t.id == measureTypeId)
+                this.selectedHierarchy = hierarchyId
+                this.filtered.hierarchyId = hierarchyId
+                this.filtered.measureTypeId = measureTypeId
 
                 //this.loadTable()
-                this.getTargets(this.filtered);
+                setTimeout(() => this.loadTable())
             }
         })
     }
 
     loadTable() {
-        this.filtersSelected = [this.selectedMeasureType.name]
+        if (!this.selectedMeasureType || typeof this.selectedHierarchy !== "number") return
+        this.filtered.hierarchyId = this.selectedHierarchy
+        this.filtered.measureTypeId = this.selectedMeasureType.id
+        this.filtersDisplay = [
+            this.selectedMeasureType?.name ?? "?",
+            this.tree.ancestorPath.join(" | ")
+        ]
+
+        this.showError = false;
+        this.disabledAll = true;
+        //this.data = null;
+        console.log("get target on the component");
+        // Call Server
         this.targetService.getTarget2(this.filtered).subscribe({
-            next: dto => {
-                this.dataSource.data = dto.data
+            next: response => {
+            this.targetResponse = response;
+            this.data = response.data
+            console.log("Target on Component: ", response);
+            //this.dataSource = new MatTableDataSource(response.data)
+            //console.log("Datasource: ", this.dataSource);
+            //this.dataSource.sort = this.sort
+            this.allow = response.allow
+            this.confirmed = response.confirmed
+            this.dataSource = new MatTableDataSource(response.data)
+            this.dataSource.sort = this.sort
+            console.log("Datasource: ", this.dataSource)
+            this.disabledAll = false;
+            },
+            error: (err: any) => {
+                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
             }
         })
-    }
-
-    doFilter() {
-        this.drawer = { title: "Filter", button: "Apply", position: "start" }
-    }
-
-    doAddType() {
-        this.drawer = { title: "Add Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { id: 0, name: "", description: "" }
-    }
-
-    doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
     }
 
     onEdit(element: Target) {
@@ -211,33 +202,6 @@ export class TargetsComponent implements OnInit {
     closeError() {
         this.errorMsg = ""
         this.showError = false
-    }
-
-    getTargets(filtered: TargetApiParams): void {
-        this.showError = false;
-        this.disabledAll = true;
-        //this.data = null;
-        console.log("get target on the component");
-        // Call Server
-        this.targetService.getTarget2(filtered).subscribe({
-            next: response => {
-            this.targetResponse = response;
-            this.data = response.data
-            console.log("Target on Component: ", response);
-            //this.dataSource = new MatTableDataSource(response.data)
-            //console.log("Datasource: ", this.dataSource);
-            //this.dataSource.sort = this.sort
-            this.allow = response.allow
-            this.confirmed = response.confirmed
-            this.dataSource = new MatTableDataSource(response.data)
-            this.dataSource.sort = this.sort
-            console.log("Datasource: ", this.dataSource)
-            this.disabledAll = false;
-            },
-            error: (err: any) => {
-                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
-            }
-        })
     }
 
     edit(data: any) {

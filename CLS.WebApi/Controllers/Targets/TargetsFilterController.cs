@@ -1,7 +1,6 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CLS.WebApi.Controllers.Targets;
 
@@ -10,22 +9,16 @@ namespace CLS.WebApi.Controllers.Targets;
 [Authorize(Roles = "Regional Administrator, System Administrator")]
 public class FilterController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public FilterController(ApplicationDbContext context) => _context = context;
+	public FilterController(ApplicationDbContext context) => _dbc = context;
 
 	/// <summary>
 	/// Get measureType and hierarchy data
 	/// </summary>
 	[HttpGet]
 	public ActionResult<FilterReturnObject> Get() {
-		var filter = new FilterReturnObject {
-			Intervals = null,
-			MeasureTypes = new List<MeasureTypeFilterObject>(),
-			Hierarchy = new List<RegionFilterObject>()
-		};
-
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -34,31 +27,25 @@ public class FilterController : ControllerBase
 				return Unauthorized();
 			}
 
-			filter.MeasureTypes = _context.MeasureType
+			var result = new FilterReturnObject {
+				Intervals = null,
+				MeasureTypes = new List<MeasureTypeFilterObject>(),
+				Hierarchy = new() { Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id) }
+			};
+
+			result.MeasureTypes = _dbc.MeasureType
 				.OrderBy(m => m.Id)
 				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name, Description = m.Description })
 				.ToArray();
 
-			var regions = _context.Hierarchy
-				.Where(m => m.HierarchyLevel!.Id == 1)
-				.OrderBy(r => r.Id)
-				.AsNoTrackingWithIdentityResolution()
-				.ToArray();
-			filter.Hierarchy.Add(new() {
-				Hierarchy = regions.First().Name,
-				Id = regions.First().Id,
-				Sub = Helper.GetSubs(_context, regions.First().Id, _user),
-				Count = 0
-			});
-
-			_user.savedFilters[Helper.pages.target].measureTypeId ??= _context.MeasureType.First().Id;
+			_user.savedFilters[Helper.pages.target].measureTypeId ??= _dbc.MeasureType.First().Id;
 			_user.savedFilters[Helper.pages.target].hierarchyId ??= 1;
-			filter.Filter = _user.savedFilters[Helper.pages.target];
-			return filter;
+			result.Filter = _user.savedFilters[Helper.pages.target];
+			return result;
 		}
 
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

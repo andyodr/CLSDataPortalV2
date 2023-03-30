@@ -1,16 +1,16 @@
 <mat-drawer-container>
-  <mat-drawer [position]="drawer.position" #drwr>
+  <mat-drawer #drwr>
     <header>
-      <h2>{{drawer.title}}</h2>
+      <h2>Filter</h2>
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="save(); drwr.close()">
-        <mat-icon>save_alt</mat-icon> {{drawer.button}}
+      <button mat-raised-button aria-label="Apply" (click)="save(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> Apply
       </button>
     </header>
     <form>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'start'">
+      <mat-form-field appearance="fill">
         <mat-label>Measure Type</mat-label>
         <mat-select name="level" [(ngModel)]="selectedMeasureType" [disabled]="disabledAll">
           <mat-option *ngFor="let measureType of measureTypes" [value]="measureType">
@@ -18,16 +18,9 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
-        <mat-label>Measure Type Name</mat-label>
-        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Ex. Customer Service"
-          [disabled]="disabledAll">
-      </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
-        <mat-label>Measure Type Description</mat-label>
-        <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
-          placeholder="Ex. Customer Service" [disabled]="disabledAll">
-      </mat-form-field>
+      <h4>Region Hierarchy:</h4>
+      <h5>{{ regions.ancestorPath.at(-1) }}</h5>
+      <app-region-tree #regions [hierarchy]="hierarchy" [(selectedRegions)]="selectedHierarchy"></app-region-tree>
     </form>
   </mat-drawer>
   <mat-drawer-content>
@@ -92,10 +85,10 @@
             </ngb-alert>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
+        <button mat-raised-button color="primary" (click)="drwr.open()">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
-        <span class="filter" *ngFor="let filter of filtersSelected">{{filter}}</span>
+        <span class="filter" *ngFor="let filter of filtersDisplay">{{filter}}</span>
         <div class="panel-header">
           <mat-form-field appearance="fill">
             <mat-label>Filter</mat-label>
