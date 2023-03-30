@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +82,7 @@ public class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject value) {
+	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject dto) {
 		if (Helper.CreateUserObject(User) is UserObject u) {
 			_user = u;
 		}
@@ -94,12 +94,12 @@ public class IndexController : ControllerBase
 		var lastUpdatedOn = DateTime.Now;
 		try {
 			var currentMeasure = new MeasureTypeRegionsObject {
-				Id = value.measureDefinitionId,
+				Id = dto.MeasureDefinitionId,
 				Hierarchy = new(),
-				Name = _dbc.MeasureDefinition.Find(value.measureDefinitionId)?.Name
+				Name = _dbc.MeasureDefinition.Find(dto.MeasureDefinitionId)?.Name + "*"
 			};
 
-			foreach (var measureHierarchy in value.hierarchy) {
+			foreach (var measureHierarchy in dto.Hierarchy) {
 				var measure = _dbc.Measure.Where(m => m.Id == measureHierarchy.Id).FirstOrDefault();
 				if (measure is not null) {
 					bool updateMeasureData = measure.Active != measureHierarchy.Active ||

@@ -1,9 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { HttpClient, HttpParams } from "@angular/common/http"
+import { Injectable } from "@angular/core"
+import { Observable } from "rxjs"
+import { environment } from "../environments/environment"
 import { MeasureType, Filter } from "../_services/measure-definition.service"
-import { RegionFilter } from './hierarchy.service';
+import { RegionFilter } from "./hierarchy.service"
 
 export interface MeasureApiParams {
     intervalId?: number
@@ -45,38 +45,32 @@ export type MeasureFilter = {
     measures: MeasureApiResponse
 }
 
+export type MeasureDefinitionPutDto = {
+    measureDefinitionId: number
+    hierarchy: RegionActiveCalculatedDto[]
+}
+
 @Injectable({
-    providedIn: 'root'
+    providedIn: "root"
 })
 export class MeasureService {
 
-    private baseUrl = environment.baseUrl + 'api/measures';
+    private baseUrl = environment.baseUrl + "api/measures";
 
     constructor(private http: HttpClient) { }
 
-    //Get Measures from API
-    getMeasure(): Observable<MeasureApiResponse> {
-        return this.http.get<MeasureApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
-    }
-
-    getMeasure1() {
-        return this.http.get<MeasureApiResponse>(environment.baseUrl + 'api/targets/index?hierarchyId=1&measureTypeId=1').pipe(
-            map((response: MeasureApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
-            }),
-        );
-    }
-
     getMeasures(filtered: MeasureApiParams): Observable<MeasureApiResponse> {
         let params = new HttpParams()
-        params = params.append('hierarchyId', filtered.hierarchyId)
-        params = params.append('measureTypeId', filtered.measureTypeId)
-        return this.http.get<MeasureApiResponse>(this.baseUrl + '/index', { params: params })
+        params = params.append("hierarchyId", filtered.hierarchyId)
+        params = params.append("measureTypeId", filtered.measureTypeId)
+        return this.http.get<MeasureApiResponse>(this.baseUrl + "/index", { params: params })
     }
 
     getMeasureFilter(): Observable<MeasureFilter> {
         return this.http.get<MeasureFilter>(this.baseUrl + "/filter")
+    }
+
+    updateMeasures(body: MeasureDefinitionPutDto): Observable<MeasureApiResponse> {
+        return this.http.put<MeasureApiResponse>(this.baseUrl + "/index", body)
     }
 }

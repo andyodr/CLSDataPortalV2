@@ -1,14 +1,14 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { processError } from '../lib/app-constants';
-import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
-import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
-import { LoggerService } from '../_services/logger.service';
+import { animate, state, style, transition, trigger } from "@angular/animations"
+import { Component, OnInit, ViewChild } from "@angular/core"
+import { MatSort } from "@angular/material/sort"
+import { MatTable, MatTableDataSource } from "@angular/material/table"
+import { processError } from "../lib/app-constants"
+import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
+import { RegionFilter } from "../_services/hierarchy.service"
+import { LoggerService } from "../_services/logger.service"
 import { MeasureType } from "../_services/measure-definition.service"
 import { MeasureApiResponse, MeasureFilter,
-    MeasureService, MeasureApiParams, RegionActiveCalculatedDto } from "../_services/measure.service"
+    MeasureService, RegionActiveCalculatedDto } from "../_services/measure.service"
 
 interface MeasuresTableRow {
     id: number
@@ -16,10 +16,21 @@ interface MeasuresTableRow {
     [key: string]: number | string | RegionActiveCalculatedDto
 }
 
+class ToggleQuery {
+    expanded!: any
+    toggle(t: any) {
+        this.expanded = t === this.expanded ? null : t
+    }
+
+    query(t: any) {
+        return this.expanded === t
+    }
+}
+
 @Component({
-  selector: 'app-measures',
-  templateUrl: './measures.component.html',
-  styleUrls: ['./measures.component.scss'],
+  selector: "app-measures",
+  templateUrl: "./measures.component.html",
+  styleUrls: ["./measures.component.scss"],
   animations: [
       trigger("detailExpand", [
           state("false", style({ height: "0px", minHeight: "0" })),
@@ -28,24 +39,17 @@ interface MeasuresTableRow {
       ])]
 })
 export class MeasuresComponent implements OnInit {
-    measureResponse: MeasureApiResponse | undefined;
-
-    //Declarations
     title = "Measures"
-    //filters: any = null;
+    measureResponse: MeasureApiResponse | undefined;
     filters!: MeasureFilter
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasuresTableRow>()
     displayedColumns = ["measureDefinition"]
-    expandDetail = new ToggleQuery()
+    expand = new ToggleQuery()
+    @ViewChild(MatTable) matTable!: MatTable<MeasuresTableRow>
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
     selectedMeasureType: MeasureType = { id: 0, name: "" }
-    selectedHierarchy: Hierarchy = {
-        id: 0, name: "",
-        levelId: 0,
-        parentId: 0
-    }
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -54,34 +58,10 @@ export class MeasuresComponent implements OnInit {
     hierarchyId: number | null = null;
     measureTypeId: number | null = null;
     btnDisabled = false;
-    skTargets = "";
     allow = false;
-    confirmed = false;
-    dataConfirmed: any = {
-        target: null,
-        yellow: null,
-        data: null,
-        isApplyToChildren: false,
-        isCurrentUpdate: false,
-        confirmIntervals: null,
-        targetId: null,
-        targetCount: null
-    };
-
     hierarchy: RegionFilter[] = []
     selectedRegion = null as number | number[] | null
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
-    model = {
-        id: 0,
-        active: false,
-        name: "",
-        level: 0,
-        selectedParent: null as number | number[] | null
-    }
-    filtered: MeasureApiParams = {
-        hierarchyId: 1,
-        measureTypeId: 1,
-    }
 
     constructor(private api: MeasureService, public logger: LoggerService ) { }
 
@@ -139,105 +119,26 @@ export class MeasuresComponent implements OnInit {
         this.showError = false
     }
 
-    getMeasures(filtered: MeasureApiParams): void {
-        this.showError = false;
-        this.disabledAll = true;
-        //this.data = null;
-        console.log("get target on the component");
-        // Call Server
-        this.api.getMeasures(filtered).subscribe({
-            next: dto => {
-
-                // const firstObject = response.data[0];
-                // this.displayedDynamicColumns = Object.keys(firstObject);
-
-                // Extract keys from the first object in the response array
-                //const keys = Object.keys(response.data[0].hierarchy[0]);
-                // Define column definitions for each key
-                // const columns = keys.map((key) => ({
-                //     key,
-                //     header: key.toUpperCase(),
-                //     cell: (element: { [x: string]: any; }) => element[key],
-                // }));
-
-                // // Extract the key names into the displayedColumns array
-                // this.displayedDynamicColumns = columns.map((column) => column.key);
-
-                // Get all unique keys in the hierarchy objects
-                // const hierarchyKeys = Array.from(
-                //     new Set(response.data.flatMap((element) => Object.keys(element.hierarchy[0])))
-                // );
-
-                // // Generate the displayedColumns array with hierarchy keys
-                // const displayedDynamicColumns = ["id", "name", "owner", ...hierarchyKeys.map(key => `hierarchy.${key}`)];
-
-                // this.displayedDynamicColumns = displayedDynamicColumns;
-                // console.log("displayedDynamicColumns: ", this.displayedDynamicColumns);
-
-                this.measureResponse = dto;
-                this.allow = dto.allow
-                //this.confirmed = response.confirmed
-                this.dataSource.data = dto.data.map(d => ({
+    save(row: MeasuresTableRow) {
+        const dto = {
+            measureDefinitionId: row.id,
+            hierarchy: Object.values(row)
+                .filter((v): v is RegionActiveCalculatedDto => typeof v === "object")
+        };
+        this.api.updateMeasures(dto).subscribe(response => {
+            let i = this.dataSource.data.findIndex(d => d.id === response.data.at(0)?.id)
+            if (i >= 0) {
+                this.dataSource.data = [...this.dataSource.data.slice(0, i), response.data.map(d => ({
                     id: d.id,
                     measureDefinition: d.name,
-                    ...Object.fromEntries(d.hierarchy.map((k, i) => [dto.hierarchy[i], k]))
-                }))
-                this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
-
-                //-------Test----------//
-
-                // add the 'name' and 'owner' properties to the displayed columns array
-                this.displayedColumns.push('name', 'owner');
-
-                // iterate over each object in the array
-                dto.data[0].hierarchy.forEach(obj => {
-
-                    this.displayedColumns.push(obj.id.toString());
-                });
-
-                this.displayedColumns.push('actions');
-
-                //this.hierarchy = response.hierarchy;
-                this.disabledAll = false;
-            },
-            error: (err: any) => {
-                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
+                    ...Object.fromEntries(d.hierarchy.map((r, i) => [d.hierarchy[i], r]))
+                }))[0], ...this.dataSource.data.slice(i + 1)]
+                this.loadTable()
+            }
+            else {
+                this.logger.logWarning(`Edited measureDefinitionId=${row.id} missing from response`)
             }
         })
-    }
-
-
-
-    // getFiltersFromMain(): void {
-    //   this.showError = false;
-    //   this.disabledAll = true;
-    //   this.filters = null;
-    //   this.progress(true);
-    //   // Call Server
-    //   pages.targetsFilter.get(
-    //     {},
-    //     value => {
-    //       if (itgIsNull(value.error)) {
-    //         this.filters = value;
-    //         this.$broadcast('filtersEvent');
-    //         this.progress(false);
-    //       } else {
-    //         this.processLocalError('Filters', value.error.message, value.error.id, null, value.error.authError);
-    //       }
-    //       this.disabledAll = false;
-    //     },
-    //     err => {
-    //       this.processLocalError('Filters', err.statusText, null, err.status, null);
-    //     }
-    //   );
-    // }
-
-    edit(data: any) {
-        this.skTargets = "edit";
-    }
-
-    cancel(data: any) {
-        this.skTargets = "cancel";
     }
 
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
@@ -245,17 +146,5 @@ export class MeasuresComponent implements OnInit {
         this.showError = true
         this.disabledAll = false
         this.showContentPage = (authError != true)
-    }
-
-}
-
-class ToggleQuery {
-    expanded!: any
-    toggle(t: any) {
-        this.expanded = t === this.expanded ? null : t
-    }
-
-    query(t: any) {
-        return this.expanded === t
     }
 }

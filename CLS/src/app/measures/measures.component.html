@@ -99,44 +99,38 @@
             </button>
           </mat-form-field>
         </div>
-        <table mat-table [dataSource]="dataSource" matSort [trackBy]="identity">
+        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows [trackBy]="identity">
           <ng-container matColumnDef="measureDefinition">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
-            <td mat-cell *matCellDef="let row">{{row.measureDefinition}}</td>
+            <td mat-cell *matCellDef="let row" (click)="expand.toggle(row)">{{row.measureDefinition}}</td>
           </ng-container>
-          <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns.slice(1); index as i">
-            <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+          <ng-container [matColumnDef]="col" *ngFor="let col of displayedColumns.slice(1); index as i">
+            <th mat-header-cell *matHeaderCellDef> {{col}} </th>
             <td mat-cell *matCellDef="let row">
-              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].active" matTooltip="Active" color="primary"> A
+              <mat-checkbox [disabled]="!expand.query(row)" [(ngModel)]="row[col].active" matTooltip="Active" color="primary">
+                A
               </mat-checkbox>
-              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].expression" matTooltip="Calculated Expression"
-                color="primary"> E </mat-checkbox>
-              <mat-checkbox [disabled]="true" [(ngModel)]="row[column].rollup" matTooltip="Rollup" color="primary"> R
+              <mat-checkbox [disabled]="!expand.query(row)" [(ngModel)]="row[col].expression" matTooltip="Calculated Expression" color="primary">
+                E
+              </mat-checkbox>
+              <mat-checkbox [disabled]="!expand.query(row)" [(ngModel)]="row[col].rollup" matTooltip="Rollup" color="primary">
+                R
               </mat-checkbox>
             </td>
           </ng-container>
-          <!-- <ng-container *ngFor="let region of hierarchy; let i = index" matColumnDef="{{region}}">
-            <th mat-header-cell *matHeaderCellDef> {{i == 0 ? '(Parent)' : ''}} {{region}} </th>
-            <td mat-cell *matCellDef="let data">
-              <div class="magicWrap">
-                <mat-checkbox [(ngModel)]="data.hierarchy[i].active"></mat-checkbox>
-                <label class="mar0 marR10" matTooltip="Active"> A </label>
-              </div>
-              <div class="magicWrap">
-                <mat-checkbox [(ngModel)]="data.hierarchy[i].expression"></mat-checkbox>
-                <label class="mar0 marR10" matTooltip="Calculated Expression"> E </label>
-              </div>
-              <div class="magicWrap">
-                <mat-checkbox [(ngModel)]="data.hierarchy[i].rollup"></mat-checkbox>
-                <label class="mar0 marR10" matTooltip="Rollup"> R </label>
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+              <div class="expandable-detail" [@detailExpand]="expand.query(row).toString()">
+                <button mat-raised-button (click)="save(row)" color="accent" aria-label="Save">
+                  <mat-icon>save_alt</mat-icon> Save
+                </button>
               </div>
             </td>
-          </ng-container> -->
+          </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
-            [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr> -->
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"
+            [class.expanded-row]="expand.query(row)" #tr></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
           </tr>
@@ -148,134 +142,3 @@
     </div>
   </mat-drawer-content>
 </mat-drawer-container>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <app-sidebar></app-sidebar>
-<div class="page page-table" data-ng-controller="MeasuresCtrl">
-  <div class="row ui-section">
-    <div class="col-lg-8 clearfix">
-      <h2 class="section-header2">{{title}}</h2>
-    </div>
-    <div class="col-md-12 itgMinH">
-
-      <div class="panel panel-default">
-
-
-        <aside data-ng-include="'app/layout/progress.html'"></aside>
-
-
-        <aside data-ng-include="'app/layout/errors.html'"></aside>
-
-
-        <aside ng-show="showContentPage" data-ng-include="'app/layout/filters.html'"></aside>
-
-
-        <div ng-show="showContentPage" class="panel-body padT0">
-
-          <div class="panel panel-default">
-
-
-            <div class="panel-heading">
-              <div class="row">
-                <form>
-                  <input type="text" placeholder="Search..." class="form-control marL15" style="width: 300px;"
-                         data-ng-model="skMeasures" data-ng-keyup="populateTable()" ng-disabled="disabledAll">
-                </form>
-              </div>
-            </div>
-
-
-            <section class="table-flip-scroll table-dynamic overflowAuto" data-ng-controller="TableCtrl">
-              <table class="table table-bordered table-striped cf no-margin">
-                <thead class="cf">
-                  <tr>
-                    <th class="numeric">
-                      <div class="th">
-                        <span>Measure Definition</span>
-                        <span class="fa fa-angle-up" data-ng-click=" order('name') " data-ng-class="{active: row == 'name'}"></span>
-                        <span class="fa fa-angle-down" data-ng-click=" order('-name') " data-ng-class="{active: row == '-name'}"></span>
-                      </div>
-                    </th>
-                    <th class="numeric" data-ng-repeat="region in hierarchy track by $index">
-                      <div class="th"><span class="f12" ng-if="($index == 0)">(Parent)</span> {{region}} </div>
-                    </th>
-                    <th ng-if="allow" class="numeric itgWidth100 textAlignM"><div class="th"></div></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let data of measureResponse?.data" class="itgTableTr">
-
-                    <td style="width:200px;">
-                      <p class="itgPopupLink" ng-click="editOwner(data)">
-                        <span class="pSpan" uib-tooltip="Owner: {{data.owner}}">{{data.name}}</span>
-                        <span popover-placement="right" uib-popover-template="dPopover.templateUrl" popover-trigger="mouseenter" ng-mouseover="mmPopover(data)">
-                          {{data.name}}
-                        </span>
-                      </p>
-                    </td>
-
-                    <td *ngFor="let region in data.hierarchy">
-                      <div class="magicWrap">
-                        <input class="magic-checkbox" type="checkbox" id="A{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.active"
-                          ng-disabled="rowsDisabled($parent.$index)" />
-                        <label for="A{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Active"> A </label>
-                        <input class="magic-checkbox" type="checkbox" [id]="'A' + data.id + $parent.index + region.id" [(ngModel)]="region.active" [disabled]="rowsDisabled($parent.index)" />
-                        <label [for]="'A' + data.id + $parent.index + region.id" class="mar0 marR10" matTooltip="Active"> A </label>
-                      </div>
-                      <div class="magicWrap">
-                        <input class="magic-checkbox" type="checkbox" id="B{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.expression"
-                          ng-disabled="rowsDisabled($parent.$index)" />
-                        <label for="B{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Calculated Expression"> E </label>
-                      </div>
-                      <div class="magicWrap">
-                        <input class="magic-checkbox" type="checkbox" id="C{{data.id}}{{$parent.$index}}{{region.id}}" ng-model="region.rollup"
-                          ng-disabled="rowsDisabled($parent.$index)" />
-                        <label for="C{{data.id}}{{$parent.$index}}{{region.id}}" class="mar0 marR10" uib-tooltip="Rollup"> R </label>
-                      </div>
-                    </td>
-                    <td *ngIf="allow" class="mar0 itgTableTd itgWidth100 textAlignM" style="width: 250px;">
-                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-info2 edit{{data.id}}" [disabled]="disabledAll" (click)="edit(data)" matTooltip="Edit">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-save btnEdit btnEdit" [disabled]="disabledAll" (click)="save(data)" matTooltip="Save">
-                        <mat-icon>save</mat-icon>
-                      </button>
-                      <button mat-button type="button" class="itgTdBtn btn-w-xxxs bg-cancel marL5 btnEdit{{data.id}}" [disabled]="disabledAll" (click)="cancel(data)" matTooltip="Cancel">
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <footer class="table-footer">
-                <span> Showing {{this.data.length}} entries </span>
-              </footer>
-            </section>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
