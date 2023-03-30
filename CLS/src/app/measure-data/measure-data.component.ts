@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { NavigationService } from '../_services/nav.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
-import { Hierarchy, RegionFilter, RegionFlatNode } from '../_models/regionhierarchy';
+import { Hierarchy, RegionFilter, RegionFlatNode } from '../_services/hierarchy.service';
 import { FilterResponseDto, IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';

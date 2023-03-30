@@ -2,8 +2,11 @@
 
 public class MeasureTypeRegionsObject
 {
-	public long id { set; get; }
-	public string? name { set; get; }
-	public string? owner { set; get; }
-	public List<RegionActiveCalculatedObject> hierarchy { set; get; }
+	public long Id { get; set; }
+
+	public string? Name { get; set; }
+
+	public string? Owner { get; set; }
+
+	public List<RegionActiveCalculatedObject> Hierarchy { get; set; } = null!;
 }

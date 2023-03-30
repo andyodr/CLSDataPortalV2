@@ -2,7 +2,9 @@
 
 public class MeasuresIndexPutObject
 {
-	public ErrorModel error { set; get; }
-	public long measureDefinitionId { get; set; }
-	public List<RegionActiveCalculatedObject> hierarchy { set; get; }
+	public ErrorModel? Error { get; set; }
+
+	public long MeasureDefinitionId { get; set; }
+
+	public IList<RegionActiveCalculatedObject> Hierarchy { get; set; } = null!;
 }

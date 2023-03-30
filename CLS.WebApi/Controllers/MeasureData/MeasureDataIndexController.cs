@@ -25,7 +25,7 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		var returnObject = new MeasureDataIndexListObject { data = new() };
+		var returnObject = new MeasureDataIndexListObject { Data = new() };
 		DateTime? date = new();
 
 		try {
@@ -36,12 +36,12 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			returnObject.allow = _user.hierarchyIds.Contains(dto.HierarchyId);
+			returnObject.Allow = _user.hierarchyIds.Contains(dto.HierarchyId);
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.editValue = Helper.CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
+			returnObject.EditValue = Helper.CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
 
-			returnObject.calendarId = dto.CalendarId;
+			returnObject.CalendarId = dto.CalendarId;
 			if (string.IsNullOrEmpty(dto.Day)) {
 				date = null;
 			}
@@ -51,26 +51,26 @@ public class IndexController : ControllerBase
 					.Where(c => c.StartDate == date)
 					.AsNoTrackingWithIdentityResolution().ToArray();
 				if (cal.Length > 0) {
-					returnObject.calendarId = cal.First().Id;
+					returnObject.CalendarId = cal.First().Id;
 				}
 			}
 
 			var calendar = _dbc.Calendar
-				.Where(c => c.Id == returnObject.calendarId)
+				.Where(c => c.Id == returnObject.CalendarId)
 				.Include(c => c.Interval)
 				.AsNoTrackingWithIdentityResolution().First();
 
-			returnObject.locked = false;
+			returnObject.Locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (_dbc.Setting.AsNoTracking().First().Active == true) {
-				returnObject.locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
+				returnObject.Locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
 			}
 
 			var measures = _dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
-					&& m.CalendarId == returnObject.calendarId)
+					&& m.CalendarId == returnObject.CalendarId)
 				.Include(md => md.Target)
 				.Include(md => md.User)
 				.Include(md => md.Measure)
@@ -151,7 +151,7 @@ public class IndexController : ControllerBase
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
 								var measureData = _dbc.MeasureData
-									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == returnObject.calendarId)
+									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == returnObject.CalendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
 									if (measureData.First().Value is not null) {
@@ -165,17 +165,17 @@ public class IndexController : ControllerBase
 					}
 				}
 
-				returnObject.data.Add(newObject);
+				returnObject.Data.Add(newObject);
 			}
 
-			returnObject.range = BuildRangeString(dto.CalendarId);
+			returnObject.Range = BuildRangeString(dto.CalendarId);
 			if (dto.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
 				_user.savedFilters[Helper.pages.measureData].calendarId = dto.CalendarId;
 				_user.savedFilters[Helper.pages.measureData].intervalId = calendar.Interval.Id;
 				_user.savedFilters[Helper.pages.measureData].year = calendar.Year;
 			}
 			_user.savedFilters[Helper.pages.measureData].hierarchyId = dto.HierarchyId;
-			returnObject.filter = _user.savedFilters[Helper.pages.measureData];
+			returnObject.Filter = _user.savedFilters[Helper.pages.measureData];
 
 			return returnObject;
 		}
@@ -245,7 +245,7 @@ public class IndexController : ControllerBase
 				  Updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.UserName)
 			  }
 			);
-			returnObject.data = measureDataList;
+			returnObject.Data = measureDataList;
 			return returnObject;
 
 			//var measureData = _measureDataRepository.All().Where(m => m.Id == value.measureDataId);

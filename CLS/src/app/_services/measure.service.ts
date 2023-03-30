@@ -1,130 +1,76 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { environment } from '../environments/environment';
-import { MeasureApiParams, MeasureApiResponse, MeasureFilter } from '../_models/measure';
-//import { Measure } from '../_models/measure';
+import { HttpClient, HttpParams } from "@angular/common/http"
+import { Injectable } from "@angular/core"
+import { Observable } from "rxjs"
+import { environment } from "../environments/environment"
+import { MeasureType, Filter } from "../_services/measure-definition.service"
+import { RegionFilter } from "./hierarchy.service"
 
+export interface MeasureApiParams {
+    intervalId?: number
+    calendarId?: number
+    year?: number
+    measureTypeId: number
+    hierarchyId: number
+}
 
-// export type MeasureType = {
-//   id: number,
-//   name: string,
-//   description?: string
-// }
+export interface RegionActiveCalculatedDto {
+    id: number
+    active: boolean
+    expression: boolean
+    rollup: boolean
+}
 
-// export type MeasureDefinitionFilter = {
-//   measureTypes: MeasureType[]
-//   filter: {
-//       hierarchyId?: number
-//       measureTypeId?: number
-//       intervalId?: number
-//       calendarId?: number
-//       year?: number
-//   }
-// }
+export interface MeasureTypeRegionsDto {
+    id: number
+    name: string
+    owner: string
+    hierarchy: RegionActiveCalculatedDto[]
+}
 
-// export interface MeasureDefinition {
-//   id?: number
-//   name: string
-//   measureTypeId: number
-//   interval?: string
-//   intervalId: number
-//   varName: string
-//   description?: string
-//   expression?: string
-//   precision: number
-//   priority: number
-//   fieldNumber: number
-//   unitId: number
-//   units?: string
-//   calculated?: boolean
-//   daily?: boolean
-//   weekly?: boolean
-//   monthly?: boolean
-//   quarterly?: boolean
-//   yearly?: boolean
-//   aggFunction?: string
-//   aggFunctionId?: number
-// }
+export interface MeasureApiResponse {
+    error: any
+    hierarchy: string[]
+    allow: boolean
+    data: MeasureTypeRegionsDto[]
+}
 
-// export type Units = { id: number, name: string, shortName: string }
+export type MeasureFilter = {
+    measureTypes: MeasureType[]
+    hierarchy: RegionFilter[]
+    intervals: any
+    years: any
+    error: any
+    filter: Filter
+    currentCalendarIds: any
+    measures: MeasureApiResponse
+}
 
-// export type MeasureDefinitionEditDto = {
-//   units: Units[]
-//   intervals: { id: number, name: string }[]
-//   measureTypes: MeasureType[]
-//   aggFunctions: { id: number, name: string }[]
-//   data: MeasureDefinition[]
-// }
-
+export type MeasureDefinitionPutDto = {
+    measureDefinitionId: number
+    hierarchy: RegionActiveCalculatedDto[]
+}
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: "root"
 })
 export class MeasureService {
 
-  private baseUrl = environment.baseUrl + 'api/measures';
-  
-  constructor(private http: HttpClient) { }
+    private baseUrl = environment.baseUrl + "api/measures";
 
-  //Get Measures from API 
-    getMeasure(): Observable<MeasureApiResponse>{
-      return this.http.get<MeasureApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
+    constructor(private http: HttpClient) { }
+
+    getMeasures(filtered: MeasureApiParams): Observable<MeasureApiResponse> {
+        let params = new HttpParams()
+        params = params.append("hierarchyId", filtered.hierarchyId)
+        params = params.append("measureTypeId", filtered.measureTypeId)
+        return this.http.get<MeasureApiResponse>(this.baseUrl + "/index", { params: params })
     }
-
-    getMeasure1(){
-      return this.http.get<MeasureApiResponse>(environment.baseUrl + 'api/targets/index?hierarchyId=1&measureTypeId=1').pipe(
-        map((response: MeasureApiResponse) => {
-          const targetOnService = response
-          console.log("Target On Service : ", targetOnService);
-          return targetOnService
-        }),
-      );
-    }
-
-    getMeasure2(filtered: MeasureApiParams): Observable<MeasureApiResponse>{
-          //request params
-          let params = new HttpParams();
-          params = params.append('hierarchyId', filtered.hierarchyId);
-          params = params.append('measureTypeId', filtered.measureTypeId);
-          console.log("Params : ", params);
-      return this.http.get<MeasureApiResponse>(this.baseUrl + '/index', {params: params}).pipe(
-        map((response: MeasureApiResponse) => {
-          const targetOnService = response
-          console.log("Measure On Service : ", targetOnService);
-          return targetOnService
-        }
-      ));
-    }
-
 
     getMeasureFilter(): Observable<MeasureFilter> {
-        return this.http.get<MeasureFilter>(this.baseUrl + "/filter"). pipe(
-          map((response: MeasureFilter) => {
-              const measureFilter = response
-              console.log("Measure Filter on Service: ", measureFilter);
-              return measureFilter
-          }
-        ));
+        return this.http.get<MeasureFilter>(this.baseUrl + "/filter")
     }
 
-    // getMeasureDefinitionEdit(measureDefinitionId?: number): Observable<MeasureDefinitionEditDto> {
-    //     if (measureDefinitionId == null) {
-    //         return this.http.get<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`)
-    //     }
-    //     else {
-    //         return this.http.get<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ measureDefinitionId }`)
-    //     }
-    // }
-
-    // updateMeasureDefinition(id: number, dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
-    //     return this.http
-    //     .put<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
-    // }
-
-    // addMeasureDefinition(dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
-    //     return this.http
-    //     .post<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`, dto)
-    // }
-
+    updateMeasures(body: MeasureDefinitionPutDto): Observable<MeasureApiResponse> {
+        return this.http.put<MeasureApiResponse>(this.baseUrl + "/index", body)
+    }
 }

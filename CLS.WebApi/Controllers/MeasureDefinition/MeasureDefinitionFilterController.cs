@@ -10,10 +10,10 @@ namespace CLS.WebApi.Controllers.MeasureDefinition;
 [Authorize(Roles = "Regional Administrator, System Administrator")]
 public class FilterController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public FilterController(ApplicationDbContext context) => _context = context;
+	public FilterController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpGet]
 	public ActionResult<FilterReturnObject> Get() {
@@ -25,17 +25,16 @@ public class FilterController : ControllerBase
 				return Unauthorized();
 			}
 
-			var returnObject = new FilterReturnObject { MeasureTypes = new() };
-			foreach (var measuretype in _context.MeasureType.AsNoTrackingWithIdentityResolution()) {
-				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measuretype.Id, Name = measuretype.Name });
-			}
+			var result = new FilterReturnObject {
+				MeasureTypes = _dbc.MeasureType.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name }).ToArray()
+			};
 
-			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId ??= _context.MeasureType.FirstOrDefault()?.Id;
-			returnObject.Filter = _user.savedFilters[Helper.pages.measureDefinition];
-			return returnObject;
+			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
+			result.Filter = _user.savedFilters[Helper.pages.measureDefinition];
+			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

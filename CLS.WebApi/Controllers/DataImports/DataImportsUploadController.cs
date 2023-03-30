@@ -35,13 +35,13 @@ public class UploadController : ControllerBase
 		[Required]
 		public string Sheet { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IEnumerable<SheetDataTarget>> Data { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<SheetDataTarget>> Data { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IEnumerable<SheetDataTarget>> Targets { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<SheetDataTarget>> Targets { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IEnumerable<SheetDataCustomer>> Customers { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<SheetDataCustomer>> Customers { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IEnumerable<SheetDataMeasureData>> MeasureData { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<SheetDataMeasureData>> MeasureData { get; set; } = null!;
 
 		[Required]
 		public int CalendarId { get; set; }

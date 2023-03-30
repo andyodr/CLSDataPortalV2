@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,18 +10,16 @@ namespace CLS.WebApi.Controllers.Measures;
 [Authorize(Roles = "System Administrator")]
 public class IndexController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public IndexController(ApplicationDbContext context) => _context = context;
+	public IndexController(ApplicationDbContext context) => _dbc = context;
 
 	/// <summary>
 	/// Gets hierarchy and measuredefinition data
 	/// </summary>
 	[HttpGet]
 	public ActionResult<RegionIndexGetReturnObject> Get(int hierarchyId, int measureTypeId) {
-		var returnObject = new RegionIndexGetReturnObject();
-
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
 				_user = u;
@@ -30,60 +28,61 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			//returnObject.allow = _user.hierarchyIds.Contains(values.hierarchyId);
-			returnObject.Allow = true;
-
-			var hierarchies = from hierarchy in _context.Hierarchy
-							  where hierarchy.HierarchyParentId == hierarchyId || hierarchy.Id == hierarchyId
-							  orderby hierarchy.Id
-							  select hierarchy;
-
-			foreach (var hierarchy in hierarchies) {
-				returnObject.Hierarchy.Add(hierarchy.Name);
-			}
-
-			var measureDefinitions = from measureDef in _context.MeasureDefinition
-									 where measureDef.MeasureType!.Id == measureTypeId
-									 orderby measureDef.FieldNumber ascending, measureDef.Name
-									 select measureDef;
-
-			foreach (var measuredef in measureDefinitions.AsNoTracking()) {
-				var currentDataObject = new MeasureTypeRegionsObject { hierarchy = new() };
-				foreach (var hierarchy in hierarchies) {
-					var measure = _context.Measure
-						.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy!.Id == hierarchy.Id)
-						.AsNoTracking().ToArray();
-					if (measure.Length > 0) {
-						var newRegion = new RegionActiveCalculatedObject {
-							id = measure.First().Id,
-							active = measure.First().Active ?? false,
-							expression = measure.First().Expression ?? false,
-							rollup = measure.First().Rollup ?? false
-						};
-						currentDataObject.id = measuredef.Id;
-						currentDataObject.name = measuredef.Name;
-						currentDataObject.owner = measure.FirstOrDefault()?.Owner ?? string.Empty;
-						currentDataObject.hierarchy.Add(newRegion);
-					}
-				}
-
-				if (currentDataObject.hierarchy.Count > 0) {
-					returnObject.Data.Add(currentDataObject);
-				}
-			}
-
 			_user.savedFilters[Helper.pages.measure].hierarchyId = hierarchyId;
 			_user.savedFilters[Helper.pages.measure].measureTypeId = measureTypeId;
 
-			return returnObject;
+			return GetMeasures(_dbc, hierarchyId, measureTypeId);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
+	[NonAction]
+	public static RegionIndexGetReturnObject GetMeasures(ApplicationDbContext dbc, int hierarchyId, int measureTypeId) {
+		var hierarchies = dbc.Hierarchy
+			.Where(h => h.Id == hierarchyId || h.HierarchyParentId == hierarchyId)
+			.OrderBy(h => h.Id);
+		var result = new RegionIndexGetReturnObject {
+			Allow = true,
+			Hierarchy = hierarchies.Select(h => h.Name).ToArray()
+		};
+
+		var measureDefinitions = from measureDef in dbc.MeasureDefinition
+								 where measureDef.MeasureType!.Id == measureTypeId
+								 orderby measureDef.FieldNumber ascending, measureDef.Name
+								 select measureDef;
+
+		foreach (var measuredef in measureDefinitions.AsNoTracking()) {
+			var currentDataObject = new MeasureTypeRegionsObject { Hierarchy = new() };
+			foreach (var hierarchy in hierarchies) {
+				var measure = dbc.Measure
+					.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy!.Id == hierarchy.Id)
+					.AsNoTracking().ToArray();
+				if (measure.Length > 0) {
+					var newRegion = new RegionActiveCalculatedObject {
+						Id = measure.First().Id,
+						Active = measure.First().Active ?? false,
+						Expression = measure.First().Expression ?? false,
+						Rollup = measure.First().Rollup ?? false
+					};
+					currentDataObject.Id = measuredef.Id;
+					currentDataObject.Name = measuredef.Name;
+					currentDataObject.Owner = measure.FirstOrDefault()?.Owner ?? string.Empty;
+					currentDataObject.Hierarchy.Add(newRegion);
+				}
+			}
+
+			if (currentDataObject.Hierarchy.Count > 0) {
+				result.Data.Add(currentDataObject);
+			}
+		}
+
+		return result;
+	}
+
 	[HttpPut]
-	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject value) {
+	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject dto) {
 		if (Helper.CreateUserObject(User) is UserObject u) {
 			_user = u;
 		}
@@ -95,23 +94,23 @@ public class IndexController : ControllerBase
 		var lastUpdatedOn = DateTime.Now;
 		try {
 			var currentMeasure = new MeasureTypeRegionsObject {
-				id = value.measureDefinitionId,
-				hierarchy = new(),
-				name = _context.MeasureDefinition.Find(value.measureDefinitionId)?.Name
+				Id = dto.MeasureDefinitionId,
+				Hierarchy = new(),
+				Name = _dbc.MeasureDefinition.Find(dto.MeasureDefinitionId)?.Name + "*"
 			};
 
-			foreach (var measureHierarchy in value.hierarchy) {
-				var measure = _context.Measure.Where(m => m.Id == measureHierarchy.id).FirstOrDefault();
+			foreach (var measureHierarchy in dto.Hierarchy) {
+				var measure = _dbc.Measure.Where(m => m.Id == measureHierarchy.Id).FirstOrDefault();
 				if (measure is not null) {
-					bool updateMeasureData = measure.Active != measureHierarchy.active ||
-											 measure.Expression != measureHierarchy.expression ||
-											 measure.Rollup != measureHierarchy.rollup;
+					bool updateMeasureData = measure.Active != measureHierarchy.Active ||
+											 measure.Expression != measureHierarchy.Expression ||
+											 measure.Rollup != measureHierarchy.Rollup;
 
-					measure.Active = measureHierarchy.active;
-					measure.Expression = measureHierarchy.expression;
-					measure.Rollup = measureHierarchy.rollup;
+					measure.Active = measureHierarchy.Active;
+					measure.Expression = measureHierarchy.Expression;
+					measure.Rollup = measureHierarchy.Rollup;
 					measure.LastUpdatedOn = lastUpdatedOn;
-					_context.SaveChanges();
+					_dbc.SaveChanges();
 
 					if (updateMeasureData) {
 						var EnumIsProcessed = Helper.IsProcessed.measureData;
@@ -119,9 +118,9 @@ public class IndexController : ControllerBase
 							EnumIsProcessed = Helper.IsProcessed.complete;
 						}
 
-						Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
+						Helper.UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
-						Helper.AddAuditTrail(_context,
+						Helper.AddAuditTrail(_dbc,
 							Resource.WEB_PAGES,
 							"WEB-03",
 							Resource.MEASURE,
@@ -135,14 +134,14 @@ public class IndexController : ControllerBase
 					}
 				}
 
-				currentMeasure.hierarchy.Add(measureHierarchy);
+				currentMeasure.Hierarchy.Add(measureHierarchy);
 			}
 
 			returnObject.Data.Add(currentMeasure);
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

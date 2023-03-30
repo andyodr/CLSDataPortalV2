@@ -12,12 +12,12 @@ namespace CLS.WebApi.Controllers.Targets;
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	/// <summary>
@@ -25,7 +25,7 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get(int hierarchyId, int measureTypeId) {
-		var returnObject = new MeasureDataIndexListObject { data = new() };
+		var result = new MeasureDataIndexListObject { Data = new() };
 
 		try {
 			if (Helper.CreateUserObject(User) is UserObject u) {
@@ -35,12 +35,12 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var defs = from mdef in _context.MeasureDefinition
+			var defs = from mdef in _dbc.MeasureDefinition
 					   where mdef.MeasureTypeId == measureTypeId
 					   orderby mdef.FieldNumber, mdef.Name
 					   select mdef;
 
-			var targets = from m in _context.Measure
+			var targets = from m in _dbc.Measure
 						  from t in m.Targets!
 						  where t.Active == true && m.Hierarchy!.Id == hierarchyId
 						  select t;
@@ -72,24 +72,24 @@ public class IndexController : ControllerBase
 							mdr.Yellow = Math.Round(y, def.Precision, MidpointRounding.AwayFromZero);
 						}
 
-						returnObject.data.Add(mdr);
+						result.Data.Add(mdr);
 					}
 				}
 			}
 
-			returnObject.confirmed = _config.usesSpecialHieararhies;
+			result.Confirmed = _config.usesSpecialHieararhies;
 
-			returnObject.allow = false;
+			result.Allow = false;
 			if (_user.RoleId == (int)Helper.userRoles.systemAdministrator)
-				returnObject.allow = _user.hierarchyIds.Contains(hierarchyId);
+				result.Allow = _user.hierarchyIds.Contains(hierarchyId);
 
 			_user.savedFilters[Helper.pages.target].hierarchyId = hierarchyId;
 			_user.savedFilters[Helper.pages.target].measureTypeId = measureTypeId;
-			returnObject.filter = _user.savedFilters[Helper.pages.target];
-			return returnObject;
+			result.Filter = _user.savedFilters[Helper.pages.target];
+			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -106,8 +106,8 @@ public class IndexController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			int targetCount = _context.Target.Where(t => t.Measure!.Id == value.measureId).Count();
-			var target = _context.Target
+			int targetCount = _dbc.Target.Where(t => t.Measure!.Id == value.measureId).Count();
+			var target = _dbc.Target
 				.Where(t => t.Measure!.Id == value.measureId && t.Active == true)
 				.Include(t => t.Measure)
 				.ThenInclude(m => m!.MeasureDefinition)
@@ -141,7 +141,7 @@ public class IndexController : ControllerBase
 			// Create new target and save if there are multiple targets for the same measure
 			if ((targetCount > 1 || !target.Active) && value.measureId is not null) {
 				// Create new target and save
-				var newTarget = _context.Target.Add(new() {
+				var newTarget = _dbc.Target.Add(new() {
 					Active = true,
 					Value = targetValue,
 					YellowValue = targetYellow,
@@ -151,7 +151,7 @@ public class IndexController : ControllerBase
 					IsProcessed = (byte)Helper.IsProcessed.complete
 				}).Entity;
 
-				_context.SaveChanges();
+				_dbc.SaveChanges();
 				returnTargetId = newTarget.Id;
 
 				// Update Target Id for all Measure Data records for current intervals
@@ -159,7 +159,7 @@ public class IndexController : ControllerBase
 					UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, value.measureId ?? 0L, _user.Id, lastUpdatedOn);
 				}
 
-				Helper.AddAuditTrail(_context,
+				Helper.AddAuditTrail(_dbc,
 					Resource.WEB_PAGES,
 					"WEB-02",
 					Resource.TARGET,
@@ -171,20 +171,20 @@ public class IndexController : ControllerBase
 				);
 			}
 
-			_context.SaveChanges();
+			_dbc.SaveChanges();
 			measureDataList.Add(new() {
 				Target = value.target,
 				Yellow = value.yellow,
 				TargetId = returnTargetId,
-				TargetCount = _context.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
+				TargetCount = _dbc.Target.Where(t => t.Measure!.Id == value.measureId).Count(),
 				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
 			});
 
-			returnObject.data = measureDataList;
+			returnObject.Data = measureDataList;
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -208,7 +208,7 @@ public class IndexController : ControllerBase
 				// Remove the parent. No needed anymore
 				hierarchyIds.RemoveAt(0);
 
-				var measureDefs = from measureDef in _context.MeasureDefinition
+				var measureDefs = from measureDef in _dbc.MeasureDefinition
 								  where measureDef.MeasureType!.Id == value.measureTypeId
 								  select new { id = measureDef.Id };
 
@@ -220,22 +220,22 @@ public class IndexController : ControllerBase
 
 				foreach (var record in masterList) {
 					// Get parent target
-					var pMeasure = _context.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == value.hierarchyId);
+					var pMeasure = _dbc.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == value.hierarchyId);
 					if (!pMeasure.Any()) {
 						continue;
 					}
 
 					// Get parent target
 					var pMeasureId = pMeasure.First().Id;
-					var pTarget = _context.Target.Where(t => t.Measure!.Id == pMeasureId && t.Active == true);
+					var pTarget = _dbc.Target.Where(t => t.Measure!.Id == pMeasureId && t.Active == true);
 					if (!pTarget.Any()) {
 						continue;
 					}
 
 					// Set old target to Inactive
-					var measureId = _context.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == record.hId).First().Id;
-					int targetCount = _context.Target.Where(t => t.Measure!.Id == measureId).Count();
-					var target = _context.Target.Where(t => t.Measure!.Id == measureId && t.Active == true).First();
+					var measureId = _dbc.Measure.Where(m => m.MeasureDefinition!.Id == record.mdId && m.Hierarchy!.Id == record.hId).First().Id;
+					int targetCount = _dbc.Target.Where(t => t.Measure!.Id == measureId).Count();
+					var target = _dbc.Target.Where(t => t.Measure!.Id == measureId && t.Active == true).First();
 
 					// Set current target to inactive if there are multiple targets
 					target.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -245,15 +245,15 @@ public class IndexController : ControllerBase
 						target.Active = true;
 						target.Value = pTarget.First().Value;
 						target.YellowValue = pTarget.First().YellowValue;
-						_context.Target.Update(target);
-						_ = _context.SaveChanges();
+						_dbc.Target.Update(target);
+						_ = _dbc.SaveChanges();
 					}
 					else {
 						target.Active = false;
-						_context.Target.Update(target);
+						_dbc.Target.Update(target);
 
 						// Create new target and save if there are multiple targets for the same measure
-						var newTarget = _context.Target.Add(new() {
+						var newTarget = _dbc.Target.Add(new() {
 							Active = true,
 							Value = pTarget.First().Value,
 							YellowValue = pTarget.First().YellowValue,
@@ -268,9 +268,9 @@ public class IndexController : ControllerBase
 							UpdateCurrentTargets(newTarget.Id, value.confirmIntervals, measureId, _user.Id, lastUpdatedOn);
 						}
 
-						_ = _context.SaveChanges();
+						_ = _dbc.SaveChanges();
 						Helper.AddAuditTrail(
-						  _context, Resource.WEB_PAGES,
+						  _dbc, Resource.WEB_PAGES,
 						   "WEB-02",
 						   Resource.TARGET,
 						   @"Apply to Children / ID=" + newTarget.Id.ToString() +
@@ -286,12 +286,12 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	private List<int> GetAllChildren(int hierarchyId) {
-		var children = from child in _context.Hierarchy
+		var children = from child in _dbc.Hierarchy
 					   where child.HierarchyParentId == hierarchyId
 					   select child;
 
@@ -308,8 +308,8 @@ public class IndexController : ControllerBase
 		if (confirmIntervals is not null) {
 			// Find current calendar Ids from confirmIntervals.
 			if (confirmIntervals.weekly ?? false) {
-				int cWeekly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
+				int cWeekly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -319,8 +319,8 @@ public class IndexController : ControllerBase
 			}
 
 			if (confirmIntervals.monthly ?? false) {
-				int cMonthly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
+				int cMonthly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -330,8 +330,8 @@ public class IndexController : ControllerBase
 			}
 
 			if (confirmIntervals.quarterly ?? false) {
-				int cQuarterly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
+				int cQuarterly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;
@@ -341,8 +341,8 @@ public class IndexController : ControllerBase
 			}
 
 			if (confirmIntervals.yearly ?? false) {
-				int cYearly = _context.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
-				var measureData = _context.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
+				int cYearly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
 					item.IsProcessed = (byte)Helper.IsProcessed.complete;

@@ -39,14 +39,13 @@ public class FilterController : ControllerBase
 	private IActionResult Filter() {
 		var filter = new FilterReturnObject {
 			Intervals = new(),
-			MeasureTypes = new(),
 			Hierarchy = new(),
 			Years = new(),
 			CurrentCalendarIds = new()
 		};
 
 		try {
-			if (!(Helper.CreateUserObject(User) is UserObject _user)) {
+			if (Helper.CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -64,11 +63,9 @@ public class FilterController : ControllerBase
 				filter.Years.Add(new YearsObject { id = cal.Id, year = cal.Year });
 			}
 
-			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
-			foreach (var measureType in measureTypes.AsNoTrackingWithIdentityResolution()) {
-				filter.MeasureTypes.Add(new() { Id = measureType.Id, Name = measureType.Name });
-			}
-
+			filter.MeasureTypes = _dbc.MeasureType.OrderBy(m => m.Id)
+				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name })
+				.ToArray();
 			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id));
 
 			// set current Calendar Ids

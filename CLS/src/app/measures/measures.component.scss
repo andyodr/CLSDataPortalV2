@@ -1,7 +1,3 @@
-// :host {
-//   display: flex;
-//   height: 100%;
-
 :host {
   height: 100%;
   overflow-y: hidden;
@@ -29,20 +25,12 @@ app-sidebar~* {
   padding: 20px;
 }
 
-//   > app-sidebar + div {
-//     padding: 20px;
-//     flex: 1 auto;
-//   }
-// }
-
 mat-drawer form {
-  display: flex;
-  flex-direction: column;
-  padding: 20px 90px 20px 40px;
+  padding: 20px 70px 20px 40px;
 }
 
 mat-drawer form * {
-  flex: 1;
+  display: block;
 }
 
 mat-drawer header {
@@ -54,8 +42,23 @@ mat-drawer header {
 
 mat-drawer header h2 {
   color: white;
-  display: flex;
+  display: inline-block;
   margin: auto 2em;
+}
+
+mat-drawer form h4,
+mat-drawer form h5 {
+  display: inline-block;
+  margin-bottom: 1ch;
+}
+
+mat-drawer form h5 {
+  margin-left: 2em;
+  font-size: 14px;
+}
+
+app-region-tree {
+  border: 1px solid var(--mat-primary-100);
 }
 
 .panel-body {
@@ -107,35 +110,19 @@ table {
   width: 100%;
 }
 
-.mat-column-name {
-  width: 12em;
-}
-
-.mat-column-id {
-  width: 6em;
-}
-
-.mat-column-owner {
-  width: 6em;
-}
-
-.mat-column-hierarchy {
-  width: 24em;
-}
-
-.mat-column-actions {
-  width: 8em;
+td mat-checkbox {
+  margin: 3px 2ch 3px 1ch;
 }
 
 tr.detail-row {
   height: 0;
 }
 
-tr.table-row:not(.expanded-row):hover {
+td.mat-column-measureDefinition:not(.expanded-row):hover {
   background-color: var(--mat-primary-50);
 }
 
-tr.table-row:not(.expanded-row):active {
+td.mat-column-measureDefinition:not(.expanded-row):active {
   background-color: var(--mat-primary-100);
 }
 
@@ -145,42 +132,13 @@ tr.table-row:not(.expanded-row):active {
 
 .expandable-detail {
   overflow: hidden;
-  display: grid;
-  grid-template: auto auto / repeat(3, 1fr);
-  align-items: center;
-  column-gap: 2em;
+  text-align: center;
 }
 
-.detail-items-1 {
-  grid-row: 1;
-  width: max-content;
-  display: grid;
-  grid-template: auto auto / auto auto;
-  column-gap: 1em;
-  line-height: 1.5;
-}
-
-.detail-items-2 {
-  grid-row: 1;
-  width: max-content;
-  display: grid;
-  grid-template: auto auto / auto auto;
-  column-gap: 1em;
-  line-height: 1.5;
-}
-
-.detail-items-3 {
-  grid-column: 1 / -1;
-  width: auto;
-  line-height: 1.5;
-  margin-bottom: 8px;
-}
-
-.expandable-detail a {
-  grid-row: 1 / 3;
-  justify-self: center;
+.expandable-detail button {
+  margin: 1ch auto;
 }
 
 footer {
-  padding: 15px;
+  padding: 1em;
 }
