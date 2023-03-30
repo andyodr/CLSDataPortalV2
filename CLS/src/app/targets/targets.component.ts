@@ -105,7 +105,8 @@ export class TargetsComponent implements OnInit {
         measureTypeId: 1,
     }
 
-    constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog, private snackBar: MatSnackBar ) { }
+
+    constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
 

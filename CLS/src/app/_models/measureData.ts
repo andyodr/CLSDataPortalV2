@@ -27,7 +27,7 @@ export interface MeasureDataDto {
     //id: number;
     id: string;
     name: string;
-    value?: number;
+    value: number;
     explanation?: any;
     action?: any;
     target?: any;
@@ -43,7 +43,7 @@ export interface MeasureDataDto {
     updated: Updated;
 }
 
-export interface MeasureDataEditDto {
+export interface MeasureDataPutDto {
     calendarId: number;
     day: string;
     hierarchyId: number;
