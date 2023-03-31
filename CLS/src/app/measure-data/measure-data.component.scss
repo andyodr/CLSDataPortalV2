@@ -154,6 +154,7 @@ button mat-icon {
 
 table {
   width: 100%;
+  //max-width: 100%;
 }
 
 .mat-column-name {
@@ -161,7 +162,7 @@ table {
 }
 
 .mat-column-calculated {
-  width: 2em;
+  width: 1em;
 }
 
 .mat-column-value {

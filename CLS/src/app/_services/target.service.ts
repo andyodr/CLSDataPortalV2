@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Filter, TargetApiParams, TargetApiResponse, TargetDto, TargetFilter } from '../_models/target';
+import { TargetFilter, TargetApiParams, TargetApiResponse, TargetDto, TargetFilterResponseDto, TargetPutDto } from '../_models/target';
 
 /*export type MeasureType = {
   id: number,
@@ -65,9 +65,23 @@ export class TargetService {
 
     constructor(private http: HttpClient) { }
 
-    //Get Target from API
+    getTargetFilter(): Observable<TargetFilterResponseDto> {
+        return this.http.get<TargetFilterResponseDto>(this.baseUrl + "/filter")
+    }
+
+
     getTarget(): Observable<TargetApiResponse> {
         return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
+    }
+
+    getTargetList(params: HttpParams): Observable<TargetApiResponse> {
+        return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1').pipe(
+            map((response: TargetApiResponse) => {
+                const targetOnService = response
+                console.log("Target On Service : ", targetOnService);
+                return targetOnService
+            }),
+        );
     }
 
     getTarget1() {
@@ -96,37 +110,17 @@ export class TargetService {
         );
     }
 
-    getTargetFilter(): Observable<TargetFilter> {
-        return this.http.get<TargetFilter>(this.baseUrl + "/filter")
-    }
-
     applyTargetToChildren(dto: TargetDto): Observable<TargetApiResponse> {
         return this.http.put<TargetApiResponse>(`${ this.baseUrl }/targets/Index/`, dto)
     }
 
-    updateTarget(id: number, dto: TargetDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
+    updateTarget(body: TargetPutDto): Observable<TargetApiResponse> {
+        return this.http.put<TargetApiResponse>(this.baseUrl + "/Index", body).pipe(
+            map((response: TargetApiResponse) => {
+                console.log("Target Response on Service : ", response);
+                return response
+            }),
+        );
     }
-
-    /*getTargetEdit(measureDefinitionId?: number): Observable<TargetDto> {
-        if (measureDefinitionId == null) {
-            return this.http.get<TargetDto>(`${ this.baseUrl }/target/add`)
-        }
-        else {
-            //return this.http.get<TargetEditDto>(`${ this.baseUrl }/measure/edit/${ targetId }`)
-            return this.http.get<TargetEditDto>(`${ this.baseUrl }/measure/edit/`)
-        }
-    }
-
-    updateTarget(id: number, dto: Target): Observable<TargetEditDto> {
-        return this.http
-        .put<TargetEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
-    }
-
-    addMeasureDefinition(dto: Target): Observable<TargetEditDto> {
-        return this.http
-        .post<TargetEditDto>(`${ this.baseUrl }/measure/add`, dto)
-    }*/
-
 
 }

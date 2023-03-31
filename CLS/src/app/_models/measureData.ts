@@ -9,18 +9,16 @@ import { ErrorModel } from "./error";
 //     hierarchyId: number;
 // }
 
-export interface measureDataFilter {
-    intervalId: number;
+export interface MeasureDataApiResponse {
+    range: string;
     calendarId: number;
-    year: number;
-    measureTypeId: number;
-    hierarchyId: number;
- }
-
-export interface Updated {
-    by: string;
-    longDt: string;
-    shortDt: string;
+    allow: boolean;
+    editValue: boolean;
+    locked: boolean;
+    confirmed: boolean;
+    filter: measureDataFilter;
+    data: MeasureDataDto[];
+    error?: any;
 }
 
 export interface MeasureDataDto {
@@ -43,6 +41,21 @@ export interface MeasureDataDto {
     updated: Updated;
 }
 
+export interface Updated {
+    by: string;
+    longDt: string;
+    shortDt: string;
+}
+
+export interface measureDataFilter {
+    intervalId: number;
+    calendarId: number;
+    year: number;
+    measureTypeId: number;
+    hierarchyId: number;
+ }
+
+
 export interface MeasureDataPutDto {
     calendarId: number;
     day: string;
@@ -54,17 +67,7 @@ export interface MeasureDataPutDto {
     action: string;
 }
 
-export interface MeasureDataResponse {
-    range: string;
-    calendarId: number;
-    allow: boolean;
-    editValue: boolean;
-    locked: boolean;
-    confirmed: boolean;
-    filter: measureDataFilter;
-    data: MeasureDataDto[];
-    error?: any;
-}
+
 
 //--------------------------------------------
 
@@ -86,7 +89,7 @@ export type CurrentCalendarIds = {
     yearlyCalendarId: number
 }
 
-export type FilterResponseDto = {
+export type MeasureDataFilterResponseDto = {
     measureTypes: MeasureType[]
     hierarchy?: RegionFilter[]
     intervals?: IntervalDto[]
@@ -95,64 +98,3 @@ export type FilterResponseDto = {
     currentCalendarIds?: CurrentCalendarIds
     filter: measureDataFilter
 }
-
-// export type FilterResponseDto = {
-//     measureTypes: MeasureType[]
-//     hierarchy?: RegionFilter[]
-//     intervals?: IntervalDto[]
-//     years?: { id: number, year: number }[]
-//     error: ErrorModel
-//     currentCalendarIds?: CurrentCalendarIds
-//     filter: {
-//         hierarchyId?: number
-//         measureTypeId?: number
-//         intervalId?: number
-//         calendarId?: number
-//         year?: number
-//     }
-// }
-
-
-// export type Units = { id: number, name: string, shortName: string }
-
-
-
-
-//--------------------------------------------
-//Interface for Measure Data Model
-// export interface MeasureData {
-//     measureDataId?: string;
-//     measureId?: string;
-//     calendarId?: string;
-//     targetId?: string;
-//     value?: string;
-//     explanation?: string;
-//     action?: string;
-//     userId?: string;
-//     lastUpdatedOn?: string;
-//     isProcessed?: string
-// }
-
-// export interface MeasureDataIndexListObject{
-//     range: string;
-//     calendarId?: string;
-//     allow?: boolean;
-//     editValue?: boolean;
-//     locked?: boolean;
-//     confirmed?: boolean;
-//     filter?: any;
-//     data?: MeasureData[];
-//     error?: string;
-// } 
-
-// export interface MeasureDataReceiveObject{
-//     calendarId: number;
-//     day: string;
-//     hierarchyId: number;
-//     measureTypeId: number;
-//     //measureDataId { set; get; }      
-//     //measureValue { set; get; }
-//     explanation: string;
-//     action: string;  
-//     //public ErrorModel error { set; get; }
-//   }

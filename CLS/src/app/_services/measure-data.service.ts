@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { ErrorModel } from '../_models/error';
-import { FilterResponseDto, MeasureDataDto, MeasureDataPutDto, MeasureDataResponse } from '../_models/measureData';
+import {MeasureDataApiResponse, MeasureDataDto, MeasureDataFilterResponseDto, MeasureDataPutDto } from '../_models/measureData';
 
 
 export type FiltersIntervalsData = {
@@ -31,8 +31,8 @@ export class MeasureDataService {
   constructor(private http: HttpClient) { }
 
   getFilters() {
-    return this.http.get<FilterResponseDto>(this.baseUrl + "filter").pipe(
-      map((response: FilterResponseDto) => {
+    return this.http.get<MeasureDataFilterResponseDto>(this.baseUrl + "filter").pipe(
+      map((response: MeasureDataFilterResponseDto) => {
         console.log("Filter Response : ", response)
         return response
       })
@@ -49,29 +49,21 @@ export class MeasureDataService {
   }
 
   getMeasureDataList(params: HttpParams) {
-    return this.http.get<MeasureDataResponse>(this.baseUrl + "index/", {params}).pipe(
-      map((response: MeasureDataResponse) => {
+    return this.http.get<MeasureDataApiResponse>(this.baseUrl + "index/", {params}).pipe(
+      map((response: MeasureDataApiResponse) => {
         console.log("Measure Data Response : ", response)
         return response
       })
     )
   }
 
-  updateMeasureData(body:MeasureDataPutDto): Observable<MeasureDataResponse> {
-    return this.http.put<MeasureDataResponse>(this.baseUrl + "Index/", body).pipe(
-      map((response: MeasureDataResponse) => {
+  updateMeasureData(body:MeasureDataPutDto): Observable<MeasureDataApiResponse> {
+    return this.http.put<MeasureDataApiResponse>(this.baseUrl + "Index/", body).pipe(
+      map((response: MeasureDataApiResponse) => {
         console.log("Measure Data Response : ", response)
         return response
       })
     )
   }
-      
-    // .pipe(
-    //   map((response: MeasureDataEditDto) => {
-    //     console.log("Measure Data Edit Response : ", response)
-    //     return response
-    //   })
-    // )
-  
 
 }

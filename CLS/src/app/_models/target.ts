@@ -21,16 +21,17 @@ export interface TargetApiResponse {
     editValue: boolean;
     locked: boolean;
     confirmed: boolean;
-    filter: Filter;
-    data: Target[];
+    filter: TargetFilter;
+    data: TargetDto[];
     error?: any;
   }
   
-  export interface Target {
-    id: number;
+  export interface TargetDto {
+    //id: number;
+    id: string;
     name: string;
     value?: number;
-    explanation?: any;
+    explanation?: string;
     action?: any;
     target?: any;
     targetCount?: any;
@@ -51,19 +52,7 @@ export interface TargetApiResponse {
     shortDt: string;
   }
 
-  export interface TargetApiParams{
-    intervalId?: number;
-    calendarId?: number;
-    year?: number;
-    measureTypeId: number;
-    hierarchyId: number; 
- 
-  }
-
-  //--------------------------------------------------------------------------------
-  //from GET api/targets/ common for index and filter
-  //--------------------------------------------------------------------------------
-  export interface Filter {
+  export interface TargetFilter {
     intervalId?: number;
     calendarId?: number;
     year?: number;
@@ -71,18 +60,51 @@ export interface TargetApiResponse {
     hierarchyId: number;
   }
   
+
+  export interface TargetApiParams{
+    intervalId?: number;
+    calendarId?: number;
+    year?: number;
+    measureTypeId: number;
+    hierarchyId: number; 
+  }
+
+
+  export interface TargetPutDto {
+    hierarchyId: number
+    measureId: number
+    measureTypeId: number
+    target: number
+    yellow: number
+    applyToChildren: boolean
+    isCurrentUpdate: boolean
+    confirmIntervals?: ConfirmIntervals
+  }
+  
+  export interface ConfirmIntervals {
+    daily: boolean
+    weekly: boolean
+    monthly: boolean
+    quarterly: boolean
+    yearly: boolean
+  }
+
+  //--------------------------------------------------------------------------------
+  //from GET api/targets/ common for index and filter
+  //--------------------------------------------------------------------------------
+
   //--------------------------------------------------------------------------------
   //from GET api/targets/Filter with no parameters
   //--------------------------------------------------------------------------------
 
 
-  export interface TargetFilter {
+  export interface TargetFilterResponseDto {
     measureTypes: MeasureType[]
     hierarchy: Hierarchy[]
     intervals: any
     years: any
     error: any
-    filter: Filter
+    filter: TargetFilter
     currentCalendarIds: any
   }
 
@@ -106,40 +128,6 @@ export interface TargetApiResponse {
     error: any
   }
 
-  //--------------------------------------------------------------------------------
-  //from PUT api/targets/Index and /Index/{id}
-  //--------------------------------------------------------------------------------
-
-  export interface TargetDto {
-    hierarchyId?: number
-    measureId?: number
-    measureTypeId?: number
-    target?: number
-    yellow?: number
-    applyToChildren: boolean
-    isCurrentUpdate: boolean
-    confirmIntervals?: ConfirmIntervals
-  }
-
-  // export interface TargetDto {
-  //   hierarchyId?: any
-  //   measureId?: any
-  //   measureTypeId?: any
-  //   target?: any
-  //   yellow?: any
-  //   applyToChildren: any
-  //   isCurrentUpdate: any
-  //   confirmIntervals: any
-  // }
-  
-  
-  export interface ConfirmIntervals {
-    daily: boolean
-    weekly: boolean
-    monthly: boolean
-    quarterly: boolean
-    yearly: boolean
-  }
   
  
   

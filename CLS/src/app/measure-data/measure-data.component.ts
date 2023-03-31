@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { Intervals, MSG_ERROR_PROCESSING } from '../lib/app-constants';
-import { MeasureDataDto, MeasureDataResponse } from '../_models/measureData';
+import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto } from '../_models/measureData';
 import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -9,7 +9,7 @@ import { NavigationService } from '../_services/nav.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
 import { Hierarchy, RegionFilter, RegionFlatNode } from '../_services/hierarchy.service';
-import { FilterResponseDto, IntervalDto, MeasureType } from '../_services/measure-definition.service';
+import { IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,14 +29,16 @@ import { AppDialog } from '../app-dialog.component';
 })
 export class MeasureDataComponent implements OnInit {
 
-    measureDataResponse: MeasureDataResponse | undefined;
+    measureDataResponse: MeasureDataApiResponse | undefined;
 
     //------------------ Table Properties ------------------
     measureDataList: MeasureDataDto[] = [];
     measureDataRow: MeasureDataDto | undefined
+    
     dataSource = new MatTableDataSource<MeasureDataDto>()
     displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
     @ViewChild(MatSort) sort!: MatSort
+
     editingMeasureType!: any
     selectedMeasureType: MeasureType = { id: 0, name: "" }
 
@@ -47,10 +49,10 @@ export class MeasureDataComponent implements OnInit {
     //------------------ Local Properties ------------------
     title = 'Measure Data';
     showContentPage = true
+
     Intervals = Intervals
     dataRange = "";
 
-   
     disabledAll = true;
     btnDisabled = false;
     skMeasureData = "";
@@ -58,20 +60,25 @@ export class MeasureDataComponent implements OnInit {
     editValue = false;
     showActionButtons = true;
     editBgColor = true;
-
     filteredPage = null;
 
     locked: boolean | undefined
+    calendarId!: number;
+    day!: string;
+    hierarchyId!: number;
+    measureTypeId!: number;
+
+    measureDataListNew: MeasureDataDto[] = [];
+    dataSourceCopy: any;
 
     //------------------ Filter Properties ------------------
-    //------------------ Filter Drawer ------------------
-    //drawerTitle = "Filter"
     drawer = {
         title: "Filter",
         button: "Apply",
         position: "start" as "start" | "end"
     }
-    filters!: FilterResponseDto
+    filters!: MeasureDataFilterResponseDto
+
     @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
     select = {
         intervals: [] as IntervalDto[],
@@ -83,22 +90,13 @@ export class MeasureDataComponent implements OnInit {
         hierarchy: [] as RegionFilter[]
     }
     filterSelected: string[] = []
-    // filtered: MeasureDataReceiveObject = {
-    //     calendarId: 649,
-    //     day: "3/9/2023",
-    //     hierarchyId: 1,
-    //     measureTypeId: 1,
-    //     explanation: 'explanation-value',
-    //     action: 'action-value'
-    // }
-
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { id: number, name: string }[]
     intervalList!: IntervalDto[]
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
 
-    //------------------ Filter Drawer Model ------------------
+    //------------------ Model ------------------
     model = {
         fIntervalSelected: undefined as IntervalDto | undefined,
         fYearSelected: undefined as { id: number, year: number } | undefined,
@@ -123,18 +121,9 @@ export class MeasureDataComponent implements OnInit {
     errorMsg: any = ""
     showError: boolean = false;
 
-    calendarId!: number;
-    day!: string;
-    hierarchyId!: number;
-    measureTypeId!: number;
 
-    measureDataListNew: MeasureDataDto[] = [];
-    dataSourceCopy: any;
     
     
-
-
-
     constructor(private measureDataService: MeasureDataService, private logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
@@ -159,8 +148,6 @@ export class MeasureDataComponent implements OnInit {
                 this.intervalChange(true)
             }
         })
-        //this.getData2(this.filtered)
-        //this.getMeasureDataList(params)
     }
 
     /** Initialize Week/Month/Quarter select menus in Filter drawer after Interval or Year changes */
@@ -176,7 +163,6 @@ export class MeasureDataComponent implements OnInit {
                 if (intervalId != fIntervalSelected.id || !calendarId) {
                     calendarId = dto.calendarId
                 }
-
                 switch (fIntervalSelected.id) {
                     case Intervals.Weekly:
                         this.select.weeks = dto.data
@@ -194,7 +180,6 @@ export class MeasureDataComponent implements OnInit {
                         this.model.fQuarterSelected = quarters.find(w => w.id === calendarId)
                         break
                 }
-
                 if (loadTable) {
                     this.loadTable()
                 }
@@ -233,9 +218,7 @@ export class MeasureDataComponent implements OnInit {
 
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
         params.hierarchyId = this.model.selectedRegion
-        // this.getData(p)
         this.getMeasureDataList(params)
-        //this.getData2(this.filtered)
     }
 
     getMeasureDataList(parameters: { calendarId: any; measureTypeId: any; hierarchyId: any; } | undefined) {
@@ -243,9 +226,7 @@ export class MeasureDataComponent implements OnInit {
         this.disabledAll = true;
         this.dataRange = "";
 
-        //this.filteredPage = parameters!.calendarId;
         this.calendarId = parameters!.calendarId;
-        //this.day = filtered.day;
         this.hierarchyId = parameters!.hierarchyId;
         this.measureTypeId = parameters!.measureTypeId;
 
@@ -255,31 +236,26 @@ export class MeasureDataComponent implements OnInit {
             .set("calendarId", (parameters!.calendarId).toString())
             .set("hierarchyId", (parameters!.hierarchyId).toString())
             .set("measureTypeId", (parameters!.measureTypeId).toString())
-            console.log(" get measure data list params", params.toString());
+            //console.log(" get measure data list params", params.toString());
         this.measureDataService.getMeasureDataList(params).subscribe({
             next: measureDataResponse => {
+                this.measureDataResponse = measureDataResponse
                 this.measureDataList = measureDataResponse.data
                 this.dataSource.data = measureDataResponse.data
                 this.dataSource.sort = this.sort
                 console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
                 this.calendarId = measureDataResponse.calendarId;
-                // this.day = measureDataResponse.day;
                 this.hierarchyId = parameters?.hierarchyId;
                 this.measureTypeId = parameters?.measureTypeId;
-                // this.measureDataId = measureDataResponse.measureDataId;
-                // this.measureValue = measureDataResponse.measureValue;
-                // this.explanation = measureDataResponse.explanation;
-                // this.action = measureDataResponse.action;
-                this.measureDataList = measureDataResponse.data;
+                
                 this.dataRange = measureDataResponse.range;
                 this.allow = measureDataResponse.allow;
                 this.locked = measureDataResponse.locked;
                 this.editValue = measureDataResponse.editValue;
                 this.showActionButtons = this.allow && !this.locked;
-                this.measureDataResponse = measureDataResponse;
                 this.disabledAll = false;
-                //this.loadTable();
+
                 this.progress(false);
                 this.logger.logInfo("Measure Data List Loaded")
             },
@@ -298,7 +274,9 @@ export class MeasureDataComponent implements OnInit {
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
 
-    //-----------Selection Calculated
+    // -----------------------------------------------------------------------------
+    // Selection Calculated
+    // -----------------------------------------------------------------------------
     selCalculated = [
         { id: 0, name: "Manual and Calculated" },
         { id: 1, name: "Manual" },
@@ -312,18 +290,12 @@ export class MeasureDataComponent implements OnInit {
 
         if (this.model.selCalSelected == 2) {
             this.dataSource.data = this.measureDataList.filter(item => item.calculated);
-            //console.log("onSelCalChange calculated length: ", this.dataSource.data.length);
-            //console.log("onSelCalChange calculated: ", this.dataSource.data);
         }
         if (this.model.selCalSelected == 1) {
             this.dataSource.data = this.measureDataList.filter(item => !item.calculated);
-            //console.log("onSelCalChange manual lenght: ", this.dataSource.data.length);
-            //console.log("onSelCalChange manual: ", this.dataSource.data);
         }
         if (this.model.selCalSelected == 0) {
             this.dataSource.data = this.measureDataList
-            //console.log("onSelCalChange both lenght: ", this.dataSource.data.length);
-            //console.log("onSelCalChange both: ", this.dataSource.data);
         }
         this.dataSource._updateChangeSubscription();
         console.log("Datasource on onSelCalChange: ", this.dataSource.data)
@@ -340,7 +312,6 @@ export class MeasureDataComponent implements OnInit {
         }
     }
 
-    
     doEditType() {
         this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
         this.editingMeasureType = { ...this.selectedMeasureType }
@@ -373,7 +344,7 @@ export class MeasureDataComponent implements OnInit {
         //     return;
         // }
 
-        const measureDataRowNew = { ...measureDataRow };
+        //const measureDataRowNew = { ...measureDataRow };
 
         const measureDataId = parseInt(measureDataRow.id);
         const measureDataValue = measureDataRow.value;
@@ -404,7 +375,6 @@ export class MeasureDataComponent implements OnInit {
 
         // Call Server - PUT
         //this.progress(true);
-
         console.log("measureDataId on updateMeasureData", measureDataId);
         console.log("body on updateMeasureData", body);
         
@@ -424,47 +394,6 @@ export class MeasureDataComponent implements OnInit {
                 this.processLocalError(this.title, err.statusText, null, err.status, null);
             }
         })
-
-
-        // this.pages.measureData
-        //   .update(
-        //     {
-        //       calendarId: this.calendarId,
-        //       day: null,
-        //       hierarchyId: this.hierarchyId,
-        //       measureTypeId: this.measureTypeId,
-        //       measureDataId: data.id,
-        //       measureValue: mVal,
-        //       explanation: mExp,
-        //       action: mAct,
-        //     },
-        //     (value) => {
-        //       if (itgIsNull(value.error) && value.data.length > 0) {
-        //         data.value = value.data[0].value;
-        //         data.explanation = value.data[0].explanation;
-        //         data.action = value.data[0].action;
-        //         data.updated = value.data[0].updated;
-        //         //logger.logSuccess('Measure ' + data.name + ' updated.');
-        //         this.progress(false);
-        //         this.cancel(data);
-        //       } else {
-        //         this.processLocalError(
-        //           this.title,
-        //           value.error.message,
-        //           value.error.id,
-        //           null,
-        //           value.error.authError
-        //         );
-        //       }
-        //       this.disabledAll = false;
-        //     },
-        //     (err: { statusText: string; status: number | null; }) => {
-        //       this.processLocalError(this.title, err.statusText, null, err.status, null);
-        //     }
-        //   );
-
-        //this.onCancel(measureDataRow);
-        //this.loadTable();
     }
 
     onCancel(measureDataRow: MeasureDataDto) {
