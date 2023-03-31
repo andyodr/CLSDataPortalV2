@@ -9,15 +9,12 @@ import { ToggleService } from '../_services/toggle.service';
     templateUrl: './topbar.component.html',
     styleUrls: ['./topbar.component.css']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
     public opened = true;
     model: any = {};
 
     constructor(public api: AccountService, private router: Router,
         private toogleService: ToggleService, public _navSettingsService: NavSettingsService) { }
-
-    ngOnInit(): void {
-    }
 
     login() {
         this.api.login(this.model).subscribe({
