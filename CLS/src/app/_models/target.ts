@@ -9,10 +9,20 @@
 //     isProcessed?: string
 // }
 
+import { RegionFilter } from "../_services/hierarchy.service";
+import { ErrorModel } from "./error";
+
 // Path: CLS\src\app\_models\target.ts
   //--------------------------------------------------------------------------------
   //from GET api/targets/Index with hierarchyId and measureTypeId parameters
   //--------------------------------------------------------------------------------
+  export interface TargetApiParams{
+    intervalId?: number;
+    calendarId?: number;
+    year?: number;
+    measureTypeId: number;
+    hierarchyId: number; 
+  }
 
 export interface TargetApiResponse {
     range?: string;
@@ -25,6 +35,42 @@ export interface TargetApiResponse {
     data: TargetDto[];
     error?: any;
   }
+
+  export type TargetFilter = {
+    measureTypes: MeasureType[]
+    hierarchy: RegionFilter[]
+    intervals: any
+    years: any
+    error: any
+    filter: Filter
+    currentCalendarIds: any
+    measures: TargetApiResponse
+  }
+
+  export type Filter = {
+    hierarchyId?: number
+    measureTypeId?: number
+    intervalId?: number
+    calendarId?: number
+    year?: number
+}
+
+export interface TargetFilterResponseDto {
+  measureTypes: MeasureType[]
+  hierarchy: RegionFilter[]
+  intervals: IntervalDto[]
+  years: { id: number, year: number }[]
+  error: ErrorModel
+  filter: TargetFilter
+  currentCalendarIds: CurrentCalendarIds
+}
+
+export type CurrentCalendarIds = {
+  weeklyCalendarId: number
+  monthlyCalendarId: number
+  quarterlyCalendarId: number
+  yearlyCalendarId: number
+}
   
   export interface TargetDto {
     //id: number;
@@ -52,27 +98,21 @@ export interface TargetApiResponse {
     shortDt: string;
   }
 
-  export interface TargetFilter {
-    intervalId?: number;
-    calendarId?: number;
-    year?: number;
-    measureTypeId: number;
-    hierarchyId: number;
-  }
+  // export interface TargetFilter {
+  //   intervalId?: number;
+  //   calendarId?: number;
+  //   year?: number;
+  //   measureTypeId: number;
+  //   hierarchyId: number;
+  // }
   
 
-  export interface TargetApiParams{
-    intervalId?: number;
-    calendarId?: number;
-    year?: number;
-    measureTypeId: number;
-    hierarchyId: number; 
-  }
+
 
 
   export interface TargetPutDto {
     hierarchyId: number
-    measureId: number
+    measureId?: number
     measureTypeId: number
     target: number
     yellow: number
@@ -98,26 +138,18 @@ export interface TargetApiResponse {
   //--------------------------------------------------------------------------------
 
 
-  export interface TargetFilterResponseDto {
-    measureTypes: MeasureType[]
-    hierarchy: Hierarchy[]
-    intervals: any
-    years: any
-    error: any
-    filter: TargetFilter
-    currentCalendarIds: any
-  }
+
 
   // export interface TargetFilter {
   //   hierarchies: any;
   //   measureTypes: MeasureType[]
   // }
   
-  export interface MeasureType {
-    id: number
-    name: string
-    description?: string
-  }
+  // export interface MeasureType {
+  //   id: number
+  //   name: string
+  //   description?: string
+  // }
   
   export interface Hierarchy {
     hierarchy: string
@@ -128,6 +160,65 @@ export interface TargetApiResponse {
     error: any
   }
 
-  
+  export type MeasureType = {
+    id: number,
+    name: string,
+    description?: string
+}
+
+export type IntervalDto = {
+    id: number
+    name: string
+}
+
+
+
+
+
+export type FilterResponseDto = {
+    measureTypes: MeasureType[]
+    hierarchy?: RegionFilter[]
+    intervals?: IntervalDto[]
+    years?: { id: number, year: number }[]
+    error: ErrorModel
+    currentCalendarIds?: CurrentCalendarIds
+    filter: Filter
+}
+
+export interface MeasureDefinition {
+    id?: number
+    name: string
+    measureTypeId: number
+    interval?: string
+    intervalId: number
+    varName: string
+    description?: string
+    expression?: string
+    precision: number
+    priority: number
+    fieldNumber: number
+    unitId: number
+    units?: string
+    calculated?: boolean
+    daily?: boolean
+    weekly?: boolean
+    monthly?: boolean
+    quarterly?: boolean
+    yearly?: boolean
+    aggFunction?: string
+    aggFunctionId?: number
+}
+
+export type Units = { id: number, name: string, shortName: string }
+
+export type MeasureDefinitionEditDto = {
+    units: Units[]
+    intervals: IntervalDto[]
+    measureTypes: MeasureType[]
+    aggFunctions: { id: number, name: string }[]
+    data: MeasureDefinition[]
+}
+
+
  
   

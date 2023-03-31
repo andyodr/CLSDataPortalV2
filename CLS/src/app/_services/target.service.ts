@@ -65,59 +65,33 @@ export class TargetService {
 
     constructor(private http: HttpClient) { }
 
-    getTargetFilter(): Observable<TargetFilterResponseDto> {
-        return this.http.get<TargetFilterResponseDto>(this.baseUrl + "/filter")
+    getTargetFilter(): Observable<TargetFilter> {
+        return this.http.get<TargetFilter>(this.baseUrl + "/filter")
     }
 
-
-    getTarget(): Observable<TargetApiResponse> {
-        return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
-    }
 
     getTargetList(params: HttpParams): Observable<TargetApiResponse> {
-        return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1').pipe(
+        return this.http.get<TargetApiResponse>(this.baseUrl + "/Index" , {params: params}).pipe(
             map((response: TargetApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
+                console.log("Target List On Service : ", response);
+                return response
             }),
         );
-    }
-
-    getTarget1() {
-        return this.http.get<TargetApiResponse>(environment.baseUrl + 'api/targets/index?hierarchyId=1&measureTypeId=1').pipe(
-            map((response: TargetApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
-            }),
-        );
-    }
-
-    getTarget2(filtered: TargetApiParams): Observable<TargetApiResponse> {
-        //request params
-        let params = new HttpParams();
-        params = params.append('hierarchyId', filtered.hierarchyId);
-        params = params.append('measureTypeId', filtered.measureTypeId);
-        console.log("Params : ", params);
-        return this.http.get<TargetApiResponse>(this.baseUrl + '/index', { params: params }).pipe(
-            map((response: TargetApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
-            }
-            )
-        );
-    }
-
-    applyTargetToChildren(dto: TargetDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(`${ this.baseUrl }/targets/Index/`, dto)
     }
 
     updateTarget(body: TargetPutDto): Observable<TargetApiResponse> {
         return this.http.put<TargetApiResponse>(this.baseUrl + "/Index", body).pipe(
             map((response: TargetApiResponse) => {
                 console.log("Target Response on Service : ", response);
+                return response
+            }),
+        );
+    }
+
+    applyTargetToChildren(body: TargetPutDto): Observable<TargetApiResponse> {
+        return this.http.put<TargetApiResponse>(this.baseUrl + "/Index", body).pipe(
+            map((response: TargetApiResponse) => {
+                console.log("Target Response on Service Apply to Children : ", response);
                 return response
             }),
         );
