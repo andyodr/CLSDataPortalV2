@@ -97,7 +97,7 @@ export class TargetsComponent implements OnInit {
     showActionButtons: boolean | undefined;
 
     target: number | null = null
-    yellow: number | null = null
+    yellow: number = 0
     applyToChildren: boolean | null = null
     isCurrentUpdate: boolean | null = null
     confirmIntervals: ConfirmIntervals | null = null
@@ -160,10 +160,13 @@ export class TargetsComponent implements OnInit {
     //------------------  Model ------------------
     model = {
         value: 0,
+        target: 0,
         yellow: 0,
         measureType: 0,
         selectedRegion: null as number | number[] | null,
     }
+
+    //yellow: number | null = null
 
     //----------------- Error handling within the component
     //errorMsg: any = ""
@@ -243,10 +246,11 @@ export class TargetsComponent implements OnInit {
                 this.targetList = targetResponse.data;
                 this.dataSource.data = targetResponse.data;
                 this.dataSource.sort = this.sort;
+                console.log("Target List on getTargetList: ", this.targetList)
                 console.log("Datasource on getTargetList: ", this.dataSource)
 
-                //this.hierarchyId = parameters.hierarchyId;
-                //this.measureTypeId = parameters.measureTypeId;
+                // this.hierarchyId? = parameters?.hierarchyId;
+                // this.measureTypeId? = parameters?.measureTypeId;
 
                 this.allow = targetResponse.allow;
                 this.confirmed = targetResponse.confirmed
@@ -255,6 +259,8 @@ export class TargetsComponent implements OnInit {
                 this.editValue = targetResponse.editValue;
                 this.showActionButtons = this.allow && !this.locked;
                 this.disabledAll = false;
+
+                //this.confirmIntervals = targetResponse.confirmIntervals;
 
                 //this.progress(false);
                 this.logger.logInfo("Target List Loaded")
@@ -269,7 +275,7 @@ export class TargetsComponent implements OnInit {
         })
     }
 
-    applyFilter(event: Event) {
+    applyTableFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }
@@ -301,18 +307,23 @@ export class TargetsComponent implements OnInit {
         //     return;
         // }
 
-        this.isEditMode = true;
         //this.selectedRow = { ...targetRow };
+        // this.selectedRow = targetRow;
+        // console.log("Selected Row: ", this.selectedRow)
+        // if (targetRow.value !== undefined) {
+        //     this.model.value = targetRow.target;
+        // }
+        //this.model.value = targetRow.target;
+        //this.model.yellow = targetRow.yellow;
+        this.isEditMode = true;
         this.selectedRow = targetRow;
-        console.log("Selected Row: ", this.selectedRow)
-        if (targetRow.value !== undefined) {
-            this.model.value = targetRow.value;
-        }
+        this.model.target = targetRow.target;
         this.model.yellow = targetRow.yellow;
     }
 
     onCancel(targetRow: TargetDto) {
         this.isEditMode = false
+        this.loadTable();
     }
 
     onSave(targetRow: TargetDto) {
@@ -332,10 +343,11 @@ export class TargetsComponent implements OnInit {
         //const measureDataRowNew = { ...measureDataRow };
 
         const hierarchyId = this.hierarchyId;
-        const measureId = parseInt(targetRow.id);
+        //const measureId = parseInt(targetRow.id);
+        const measureId = targetRow.id;
         const measureTypeId = this.measureTypeId;
         const target = this.model.value;
-        const yellow = this.model.yellow;
+        // const yellow = this.model.yellow;
         const applyToChildren = true;
         const isCurrentUpdate = true;
         const confirmIntervals = {
@@ -358,7 +370,7 @@ export class TargetsComponent implements OnInit {
             "measureId": measureId,
             "measureTypeId": fixedmeasureTypeId,
             "target": this.model.value,
-            "yellow": this.model.yellow,
+            "yellow": this.yellow,
             "applyToChildren": false,
             "isCurrentUpdate": false,
             //"confirmIntervals": null
@@ -371,16 +383,16 @@ export class TargetsComponent implements OnInit {
             }
         }
 
-        if (targetRow.value == body.target && targetRow.yellow == body.yellow) {
-            this.logger.logInfo("There are no changes for " + targetRow.name + ". Unable to Save.")
-            const dialogRef = this.dialog.open(AppDialog, {
-                width: '450px',
-                data: {
-                    title: 'Alert',
-                    msg: 'There are no changes for ' + targetRow.name + '. Unable to Save.'
-                }
-            });
-        }
+        // if (targetRow.target == body.target && targetRow.yellow == body.yellow) {
+        //     this.logger.logInfo("There are no changes for " + targetRow.name + ". Unable to Save.")
+        //     const dialogRef = this.dialog.open(AppDialog, {
+        //         width: '450px',
+        //         data: {
+        //             title: 'Alert',
+        //             msg: 'There are no changes for ' + targetRow.name + '. Unable to Save.'
+        //         }
+        //     });
+        // }
 
         // Call Server - PUT
         //this.progress(true);
@@ -395,8 +407,9 @@ export class TargetsComponent implements OnInit {
                 this.logger.logInfo("Measure Data Updated")
                 console.log("targetResponse on updateTarget", targetResponse);
                 //this.progress(false);
-                this.disabledAll = false;
-                this.loadTable();
+                //this.disabledAll = false;
+                //this.loadTable();
+                //this.dataSource.data = targetResponse.data;
             },
             error: err => {
                 this.logger.logError(err.message)
@@ -405,6 +418,8 @@ export class TargetsComponent implements OnInit {
                 this.processLocalError(this.title, err.statusText, null, err.status, null);
             }
         })
+
+        this.loadTable()
 
     }
 
@@ -441,8 +456,8 @@ export class TargetsComponent implements OnInit {
         // if (!this.allow) {
         //   return;
         // }
-        this.showError = false;
-        this.disabledAll = true;
+        // this.showError = false;
+        // this.disabledAll = true;
         const dialogRef = this.dialog.open(AppDialog, {
             width: '450px',
             data: {
@@ -477,7 +492,7 @@ export class TargetsComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'confirmCurrentSave') {
                 this.dataConfirmed.isCurrentUpdate = true;
-                //this.dataConfirmed.confirmIntervals = this.confirmIntervals;
+                this.dataConfirmed.confirmIntervals = this.confirmIntervals;
                 if (this.dataConfirmed.isApplyToChildren) {
                 this.applyToChildrenSave();
                 } else {
@@ -571,7 +586,7 @@ export class TargetsComponent implements OnInit {
             confirmIntervals: this.dataConfirmed.confirmIntervals,
         }
 
-        // this.targetService.updateTarget(this.dataConfirmed.id, targetDtoSave).subscribe({
+        // this.targetService.updateTarget2(this.dataConfirmed.id, targetDtoSave).subscribe({
         //     next: value => {
         //         if (!(value.error) && value.data.length > 0) {
         //             this.dataConfirmed.data.target = value.data[0].target;

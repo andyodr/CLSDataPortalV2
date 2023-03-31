@@ -398,6 +398,7 @@ export class MeasureDataComponent implements OnInit {
 
     onCancel(measureDataRow: MeasureDataDto) {
         this.isEditMode = false
+        this.loadTable();
     }
 
     doFilter() {
@@ -654,9 +655,9 @@ export class MeasureDataComponent implements OnInit {
         // if ( !this.editBgColor ) return "";
         // if ( itgIsEmpty(data.value) ) return "";
         // if ( itgIsNull(data.target) && itgIsNull(data.yellow) ) return "";
-        if (!this.editBgColor) {
-            return "";
-        }
+        // if (!this.editBgColor) {
+        //     return "";
+        // }
 
         if (!data.value) {
             return "";
@@ -699,7 +700,9 @@ export class MeasureDataComponent implements OnInit {
                 result = green;
             }
         }
+        console.log("getBgColor result: " , result);
         return result;
+        
     }
 
     getBorderColor(targetVal: any, yellowVal: any): void {

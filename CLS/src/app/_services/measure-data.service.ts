@@ -49,7 +49,7 @@ export class MeasureDataService {
   }
 
   getMeasureDataList(params: HttpParams) {
-    return this.http.get<MeasureDataApiResponse>(this.baseUrl + "index/", {params}).pipe(
+    return this.http.get<MeasureDataApiResponse>(this.baseUrl + "Index/", {params}).pipe(
       map((response: MeasureDataApiResponse) => {
         console.log("Measure Data Response : ", response)
         return response

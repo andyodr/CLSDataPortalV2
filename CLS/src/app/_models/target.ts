@@ -33,7 +33,7 @@ export interface TargetApiResponse {
     confirmed: boolean;
     filter: TargetFilter;
     data: TargetDto[];
-    error?: any;
+    error?: ErrorModel;
   }
 
   export type TargetFilter = {
@@ -74,21 +74,21 @@ export type CurrentCalendarIds = {
   
   export interface TargetDto {
     //id: number;
-    id: string;
+    id: number;
     name: string;
-    value?: number;
-    explanation?: string;
-    action?: any;
-    target?: any;
-    targetCount?: any;
-    targetId?: any;
-    unitId?: number;
-    units?: string;
-    yellow?: any;
-    expression?: any;
-    evaluated?: string;
+    value: number;
+    explanation: string;
+    action: string;
+    target: number;
+    targetCount: number;
+    targetId: number;
+    unitId: string;
+    units: string;
+    yellow: number;
+    expression: string;
+    evaluated: string;
     calculated: boolean;
-    description?: string;
+    description: string;
     updated: Updated;
   }
   
@@ -171,10 +171,6 @@ export type IntervalDto = {
     name: string
 }
 
-
-
-
-
 export type FilterResponseDto = {
     measureTypes: MeasureType[]
     hierarchy?: RegionFilter[]
@@ -185,39 +181,39 @@ export type FilterResponseDto = {
     filter: Filter
 }
 
-export interface MeasureDefinition {
-    id?: number
-    name: string
-    measureTypeId: number
-    interval?: string
-    intervalId: number
-    varName: string
-    description?: string
-    expression?: string
-    precision: number
-    priority: number
-    fieldNumber: number
-    unitId: number
-    units?: string
-    calculated?: boolean
-    daily?: boolean
-    weekly?: boolean
-    monthly?: boolean
-    quarterly?: boolean
-    yearly?: boolean
-    aggFunction?: string
-    aggFunctionId?: number
-}
+// export interface MeasureDefinition {
+//     id?: number
+//     name: string
+//     measureTypeId: number
+//     interval?: string
+//     intervalId: number
+//     varName: string
+//     description?: string
+//     expression?: string
+//     precision: number
+//     priority: number
+//     fieldNumber: number
+//     unitId: number
+//     units?: string
+//     calculated?: boolean
+//     daily?: boolean
+//     weekly?: boolean
+//     monthly?: boolean
+//     quarterly?: boolean
+//     yearly?: boolean
+//     aggFunction?: string
+//     aggFunctionId?: number
+// }
 
-export type Units = { id: number, name: string, shortName: string }
+// export type Units = { id: number, name: string, shortName: string }
 
-export type MeasureDefinitionEditDto = {
-    units: Units[]
-    intervals: IntervalDto[]
-    measureTypes: MeasureType[]
-    aggFunctions: { id: number, name: string }[]
-    data: MeasureDefinition[]
-}
+// export type MeasureDefinitionEditDto = {
+//     units: Units[]
+//     intervals: IntervalDto[]
+//     measureTypes: MeasureType[]
+//     aggFunctions: { id: number, name: string }[]
+//     data: MeasureDefinition[]
+// }
 
 
  
