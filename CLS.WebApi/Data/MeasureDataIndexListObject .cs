@@ -16,7 +16,7 @@ public class MeasureDataIndexListObject
 
 	public FilterSaveObject Filter { get; set; } = null!;
 
-	public List<MeasureDataReturnObject> Data { get; set; } = null!;
+	public IList<MeasureDataReturnObject> Data { get; set; } = null!;
 
 	public ErrorModel Error { get; set; } = null!;
 }

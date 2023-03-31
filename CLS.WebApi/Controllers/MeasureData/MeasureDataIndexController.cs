@@ -25,7 +25,7 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		var returnObject = new MeasureDataIndexListObject { Data = new() };
+		var returnObject = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
 		DateTime? date = new();
 
 		try {
