@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Settings;
 
 [ApiController]
 [Route("api/settings/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class TransferController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
@@ -23,17 +24,14 @@ public class TransferController : ControllerBase
 	[HttpPut]
 	public ActionResult Put() {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			// Runs SQL Job
 			try {
 				_ = _context.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={_config.sQLJobSSIS}");
-				Helper.AddAuditTrail(_context,
+				AddAuditTrail(_context,
 					Resource.WEB_PAGES,
 					"WEB-09",
 					Resource.SETTINGS,
@@ -49,7 +47,7 @@ public class TransferController : ControllerBase
 			}
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

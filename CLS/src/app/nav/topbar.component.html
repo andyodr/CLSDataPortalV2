@@ -42,8 +42,8 @@
       Welcome {{user.firstName || user.userName}}
     </a>
     <div class="dropdown-menu mt-3" *dropdownMenu>
-      <a class="dropdown-item" [routerLink]="['users']">User Management</a>
-      <a class="dropdown-item" [routerLink]="['settings']">Settings</a>
+      <a *ngIf="user.roleId > 2" class="dropdown-item" [routerLink]="['users']">User Management</a>
+      <a *ngIf="user.roleId > 2" class="dropdown-item" [routerLink]="['settings']">Settings</a>
       <a class="dropdown-item" (click)="logout()">Logout</a>
     </div>
   </div>

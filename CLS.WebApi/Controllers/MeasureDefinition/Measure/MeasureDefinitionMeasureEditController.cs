@@ -1,13 +1,14 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -26,10 +27,7 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -69,11 +67,11 @@ public class EditController : ControllerBase
 
 				bool daily, weekly, monthly, quarterly, yearly = false;
 
-				daily = (md.AggDaily ?? false) && currentMD.IntervalId != (int)Helper.intervals.daily;
-				weekly = (md.AggWeekly ?? false) && currentMD.IntervalId != (int)Helper.intervals.weekly;
-				monthly = (md.AggMonthly ?? false) && currentMD.IntervalId != (int)Helper.intervals.monthly;
-				quarterly = (md.AggQuarterly ?? false) && currentMD.IntervalId != (int)Helper.intervals.quarterly;
-				yearly = (md.AggYearly ?? false) && currentMD.IntervalId != (int)Helper.intervals.yearly;
+				daily = (md.AggDaily ?? false) && currentMD.IntervalId != (int)Intervals.Daily;
+				weekly = (md.AggWeekly ?? false) && currentMD.IntervalId != (int)Intervals.Weekly;
+				monthly = (md.AggMonthly ?? false) && currentMD.IntervalId != (int)Intervals.Monthly;
+				quarterly = (md.AggQuarterly ?? false) && currentMD.IntervalId != (int)Intervals.Quarterly;
+				yearly = (md.AggYearly ?? false) && currentMD.IntervalId != (int)Intervals.Yearly;
 
 				currentMD.Daily = daily;
 				currentMD.Weekly = weekly;
@@ -86,7 +84,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -101,10 +99,7 @@ public class EditController : ControllerBase
 		};
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -149,11 +144,11 @@ public class EditController : ControllerBase
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Helper.intervals.daily;
-			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Helper.intervals.weekly;
-			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Helper.intervals.monthly;
-			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Helper.intervals.quarterly;
-			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Helper.intervals.yearly;
+			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Intervals.Daily;
+			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Intervals.Weekly;
+			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Intervals.Monthly;
+			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Intervals.Quarterly;
+			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Intervals.Yearly;
 			dto.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
@@ -207,30 +202,30 @@ public class EditController : ControllerBase
 			}
 
 			mDef.LastUpdatedOn = lastUpdatedOn;
-			mDef.IsProcessed = (byte)Helper.IsProcessed.complete;
+			mDef.IsProcessed = (byte)IsProcessed.complete;
 
 			_context.SaveChanges();
 			returnObject.Data.Add(dto);
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				Helper.UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.Id);
+				UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.Id);
 			}
 
 			// Create Measure Data records for current intervals if they don't exists
 			if (createMeasureData) {
-				Helper.CreateMeasureDataRecords(_context, dto.IntervalId, mDef.Id);
+				CreateMeasureDataRecords(_context, dto.IntervalId, mDef.Id);
 				if (weekly)
-					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, mDef.Id);
+					CreateMeasureDataRecords(_context, (int)Intervals.Weekly, mDef.Id);
 				if (monthly)
-					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.monthly, mDef.Id);
+					CreateMeasureDataRecords(_context, (int)Intervals.Monthly, mDef.Id);
 				if (quarterly)
-					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.quarterly, mDef.Id);
+					CreateMeasureDataRecords(_context, (int)Intervals.Quarterly, mDef.Id);
 				if (yearly)
-					Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, mDef.Id);
+					CreateMeasureDataRecords(_context, (int)Intervals.Yearly, mDef.Id);
 			}
 
-			Helper.AddAuditTrail(_context,
+			AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-04",
 				Resource.MEASURE_DEFINITION,
@@ -242,7 +237,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

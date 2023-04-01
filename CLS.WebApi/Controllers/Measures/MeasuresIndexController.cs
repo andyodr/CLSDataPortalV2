@@ -2,12 +2,13 @@ using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Measures;
 
 [ApiController]
 [Route("api/measures/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
@@ -21,20 +22,17 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<RegionIndexGetReturnObject> Get(int hierarchyId, int measureTypeId) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
-			_user.savedFilters[Helper.pages.measure].hierarchyId = hierarchyId;
-			_user.savedFilters[Helper.pages.measure].measureTypeId = measureTypeId;
+			_user.savedFilters[pages.measure].hierarchyId = hierarchyId;
+			_user.savedFilters[pages.measure].measureTypeId = measureTypeId;
 
 			return GetMeasures(_dbc, hierarchyId, measureTypeId);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -83,10 +81,7 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject dto) {
-		if (Helper.CreateUserObject(User) is UserObject u) {
-			_user = u;
-		}
-		else {
+		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
@@ -113,14 +108,14 @@ public class IndexController : ControllerBase
 					_dbc.SaveChanges();
 
 					if (updateMeasureData) {
-						var EnumIsProcessed = Helper.IsProcessed.measureData;
+						var EnumIsProcessed = IsProcessed.measureData;
 						if (!measure.Active ?? true) {
-							EnumIsProcessed = Helper.IsProcessed.complete;
+							EnumIsProcessed = IsProcessed.complete;
 						}
 
-						Helper.UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
+						UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
-						Helper.AddAuditTrail(_dbc,
+						AddAuditTrail(_dbc,
 							Resource.WEB_PAGES,
 							"WEB-03",
 							Resource.MEASURE,
@@ -141,7 +136,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

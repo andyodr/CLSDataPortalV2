@@ -2,6 +2,7 @@ using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Settings;
 
@@ -33,15 +34,12 @@ public class UsersController : ControllerBase
 	public ActionResult<SettingsGetReturnObject> Put(Model dto) {
 		try {
 			var result = new SettingsGetReturnObject { Year = dto.Year, Users = new() { dto.User } };
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			var calendarRecords = _dbc.Calendar
-				.Where(c => c.Year == dto.Year && c.Interval.Id == (int)Helper.intervals.monthly)
+				.Where(c => c.Year == dto.Year && c.Interval.Id == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);
 
 			var lastUpdatedOn = DateTime.Now;
@@ -64,7 +62,7 @@ public class UsersController : ControllerBase
 
 			_dbc.SaveChanges();
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-09",
 				Resource.SETTINGS,
@@ -76,7 +74,7 @@ public class UsersController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

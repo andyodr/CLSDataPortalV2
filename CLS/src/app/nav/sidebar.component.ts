@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core"
 import { ToggleService } from "../_services/toggle.service"
+import { AccountService } from "../_services/account.service"
 
 @Component({
     selector: "app-sidebar",
@@ -9,7 +10,7 @@ import { ToggleService } from "../_services/toggle.service"
 export class SidebarComponent implements OnInit {
     public opened = true
 
-    constructor(private toggleService: ToggleService) { }
+    constructor(public api: AccountService, private toggleService: ToggleService) { }
 
     ngOnInit(): void {
         this.toggleService.toggle$.subscribe(toggle => {

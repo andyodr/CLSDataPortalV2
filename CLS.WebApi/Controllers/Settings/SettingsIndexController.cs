@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Settings;
 
 [ApiController]
 [Route("api/settings/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
@@ -27,22 +28,19 @@ public class IndexController : ControllerBase
 	[HttpGet("{year:range(2000,9999)?}")]
 	public ActionResult<SettingsGetReturnObject> Get(int? year) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			var result = new SettingsGetReturnObject { Locked = new(), Years = new() };
-			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.Interval.Id == (int)Helper.intervals.monthly);
+			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.Interval.Id == (int)Intervals.Monthly);
 			var settings = _dbc.Setting;
 			if (!settings.Any()) {
 				return BadRequest(Resource.SETTINGS_NO_RECORDS);
 			}
 
 			var years = _dbc.Calendar
-						.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.Year >= DateTime.Today.Year - 3)
+						.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.Year >= DateTime.Today.Year - 3)
 						.OrderByDescending(y => y.Year);
 
 			foreach (var yyear in years) {
@@ -55,9 +53,9 @@ public class IndexController : ControllerBase
 			result.Active = !setting.Active;
 			result.LastCalculatedOn = setting.LastCalculatedOn.ToString();
 
-			result.CalculateHH = Helper.CalculateScheduleInt(setting.CalculateSchedule, "HH", ":");
-			result.CalculateMM = Helper.CalculateScheduleInt(setting.CalculateSchedule, "MM", ":");
-			result.CalculateSS = Helper.CalculateScheduleInt(setting.CalculateSchedule, "SS", ":");
+			result.CalculateHH = CalculateScheduleInt(setting.CalculateSchedule, "HH", ":");
+			result.CalculateMM = CalculateScheduleInt(setting.CalculateSchedule, "MM", ":");
+			result.CalculateSS = CalculateScheduleInt(setting.CalculateSchedule, "SS", ":");
 
 			foreach (var record in calendarRecords) {
 				result.Locked.Add(new() {
@@ -76,7 +74,7 @@ public class IndexController : ControllerBase
 					Id = u.Id,
 					UserName = u.UserName,
 					Locks = _dbc.Calendar.Where(c => c.Year == result.Year
-						&& c.IntervalId == (int)Helper.intervals.monthly)
+						&& c.IntervalId == (int)Intervals.Monthly)
 						.Select(c => new Lock {
 							lo = c.UserCalendarLocks
 								.Where(l => l.UserId == u.Id).First().LockOverride ?? false })
@@ -87,27 +85,24 @@ public class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(SettingsGetRecieveObject value) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			var lastUpdatedOn = DateTime.Now;
 			var returnObject = new SettingsGetReturnObject { Locked = new(), Years = new() };
 			var calendarRecords = _dbc.Calendar
-				.Where(c => c.Year == value.Year && c.Interval.Id == (int)Helper.intervals.monthly)
+				.Where(c => c.Year == value.Year && c.Interval.Id == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);
 			var years = _dbc.Calendar
-				.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.Year >= DateTime.Now.Year - 3)
+				.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.Year >= DateTime.Now.Year - 3)
 				.OrderBy(c => c.Month);
 			foreach (var record in calendarRecords.Where(c => c.Month != null)) {
 				record.Locked = value.Locked?.ElementAt((int)record.Month! - 1)?.Locked ?? false;
@@ -120,12 +115,12 @@ public class IndexController : ControllerBase
 			}
 
 			//settings.NumberOfDays = (Int16)value.numberOfDays;
-			settings.CalculateSchedule = Helper.CalculateSchedule(value.CalculateHH, value.CalculateMM, value.CalculateSS);
+			settings.CalculateSchedule = CalculateSchedule(value.CalculateHH, value.CalculateMM, value.CalculateSS);
 			settings.Active = !value.Active;
 			settings.LastUpdatedOn = lastUpdatedOn;
 			_dbc.SaveChanges();
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-09",
 				Resource.SETTINGS,
@@ -143,9 +138,9 @@ public class IndexController : ControllerBase
 			returnObject.Active = !settings.Active;
 			returnObject.LastCalculatedOn = settings.LastCalculatedOn.ToString();
 
-			returnObject.CalculateHH = Helper.CalculateScheduleInt(settings.CalculateSchedule, "HH", ":");
-			returnObject.CalculateMM = Helper.CalculateScheduleInt(settings.CalculateSchedule, "MM", ":");
-			returnObject.CalculateSS = Helper.CalculateScheduleInt(settings.CalculateSchedule, "SS", ":");
+			returnObject.CalculateHH = CalculateScheduleInt(settings.CalculateSchedule, "HH", ":");
+			returnObject.CalculateMM = CalculateScheduleInt(settings.CalculateSchedule, "MM", ":");
+			returnObject.CalculateSS = CalculateScheduleInt(settings.CalculateSchedule, "SS", ":");
 
 			foreach (var record in calendarRecords) {
 				returnObject.Locked.Add(new CalendarLock {
@@ -160,7 +155,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

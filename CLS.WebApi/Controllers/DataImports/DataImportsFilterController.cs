@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
@@ -20,7 +21,7 @@ public class FilterController : ControllerBase
 		try {
 			var calendarRecords = _context.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
-			if (intervalId == (int)Helper.intervals.weekly) {
+			if (intervalId == (int)Intervals.Weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					Number = c.WeekNumber,
@@ -29,7 +30,7 @@ public class FilterController : ControllerBase
 					Month = null
 				}).ToArray();
 			}
-			else if (intervalId == (int)Helper.intervals.quarterly) {
+			else if (intervalId == (int)Intervals.Quarterly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					Number = c.Quarter,
@@ -38,7 +39,7 @@ public class FilterController : ControllerBase
 					Month = null
 				}).ToArray();
 			}
-			else if (intervalId == (int)Helper.intervals.monthly) {
+			else if (intervalId == (int)Intervals.Monthly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					id = c.Id,
 					Number = c.Month,

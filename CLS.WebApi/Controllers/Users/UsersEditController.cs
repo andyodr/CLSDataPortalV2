@@ -1,14 +1,15 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Users;
 
 [ApiController]
 [Route("api/users/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -25,10 +26,7 @@ public class EditController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get(int id) {
 		var result = new UserIndexGetObject { Data = new(), Hierarchy = new(), Roles = new() };
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -36,7 +34,7 @@ public class EditController : ControllerBase
 			result.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
-				Sub = Helper.GetSubsLevel(_context, regions.First().Id),
+				Sub = GetSubsLevel(_context, regions.First().Id),
 				Count = 0
 			});
 
@@ -61,7 +59,7 @@ public class EditController : ControllerBase
 					department = user.Department,
 					roleName = user.UserRole?.Name ?? string.Empty,
 					roleId = user.UserRole?.Id ?? -1,
-					active = Helper.boolToString(user.Active)
+					active = boolToString(user.Active)
 				};
 
 				foreach (var userH in user.UserHierarchies!) {
@@ -69,8 +67,8 @@ public class EditController : ControllerBase
 					currentUser.hierarchyName = userH.Hierarchy!.Name;
 				}
 
-				if (user.Id == (int)Helper.userRoles.powerUser) {
-					if (_user.Id == (int)Helper.userRoles.powerUser) {
+				if (user.Id == (int)Roles.PowerUser) {
+					if (_user.Id == (int)Roles.PowerUser) {
 						result.Data.Add(currentUser);
 					}
 				}
@@ -83,7 +81,7 @@ public class EditController : ControllerBase
 		}
 		catch (Exception e) {
 			int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -93,10 +91,7 @@ public class EditController : ControllerBase
 	[HttpPut("{id}")]
 	public ActionResult<UserIndexGetObject> Put(int id, UserIndexDto model) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -117,7 +112,7 @@ public class EditController : ControllerBase
 			user.LastName = model.lastName;
 			user.FirstName = model.firstName;
 			user.Department = model.department;
-			user.Active = Helper.StringToBool(model.active);
+			user.Active = StringToBool(model.active);
 			user.LastUpdatedOn = lastUpdatedOn;
 			_context.Entry(user).Property("UserRoleId").CurrentValue = model.roleId;
 
@@ -149,7 +144,7 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 
 			returnObject.Data.Add(model);
 
-			Helper.AddAuditTrail(_context,
+			AddAuditTrail(_context,
 				Resource.SECURITY,
 				"SEC-04",
 				"User Updated",
@@ -161,7 +156,7 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

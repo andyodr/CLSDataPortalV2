@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
@@ -53,10 +54,7 @@ public class UploadController : ControllerBase
 		int rowNumber = 1;
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -84,7 +82,7 @@ public class UploadController : ControllerBase
 			// --------------------------------------------------------
 			// Process Target
 			// --------------------------------------------------------
-			if (dataImport == (int)Helper.dataImports.target) {
+			if (dataImport == (int)dataImports.target) {
 				var listTarget = new List<SheetDataTarget>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
@@ -143,8 +141,7 @@ public class UploadController : ControllerBase
 					}
 
 					returnObject.Data = null;
-
-					Helper.AddAuditTrail(_dbc,
+					AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
@@ -159,7 +156,7 @@ public class UploadController : ControllerBase
 			// --------------------------------------------------------
 			// Process Customer Hierarchy
 			// --------------------------------------------------------
-			else if (dataImport == (int)Helper.dataImports.customer && _config.usesCustomer) {
+			else if (dataImport == (int)dataImports.customer && _config.usesCustomer) {
 				var listCustomer = new List<SheetDataCustomer>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
@@ -182,7 +179,7 @@ public class UploadController : ControllerBase
 
 					returnObject.Data = null;
 
-					Helper.AddAuditTrail(_dbc,
+					AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
@@ -205,7 +202,7 @@ public class UploadController : ControllerBase
 
 				// From settings page, DO NOT USE = !Active
 				if (_dbc.Setting.First().Active == true) {
-					if (Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc)) {
+					if (IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc)) {
 						throw new Exception(Resource.DI_ERR_USER_DATE);
 					}
 				}
@@ -249,7 +246,7 @@ public class UploadController : ControllerBase
 
 					returnObject.Data = null;
 
-					Helper.AddAuditTrail(_dbc,
+					AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-06",
 						Resource.DATA_IMPORT,
@@ -286,27 +283,26 @@ public class UploadController : ControllerBase
 	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
 			var returnObject = new DataImportsMainObject {
-				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly)
+				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
 				CalculationTime = "00:01:00",
-				DataImport = new List<DataImportObject>() { Helper.DataImportHeading(Helper.dataImports.measureData) },
+				DataImport = new List<DataImportObject>() { DataImportHeading(dataImports.measureData) },
 				Intervals = _dbc.Interval.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
 				IntervalId = _config.DefaultInterval,
-				CalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
+				CalendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
 			};
 
 			//returnObject.calculationTime.current = DateTime.Now;
 			string sCalculationTime = _dbc.Setting.First().CalculateSchedule ?? string.Empty;
-			returnObject.CalculationTime = Helper.CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
-										   Helper.CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
-										   Helper.CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
+			returnObject.CalculationTime = CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
+										   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
+										   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
-			if (user.RoleId == (int)Helper.userRoles.systemAdministrator) {
-				DataImportObject targetData = Helper.DataImportHeading(Helper.dataImports.target);
-				returnObject.DataImport.Add(targetData);
+			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
+				returnObject.DataImport.Add(DataImportHeading(dataImports.target));
 
 				if (_config.usesCustomer) {
-					DataImportObject customerRegionData = Helper.DataImportHeading(Helper.dataImports.customer);
+					DataImportObject customerRegionData = DataImportHeading(dataImports.customer);
 					returnObject.DataImport.Add(customerRegionData);
 				}
 
@@ -315,7 +311,7 @@ public class UploadController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			Helper.ErrorProcessing(_dbc, e, _user.Id);
+			ErrorProcessing(_dbc, e, _user.Id);
 			return null;
 		}
 	}
@@ -396,7 +392,7 @@ public class UploadController : ControllerBase
 				};
 				var bMdExpression = r.Expression ?? false;
 				var hId = r.HierarchyId;
-				if (Helper.IsMeasureCalculated(_dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
+				if (IsMeasureCalculated(_dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
 					returnObject.Error.Add(new() {
 						Row = row.rowNumber,
 						Message = Resource.DI_ERR_CALCULATED
@@ -549,7 +545,7 @@ public class UploadController : ControllerBase
 				NumLateLines = row.NumLateLines,
 				NumOrdLens = row.NumOrdLens,
 				OrdQty = row.OrdQty,
-				IsProcessed = (byte)Helper.IsProcessed.complete,
+				IsProcessed = (byte)IsProcessed.complete,
 				HeaderStatusCode = row.HeaderStatusCode,
 				HeaderStatus = row.HeaderStatus,
 				BlockCode = row.BlockCode,

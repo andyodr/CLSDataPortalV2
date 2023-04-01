@@ -17,13 +17,13 @@
 .login-logo {
   padding: 2em;
   text-align: center;
-  background-color: #3D4051;
+  background-color: #ddd;
 }
 
 .login-logo svg {
   width: 100%;
   height: auto;
-  filter: drop-shadow(3px 1px 18px hsl(7 100% 80% / 1));
+  filter: drop-shadow(3px 1px 8px hsl(7 100% 15% / .5));
 }
 
 h1 {

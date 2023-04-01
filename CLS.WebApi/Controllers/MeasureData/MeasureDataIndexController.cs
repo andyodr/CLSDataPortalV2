@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureData;
 
@@ -29,17 +30,14 @@ public class IndexController : ControllerBase
 		DateTime? date = new();
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			returnObject.Allow = _user.hierarchyIds.Contains(dto.HierarchyId);
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.EditValue = Helper.CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
+			returnObject.EditValue = CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
 
 			returnObject.CalendarId = dto.CalendarId;
 			if (string.IsNullOrEmpty(dto.Day)) {
@@ -63,7 +61,7 @@ public class IndexController : ControllerBase
 			returnObject.Locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (_dbc.Setting.AsNoTracking().First().Active == true) {
-				returnObject.Locked = Helper.IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
+				returnObject.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
 			}
 
 			var measures = _dbc.MeasureData
@@ -90,7 +88,7 @@ public class IndexController : ControllerBase
 					md.Explanation,
 					md.Action,
 					md.Measure.HierarchyId,
-					calculated = Helper.IsMeasureCalculated(_dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
+					calculated = IsMeasureCalculated(_dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
 				});
 
 			// Find all measure definition variables.
@@ -112,7 +110,7 @@ public class IndexController : ControllerBase
 					Calculated = record.calculated,
 					Expression = record.Expression,
 					Evaluated = String.Empty,
-					Updated = Helper.LastUpdatedOnObj(record.lastUpdatedOn, record.User?.UserName ?? Resource.SYSTEM)
+					Updated = LastUpdatedOnObj(record.lastUpdatedOn, record.User?.UserName ?? Resource.SYSTEM)
 				};
 
 				if (record.target is not null) {
@@ -161,18 +159,18 @@ public class IndexController : ControllerBase
 			}
 
 			returnObject.Range = BuildRangeString(dto.CalendarId);
-			if (dto.CalendarId != _user.savedFilters[Helper.pages.measureData].calendarId) {
-				_user.savedFilters[Helper.pages.measureData].calendarId = dto.CalendarId;
-				_user.savedFilters[Helper.pages.measureData].intervalId = calendar.Interval.Id;
-				_user.savedFilters[Helper.pages.measureData].year = calendar.Year;
+			if (dto.CalendarId != _user.savedFilters[pages.measureData].calendarId) {
+				_user.savedFilters[pages.measureData].calendarId = dto.CalendarId;
+				_user.savedFilters[pages.measureData].intervalId = calendar.Interval.Id;
+				_user.savedFilters[pages.measureData].year = calendar.Year;
 			}
-			_user.savedFilters[Helper.pages.measureData].hierarchyId = dto.HierarchyId;
-			returnObject.Filter = _user.savedFilters[Helper.pages.measureData];
+			_user.savedFilters[pages.measureData].hierarchyId = dto.HierarchyId;
+			returnObject.Filter = _user.savedFilters[pages.measureData];
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -182,10 +180,7 @@ public class IndexController : ControllerBase
 		List<MeasureDataReturnObject> measureDataList = new();
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -213,11 +208,11 @@ public class IndexController : ControllerBase
 			measureData.Explanation = value.Explanation;
 			measureData.Action = value.Action;
 			_dbc.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
-			measureData.IsProcessed = (byte)Helper.IsProcessed.measureData;
+			measureData.IsProcessed = (byte)IsProcessed.measureData;
 			measureData.LastUpdatedOn = lastUpdatedOn;
 			_dbc.SaveChanges();
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-01",
 				Resource.MEASURE_DATA,
@@ -234,7 +229,7 @@ public class IndexController : ControllerBase
 				  Value = value.MeasureValue,
 				  Explanation = value.Explanation,
 				  Action = value.Action,
-				  Updated = Helper.LastUpdatedOnObj(DateTime.Now, _user.UserName)
+				  Updated = LastUpdatedOnObj(DateTime.Now, _user.UserName)
 			  }
 			);
 			returnObject.Data = measureDataList;
@@ -254,7 +249,7 @@ public class IndexController : ControllerBase
 
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -262,28 +257,28 @@ public class IndexController : ControllerBase
 		int interval = -1;
 		var cal = _dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
 		if (calendarID is null) {
-			interval = (int)Helper.intervals.daily;
+			interval = (int)Intervals.Daily;
 		}
 		else {
 			interval = cal.Where(c => c.Id == calendarID).Include(c => c.Interval).First().Interval.Id;
 		}
 
-		if (interval == (int)Helper.intervals.daily) {
+		if (interval == (int)Intervals.Daily) {
 			var date = cal.First().StartDate ?? new DateTime(0);
 			return date.ToString("MMM-dd-yyyy");
 		}
-		else if (interval == (int)Helper.intervals.weekly || interval == (int)Helper.intervals.quarterly) {
+		else if (interval == (int)Intervals.Weekly || interval == (int)Intervals.Quarterly) {
 			var date = cal.First().StartDate ?? new DateTime(0);
 			var date2 = cal.First().EndDate ?? new DateTime(0);
 			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";
 
 		}
-		else if (interval == (int)Helper.intervals.monthly) {
+		else if (interval == (int)Intervals.Monthly) {
 			var date = cal.First().StartDate ?? new DateTime(0);
 			var date2 = cal.First().EndDate ?? new DateTime(0);
 			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";
 		}
-		else if (interval == (int)Helper.intervals.yearly) {
+		else if (interval == (int)Intervals.Yearly) {
 			var date = cal.First().StartDate ?? new DateTime(0);
 			var date2 = cal.First().EndDate ?? new DateTime(0);
 			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core"
 import { Router } from "@angular/router"
-import { AuthenticatedUser, User } from "src/app/_models/user"
 import { NavSettingsService } from "src/app/_services/nav-settings.service"
 import { AccountService, SignIn } from "../../_services/account.service"
 import { LoggerService } from "../../_services/logger.service"

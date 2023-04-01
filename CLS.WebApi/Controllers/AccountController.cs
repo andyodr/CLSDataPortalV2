@@ -1,4 +1,4 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Versioning;
 using System.Security.Claims;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers;
 
@@ -74,10 +75,10 @@ public class AccountController : Controller
 		// Success
 		if (continueLogin) {
 			var claims = new List<Claim> {
-				new(ClaimTypes.NameIdentifier, user!.Id.ToString()),
+				new(ClaimTypes.NameIdentifier, user!.Id.ToString(), ClaimValueTypes.Integer),
 				new(ClaimTypes.Name, user.UserName),
-				new(ClaimTypes.Role, user.Role),
-				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"))
+				new(ClaimTypes.Role, user.RoleId.ToString()),
+				new(CustomClaimTypes.LastModified, user.LastModified.ToString("o"), ClaimValueTypes.DateTime)
 			};
 
 			var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
@@ -88,7 +89,7 @@ public class AccountController : Controller
 			}
 
 			await HttpContext.SignInAsync(principal, properties);
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.SECURITY,
 				"SEC-01",
 				"Login",
@@ -123,7 +124,7 @@ public class AccountController : Controller
 			int claimUserId = int.Parse(userId);
 			var userRepo = _dbc.User.Where(u => u.Id == claimUserId).FirstOrDefault();
 			if (userRepo is not null) {
-				Helper.AddAuditTrail(_dbc,
+				AddAuditTrail(_dbc,
 					Resource.SECURITY,
 					"SEC-02",
 					"Logout",
@@ -148,7 +149,7 @@ public class AccountController : Controller
 			.AsNoTrackingWithIdentityResolution().Single();
 		var localUser = new UserObject {
 			Id = entity.Id,
-			RoleId = entity.UserRole!.Id,
+			RoleId = (Roles)entity.UserRole!.Id,
 			UserName = entity.UserName,
 			FirstName = entity.FirstName,
 			LastName = entity.LastName,

@@ -1,4 +1,5 @@
 namespace CLS.WebApi.Data;
+using static CLS.WebApi.Helper;
 
 public class UserObject
 {
@@ -12,7 +13,7 @@ public class UserObject
 
 	public string? Department { get; set; }
 
-	public int RoleId { get; set; }
+	public Roles RoleId { get; set; }
 
 	public string Role { get; set; } = null!;
 
@@ -24,12 +25,12 @@ public class UserObject
 
 	public List<UserCalendarLocks> calendarLockIds = new();
 
-	public Dictionary<Helper.pages, FilterSaveObject> savedFilters = new ()
+	public Dictionary<pages, FilterSaveObject> savedFilters = new ()
 	{
-		{ Helper.pages.measureData, new FilterSaveObject() },
-		{ Helper.pages.target, new FilterSaveObject() },
-		{ Helper.pages.measure, new FilterSaveObject() },
-		{ Helper.pages.measureDefinition, new FilterSaveObject() },
-		{ Helper.pages.dataImports, new FilterSaveObject() }
+		{ pages.measureData, new FilterSaveObject() },
+		{ pages.target, new FilterSaveObject() },
+		{ pages.measure, new FilterSaveObject() },
+		{ pages.measureDefinition, new FilterSaveObject() },
+		{ pages.dataImports, new FilterSaveObject() }
 	};
 }

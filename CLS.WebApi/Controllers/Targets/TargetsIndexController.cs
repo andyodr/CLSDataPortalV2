@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Targets;
 
 [ApiController]
 [Route("api/targets/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
@@ -28,10 +29,7 @@ public class IndexController : ControllerBase
 		var result = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -59,8 +57,8 @@ public class IndexController : ControllerBase
 							Units = def.Unit.Short,
 							TargetId = t.Id,
 							Updated = t.UserId switch {
-								null => Helper.LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
-								_ => Helper.LastUpdatedOnObj(t.LastUpdatedOn, t.User?.UserName)
+								null => LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
+								_ => LastUpdatedOnObj(t.LastUpdatedOn, t.User?.UserName)
 							}
 						};
 
@@ -80,26 +78,23 @@ public class IndexController : ControllerBase
 			result.Confirmed = _config.usesSpecialHieararhies;
 
 			result.Allow = false;
-			if (_user.RoleId == (int)Helper.userRoles.systemAdministrator)
+			if (User.IsInRole(Roles.SystemAdministrator.ToString()))
 				result.Allow = _user.hierarchyIds.Contains(hierarchyId);
 
-			_user.savedFilters[Helper.pages.target].hierarchyId = hierarchyId;
-			_user.savedFilters[Helper.pages.target].measureTypeId = measureTypeId;
-			result.Filter = _user.savedFilters[Helper.pages.target];
+			_user.savedFilters[pages.target].hierarchyId = hierarchyId;
+			_user.savedFilters[pages.target].measureTypeId = measureTypeId;
+			result.Filter = _user.savedFilters[pages.target];
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	[HttpPut]
 	public ActionResult<MeasureDataIndexListObject> Put(TargetGetAllObject body) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -132,7 +127,7 @@ public class IndexController : ControllerBase
 			// Set current target to inactive if there are multiple targets
 			long returnTargetId = target.Id;
 
-			target.IsProcessed = (byte)Helper.IsProcessed.complete;
+			target.IsProcessed = (byte)IsProcessed.complete;
 			target.LastUpdatedOn = lastUpdatedOn;
 			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
 
@@ -146,7 +141,7 @@ public class IndexController : ControllerBase
 					MeasureId = body.MeasureId ?? 0L,
 					LastUpdatedOn = lastUpdatedOn,
 					UserId = _user.Id,
-					IsProcessed = (byte)Helper.IsProcessed.complete
+					IsProcessed = (byte)IsProcessed.complete
 				}).Entity;
 
 				_dbc.SaveChanges();
@@ -157,7 +152,7 @@ public class IndexController : ControllerBase
 					UpdateCurrentTargets(newTarget.Id, body.ConfirmIntervals, body.MeasureId ?? 0L, _user.Id, lastUpdatedOn);
 				}
 
-				Helper.AddAuditTrail(_dbc,
+				AddAuditTrail(_dbc,
 					Resource.WEB_PAGES,
 					"WEB-02",
 					Resource.TARGET,
@@ -175,11 +170,11 @@ public class IndexController : ControllerBase
 				Yellow = body.Yellow,
 				TargetId = returnTargetId,
 				TargetCount = _dbc.Target.Where(t => t.Measure!.Id == body.MeasureId).Count(),
-				Updated = Helper.LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
+				Updated = LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
 			}}};
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -189,10 +184,7 @@ public class IndexController : ControllerBase
 		var lastUpdatedOn = DateTime.Now;
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -233,7 +225,7 @@ public class IndexController : ControllerBase
 					var target = _dbc.Target.Where(t => t.MeasureId == measureId && t.Active == true).First();
 
 					// Set current target to inactive if there are multiple targets
-					target.IsProcessed = (byte)Helper.IsProcessed.complete;
+					target.IsProcessed = (byte)IsProcessed.complete;
 					target.LastUpdatedOn = lastUpdatedOn;
 
 					if (targetCount == 1 && target.Value is null && target.YellowValue is null) {
@@ -253,7 +245,7 @@ public class IndexController : ControllerBase
 							MeasureId = measureId,
 							LastUpdatedOn = lastUpdatedOn,
 							UserId = _user.Id,
-							IsProcessed = (byte)Helper.IsProcessed.complete
+							IsProcessed = (byte)IsProcessed.complete
 						}).Entity;
 
 						// Update Target Id for all Measure Data records for current intervals
@@ -262,7 +254,7 @@ public class IndexController : ControllerBase
 						}
 
 						_ = _dbc.SaveChanges();
-						Helper.AddAuditTrail(
+						AddAuditTrail(
 						  _dbc, Resource.WEB_PAGES,
 						   "WEB-02",
 						   Resource.TARGET,
@@ -279,7 +271,7 @@ public class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -300,44 +292,44 @@ public class IndexController : ControllerBase
 		if (confirmIntervals is not null) {
 			// Find current calendar Ids from confirmIntervals.
 			if (confirmIntervals.weekly ?? false) {
-				int cWeekly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cWeekly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)Helper.IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
 			}
 
 			if (confirmIntervals.monthly ?? false) {
-				int cMonthly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cMonthly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)Helper.IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
 			}
 
 			if (confirmIntervals.quarterly ?? false) {
-				int cQuarterly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cQuarterly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)Helper.IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
 			}
 
 			if (confirmIntervals.yearly ?? false) {
-				int cYearly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cYearly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)Helper.IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}

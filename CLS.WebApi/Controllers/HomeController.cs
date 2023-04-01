@@ -1,7 +1,8 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers;
 
@@ -17,7 +18,7 @@ public class HomeController : Controller
 
 	[HttpGet("[action]/{id?}")]
 	public IActionResult Index() {
-		_user = Helper.CreateUserObject(User);
+		_user = CreateUserObject(User);
 		if (_user is null) {
 			return Unauthorized();
 		}
@@ -35,11 +36,11 @@ public class HomeController : Controller
 		}
 
 		// If Role Id is System Administrator
-		if (_user.RoleId == (int)Helper.userRoles.systemAdministrator) {
+		if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
 			ViewBag.ShowMenu = true.ToString().ToLower();
 		}
 		// If Role Id is Region or Administrator only
-		if (_user.RoleId != (int)Helper.userRoles.powerUser) {
+		if (User.IsInRole(Roles.RegionalAdministrator.ToString()) || User.IsInRole(Roles.SystemAdministrator.ToString())) {
 			ViewBag.ShowMenuSub = true.ToString().ToLower();
 		}
 

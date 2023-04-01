@@ -20,7 +20,7 @@
   font-weight: 600;
   letter-spacing: 1px;
   text-align: center;
-  filter: drop-shadow(3px 1px 6px hsl(0, 0%, 100%, 1));
+  filter: drop-shadow(3px 1px 6px hsl(0, 0%, 100%, .5));
 }
 
 .nav-logo-expanded svg {

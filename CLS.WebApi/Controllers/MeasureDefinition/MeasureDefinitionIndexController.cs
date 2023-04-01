@@ -1,13 +1,14 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition;
 
 [ApiController]
 [Route("api/measureDefinition/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -18,10 +19,7 @@ public class IndexController : ControllerBase
 	[HttpGet("{measureTypeId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -76,20 +74,20 @@ public class IndexController : ControllerBase
 				currentMD.Monthly = md.monthly;
 				currentMD.Quarterly = md.quarterly;
 				currentMD.Yearly = md.yearly;
-				switch ((Helper.intervals)md.ReportInterval.Id) {
-					case Helper.intervals.daily:
+				switch ((Intervals)md.ReportInterval.Id) {
+					case Intervals.Daily:
 						currentMD.Daily = false;
 						break;
-					case Helper.intervals.weekly:
+					case Intervals.Weekly:
 						currentMD.Weekly = false;
 						break;
-					case Helper.intervals.monthly:
+					case Intervals.Monthly:
 						currentMD.Monthly = false;
 						break;
-					case Helper.intervals.quarterly:
+					case Intervals.Quarterly:
 						currentMD.Quarterly = false;
 						break;
-					case Helper.intervals.yearly:
+					case Intervals.Yearly:
 						currentMD.Yearly = false;
 						break;
 				}
@@ -100,13 +98,13 @@ public class IndexController : ControllerBase
 				returnObject.Data.Add(currentMD);
 			}
 
-			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId = measureTypeId;
-			//returnObject.filter = _user.savedFilters[Helper.pages.measureDefinition];
+			_user.savedFilters[pages.measureDefinition].measureTypeId = measureTypeId;
+			//returnObject.filter = _user.savedFilters[pages.measureDefinition];
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

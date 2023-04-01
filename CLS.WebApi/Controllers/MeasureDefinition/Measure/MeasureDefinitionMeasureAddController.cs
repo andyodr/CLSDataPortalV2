@@ -1,12 +1,13 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -24,10 +25,7 @@ public class AddController : ControllerBase
 		};
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -49,17 +47,14 @@ public class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
 	[HttpPost]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionViewModel dto) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -105,11 +100,11 @@ public class AddController : ControllerBase
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Helper.intervals.daily;
-			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Helper.intervals.weekly;
-			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Helper.intervals.monthly;
-			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Helper.intervals.quarterly;
-			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Helper.intervals.yearly;
+			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Intervals.Daily;
+			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Intervals.Weekly;
+			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Intervals.Monthly;
+			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Intervals.Quarterly;
+			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Intervals.Yearly;
 			dto.AggFunctionId ??= (byte)enumAggFunctions.summation;
 			var lastUpdatedOn = DateTime.Now;
 
@@ -141,7 +136,7 @@ public class AddController : ControllerBase
 			}
 
 			currentMD.LastUpdatedOn = lastUpdatedOn;
-			currentMD.IsProcessed = (byte)Helper.IsProcessed.complete;
+			currentMD.IsProcessed = (byte)IsProcessed.complete;
 
 			var test = _context.MeasureDefinition.Add(currentMD);
 			_context.SaveChanges();
@@ -149,23 +144,23 @@ public class AddController : ControllerBase
 			result.Data.Add(dto);
 
 			// Create Measure and Target records
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_context, _user.Id, dto);
+			string measuresAndTargets = CreateMeasuresAndTargets(_context, _user.Id, dto);
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
 			}
 
 			// Create Measure Data records for current intervals
-			Helper.CreateMeasureDataRecords(_context, dto.IntervalId, currentMD.Id);
+			CreateMeasureDataRecords(_context, dto.IntervalId, currentMD.Id);
 			if (weekly)
-				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.weekly, currentMD.Id);
+				CreateMeasureDataRecords(_context, (int)Intervals.Weekly, currentMD.Id);
 			if (monthly)
-				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.monthly, currentMD.Id);
+				CreateMeasureDataRecords(_context, (int)Intervals.Monthly, currentMD.Id);
 			if (quarterly)
-				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.quarterly, currentMD.Id);
+				CreateMeasureDataRecords(_context, (int)Intervals.Quarterly, currentMD.Id);
 			if (yearly)
-				Helper.CreateMeasureDataRecords(_context, (int)Helper.intervals.yearly, currentMD.Id);
+				CreateMeasureDataRecords(_context, (int)Intervals.Yearly, currentMD.Id);
 
-			Helper.AddAuditTrail(_context,
+			AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-04",
 				Resource.MEASURE_DEFINITION,
@@ -177,7 +172,7 @@ public class AddController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

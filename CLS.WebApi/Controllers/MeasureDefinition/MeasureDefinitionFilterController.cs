@@ -1,13 +1,13 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition;
 
 [ApiController]
 [Route("api/measureDefinition/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
@@ -18,10 +18,7 @@ public class FilterController : ControllerBase
 	[HttpGet]
 	public ActionResult<FilterReturnObject> Get() {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -29,12 +26,12 @@ public class FilterController : ControllerBase
 				MeasureTypes = _dbc.MeasureType.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name }).ToArray()
 			};
 
-			_user.savedFilters[Helper.pages.measureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
-			result.Filter = _user.savedFilters[Helper.pages.measureDefinition];
+			_user.savedFilters[pages.measureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
+			result.Filter = _user.savedFilters[pages.measureDefinition];
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }
