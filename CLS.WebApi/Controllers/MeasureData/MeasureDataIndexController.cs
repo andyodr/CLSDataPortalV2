@@ -26,7 +26,7 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		var returnObject = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
+		var result = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
 		DateTime? date = new();
 
 		try {
@@ -34,12 +34,13 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			returnObject.Allow = _user.hierarchyIds.Contains(dto.HierarchyId);
+			result.Allow = _dbc.UserHierarchy
+				.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any();
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			returnObject.EditValue = CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
+			result.EditValue = CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
 
-			returnObject.CalendarId = dto.CalendarId;
+			result.CalendarId = dto.CalendarId;
 			if (string.IsNullOrEmpty(dto.Day)) {
 				date = null;
 			}
@@ -49,26 +50,26 @@ public class IndexController : ControllerBase
 					.Where(c => c.StartDate == date)
 					.AsNoTrackingWithIdentityResolution().ToArray();
 				if (cal.Length > 0) {
-					returnObject.CalendarId = cal.First().Id;
+					result.CalendarId = cal.First().Id;
 				}
 			}
 
 			var calendar = _dbc.Calendar
-				.Where(c => c.Id == returnObject.CalendarId)
+				.Where(c => c.Id == result.CalendarId)
 				.Include(c => c.Interval)
 				.AsNoTrackingWithIdentityResolution().First();
 
-			returnObject.Locked = false;
+			result.Locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (_dbc.Setting.AsNoTracking().First().Active == true) {
-				returnObject.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
+				result.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
 			}
 
 			var measures = _dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
-					&& m.CalendarId == returnObject.CalendarId)
+					&& m.CalendarId == result.CalendarId)
 				.Include(md => md.Target)
 				.Include(md => md.User)
 				.Include(md => md.Measure)
@@ -141,7 +142,7 @@ public class IndexController : ControllerBase
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
 								var measureData = _dbc.MeasureData
-									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == returnObject.CalendarId)
+									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == result.CalendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
 									if (measureData.First().Value is not null) {
@@ -155,19 +156,19 @@ public class IndexController : ControllerBase
 					}
 				}
 
-				returnObject.Data.Add(measureDataDto);
+				result.Data.Add(measureDataDto);
 			}
 
-			returnObject.Range = BuildRangeString(dto.CalendarId);
+			result.Range = BuildRangeString(dto.CalendarId);
 			if (dto.CalendarId != _user.savedFilters[pages.measureData].calendarId) {
 				_user.savedFilters[pages.measureData].calendarId = dto.CalendarId;
 				_user.savedFilters[pages.measureData].intervalId = calendar.Interval.Id;
 				_user.savedFilters[pages.measureData].year = calendar.Year;
 			}
 			_user.savedFilters[pages.measureData].hierarchyId = dto.HierarchyId;
-			returnObject.Filter = _user.savedFilters[pages.measureData];
+			result.Filter = _user.savedFilters[pages.measureData];
 
-			return returnObject;
+			return result;
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));

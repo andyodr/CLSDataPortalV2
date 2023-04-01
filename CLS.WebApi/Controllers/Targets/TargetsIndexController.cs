@@ -76,11 +76,9 @@ public class IndexController : ControllerBase
 			}
 
 			result.Confirmed = _config.usesSpecialHieararhies;
-
-			result.Allow = false;
-			if (User.IsInRole(Roles.SystemAdministrator.ToString()))
-				result.Allow = _user.hierarchyIds.Contains(hierarchyId);
-
+			result.Allow = User.IsInRole(Roles.SystemAdministrator.ToString()) && _dbc
+				.UserHierarchy
+				.Where(d => d.UserId == _user.Id && d.HierarchyId == hierarchyId).Any();
 			_user.savedFilters[pages.target].hierarchyId = hierarchyId;
 			_user.savedFilters[pages.target].measureTypeId = measureTypeId;
 			result.Filter = _user.savedFilters[pages.target];
