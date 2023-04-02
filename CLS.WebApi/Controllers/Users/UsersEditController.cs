@@ -22,7 +22,7 @@ public class EditController : ControllerBase
 	/// </summary>
 	/// <param name="id"></param>
 	/// <returns></returns>
-	[HttpGet("{id}")]
+	[HttpGet("{id:min(1)}")]
 	public ActionResult<UserIndexGetObject> Get(int id) {
 		var result = new UserIndexGetObject { Data = new(), Hierarchy = new(), Roles = new() };
 		try {

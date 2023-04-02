@@ -15,7 +15,7 @@ public class EditController : ControllerBase
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
-	[HttpGet("{id}")]
+	[HttpGet("{id:min(1)}")]
 	public ActionResult<MeasureTypeModel> Get(int id) {
 		try {
 			if (CreateUserObject(User) is not UserObject _user) {
