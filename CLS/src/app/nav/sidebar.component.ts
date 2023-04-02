@@ -8,7 +8,9 @@ import { AccountService } from "../_services/account.service"
     styleUrls: ["./sidebar.component.scss"]
 })
 export class SidebarComponent implements OnInit {
-    public opened = true
+    opened = true
+    admin2 = this.api.currentUser$.subscribe(u => u && u.roleId > 2)
+    admin3 = this.api.currentUser$.subscribe(u => u && u.roleId > 3)
 
     constructor(public api: AccountService, private toggleService: ToggleService) { }
 

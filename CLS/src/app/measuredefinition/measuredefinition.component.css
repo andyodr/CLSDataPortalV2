@@ -73,6 +73,7 @@ span.filter {
   border-top-left-radius: 2px;
   display: flex;
   align-items: center;
+  margin-top: 1em;
 }
 
 .panel-header> :first-child {
@@ -91,6 +92,7 @@ button mat-icon {
 
 table {
   width: 100%;
+  border: 1px solid var(--mat-primary-100);
 }
 
 .mat-column-name {

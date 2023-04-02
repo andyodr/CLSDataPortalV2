@@ -4,16 +4,16 @@
     <li>
       <i class="fa fa-calendar" routerLink="/measuredata"></i><span class="text-li" routerLink="/measuredata" *ngIf="opened">Measure Data</span>
     </li>
-    <li *ngIf="((api.currentUser$ | async)?.roleId ?? 0) > 1">
+    <li *ngIf="admin2">
       <i class="fa fa-pencil" routerLink="/targets"></i><span class="text-li" routerLink="/targets" *ngIf="opened">Targets</span>
     </li>
-    <li *ngIf="((api.currentUser$ | async)?.roleId ?? 0) > 2">
+    <li *ngIf="admin3">
       <i class="fa fa-list" routerLink="/measures"></i><span class="text-li" routerLink="/measures" *ngIf="opened">Measures</span>
     </li>
-    <li *ngIf="((api.currentUser$ | async)?.roleId ?? 0) > 1">
+    <li *ngIf="admin2">
       <i class="fa fa-file" routerLink="/measuredefinition"></i><span class="text-li" routerLink="/measuredefinition" *ngIf="opened">Measure Definition</span>
     </li>
-    <li *ngIf="((api.currentUser$ | async)?.roleId ?? 0) > 2">
+    <li *ngIf="admin3">
       <i class="fa fa-map" routerLink="/hierarchy"></i><span class="text-li" routerLink="/hierarchy" *ngIf="opened">Hierarchy</span>
     </li>
     <li>

@@ -95,11 +95,7 @@ export class DataImportsComponent implements OnInit {
     dropDis: boolean = false
     errorUploadMsg = { heading: "", errorRows: [] as { id?: number, row?: number, message: string }[] }
     showUploadError = false
-    progress = {
-        mode: "determinate" as ProgressBarMode,
-        value: 0
-    }
-
+    hideProgress = true
     errorMsg: any = ""
     showError = false
     hideTable = true
@@ -154,14 +150,7 @@ export class DataImportsComponent implements OnInit {
     }
 
     setProgress(enable: boolean) {
-        if (enable) {
-            this.progress.mode = "indeterminate"
-            this.progress.value += 1
-        }
-        else {
-            this.progress.mode = "determinate"
-            this.progress.value = 0
-        }
+        this.hideProgress = !enable
     }
 
     closeError() {  // called by uib-alert

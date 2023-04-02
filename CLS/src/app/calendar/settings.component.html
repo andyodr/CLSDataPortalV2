@@ -2,6 +2,7 @@
 <div>
   <h1>Settings</h1>
   <main class="panel panel-body mat-elevation-z4">
+    <mat-progress-bar [class.invisible]="hideProgress" [mode]="hideProgress ? 'determinate' : 'query'"></mat-progress-bar>
     <header class="panel-header">
       <dl class="form-group mar0 marT10 padL20 textTransformNone">
         <dt>Last Calculated:</dt>
@@ -11,7 +12,7 @@
         <mat-icon>swap_horiz</mat-icon> Transfer <!--other possible icons: sync_alt, swap_horiz, multiple_stop-->
       </button>
     </header>
-    <div>
+    <div class="flex-between-start">
       <mat-form-field appearance="fill">
         <mat-label>Year</mat-label>
         <mat-select [(ngModel)]="yearSelected" aria-label="Year" (selectionChange)="intervalChange(yearSelected)">
@@ -24,7 +25,7 @@
         <mat-icon>save_alt</mat-icon> Save
       </button>
     </div>
-    <div>
+    <div class="flex-wrap-start">
       <section class="panel panel-default main-settings">
         <header class="table-header">
           <mat-icon>apps</mat-icon> Main Settings

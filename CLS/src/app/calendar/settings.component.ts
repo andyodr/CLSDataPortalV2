@@ -12,6 +12,7 @@ import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_servi
 })
 export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     disabledAll = false
+    hideProgress = true
     years: number[] = []
     yearSelected: number = 0
     active: boolean = false
@@ -37,6 +38,7 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     intervalChange(year?: number) {
+        this.hideProgress = false
         this.api.getSettings(year).subscribe({
             next: dto => {
                 this.years = dto.years ?? []
@@ -52,11 +54,13 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
                     locked: c.locked ?? false
                 }))
                 this.users.data = dto.users
+                this.hideProgress = true
             }
         })
     }
 
     save() {
+        this.hideProgress = false
         this.api.updateSettings({
             year: this.yearSelected,
             calculateHH: this.calcSchedule.hours,
@@ -78,7 +82,8 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
                     endDate: c.endDate == null ? "-" : new Intl.DateTimeFormat().format(new Date(c.endDate)),
                     locked: c.locked ?? false
                 }))
-                this.logger .logSuccess("Main and monthly lock data updated")
+                this.logger.logSuccess("Main and monthly lock data updated")
+                this.hideProgress = true
             }
         })
     }
@@ -89,8 +94,9 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     lockChange(user: UserSettingDto) {
+        this.hideProgress = false
         this.api.updateUser({ year: this.yearSelected, user: user }).subscribe(r => {
-            r
+            this.hideProgress = true
         })
     }
 
