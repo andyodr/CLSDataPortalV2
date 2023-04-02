@@ -95,7 +95,7 @@ export class DataImportsComponent implements OnInit {
     dropDis: boolean = false
     errorUploadMsg = { heading: "", errorRows: [] as { id?: number, row?: number, message: string }[] }
     showUploadError = false
-    hideProgress = true
+    progress = false
     errorMsg: any = ""
     showError = false
     hideTable = true
@@ -150,7 +150,7 @@ export class DataImportsComponent implements OnInit {
     }
 
     setProgress(enable: boolean) {
-        this.hideProgress = !enable
+        this.progress = enable
     }
 
     closeError() {  // called by uib-alert

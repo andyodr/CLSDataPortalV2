@@ -4,6 +4,7 @@ import { MatTableDataSource } from "@angular/material/table"
 import { TimeSpan } from "../lib/time/time-input.component"
 import { LoggerService } from "../_services/logger.service"
 import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_services/settings.service"
+import { finalize } from "rxjs"
 
 @Component({
     selector: "app-settings",
@@ -12,7 +13,7 @@ import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_servi
 })
 export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     disabledAll = false
-    hideProgress = true
+    progress = false
     years: number[] = []
     yearSelected: number = 0
     active: boolean = false
@@ -38,8 +39,10 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     intervalChange(year?: number) {
-        this.hideProgress = false
-        this.api.getSettings(year).subscribe({
+        this.progress = true
+        this.api.getSettings(year)
+        .pipe(finalize(() => this.progress = false))
+        .subscribe({
             next: dto => {
                 this.years = dto.years ?? []
                 this.yearSelected = dto.year
@@ -54,13 +57,12 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
                     locked: c.locked ?? false
                 }))
                 this.users.data = dto.users
-                this.hideProgress = true
             }
         })
     }
 
     save() {
-        this.hideProgress = false
+        this.progress = true
         this.api.updateSettings({
             year: this.yearSelected,
             calculateHH: this.calcSchedule.hours,
@@ -83,7 +85,7 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
                     locked: c.locked ?? false
                 }))
                 this.logger.logSuccess("Main and monthly lock data updated")
-                this.hideProgress = true
+                this.progress = false
             }
         })
     }
@@ -94,9 +96,9 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     lockChange(user: UserSettingDto) {
-        this.hideProgress = false
+        this.progress = true
         this.api.updateUser({ year: this.yearSelected, user: user }).subscribe(r => {
-            this.hideProgress = true
+            this.progress = false
         })
     }
 

@@ -3,6 +3,11 @@
   overflow-y: hidden;
 }
 
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+}
+
 mat-drawer-container,
 mat-drawer,
 app-sidebar {

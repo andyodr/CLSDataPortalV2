@@ -4,6 +4,7 @@ import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
+import { finalize } from "rxjs"
 
 @Component({
     selector: "app-measuredefinition",
@@ -26,6 +27,7 @@ export class MeasureDefinitionComponent implements OnInit {
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
     selectedMeasureType: MeasureType = { id: 0, name: "" }
+    progress = false
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -41,24 +43,30 @@ export class MeasureDefinitionComponent implements OnInit {
     constructor(private api: MeasureDefinitionService, public logger: LoggerService) { }
 
     ngOnInit(): void {
-        this.api.getMeasureDefinitionFilter().subscribe({
-            next: filters => {
-                this.filters = filters
-                this.measureTypes = filters.measureTypes
-                this.selectedMeasureType = filters.measureTypes[0]
-                this.dataSource.sort = this.sort
-                this.loadTable()
-            }
-        })
+        this.progress = true
+        this.api.getMeasureDefinitionFilter()
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: filters => {
+                    this.filters = filters
+                    this.measureTypes = filters.measureTypes
+                    this.selectedMeasureType = filters.measureTypes[0]
+                    this.dataSource.sort = this.sort
+                    this.loadTable()
+                }
+            })
     }
 
     loadTable() {
         this.filtersSelected = [this.selectedMeasureType.name]
-        this.api.getMeasureDefinition(this.selectedMeasureType.id).subscribe({
-            next: dto => {
-                this.dataSource.data = dto.data
-            }
-        })
+        this.progress = true
+        this.api.getMeasureDefinition(this.selectedMeasureType.id)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: dto => {
+                    this.dataSource.data = dto.data
+                }
+            })
     }
 
     doFilter() {

@@ -18,8 +18,9 @@ h1,
   margin: 0px 20px 13px;
 }
 
-.invisible {
-  opacity: 0;
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
 }
 
 .panel-body {
@@ -98,22 +99,6 @@ h1,
 
 table {
   width: 100%;
-}
-
-.mat-header-cell.mat-column-lo1,
-.mat-header-cell.mat-column-lo2,
-.mat-header-cell.mat-column-lo3,
-.mat-header-cell.mat-column-lo4,
-.mat-header-cell.mat-column-lo5,
-.mat-header-cell.mat-column-lo6,
-.mat-header-cell.mat-column-lo7,
-.mat-header-cell.mat-column-lo8,
-.mat-header-cell.mat-column-lo9,
-.mat-header-cell.mat-column-lo10,
-.mat-header-cell.mat-column-lo11,
-.mat-header-cell.mat-column-lo12 {
-  writing-mode: vertical-rl;
-  // transform: rotate(180deg);
 }
 
 .mat-cell.mat-column-locked,

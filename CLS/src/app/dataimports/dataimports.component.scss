@@ -17,8 +17,9 @@ button {
   font-size: larger
 }
 
-.invisible {
-  opacity: 0;
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
 }
 
 .form-inline .form-group {
