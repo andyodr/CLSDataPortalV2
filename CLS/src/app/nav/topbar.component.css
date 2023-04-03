@@ -1,7 +1,7 @@
 .topbar {
   display: flex;
   color: white;
-  background-color: var(--mat-primary-500);
+  background-color: hsl(var(--mat-primary-500));
   height: 70px;
 }
 

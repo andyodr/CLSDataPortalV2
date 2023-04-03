@@ -18,10 +18,10 @@ app-sidebar ~ * {
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
+  background-color: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -40,7 +40,7 @@ app-sidebar ~ * {
 
 table {
   width: 100%;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
 }
 
 .mat-column-userName {
@@ -69,7 +69,7 @@ table {
 }
 
 .mat-row:hover .mat-cell {
-  background-color: var(--mat-primary-100);
+  background-color: hsl(var(--mat-primary-100));
 }
 
 .mat-row .empty-table {

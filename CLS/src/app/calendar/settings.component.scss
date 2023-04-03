@@ -28,10 +28,10 @@ mat-progress-bar {
 }
 
 .panel-header {
-  background: var(--mat-primary-50);
+  background: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
   padding: 1em 1em 0px;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   display: flex;
@@ -40,7 +40,7 @@ mat-progress-bar {
 }
 
 .table-header {
-  background: var(--mat-primary-50);
+  background: hsl(var(--mat-primary-50));
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   padding: 1ch 1em;
@@ -67,7 +67,7 @@ mat-progress-bar {
 }
 
 .table-header+div {
-  background: var(--mat-primary-50);
+  background: hsl(var(--mat-primary-50));
   padding: 1ch 1em 0px;
 }
 

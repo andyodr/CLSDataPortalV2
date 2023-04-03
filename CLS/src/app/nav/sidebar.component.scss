@@ -4,7 +4,7 @@
 
 .sidebar {
   color: var(--mat-gray-100);
-  background-color: #3D4051;
+  background-color: hsl(212 11% 25%);
   /* transition: all .3s ease;
     transform: translateX(-100%);
     overflow-y: auto; */
@@ -39,7 +39,7 @@
 }
 
 .sidebar li:hover {
-  background: rgb(0 0 0 / .1);
+  background: hsl(212 10% 50% / .5);
 }
 
 .sidebar li a {
