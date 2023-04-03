@@ -6,22 +6,22 @@
         <span *ngIf="opened">Measure Data</span>
       </a>
     </li>
-    <li matRipple *ngIf="admin2">
+    <li matRipple *ngIf="roleId > 1">
       <a class="fa fa-pencil" routerLink="/targets">
         <span *ngIf="opened">Targets</span>
       </a>
     </li>
-    <li matRipple *ngIf="admin3">
+    <li matRipple *ngIf="roleId > 2">
       <a class="fa fa-list" routerLink="/measures">
         <span *ngIf="opened">Measures</span>
       </a>
     </li>
-    <li matRipple *ngIf="admin2">
+    <li matRipple *ngIf="roleId > 1">
       <a class="fa fa-file" routerLink="/measuredefinition">
         <span *ngIf="opened">Measure Definition</span>
       </a>
     </li>
-    <li matRipple *ngIf="admin3">
+    <li matRipple *ngIf="roleId > 2">
       <a class="fa fa-map" routerLink="/hierarchy">
         <span *ngIf="opened">Hierarchy</span>
       </a>
@@ -32,7 +32,7 @@
       </a>
     </li>
     <li>
-      <a class="fa fa-link"><span *ngIf="opened" matRipple>Tableau</span>
+      <a class="fa fa-link" (click)="tableau()"><span *ngIf="opened" matRipple>Tableau</span>
       </a>
     </li>
   </ul>

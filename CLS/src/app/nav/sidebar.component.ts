@@ -9,14 +9,16 @@ import { AccountService } from "../_services/account.service"
 })
 export class SidebarComponent implements OnInit {
     opened = true
-    admin2 = this.api.currentUser$.subscribe(u => u && u.roleId > 2)
-    admin3 = this.api.currentUser$.subscribe(u => u && u.roleId > 3)
+    roleId = 0
 
     constructor(public api: AccountService, private toggleService: ToggleService) { }
 
     ngOnInit(): void {
-        this.toggleService.toggle$.subscribe(toggle => {
-            this.opened = toggle
-        })
+        this.api.currentUser$.subscribe(u => this.roleId = u?.roleId ?? 0)
+        this.toggleService.toggle$.subscribe(toggle => this.opened = toggle)
+    }
+
+    tableau() {
+        0
     }
 }

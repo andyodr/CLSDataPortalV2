@@ -38,6 +38,10 @@
   cursor: pointer;
 }
 
+.sidebar li:hover {
+  background: rgb(0 0 0 / .1);
+}
+
 .sidebar li a {
   display: block;
   color: var(--mat-gray-100);
