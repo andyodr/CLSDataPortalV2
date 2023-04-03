@@ -7,8 +7,11 @@ import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
 import { RegionFilter } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureType } from "../_services/measure-definition.service"
-import { MeasureApiResponse, MeasureFilter,
-    MeasureService, RegionActiveCalculatedDto } from "../_services/measure.service"
+import {
+    MeasureApiResponse, MeasureFilter,
+    MeasureService, RegionActiveCalculatedDto
+} from "../_services/measure.service"
+import { finalize } from "rxjs"
 
 interface MeasuresTableRow {
     id: number
@@ -28,15 +31,15 @@ class ToggleQuery {
 }
 
 @Component({
-  selector: "app-measures",
-  templateUrl: "./measures.component.html",
-  styleUrls: ["./measures.component.scss"],
-  animations: [
-      trigger("detailExpand", [
-          state("false", style({ height: "0px", minHeight: "0" })),
-          state("true", style({ height: "*" })),
-          transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
-      ])]
+    selector: "app-measures",
+    templateUrl: "./measures.component.html",
+    styleUrls: ["./measures.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("false", style({ height: "0px", minHeight: "0" })),
+            state("true", style({ height: "*" })),
+            transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
+        ])]
 })
 export class MeasuresComponent implements OnInit {
     title = "Measures"
@@ -50,6 +53,7 @@ export class MeasuresComponent implements OnInit {
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
     selectedMeasureType: MeasureType = { id: 0, name: "" }
+    progress = false
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -63,27 +67,30 @@ export class MeasuresComponent implements OnInit {
     selectedRegion = null as number | number[] | null
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
 
-    constructor(private api: MeasureService, public logger: LoggerService ) { }
+    constructor(private api: MeasureService, public logger: LoggerService) { }
 
     ngOnInit(): void {
-        this.api.getMeasureFilter().subscribe({
-            next: dto => {
-                this.filters = dto
-                this.measureTypes = dto.measureTypes
-                this.selectedMeasureType = dto.measureTypes[0]
-                this.hierarchy = dto.hierarchy
-                this.selectedRegion = dto.filter.hierarchyId ?? dto.hierarchy.at(0)?.id ?? 1
-                // delay because it depends on output from a child component
-                setTimeout(() => this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")])
-                this.dataSource.sort = this.sort
-                this.dataSource.data = dto.measures.data.map(d => ({
-                    id: d.id,
-                    measureDefinition: d.name,
-                    ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.measures.hierarchy[i], r]))
-                }))
-                this.displayedColumns.splice(1, Infinity, ...dto.measures.hierarchy)
-            }
-        })
+        this.progress = true
+        this.api.getMeasureFilter()
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: dto => {
+                    this.filters = dto
+                    this.measureTypes = dto.measureTypes
+                    this.selectedMeasureType = dto.measureTypes[0]
+                    this.hierarchy = dto.hierarchy
+                    this.selectedRegion = dto.filter.hierarchyId ?? dto.hierarchy.at(0)?.id ?? 1
+                    // delay because it depends on output from a child component
+                    setTimeout(() => this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")])
+                    this.dataSource.sort = this.sort
+                    this.dataSource.data = dto.measures.data.map(d => ({
+                        id: d.id,
+                        measureDefinition: d.name,
+                        ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.measures.hierarchy[i], r]))
+                    }))
+                    this.displayedColumns.splice(1, Infinity, ...dto.measures.hierarchy)
+                }
+            })
     }
 
     loadTable() {
@@ -93,16 +100,19 @@ export class MeasuresComponent implements OnInit {
             hierarchyId: typeof this.selectedRegion === "number" ? this.selectedRegion : (this.hierarchy.at(0)?.id ?? 1)
         }
 
-        this.api.getMeasures(params).subscribe({
-            next: dto => {
-                this.dataSource.data = dto.data.map(d => ({
-                    id: d.id,
-                    measureDefinition: d.name,
-                    ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.hierarchy[i], r]))
-                }))
-                this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
-            }
-        })
+        this.progress = true
+        this.api.getMeasures(params)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: dto => {
+                    this.dataSource.data = dto.data.map(d => ({
+                        id: d.id,
+                        measureDefinition: d.name,
+                        ...Object.fromEntries(d.hierarchy.map((r, i) => [dto.hierarchy[i], r]))
+                    }))
+                    this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
+                }
+            })
     }
 
     applyFilter(event: Event) {
@@ -124,21 +134,25 @@ export class MeasuresComponent implements OnInit {
             measureDefinitionId: row.id,
             hierarchy: Object.values(row)
                 .filter((v): v is RegionActiveCalculatedDto => typeof v === "object")
-        };
-        this.api.updateMeasures(dto).subscribe(response => {
-            let i = this.dataSource.data.findIndex(d => d.id === response.data.at(0)?.id)
-            if (i >= 0) {
-                this.dataSource.data = [...this.dataSource.data.slice(0, i), response.data.map(d => ({
-                    id: d.id,
-                    measureDefinition: d.name,
-                    ...Object.fromEntries(d.hierarchy.map((r, i) => [d.hierarchy[i], r]))
-                }))[0], ...this.dataSource.data.slice(i + 1)]
-                this.loadTable()
-            }
-            else {
-                this.logger.logWarning(`Edited measureDefinitionId=${row.id} missing from response`)
-            }
-        })
+        }
+
+        this.progress = true
+        this.api.updateMeasures(dto)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe(response => {
+                let i = this.dataSource.data.findIndex(d => d.id === response.data.at(0)?.id)
+                if (i >= 0) {
+                    this.dataSource.data = [...this.dataSource.data.slice(0, i), response.data.map(d => ({
+                        id: d.id,
+                        measureDefinition: d.name,
+                        ...Object.fromEntries(d.hierarchy.map((r, i) => [d.hierarchy[i], r]))
+                    }))[0], ...this.dataSource.data.slice(i + 1)]
+                    this.loadTable()
+                }
+                else {
+                    this.logger.logWarning(`Edited measureDefinitionId=${ row.id } missing from response`)
+                }
+            })
     }
 
     processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
