@@ -1,7 +1,7 @@
 <!--<p>login works!</p>-->
 <div class="login-page">
-  <div class="login-box-inner">
-    <div class="login-box">
+  <div class="login-box">
+    <div class="login-box-inner">
       <div class="login-logo">
         <svg id="svg17847" version="1.1" viewBox="0 0 1000 181.354" height="181.354" width="1000"
           inkscape:version="0.91 r13725" sodipodi:docname="Johnson_and_Johnson_Logo.svg"
@@ -29,30 +29,30 @@
           </g>
         </svg>
         <h1>Customer & Logistics Services</h1>
+        <form #loginForm="ngForm" (ngSubmit)="login()" autocomplete="off" class="login-form">
+          <div class="login-form-title">Deliver Data Portal</div>
+          <div>
+            <input type="text" class="login-form-control" name="userName" [(ngModel)]="model.userName"
+              placeholder="Username">
+          </div>
+          <div>
+            <input type="password" class="login-form-control" name="password" [(ngModel)]="model.password"
+              placeholder="Password">
+          </div>
+          <div class="checkbox">
+            <label matTooltip="Not recommended for shared computers" matTooltipClass="tooltips">
+              <input type="checkbox" name="persistent" [(ngModel)]="model.persistent">
+              Remember me
+            </label>
+          </div>
+          <div class="text-right">
+            <button class="login-form-btn" type="submit">
+              Sign In
+            </button>
+            <!-- <button class="btn btn-default" type="button" (click)="cancel()">Cancel</button> -->
+          </div>
+        </form>
       </div>
-      <form #loginForm="ngForm" (ngSubmit)="login()" autocomplete="off" class="login-form">
-        <div class="text-center login-form-title">Deliver Data Portal</div>
-        <div>
-          <input type="text" class="login-form-control" name="userName" [(ngModel)]="model.userName"
-            placeholder="Username">
-        </div>
-        <div>
-          <input type="password" class="login-form-control" name="password" [(ngModel)]="model.password"
-            placeholder="Password">
-        </div>
-        <div class="checkbox">
-          <label matTooltip="Not recommended for shared computers" matTooltipClass="tooltips">
-            <input type="checkbox" name="persistent" [(ngModel)]="model.persistent">
-            Remember me
-          </label>
-        </div>
-        <div class="text-right">
-          <button class="login-form-btn" type="submit">
-            Sign In
-          </button>
-          <!-- <button class="btn btn-default" type="button" (click)="cancel()">Cancel</button> -->
-        </div>
-      </form>
     </div>
   </div>
 </div>
