@@ -176,9 +176,12 @@
           </ng-container>
           <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
-            <!-- <td mat-cell *matCellDef="let element"> {{element.target}} </td> -->
-            <td mat-cell *matCellDef="let element; let i = index;" [ngStyle]="{ 'background-color': getBgColor(element) }">{{ element.target }}</td>
-            <!-- <td mat-cell *matCellDef="let element; let i = index;" [ngStyle]="{ 'background-color': '#f44336' }">{{ element.target }}</td> -->
+            <mat-cell [ngClass]="{
+              bgred: !element.value || (!element.target && !element.yellow),
+              bggreen: (element.value >= element.target && element.target >= element.yellow) || (element.value <= element.target && element.target < element.yellow),
+              bgorange: (element.value >= element.yellow && element.target >= element.yellow) || (element.value <= element.yellow && element.target < element.yellow && element.target >= 0) }" 
+              *matCellDef="let element"> {{element.target}} 
+            </mat-cell>
           </ng-container>
           <ng-container matColumnDef="units">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Units </th>

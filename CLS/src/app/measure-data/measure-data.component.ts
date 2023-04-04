@@ -651,52 +651,52 @@ export class MeasureDataComponent implements OnInit {
     // -----------------------------------------------------------------------------
 
     // Measure Value Bg colors
-    getBgColor(data: any): string {
+    getBgColor(element: MeasureDataDto): string {
         // if ( !this.editBgColor ) return "";
-        // if ( itgIsEmpty(data.value) ) return "";
-        // if ( itgIsNull(data.target) && itgIsNull(data.yellow) ) return "";
+        // if ( itgIsEmpty(element.value) ) return "";
+        // if ( itgIsNull(element.target) && itgIsNull(element.yellow) ) return "";
         // if (!this.editBgColor) {
         //     return "";
         // }
 
-        if (!data.value) {
+        if (!element.value) {
             return "";
         }
 
-        if (!data.target && !data.yellow) {
+        if (!element.target && !element.yellow) {
             return "";
         }
 
-        const red = "bg-danger2";
-        const yellow = "bg-warning2";
-        const green = "bg-success2";
+        const red = "td.bgred";
+        const yellow = "td.bgorange";
+        const green = "td.bggreen";
         let result = red;
 
-        if (!data.target) {
-            if (data.value >= data.yellow) {
+        if (!element.target) {
+            if (element.value >= element.yellow) {
                 return green;
             }
             return result;
         }
-        if (!data.yellow) {
-            if (data.value >= data.target) {
+        if (!element.yellow) {
+            if (element.value >= element.target) {
                 return green;
             }
             return result;
         }
-        if (data.target >= data.yellow) {
-            if (data.value >= data.yellow) {
+        if (element.target >= element.yellow) {
+            if (element.value >= element.yellow) {
                 result = yellow;
             }
-            if (data.value >= data.target) {
+            if (element.value >= element.target) {
                 result = green;
             }
         }
-        if (data.target < data.yellow) {
-            if (data.value <= data.yellow) {
+        if (element.target < element.yellow) {
+            if (element.value <= element.yellow) {
                 result = yellow;
             }
-            if (data.value <= data.target) {
+            if (element.value <= element.target) {
                 result = green;
             }
         }
@@ -704,6 +704,40 @@ export class MeasureDataComponent implements OnInit {
         return result;
         
     }
+
+    getBgColor2(data: any): string {
+        if (!data.value || (!data.target && !data.yellow)) {
+            return "";
+        }
+    
+        if (!data.target) {
+            return data.value >= data.yellow ? "bgreen" : "bgred";
+        }
+    
+        if (!data.yellow) {
+            return data.value >= data.target ? "bgreen" : "bgred";
+        }
+    
+        if (data.target >= data.yellow) {
+            if (data.value >= data.yellow) {
+                return "bgorange";
+            }
+            if (data.value >= data.target) {
+                return "bgreen";
+            }
+        }
+    
+        if (data.target < data.yellow) {
+            if (data.value <= data.yellow) {
+                return "bgorange";
+            }
+            if (data.value <= data.target) {
+                return "bgreen";
+            }
+        }
+    
+        return "bgred";
+    } 
 
     getBorderColor(targetVal: any, yellowVal: any): void {
         const red = 'border-danger2';

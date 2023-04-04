@@ -166,7 +166,7 @@ table {
 }
 
 .mat-column-value {
-  width: 2em;
+  width: 6em;
 }
 
 .mat-column-units {
@@ -248,14 +248,18 @@ footer {
 }
 
 
-.bg-danger2 {
+.bgred {
   background-color: #f44336; /* red */
 }
 
-.bg-warning2 {
+.bgorange {
   background-color: #ff9800; /* orange */
 }
 
-.bg-success2 {
+.bggreen {
   background-color: #4caf50; /* green */
+}
+
+.clsWeight {
+  background-color: yellow;
 }

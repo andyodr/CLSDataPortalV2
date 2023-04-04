@@ -328,7 +328,7 @@ export class TargetsComponent implements OnInit {
 
     onSave(targetRow: TargetDto) {
 
-        //this.isEditMode = false
+        this.isEditMode = false
         //this.showError = false;
         //this.disabledAll = true;
 
