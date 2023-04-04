@@ -4,7 +4,7 @@ import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto } 
 import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { filter, Subscription } from 'rxjs';
+import { filter, finalize, Subscription } from 'rxjs';
 import { NavigationService } from '../_services/nav.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
@@ -34,7 +34,7 @@ export class MeasureDataComponent implements OnInit {
     //------------------ Table Properties ------------------
     measureDataList: MeasureDataDto[] = [];
     measureDataRow: MeasureDataDto | undefined
-    
+
     dataSource = new MatTableDataSource<MeasureDataDto>()
     displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
     @ViewChild(MatSort) sort!: MatSort
@@ -52,7 +52,7 @@ export class MeasureDataComponent implements OnInit {
 
     Intervals = Intervals
     dataRange = "";
-
+    progress = false
     disabledAll = true;
     btnDisabled = false;
     skMeasureData = "";
@@ -122,12 +122,15 @@ export class MeasureDataComponent implements OnInit {
     showError: boolean = false;
 
 
-    
-    
+
+
     constructor(private measureDataService: MeasureDataService, private logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
-        this.measureDataService.getFilters().subscribe({
+        this.progress = true
+        this.measureDataService.getFilters()
+        .pipe(finalize(() => this.progress = false))
+        .subscribe({
             next: dtoFilter => {
                 this.filters = dtoFilter
                 this.select = {
@@ -230,14 +233,16 @@ export class MeasureDataComponent implements OnInit {
         this.hierarchyId = parameters!.hierarchyId;
         this.measureTypeId = parameters!.measureTypeId;
 
-        this.progress(true);
+        this.progress = true;
 
         let params = new HttpParams()
             .set("calendarId", (parameters!.calendarId).toString())
             .set("hierarchyId", (parameters!.hierarchyId).toString())
             .set("measureTypeId", (parameters!.measureTypeId).toString())
             //console.log(" get measure data list params", params.toString());
-        this.measureDataService.getMeasureDataList(params).subscribe({
+        this.measureDataService.getMeasureDataList(params)
+        .pipe(finalize(() => this.progress = false))
+        .subscribe({
             next: measureDataResponse => {
                 this.measureDataResponse = measureDataResponse
                 this.measureDataList = measureDataResponse.data
@@ -248,15 +253,13 @@ export class MeasureDataComponent implements OnInit {
                 this.calendarId = measureDataResponse.calendarId;
                 this.hierarchyId = parameters?.hierarchyId;
                 this.measureTypeId = parameters?.measureTypeId;
-                
+
                 this.dataRange = measureDataResponse.range;
                 this.allow = measureDataResponse.allow;
                 this.locked = measureDataResponse.locked;
                 this.editValue = measureDataResponse.editValue;
                 this.showActionButtons = this.allow && !this.locked;
                 this.disabledAll = false;
-
-                this.progress(false);
                 this.logger.logInfo("Measure Data List Loaded")
             },
             error: err => {
@@ -330,7 +333,7 @@ export class MeasureDataComponent implements OnInit {
     }
 
     onSave(measureDataRow: MeasureDataDto) {
-        
+
         //this.isEditMode = false
 
         this.showError = false;
@@ -374,16 +377,17 @@ export class MeasureDataComponent implements OnInit {
         }
 
         // Call Server - PUT
-        //this.progress(true);
+        this.progress = true;
         console.log("measureDataId on updateMeasureData", measureDataId);
         console.log("body on updateMeasureData", body);
-        
 
-        this.measureDataService.updateMeasureData(body).subscribe({
+
+        this.measureDataService.updateMeasureData(body)
+        .pipe(finalize(() => this.progress = false))
+        .subscribe({
             next: measureDataResponse => {
                 this.logger.logInfo("Measure Data Updated")
                 console.log("measureDataId on updateMeasureData", measureDataResponse);
-                this.progress(false);
                 this.disabledAll = false;
                 this.loadTable();
             },
@@ -413,9 +417,6 @@ export class MeasureDataComponent implements OnInit {
         // toggle filter side nav
     }
 
-    progress(bool: boolean): void {
-    }
-
     closeError(): void {
         this.errorMsg = "";
         this.showError = false;
@@ -423,7 +424,7 @@ export class MeasureDataComponent implements OnInit {
 
     processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
         this.errorMsg = this.processError(title, message, id, status);
-        this.progress(false);
+        this.progress = false;
         this.disabledAll = false;
         this.showContentPage = (authError !== true);
     }
@@ -447,7 +448,6 @@ export class MeasureDataComponent implements OnInit {
         //this.day = filtered.day;
         this.hierarchyId = filtered.hierarchyId;
         this.measureTypeId = filtered.measureTypeId;
-        this.progress(true);
         this.measureDataService.getMeasureDataList(filtered).subscribe({
             next: response => {
                 if (this.itgIsNull(response.error)) {
@@ -463,7 +463,6 @@ export class MeasureDataComponent implements OnInit {
                     this.dataSource.sort = this.sort
                     console.log("Datasource: ", this.dataSource)
                     this.loadTable();
-                    this.progress(false);
                 } else {
                     this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
                 }
@@ -604,7 +603,6 @@ export class MeasureDataComponent implements OnInit {
         // }
 
         // Call Server - PUT
-        this.progress(true);
 
         // this.pages.measureData
         //   .update(
@@ -702,22 +700,22 @@ export class MeasureDataComponent implements OnInit {
         }
         console.log("getBgColor result: " , result);
         return result;
-        
+
     }
 
     getBgColor2(data: any): string {
         if (!data.value || (!data.target && !data.yellow)) {
             return "";
         }
-    
+
         if (!data.target) {
             return data.value >= data.yellow ? "bgreen" : "bgred";
         }
-    
+
         if (!data.yellow) {
             return data.value >= data.target ? "bgreen" : "bgred";
         }
-    
+
         if (data.target >= data.yellow) {
             if (data.value >= data.yellow) {
                 return "bgorange";
@@ -726,7 +724,7 @@ export class MeasureDataComponent implements OnInit {
                 return "bgreen";
             }
         }
-    
+
         if (data.target < data.yellow) {
             if (data.value <= data.yellow) {
                 return "bgorange";
@@ -735,9 +733,9 @@ export class MeasureDataComponent implements OnInit {
                 return "bgreen";
             }
         }
-    
+
         return "bgred";
-    } 
+    }
 
     getBorderColor(targetVal: any, yellowVal: any): void {
         const red = 'border-danger2';

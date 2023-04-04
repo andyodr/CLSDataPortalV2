@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, _SnackBarContainer } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { filter, Subscription } from 'rxjs';
+import { filter, finalize, Subscription } from 'rxjs';
 import { AppDialog } from '../app-dialog.component';
 import { processError } from '../lib/app-constants';
 import { Hierarchy, RegionFilter } from '../_services/hierarchy.service';
@@ -38,6 +38,7 @@ export class TargetsComponent implements OnInit {
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []
     selectedMeasureType: MeasureType = { id: 0, name: "" }
+    progress = false
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -52,7 +53,7 @@ export class TargetsComponent implements OnInit {
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
 
 
-    
+
     @Output() progressEvent = new EventEmitter<boolean>();
     //targetResponse: TargetApiResponse | undefined;
 
@@ -63,7 +64,7 @@ export class TargetsComponent implements OnInit {
     //dataSource = new MatTableDataSource<TargetDto>()
     //displayedColumns = ["name", "value", "yellow", "updated", "actions"]
     //@ViewChild(MatSort) sort!: MatSort
-    
+
     //editingMeasureType!: any
     //selectedMeasureType: MeasureType = { id: 0, name: "" }
 
@@ -75,12 +76,12 @@ export class TargetsComponent implements OnInit {
     //------------------ Local Properties ------------------
     //title = "Targets"
     //showContentPage = true
- 
+
     filterDisplay = {
-      intervals: false,
-      measureTypes: true,
-      hierarchy: true      
-    };     
+        intervals: false,
+        measureTypes: true,
+        hierarchy: true
+    };
     targetList: TargetDto[] = [];
     //hierarchyId: number | null = null;
     //measureTypeId: number | null = null;
@@ -171,38 +172,41 @@ export class TargetsComponent implements OnInit {
     //----------------- Error handling within the component
     //errorMsg: any = ""
     //showError: boolean = false;
-    
+
 
 
     constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
-        this.targetService.getTargetFilter().subscribe({
-            next: dtofilter => {
-                this.filters = dtofilter;
-                this.measureTypes = dtofilter.measureTypes
-                this.selectedMeasureType = dtofilter.measureTypes[0]
-                this.hierarchy = dtofilter.hierarchy
-                this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
+        this.progress = true
+        this.targetService.getTargetFilter()
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: dtofilter => {
+                    this.filters = dtofilter;
+                    this.measureTypes = dtofilter.measureTypes
+                    this.selectedMeasureType = dtofilter.measureTypes[0]
+                    this.hierarchy = dtofilter.hierarchy
+                    this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
 
-                console.log("target on init dto.filter", dtofilter.filter);
-                console.log("target on init dto", dtofilter);
+                    console.log("target on init dto.filter", dtofilter.filter);
+                    console.log("target on init dto", dtofilter);
 
-                //this.dataSource.data = dtofilter.measures.data
-                this.dataSource.sort = this.sort;
+                    //this.dataSource.data = dtofilter.measures.data
+                    this.dataSource.sort = this.sort;
 
-                //const { hierarchyId, measureTypeId } = dtofilter.filter
-                const hierarchyId = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
-                const measureTypeId = dtofilter.filter.measureTypeId ?? dtofilter.measureTypes.at(0)?.id ?? 1
+                    //const { hierarchyId, measureTypeId } = dtofilter.filter
+                    const hierarchyId = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
+                    const measureTypeId = dtofilter.filter.measureTypeId ?? dtofilter.measureTypes.at(0)?.id ?? 1
 
-                //this.selectedMeasureType = dtofilter.measureTypes.find(t => t.id == measureTypeId)
-                this.selectedMeasureTypeId = measureTypeId
-                this.selectedHierarchy = hierarchyId
-                this.filtered.hierarchyId = hierarchyId
-                this.filtered.measureTypeId = this.selectedMeasureTypeId
-                setTimeout(() => this.loadTable())
-            }
-        })
+                    //this.selectedMeasureType = dtofilter.measureTypes.find(t => t.id == measureTypeId)
+                    this.selectedMeasureTypeId = measureTypeId
+                    this.selectedHierarchy = hierarchyId
+                    this.filtered.hierarchyId = hierarchyId
+                    this.filtered.measureTypeId = this.selectedMeasureTypeId
+                    setTimeout(() => this.loadTable())
+                }
+            })
     }
 
     loadTable(): void {
@@ -227,52 +231,52 @@ export class TargetsComponent implements OnInit {
     }
 
     //----------------getTargetsList----------------
-    getTargetsList(parameters:{measureTypeId: number; hierarchyId: number; } | undefined) {
+    getTargetsList(parameters: { measureTypeId: number; hierarchyId: number; } | undefined) {
         this.showError = false;
         this.disabledAll = true;
 
         this.hierarchyId = parameters!.hierarchyId;
         this.measureTypeId = parameters!.measureTypeId;
 
-        //this.progress(true);
-
+        this.progress = true
         let params = new HttpParams()
             .set("hierarchyId", (parameters!.hierarchyId).toString())
             .set("measureTypeId", (parameters!.measureTypeId).toString())
+        this.targetService.getTargetList(params)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: targetResponse => {
+                    this.targetResponse = targetResponse;
+                    this.targetList = targetResponse.data;
+                    this.dataSource.data = targetResponse.data;
+                    this.dataSource.sort = this.sort;
+                    console.log("Target List on getTargetList: ", this.targetList)
+                    console.log("Datasource on getTargetList: ", this.dataSource)
 
-        this.targetService.getTargetList(params).subscribe({
-            next: targetResponse => {
-                this.targetResponse = targetResponse;
-                this.targetList = targetResponse.data;
-                this.dataSource.data = targetResponse.data;
-                this.dataSource.sort = this.sort;
-                console.log("Target List on getTargetList: ", this.targetList)
-                console.log("Datasource on getTargetList: ", this.dataSource)
+                    // this.hierarchyId? = parameters?.hierarchyId;
+                    // this.measureTypeId? = parameters?.measureTypeId;
 
-                // this.hierarchyId? = parameters?.hierarchyId;
-                // this.measureTypeId? = parameters?.measureTypeId;
+                    this.allow = targetResponse.allow;
+                    this.confirmed = targetResponse.confirmed
 
-                this.allow = targetResponse.allow;
-                this.confirmed = targetResponse.confirmed
+                    this.locked = targetResponse.locked;
+                    this.editValue = targetResponse.editValue;
+                    this.showActionButtons = this.allow && !this.locked;
+                    this.disabledAll = false;
 
-                this.locked = targetResponse.locked;
-                this.editValue = targetResponse.editValue;
-                this.showActionButtons = this.allow && !this.locked;
-                this.disabledAll = false;
+                    //this.confirmIntervals = targetResponse.confirmIntervals;
 
-                //this.confirmIntervals = targetResponse.confirmIntervals;
-
-                //this.progress(false);
-                this.logger.logInfo("Target List Loaded")
-            },
-            error: err => {
-                this.logger.logError(err.message)
-                this.errorMsg = err
-                this.showError = true
-                this.processLocalError(this.title, err.statusText, null, err.status, null);
-                //this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
-            }
-        })
+                    //this.progress(false);
+                    this.logger.logInfo("Target List Loaded")
+                },
+                error: err => {
+                    this.logger.logError(err.message)
+                    this.errorMsg = err
+                    this.showError = true
+                    this.processLocalError(this.title, err.statusText, null, err.status, null);
+                    //this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
+                }
+            })
     }
 
     applyTableFilter(event: Event) {
@@ -282,14 +286,14 @@ export class TargetsComponent implements OnInit {
 
     dataConfirmedReset(): void {
         this.dataConfirmed = {
-          target: null,
-          yellow: null,
-          data: null,
-          isApplyToChildren: false,
-          isCurrentUpdate: false,
-          confirmIntervals: null,
-          targetId: null,
-          targetCount: null
+            target: null,
+            yellow: null,
+            data: null,
+            isApplyToChildren: false,
+            isCurrentUpdate: false,
+            confirmIntervals: null,
+            targetId: null,
+            targetCount: null
         };
     }
 
@@ -395,29 +399,31 @@ export class TargetsComponent implements OnInit {
         // }
 
         // Call Server - PUT
-        //this.progress(true);
+        this.progress = true
         //console.log("body for updateTarget", body);
         console.log("fixedHierarchyId onSaveTarget", fixedHierarchyId);
 
         console.log("body on updateTarget", body);
-        
 
-        this.targetService.updateTarget(body).subscribe({
-            next: targetResponse => {
-                this.logger.logInfo("Measure Data Updated")
-                console.log("targetResponse on updateTarget", targetResponse);
-                //this.progress(false);
-                //this.disabledAll = false;
-                //this.loadTable();
-                //this.dataSource.data = targetResponse.data;
-            },
-            error: err => {
-                this.logger.logError(err.message)
-                this.errorMsg = err
-                this.showError = true
-                this.processLocalError(this.title, err.statusText, null, err.status, null);
-            }
-        })
+
+        this.targetService.updateTarget(body)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: targetResponse => {
+                    this.logger.logInfo("Measure Data Updated")
+                    console.log("targetResponse on updateTarget", targetResponse);
+                    //this.progress(false);
+                    //this.disabledAll = false;
+                    //this.loadTable();
+                    //this.dataSource.data = targetResponse.data;
+                },
+                error: err => {
+                    this.logger.logError(err.message)
+                    this.errorMsg = err
+                    this.showError = true
+                    this.processLocalError(this.title, err.statusText, null, err.status, null);
+                }
+            })
 
         this.loadTable()
 
@@ -467,7 +473,7 @@ export class TargetsComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-        console.log('The dialog was closed');
+            console.log('The dialog was closed');
             if (result) {
                 this.dataConfirmedReset();
                 this.dataConfirmed.isApplyToChildren = true;
@@ -494,15 +500,15 @@ export class TargetsComponent implements OnInit {
                 this.dataConfirmed.isCurrentUpdate = true;
                 this.dataConfirmed.confirmIntervals = this.confirmIntervals;
                 if (this.dataConfirmed.isApplyToChildren) {
-                this.applyToChildrenSave();
+                    this.applyToChildrenSave();
                 } else {
-                this.saveCall();
+                    this.saveCall();
                 }
             } else if (result === 'confirmFutureSave') {
                 if (this.dataConfirmed.isApplyToChildren) {
-                this.applyToChildrenSave();
+                    this.applyToChildrenSave();
                 } else {
-                this.saveCall();
+                    this.saveCall();
                 }
             } else {
                 this.disabledAll = false;
@@ -561,14 +567,17 @@ export class TargetsComponent implements OnInit {
             "confirmIntervals": this.dataConfirmed.confirmIntervals
         }
 
-        this.targetService.applyTargetToChildren(body).subscribe({
-            next: value => {
-                this.logger.logSuccess('Success: Targets applied to children.');
-                //this.progress(false);
-            },
-            error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
-            complete: () => { this.disabledAll = false; }
-        });
+        this.progress = true
+        this.targetService.applyTargetToChildren(body)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: value => {
+                    this.logger.logSuccess('Success: Targets applied to children.');
+                    //this.progress(false);
+                },
+                error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
+                complete: () => { this.disabledAll = false; }
+            });
     }
 
     saveCall(): void {

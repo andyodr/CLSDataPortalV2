@@ -28,7 +28,7 @@
     <app-sidebar></app-sidebar>
     <div>
       <h1>{{title}}</h1>
-      <div class="panel panel-default panel-body">
+      <main class="panel panel-default panel-body mat-elevation-z4">
         <!-- Error Section-->
         <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
           [closeError]="closeError"></app-errors>
@@ -139,7 +139,7 @@
         <footer>
           <span> Showing {{dataSource.filteredData.length}} entries </span>
         </footer>
-      </div>
+      </main>
     </div>
   </mat-drawer-content>
 </mat-drawer-container>
