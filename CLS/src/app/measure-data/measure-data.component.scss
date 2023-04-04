@@ -154,6 +154,7 @@ button mat-icon {
 
 table {
   width: 100%;
+  //max-width: 100%;
 }
 
 .mat-column-name {
@@ -161,11 +162,11 @@ table {
 }
 
 .mat-column-calculated {
-  width: 2em;
+  width: 1em;
 }
 
 .mat-column-value {
-  width: 2em;
+  width: 6em;
 }
 
 .mat-column-units {
@@ -244,4 +245,21 @@ tr.table-row:not(.expanded-row):active {
 
 footer {
   padding: 15px;
+}
+
+
+.bgred {
+  background-color: #f44336; /* red */
+}
+
+.bgorange {
+  background-color: #ff9800; /* orange */
+}
+
+.bggreen {
+  background-color: #4caf50; /* green */
+}
+
+.clsWeight {
+  background-color: yellow;
 }

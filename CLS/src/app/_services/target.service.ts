@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Filter, TargetApiParams, TargetApiResponse, TargetDto, TargetFilter } from '../_models/target';
+import { TargetFilter, TargetApiResponse, TargetPutDto } from '../_models/target';
 
 /*export type MeasureType = {
   id: number,
@@ -61,72 +61,49 @@ export type TargetEditDto = {
 })
 export class TargetService {
 
-    private baseUrl = environment.baseUrl + 'api/targets';
+    private baseUrl = environment.baseUrl + 'api/targets/';
 
     constructor(private http: HttpClient) { }
 
-    //Get Target from API
-    getTarget(): Observable<TargetApiResponse> {
-        return this.http.get<TargetApiResponse>(this.baseUrl + '/index?hierarchyId=1&measureTypeId=1')
+    getTargetFilter(): Observable<TargetFilter> {
+        return this.http.get<TargetFilter>(this.baseUrl + "filter")
     }
 
-    getTarget1() {
-        return this.http.get<TargetApiResponse>(environment.baseUrl + 'api/targets/index?hierarchyId=1&measureTypeId=1').pipe(
+
+    getTargetList(params: HttpParams): Observable<TargetApiResponse> {
+        return this.http.get<TargetApiResponse>(this.baseUrl + "Index/" , {params}).pipe(
             map((response: TargetApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
+                console.log("Target List Response On Service : ", response);
+                return response
             }),
         );
     }
 
-    getTarget2(filtered: TargetApiParams): Observable<TargetApiResponse> {
-        //request params
-        let params = new HttpParams();
-        params = params.append('hierarchyId', filtered.hierarchyId);
-        params = params.append('measureTypeId', filtered.measureTypeId);
-        console.log("Params : ", params);
-        return this.http.get<TargetApiResponse>(this.baseUrl + '/index', { params: params }).pipe(
+    updateTarget(body: TargetPutDto): Observable<TargetApiResponse> {
+        return this.http.put<TargetApiResponse>(this.baseUrl + "Index/", body).pipe(
             map((response: TargetApiResponse) => {
-                const targetOnService = response
-                console.log("Target On Service : ", targetOnService);
-                return targetOnService
-            }
-            )
+                console.log("Update Target Response on Service : ", response);
+                return response
+            }),
         );
     }
 
-    getTargetFilter(): Observable<TargetFilter> {
-        return this.http.get<TargetFilter>(this.baseUrl + "/filter")
+    updateTarget2(id: number, body: TargetPutDto): Observable<TargetApiResponse> {
+        return this.http.put<TargetApiResponse>(this.baseUrl + `/Index/${ id }`, body ).pipe(
+            map((response: TargetApiResponse) => {
+                console.log("Target Response on Service : ", response);
+                return response
+            }),
+        );
     }
 
-    applyTargetToChildren(dto: TargetDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(`${ this.baseUrl }/targets/Index/`, dto)
+    applyTargetToChildren(body: TargetPutDto): Observable<TargetApiResponse> {
+        return this.http.put<TargetApiResponse>(this.baseUrl + "Index/", body ).pipe(
+            map((response: TargetApiResponse) => {
+                console.log("Target Response on Service Apply to Children : ", response);
+                return response
+            }),
+        );
     }
-
-    updateTarget(id: number, dto: TargetDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
-    }
-
-    /*getTargetEdit(measureDefinitionId?: number): Observable<TargetDto> {
-        if (measureDefinitionId == null) {
-            return this.http.get<TargetDto>(`${ this.baseUrl }/target/add`)
-        }
-        else {
-            //return this.http.get<TargetEditDto>(`${ this.baseUrl }/measure/edit/${ targetId }`)
-            return this.http.get<TargetEditDto>(`${ this.baseUrl }/measure/edit/`)
-        }
-    }
-
-    updateTarget(id: number, dto: Target): Observable<TargetEditDto> {
-        return this.http
-        .put<TargetEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
-    }
-
-    addMeasureDefinition(dto: Target): Observable<TargetEditDto> {
-        return this.http
-        .post<TargetEditDto>(`${ this.baseUrl }/measure/add`, dto)
-    }*/
-
 
 }

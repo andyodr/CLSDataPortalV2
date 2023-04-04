@@ -6,8 +6,8 @@
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Save" (click)="loadTable(); drwr.close()">
-        <mat-icon>save_alt</mat-icon> Save
+      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> Apply
       </button>
     </header>
     <form class="panel-body">
@@ -176,7 +176,12 @@
           </ng-container>
           <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
-            <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+            <mat-cell [ngClass]="{
+              bgred: !element.value || (!element.target && !element.yellow),
+              bggreen: (element.value >= element.target && element.target >= element.yellow) || (element.value <= element.target && element.target < element.yellow),
+              bgorange: (element.value >= element.yellow && element.target >= element.yellow) || (element.value <= element.yellow && element.target < element.yellow && element.target >= 0) }" 
+              *matCellDef="let element"> {{element.target}} 
+            </mat-cell>
           </ng-container>
           <ng-container matColumnDef="units">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Units </th>
