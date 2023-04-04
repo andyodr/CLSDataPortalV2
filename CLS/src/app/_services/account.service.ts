@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { BehaviorSubject } from "rxjs"
-import { AuthenticatedUser, User } from "../_models/user"
+import { BehaviorSubject, tap } from "rxjs"
+import { AuthenticatedUser } from "../_models/user"
 import { environment } from "../environments/environment"
 
 export type SignIn = {
@@ -25,10 +25,11 @@ export class AccountService {
         form.append("password", model.password)
         form.append("persistent", model.persistent.toString())
         return this.http.post<AuthenticatedUser>(environment.baseUrl + "api/SignIn", form)
+            .pipe(tap(user => this.currentUserSource.next(user)))
     }
 
     setCurrentUser(user: AuthenticatedUser) {
-        this.currentUserSource.next(user);
+        this.currentUserSource.next(user)
     }
 
     getCurrentUser() {

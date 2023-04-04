@@ -1,13 +1,14 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Measures;
 
 [ApiController]
 [Route("api/measures/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -20,10 +21,7 @@ public class EditController : ControllerBase
 		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -58,7 +56,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -67,10 +65,7 @@ public class EditController : ControllerBase
 		var returnObject = new MeasureIDReturnObject();
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -106,9 +101,9 @@ public class EditController : ControllerBase
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					Helper.UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, Helper.IsProcessed.complete);
+					UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.complete);
 
-					Helper.AddAuditTrail(_context,
+					AddAuditTrail(_context,
 						Resource.WEB_PAGES,
 						"WEB-03",
 						Resource.MEASURE,
@@ -128,7 +123,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

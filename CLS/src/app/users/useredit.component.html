@@ -1,7 +1,7 @@
 <app-sidebar></app-sidebar>
 <div>
   <h1>{{title}}</h1>
-  <div class="panel panel-default panel-body">
+  <main class="panel panel-default panel-body mat-elevation-z4">
     <a mat-fab color="primary" navigateBack="users"><mat-icon>arrow_back</mat-icon></a>
     <div class="panel-header">
       <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
@@ -40,5 +40,5 @@
       </div>
       <app-region-tree [hierarchy]="hierarchy" [(selectedRegions)]="model.selectedRegions"></app-region-tree>
     </form>
-  </div>
+  </main>
 </div>

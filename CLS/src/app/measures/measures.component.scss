@@ -3,6 +3,11 @@
   overflow-y: hidden;
 }
 
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+}
+
 mat-drawer-container,
 mat-drawer,
 app-sidebar {
@@ -34,7 +39,7 @@ mat-drawer form * {
 }
 
 mat-drawer header {
-  background: linear-gradient(var(--mat-primary-600), var(--mat-primary-500) 33%, var(--mat-primary-500));
+  background: linear-gradient(hsl(var(--mat-primary-600)), hsl(var(--mat-primary-500)) 33%, hsl(var(--mat-primary-500)));
   padding: 15px 20px;
   display: flex;
   gap: 15px;
@@ -58,7 +63,7 @@ mat-drawer form h5 {
 }
 
 app-region-tree {
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
 }
 
 .panel-body {
@@ -81,10 +86,10 @@ span.filter {
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
+  background-color: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -119,11 +124,11 @@ tr.detail-row {
 }
 
 td.mat-column-measureDefinition:not(.expanded-row):hover {
-  background-color: var(--mat-primary-50);
+  background-color: hsl(var(--mat-primary-50));
 }
 
 td.mat-column-measureDefinition:not(.expanded-row):active {
-  background-color: var(--mat-primary-100);
+  background-color: hsl(var(--mat-primary-100));
 }
 
 .table-row td {

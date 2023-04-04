@@ -14,8 +14,8 @@ export class NavbarComponent implements OnInit {
   public  opened = true;
   model: any = {};
 
-  constructor(public accountService: AccountService , private router: Router, 
-              private toogleService: ToggleService, public _navSettingsService: NavSettingsService) { }
+  constructor(public accountService: AccountService , private router: Router,
+              private toggleService: ToggleService, public _navSettingsService: NavSettingsService) { }
 
   ngOnInit(): void {
   }
@@ -34,6 +34,6 @@ export class NavbarComponent implements OnInit {
 
   toggle() {
     this.opened = !this.opened;
-    this.toogleService.setToggle(this.opened);
+    this.toggleService.setToggle(this.opened);
   }
 }

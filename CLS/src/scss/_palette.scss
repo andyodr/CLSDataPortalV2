@@ -1,16 +1,29 @@
 /* For use in src/lib/core/theming/_palette.scss */
 :root {
-  --mat-primary-50: hsl(186, 28%, 96%, 1);
-  --mat-primary-100: hsl(187, 49%, 81%, 1);
-  --mat-primary-200: hsl(188, 60%, 66%, 1);
-  --mat-primary-300: hsl(189, 70%, 52%, 1);
-  --mat-primary-400: hsl(190, 80%, 44%, 1);
-  --mat-primary-500: hsl(191, 98%, 25%, 1);
-  --mat-primary-600: hsl(191, 98%, 23%, 1);
-  --mat-primary-700: hsl(191, 99%, 22%, 1);
-  --mat-primary-800: hsl(191, 99%, 21%, 1);
-  --mat-primary-900: hsl(191, 100%, 20%, 1);
-  --mat-blue-gray-50: mat.get-color-from-palette(mat.$blue-gray-palette, 50);
+  --mat-primary-50: 186 28% 96%;
+  --mat-primary-100: 187 49% 81%;
+  --mat-primary-200: 188 60% 66%;
+  --mat-primary-300: 189 70% 52%;
+  --mat-primary-400: 190 80% 44%;
+  --mat-primary-500: 191 98% 25%;
+  --mat-primary-600: 191 98% 23%;
+  --mat-primary-700: 191 99% 22%;
+  --mat-primary-800: 191 99% 21%;
+  --mat-primary-900: 191 100% 20%;
+  --mat-blue-gray-50: #ECEFF1;
+  --mat-blue-gray-100: #CFD8DC;
+  --mat-blue-gray-200: #B0BEC5;
+  --mat-blue-gray-300: #90A4AE;
+  --mat-gray-50: #FAFAFA;
+  --mat-gray-100: #F5F5F5;
+  --mat-gray-200: #EEE;
+  --mat-gray-300: #E0E0E0;
+  --mat-gray-400: #BDBDBD;
+  --mat-gray-500: #9E9E9E;
+  --mat-gray-600: #757575;
+  --mat-gray-700: #616161;
+  --mat-gray-800: #424242;
+  --mat-gray-900: #212121;
   --jaguar-teal: #006778;
   --jaguar-gold: #D7A22A;
   --jaguar-dark-gold: #9F792C;
@@ -20,16 +33,16 @@
   --jaguar-helmet-gold: #9F792C;
 }
 $teal-palette: (
- 50 : var(--mat-primary-50),
-100 : var(--mat-primary-100),
-200 : var(--mat-primary-200),
-300 : var(--mat-primary-300),
-400 : var(--mat-primary-400),
-500 : var(--mat-primary-500),
-600 : var(--mat-primary-600),
-700 : var(--mat-primary-700),
-800 : var(--mat-primary-800),
-900 : var(--mat-primary-900),
+ 50 : hsl(var(--mat-primary-50)),
+100 : hsl(var(--mat-primary-100)),
+200 : hsl(var(--mat-primary-200)),
+300 : hsl(var(--mat-primary-300)),
+400 : hsl(var(--mat-primary-400)),
+500 : hsl(var(--mat-primary-500)),
+600 : hsl(var(--mat-primary-600)),
+700 : hsl(var(--mat-primary-700)),
+800 : hsl(var(--mat-primary-800)),
+900 : hsl(var(--mat-primary-900)),
 A100 : #ade4ff,
 A200 : #7ad3ff,
 A400 : #47c3ff,

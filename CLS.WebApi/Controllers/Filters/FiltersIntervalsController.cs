@@ -1,8 +1,9 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Filters;
 
@@ -27,16 +28,13 @@ public class IntervalsController : ControllerBase
 	public ActionResult<IntervalListObject> Get([FromQuery] MeasureDataFilterReceiveObject values) {
 		var returnObject = new IntervalListObject();
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
 			var cal = _context.Calendar.Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 			switch (values.intervalId) {
-				case (int)Helper.intervals.weekly:
+				case (int)Intervals.Weekly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
 						id = d.Id,
 						number = d.WeekNumber,
@@ -45,7 +43,7 @@ public class IntervalsController : ControllerBase
 						month = null
 					}));
 					break;
-				case (int)Helper.intervals.monthly:
+				case (int)Intervals.Monthly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Month).Select(d => new GetIntervalsObject {
 						id = d.Id,
 						number = d.WeekNumber,
@@ -54,7 +52,7 @@ public class IntervalsController : ControllerBase
 						month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(d.Month))
 					}));
 					break;
-				case (int)Helper.intervals.quarterly:
+				case (int)Intervals.Quarterly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
 						id = d.Id,
 						number = d.Quarter,
@@ -78,7 +76,7 @@ public class IntervalsController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

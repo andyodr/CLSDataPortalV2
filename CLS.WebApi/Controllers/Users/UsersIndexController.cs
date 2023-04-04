@@ -1,14 +1,15 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Users;
 
 [ApiController]
 [Route("api/users/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
@@ -28,10 +29,7 @@ public class IndexController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { Data = new(), Hierarchy = null, Roles = new() };
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -49,7 +47,7 @@ public class IndexController : ControllerBase
 					firstName = user.FirstName,
 					department = user.Department,
 					roleName = user.UserRole!.Name,
-					active = Helper.boolToString(user.Active)
+					active = boolToString(user.Active)
 				};
 
 				if (currentUser.userName == _config.byPassUserName && _user.UserName != _config.byPassUserName) {
@@ -63,7 +61,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

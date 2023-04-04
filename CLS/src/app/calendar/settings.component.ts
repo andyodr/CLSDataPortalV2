@@ -4,6 +4,7 @@ import { MatTableDataSource } from "@angular/material/table"
 import { TimeSpan } from "../lib/time/time-input.component"
 import { LoggerService } from "../_services/logger.service"
 import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_services/settings.service"
+import { finalize } from "rxjs"
 
 @Component({
     selector: "app-settings",
@@ -12,6 +13,7 @@ import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_servi
 })
 export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     disabledAll = false
+    progress = false
     years: number[] = []
     yearSelected: number = 0
     active: boolean = false
@@ -37,7 +39,10 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     intervalChange(year?: number) {
-        this.api.getSettings(year).subscribe({
+        this.progress = true
+        this.api.getSettings(year)
+        .pipe(finalize(() => this.progress = false))
+        .subscribe({
             next: dto => {
                 this.years = dto.years ?? []
                 this.yearSelected = dto.year
@@ -57,6 +62,7 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     save() {
+        this.progress = true
         this.api.updateSettings({
             year: this.yearSelected,
             calculateHH: this.calcSchedule.hours,
@@ -78,7 +84,8 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
                     endDate: c.endDate == null ? "-" : new Intl.DateTimeFormat().format(new Date(c.endDate)),
                     locked: c.locked ?? false
                 }))
-                this.logger .logSuccess("Main and monthly lock data updated")
+                this.logger.logSuccess("Main and monthly lock data updated")
+                this.progress = false
             }
         })
     }
@@ -89,8 +96,9 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     }
 
     lockChange(user: UserSettingDto) {
+        this.progress = true
         this.api.updateUser({ year: this.yearSelected, user: user }).subscribe(r => {
-            r
+            this.progress = false
         })
     }
 

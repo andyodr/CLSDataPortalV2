@@ -1,13 +1,14 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Hierarchy;
 
 [ApiController]
 [Route("api/hierarchy/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
@@ -18,10 +19,7 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<RegionMetricsFilterObject> Get() {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -37,7 +35,7 @@ public class IndexController : ControllerBase
 			returnObject.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
-				Sub = Helper.GetSubsAll(_dbc, regions.First().Id),
+				Sub = GetSubsAll(_dbc, regions.First().Id),
 				Count = 0
 			});
 
@@ -72,7 +70,7 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 
 	}
@@ -82,10 +80,7 @@ public class IndexController : ControllerBase
 		var returnObject = new RegionMetricsFilterObject { Data = new(), Hierarchy = new() };
 
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -111,7 +106,7 @@ public class IndexController : ControllerBase
 			newHierarchy.ParentId = parent?.Id;
 			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			string measuresAndTargets = Helper.CreateMeasuresAndTargets(_dbc, _user.Id, newHierarchy.Id);
+			string measuresAndTargets = CreateMeasuresAndTargets(_dbc, _user.Id, newHierarchy.Id);
 			_dbc.SaveChanges();
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
@@ -124,7 +119,7 @@ public class IndexController : ControllerBase
 			newHierarchy.Remove = !exists;
 			returnObject.Data.Add(newHierarchy);
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
@@ -137,14 +132,14 @@ public class IndexController : ControllerBase
 			returnObject.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
-				Sub = Helper.GetSubsAll(_dbc, regions.First().Id),
+				Sub = GetSubsAll(_dbc, regions.First().Id),
 				Count = 0
 			});
 
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -152,10 +147,7 @@ public class IndexController : ControllerBase
 	public ActionResult<RegionMetricsFilterObject> Put(RegionsDataViewModel dto) {
 		var returnObject = new RegionMetricsFilterObject { Data = new() };
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -170,11 +162,11 @@ public class IndexController : ControllerBase
 			updateHierarchy.HierarchyParentId = dto.ParentId;
 			updateHierarchy.LastUpdatedOn = updatedOn;
 			updateHierarchy.HierarchyLevelId = dto.LevelId;
-			if (updateHierarchy.HierarchyLevelId == Helper.hierarchyGlobalId) {
+			if (updateHierarchy.HierarchyLevelId == hierarchyGlobalId) {
 				updateHierarchy.HierarchyParentId = null;
 			}
 
-			updateHierarchy.IsProcessed = (byte)Helper.IsProcessed.complete;
+			updateHierarchy.IsProcessed = (byte)IsProcessed.complete;
 			_dbc.SaveChanges();
 
 			var newHierarchy = new RegionsDataViewModel {
@@ -193,7 +185,7 @@ public class IndexController : ControllerBase
 			newHierarchy.ParentId = parent?.Id;
 			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
@@ -206,17 +198,14 @@ public class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	[HttpDelete("{id}")]
 	public ActionResult<RegionMetricsFilterObject> Delete(int id) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -260,7 +249,7 @@ public class IndexController : ControllerBase
 				_dbc.SaveChanges();
 			}
 
-			Helper.AddAuditTrail(_dbc,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
@@ -274,13 +263,13 @@ public class IndexController : ControllerBase
 			returnObject.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
-				Sub = Helper.GetSubsAll(_dbc, regions.First().Id),
+				Sub = GetSubsAll(_dbc, regions.First().Id),
 				Count = 0
 			});
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id)); ;
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id)); ;
 		}
 	}
 

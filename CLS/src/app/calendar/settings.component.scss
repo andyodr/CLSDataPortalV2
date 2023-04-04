@@ -18,15 +18,20 @@ h1,
   margin: 0px 20px 13px;
 }
 
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+}
+
 .panel-body {
   padding: 1em;
 }
 
 .panel-header {
-  background: var(--mat-primary-50);
+  background: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
   padding: 1em 1em 0px;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   display: flex;
@@ -35,7 +40,7 @@ h1,
 }
 
 .table-header {
-  background: var(--mat-primary-50);
+  background: hsl(var(--mat-primary-50));
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
   padding: 1ch 1em;
@@ -43,27 +48,27 @@ h1,
   align-items: center;
 }
 
-.table-header>:first-child {
-  margin: auto .25ch auto 0px;
-}
-
-.table-header+div {
-  background: var(--mat-primary-50);
-  padding: 1ch 1em 0px;
-}
-
-main>:nth-child(2) {
+.flex-between-start {
   padding: 1em;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-main>:nth-child(3) {
+.flex-wrap-start {
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;
   gap: 1em;
+}
+
+.table-header>:first-child {
+  margin: auto .25ch auto 0px;
+}
+
+.table-header+div {
+  background: hsl(var(--mat-primary-50));
+  padding: 1ch 1em 0px;
 }
 
 .main-settings {
@@ -109,7 +114,7 @@ table {
 .mat-cell.mat-column-lo10,
 .mat-cell.mat-column-lo11,
 .mat-cell.mat-column-lo12 {
-  min-width: 5em;
+  min-width: 5ch;
 
   mat-checkbox {
     margin-left: 1ch;

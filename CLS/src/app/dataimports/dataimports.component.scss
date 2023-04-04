@@ -1,10 +1,7 @@
-@use "@angular/material" as mat;
-
 :host {
   display: grid;
   grid-template: 1fr / auto 1fr;
   height: 100%;
-  background-color: mat.get-color-from-palette(mat.$blue-gray-palette, 50);
 }
 
 app-sidebar {
@@ -18,6 +15,11 @@ app-sidebar ~ * {
 
 button {
   font-size: larger
+}
+
+mat-progress-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
 }
 
 .form-inline .form-group {
@@ -38,12 +40,12 @@ button {
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
-  border-color: #e2edeb;
+  background-color: hsl(var(--mat-primary-50));
   padding: 10px 15px;
+  border: 1px solid hsl(var(--mat-primary-100));
   border-bottom: 1px solid transparent;
-  border-top-right-radius: 1px;
-  border-top-left-radius: 1px;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
 }
 
 .panel-body {

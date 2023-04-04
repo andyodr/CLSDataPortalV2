@@ -95,11 +95,7 @@ export class DataImportsComponent implements OnInit {
     dropDis: boolean = false
     errorUploadMsg = { heading: "", errorRows: [] as { id?: number, row?: number, message: string }[] }
     showUploadError = false
-    progress = {
-        mode: "determinate" as ProgressBarMode,
-        value: 0
-    }
-
+    progress = false
     errorMsg: any = ""
     showError = false
     hideTable = true
@@ -112,26 +108,49 @@ export class DataImportsComponent implements OnInit {
         private http: HttpClient,
         private api: MeasureDataService,
         private logger: LoggerService,
-        private toggleService: ToggleService,
         @Inject(LOCALE_ID) private locale: string) { }
 
     ngOnInit(): void {
         this.disAll(false)
-        this.getData()
-        this.toggleService.toggle$.subscribe(toggle => {
-            this.toggle = toggle;
-        });
+        this.showError = false
+        this.disAll()
+
+        // Call Server
+        this.setProgress(true)
+        this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
+            .subscribe({
+                next: dto => {
+                    if (dto.error == null) {
+                        this.calculationTime = dto.calculationTime
+
+                        this.fIntervals = dto.intervals  // 2: "Weekly", 3: "Monthly", 4: "Quarterly", 5: "Yearly"
+                        this.fYears = dto.years
+
+                        // Default Interval and Calendar Id
+                        this.intervalId = dto.intervalId ?? 0
+                        this.calendarId = dto.calendarId ?? 0
+                        this.currentYear = dto.currentYear ?? 2000
+
+                        this.selImport = dto.dataImport
+                        this.selImportSelected = this.selImport[0]
+
+                        this.onSelImportChange()
+                        this.disImportSel = this.selImport.length == 1
+                        this.setProgress(false)
+                    }
+                    else {
+                        this.processLocalError(this.title, dto.error.message, dto.error.id, null, dto.error.authError)
+                    }
+                    this.disAll(false)
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.processLocalError(this.title, err.error, null, err.status, null)
+                }
+            })
     }
 
     setProgress(enable: boolean) {
-        if (enable) {
-            this.progress.mode = "indeterminate"
-            this.progress.value += 1
-        }
-        else {
-            this.progress.mode = "determinate"
-            this.progress.value = 0
-        }
+        this.progress = enable
     }
 
     closeError() {  // called by uib-alert
@@ -477,24 +496,6 @@ export class DataImportsComponent implements OnInit {
         }
     }
 
-    loadFromRequest(value: DataImportsMainObject) {
-        this.calculationTime = value.calculationTime
-
-        this.fIntervals = value.intervals  // 2: "Weekly", 3: "Monthly", 4: "Quarterly", 5: "Yearly"
-        this.fYears = value.years
-
-        // Default Interval and Calendar Id
-        this.intervalId = value.intervalId ?? 0
-        this.calendarId = value.calendarId ?? 0
-        this.currentYear = value.currentYear ?? 2000
-
-        this.selImport = value.dataImport
-        this.selImportSelected = this.selImport[0]
-
-        this.onSelImportChange()
-        this.disImportSel = this.selImport.length == 1
-    }
-
     processUpload() {
         let dataOut: DataOut = {
             dataImport: this.selImportSelected.id,
@@ -570,31 +571,6 @@ export class DataImportsComponent implements OnInit {
                             this.clearClick()
                         }
                     }
-                },
-                error: (err: HttpErrorResponse) => {
-                    this.processLocalError(this.title, err.error, null, err.status, null)
-                }
-            })
-    }
-
-    // Called from FilterCtrl only
-    getData() {
-        this.showError = false
-        this.disAll()
-
-        // Call Server
-        this.setProgress(true)
-        this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
-            .subscribe({
-                next: body => {
-                    if (body.error == null) {
-                        this.loadFromRequest(body)
-                        this.setProgress(false)
-                    }
-                    else {
-                        this.processLocalError(this.title, body.error.message, body.error.id, null, body.error.authError)
-                    }
-                    this.disAll(false)
                 },
                 error: (err: HttpErrorResponse) => {
                     this.processLocalError(this.title, err.error, null, err.status, null)

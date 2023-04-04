@@ -1,12 +1,13 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
 [ApiController]
 [Route("/api/measuredefinition/type/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -14,13 +15,10 @@ public class EditController : ControllerBase
 
 	public EditController(ApplicationDbContext context) => _context = context;
 
-	[HttpGet("{id}")]
+	[HttpGet("{id:min(1)}")]
 	public ActionResult<MeasureTypeModel> Get(int id) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -34,17 +32,14 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
 	[HttpPut]
 	public ActionResult<MeasureTypeModel> Put(MeasureTypeObject value) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -67,7 +62,7 @@ public class EditController : ControllerBase
 				measureType.LastUpdatedOn = lastUpdatedOn;
 				_context.SaveChanges();
 
-				Helper.AddAuditTrail(_context,
+				AddAuditTrail(_context,
 					Resource.WEB_PAGES,
 					"WEB-08",
 					Resource.MEASURE_TYPE,
@@ -81,7 +76,7 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

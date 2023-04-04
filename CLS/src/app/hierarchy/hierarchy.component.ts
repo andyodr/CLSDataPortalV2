@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
-import { Subscription } from "rxjs"
+import { Subscription, finalize } from "rxjs"
 import { processError } from "../lib/app-constants"
 import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { HierarchyService } from "../_services/hierarchy.service"
@@ -17,12 +17,13 @@ export class RegionHierarchyComponent implements OnInit {
     dataSource = new MatTableDataSource<Hierarchy>()
     displayedColumns = ["name", "parentName", "level", "active"]
     @ViewChild(MatSort) sort!: MatSort
-    private userSubscription = new Subscription()
+    private subscription = new Subscription()
     disabledAll = false
     errorMsg: any = ""
     showError = false
     showContentPage = true
     drawerTitle = "Add"
+    progress = false
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { name: string, id: number }[]
     model = {
@@ -36,22 +37,25 @@ export class RegionHierarchyComponent implements OnInit {
     constructor(private api: HierarchyService, public logger: LoggerService) { }
 
     ngOnDestroy(): void {
-        this.userSubscription.unsubscribe()
+        this.subscription.unsubscribe()
     }
 
     ngOnInit(): void {
-        this.userSubscription = this.api.getHierarchy().subscribe({
-            next: response => {
-                this.dataSource = new MatTableDataSource(response.data)
-                this.hierarchyLevels = response.levels
-                this.hierarchy = response.hierarchy
-                this.dataSource.sort = this.sort
-                // processLocalError here
-            },
-            error: (err: any) => {
-                this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
-            }
-        })
+        this.progress = true
+        this.subscription = this.api.getHierarchy()
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: response => {
+                    this.dataSource = new MatTableDataSource(response.data)
+                    this.hierarchyLevels = response.levels
+                    this.hierarchy = response.hierarchy
+                    this.dataSource.sort = this.sort
+                    // processLocalError here
+                },
+                error: (err: any) => {
+                    this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
+                }
+            })
     }
 
     add() {
@@ -76,7 +80,7 @@ export class RegionHierarchyComponent implements OnInit {
     save() {
         const { id, name, active, level: levelId, selectedParent: parentId } = this.model
         if (typeof parentId !== "number" || id === parentId) {
-            this.logger.logWarning(`The parentId: ${parentId} is not valid here`)
+            this.logger.logWarning(`The parentId: ${ parentId } is not valid here`)
             return
         }
 
@@ -87,12 +91,14 @@ export class RegionHierarchyComponent implements OnInit {
             var op = this.api.updateHierarchy({ id, levelId, name, parentId, active })
         }
 
-        op.subscribe({
-            next: _ => {
-                this.logger.logSuccess("Save completed")
-                this.ngOnInit()
-            }
-        })
+        this.progress = true
+        op.pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: _ => {
+                    this.logger.logSuccess("Save completed")
+                    this.ngOnInit()
+                }
+            })
     }
 
     applyFilter(event: Event) {

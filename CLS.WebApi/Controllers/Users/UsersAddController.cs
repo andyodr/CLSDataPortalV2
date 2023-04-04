@@ -1,13 +1,14 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.Users;
 
 [ApiController]
 [Route("api/users/[controller]")]
-[Authorize(Roles = "System Administrator")]
+[Authorize(Roles = "SystemAdministrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -23,10 +24,7 @@ public class AddController : ControllerBase
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { Hierarchy = new(), Roles = new() };
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -35,7 +33,7 @@ public class AddController : ControllerBase
 			returnObject.Hierarchy.Add(new() {
 				Hierarchy = region.Name,
 				Id = region.Id,
-				Sub = Helper.GetSubsLevel(_context, region.Id),
+				Sub = GetSubsLevel(_context, region.Id),
 				Count = 0
 			});
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
@@ -46,7 +44,7 @@ public class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 
@@ -59,10 +57,7 @@ public class AddController : ControllerBase
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto model) {
 		var returnObject = new UserIndexGetObject { Data = new() };
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -77,7 +72,7 @@ public class AddController : ControllerBase
 				LastName = model.lastName,
 				FirstName = model.firstName,
 				Department = model.department,
-				Active = Helper.StringToBool(model.active),
+				Active = StringToBool(model.active),
 				LastUpdatedOn = lastUpdatedOn
 			});
 
@@ -103,7 +98,7 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 				_context.SaveChanges();
 			}
 
-			Helper.AddAuditTrail(
+			AddAuditTrail(
 			  _context, Resource.SECURITY,
 			   "SEC-03",
 			   "User Added",
@@ -115,7 +110,7 @@ SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }

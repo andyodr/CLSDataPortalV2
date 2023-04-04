@@ -11,9 +11,9 @@ public static class Helper
 {
 	public enum pages { measureData, target, measure, measureDefinition, hierarchy, dataImports, settings, users }
 
-	public enum intervals { daily = 1, weekly = 2, monthly = 3, quarterly = 4, yearly = 5 };
+	public enum Intervals { Daily = 1, Weekly = 2, Monthly = 3, Quarterly = 4, Yearly = 5 };
 
-	public enum userRoles { powerUser = 1, regionalAdministrator = 2, systemAdministrator = 3 }
+	public enum Roles { PowerUser = 1, RegionalAdministrator = 2, SystemAdministrator = 3 }
 
 	public enum dataImports { measureData = 1, target = 2, customer = 3 }
 
@@ -204,19 +204,19 @@ public static class Helper
 			bool bReturn = false;
 			// Checks aggregations from MeasureDefinition
 			switch (intervalId) {
-				case (int)intervals.daily:
+				case (int)Intervals.Daily:
 					bReturn = measureCalculated.aggDaily;
 					break;
-				case (int)intervals.weekly:
+				case (int)Intervals.Weekly:
 					bReturn = measureCalculated.aggWeekly;
 					break;
-				case (int)intervals.monthly:
+				case (int)Intervals.Monthly:
 					bReturn = measureCalculated.aggMonthly;
 					break;
-				case (int)intervals.quarterly:
+				case (int)Intervals.Quarterly:
 					bReturn = measureCalculated.aggQuarterly;
 					break;
-				case (int)intervals.yearly:
+				case (int)Intervals.Yearly:
 					bReturn = measureCalculated.aggYearly;
 					break;
 				default:
@@ -511,9 +511,8 @@ public static class Helper
 				UserName = userClaim.Identity!.Name!
 			};
 		}
-		else {
-			return null;
-		}
+
+		return null;
 	}
 
 	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext dbc) {
@@ -521,7 +520,7 @@ public static class Helper
 		bool isLocked = false;
 		bool isLockedOverride = false;
 
-		if (calendar.Interval.Id == (int)Helper.intervals.monthly) {
+		if (calendar.Interval.Id == (int)Intervals.Monthly) {
 			if (calendar.Locked == true) {
 				isLocked = true;
 				var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == calendarId);
@@ -535,9 +534,9 @@ public static class Helper
 		}
 
 		// This is a fix because Settings page does not have calendarLock by other intervals yet. Only monthly.
-		if (calendar.Interval.Id == (int)Helper.intervals.weekly) {
+		if (calendar.Interval.Id == (int)Intervals.Weekly) {
 			var cal = dbc.Calendar.Where(
-			  c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
+			  c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
@@ -551,8 +550,8 @@ public static class Helper
 				}
 			}
 		}
-		if (calendar.Interval.Id == (int)Helper.intervals.quarterly) {
-			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
+		if (calendar.Interval.Id == (int)Intervals.Quarterly) {
+			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
@@ -566,8 +565,8 @@ public static class Helper
 				}
 			}
 		}
-		if (calendar.Interval.Id == (int)Helper.intervals.yearly) {
-			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.monthly && c.Year == calendar.Year);
+		if (calendar.Interval.Id == (int)Intervals.Yearly) {
+			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year);
 			foreach (var item in cal) {
 				if (item.Locked == true) {
 					isLocked = true;
@@ -638,7 +637,7 @@ public static class Helper
 		try {
 			_ = dbc.MeasureData
 				.Where(md => md.Measure!.MeasureDefinition!.Id == measureDefId)
-				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)Helper.IsProcessed.measureData)
+				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.measureData)
 					.SetProperty(md => md.UserId, userId)
 					.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
 			return true;
@@ -648,7 +647,7 @@ public static class Helper
 		}
 	}
 
-	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, Helper.IsProcessed isProcessed) {
+	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, IsProcessed isProcessed) {
 		try {
 			_ = dbc.MeasureData
 					.Where(md => md.Measure!.Id == measureId)

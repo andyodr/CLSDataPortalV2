@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureData;
 
@@ -45,7 +46,7 @@ public class FilterController : ControllerBase
 		};
 
 		try {
-			if (Helper.CreateUserObject(User) is not UserObject _user) {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -56,7 +57,7 @@ public class FilterController : ControllerBase
 			}
 
 			var cals = _dbc.Calendar
-						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Helper.intervals.yearly)
+						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year);
 
 			foreach (var cal in cals.AsNoTrackingWithIdentityResolution()) {
@@ -87,47 +88,47 @@ public class FilterController : ControllerBase
 
 			// set Previous Calendar Ids
 			try {
-				filter.CurrentCalendarIds.weeklyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.weekly);
-				filter.CurrentCalendarIds.monthlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.monthly);
-				filter.CurrentCalendarIds.quarterlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.quarterly);
-				filter.CurrentCalendarIds.yearlyCalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, (int)Helper.intervals.yearly);
+				filter.CurrentCalendarIds.weeklyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Weekly);
+				filter.CurrentCalendarIds.monthlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Monthly);
+				filter.CurrentCalendarIds.quarterlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Quarterly);
+				filter.CurrentCalendarIds.yearlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Yearly);
 			}
 			catch (Exception e) {
-				filter.Error = Helper.ErrorProcessing(_dbc, e, _user.Id);
+				filter.Error = ErrorProcessing(_dbc, e, _user.Id);
 			}
 
 
 			//set filter values
 			// Get Previous Calendar Id
-			if (_user.savedFilters[Helper.pages.measureData].calendarId is null) {
-				_user.savedFilters[Helper.pages.measureData].calendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
+			if (_user.savedFilters[pages.measureData].calendarId is null) {
+				_user.savedFilters[pages.measureData].calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
 			}
 
-			if (_user.savedFilters[Helper.pages.measureData].hierarchyId is null) {
-				_user.savedFilters[Helper.pages.measureData].hierarchyId = 1;
+			if (_user.savedFilters[pages.measureData].hierarchyId is null) {
+				_user.savedFilters[pages.measureData].hierarchyId = 1;
 			}
 
-			if (_user.savedFilters[Helper.pages.measureData].intervalId is null) {
-				_user.savedFilters[Helper.pages.measureData].intervalId = _config.DefaultInterval;
+			if (_user.savedFilters[pages.measureData].intervalId is null) {
+				_user.savedFilters[pages.measureData].intervalId = _config.DefaultInterval;
 			}
 
-			if (_user.savedFilters[Helper.pages.measureData].measureTypeId is null) {
-				_user.savedFilters[Helper.pages.measureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
+			if (_user.savedFilters[pages.measureData].measureTypeId is null) {
+				_user.savedFilters[pages.measureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
 			}
 
 			//if( _user.savedFilters[Helper.pages.measureData].year == null )
 			//  _user.savedFilters[Helper.pages.measureData].year =
 			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Year;
-			if (_user.savedFilters[Helper.pages.measureData].year is null) {
-				_user.savedFilters[Helper.pages.measureData].year = _dbc.Calendar.Find(_user.savedFilters[Helper.pages.measureData].calendarId)?.Year;
+			if (_user.savedFilters[pages.measureData].year is null) {
+				_user.savedFilters[pages.measureData].year = _dbc.Calendar.Find(_user.savedFilters[pages.measureData].calendarId)?.Year;
 			}
 
-			filter.Filter = _user.savedFilters[Helper.pages.measureData];
+			filter.Filter = _user.savedFilters[pages.measureData];
 
 			return Ok(filter);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
@@ -135,16 +136,13 @@ public class FilterController : ControllerBase
 	private IActionResult Filter(MeasureDataFilterReceiveObject values) {
 		var returnObject = new List<GetIntervalsObject>();
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
-			_user.savedFilters[Helper.pages.measureData].intervalId = values.intervalId;
+			_user.savedFilters[pages.measureData].intervalId = values.intervalId;
 
-			if (values.intervalId == (int)Helper.intervals.weekly) {
+			if (values.intervalId == (int)Intervals.Weekly) {
 				var cal = _dbc.Calendar.OrderBy(c => c.WeekNumber).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
 					returnObject.Add(new GetIntervalsObject {
@@ -156,7 +154,7 @@ public class FilterController : ControllerBase
 					});
 				}
 			}
-			else if (values.intervalId == (int)Helper.intervals.monthly) {
+			else if (values.intervalId == (int)Intervals.Monthly) {
 				var cal = _dbc.Calendar.OrderBy(c => c.Month).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
 					returnObject.Add(new GetIntervalsObject {
@@ -168,7 +166,7 @@ public class FilterController : ControllerBase
 					});
 				}
 			}
-			else if (values.intervalId == (int)Helper.intervals.quarterly) {
+			else if (values.intervalId == (int)Intervals.Quarterly) {
 				var data = _dbc.Calendar.OrderBy(c => c.Quarter).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				var dataObject = data.Select(d => new GetIntervalsObject {
 					id = d.Id,
@@ -189,7 +187,7 @@ public class FilterController : ControllerBase
 			return Ok(returnObject);
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

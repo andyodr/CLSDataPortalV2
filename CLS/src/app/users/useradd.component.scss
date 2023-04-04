@@ -18,9 +18,9 @@ app-sidebar ~ * {
 }
 
 .panel-header {
-  background-color: var(--mat-primary-50);
+  background-color: hsl(var(--mat-primary-50));
   margin-top: 10px;
-  border: 1px solid var(--mat-primary-100);
+  border: 1px solid hsl(var(--mat-primary-100));
   padding: 10px 15px;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;

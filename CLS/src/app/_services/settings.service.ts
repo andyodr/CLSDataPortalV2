@@ -1,7 +1,7 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http"
+import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { Router } from "@angular/router"
-import { catchError, Observable, throwError } from "rxjs"
+import { Observable } from "rxjs"
 import { environment } from "../environments/environment"
 import { ErrorModel } from "../_models/error"
 
@@ -47,22 +47,22 @@ export type UpdateUserSettingDto = {
 }
 
 @Injectable({
-  providedIn: "root"
+    providedIn: "root"
 })
 export class CalendarSettingsService {
 
-  constructor(private http: HttpClient, private router: Router) { }
+    constructor(private http: HttpClient, private router: Router) { }
 
-  getSettings(year?: number): Observable<SettingsResponseDto> {
-    const url = environment.baseUrl + "api/settings/index"
-    return this.http.get<SettingsResponseDto>(year ? `${url}/${year}` : url)
-  }
+    getSettings(year?: number): Observable<SettingsResponseDto> {
+        const url = environment.baseUrl + "api/settings/index"
+        return this.http.get<SettingsResponseDto>(year ? `${ url }/${ year }` : url)
+    }
 
-  updateSettings(body: SettingsRequestDto) {
-    return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/index", body)
-  }
+    updateSettings(body: SettingsRequestDto) {
+        return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/index", body)
+    }
 
-  updateUser(body: UpdateUserSettingDto) {
-    return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/users", body)
-  }
+    updateUser(body: UpdateUserSettingDto) {
+        return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/users", body)
+    }
 }

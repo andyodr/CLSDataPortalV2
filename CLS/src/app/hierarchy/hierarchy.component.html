@@ -1,3 +1,4 @@
+<mat-progress-bar [hidden]="!progress" [mode]="progress ? 'indeterminate' : 'determinate'"></mat-progress-bar>
 <mat-drawer-container>
   <mat-drawer #drawer position="end">
     <header>
@@ -10,10 +11,12 @@
       </button>
     </header>
     <form>
-      <mat-checkbox name="active" [(ngModel)]="model.active" color="primary" labelPosition="before">Active</mat-checkbox>
+      <mat-checkbox name="active" [(ngModel)]="model.active" color="primary"
+        labelPosition="before">Active</mat-checkbox>
       <mat-form-field appearance="fill">
         <mat-label>Region Name</mat-label>
-        <input matInput name="hierarchyName" [(ngModel)]="model.name" placeholder="Ex. Wakanda" [disabled]="disabledAll">
+        <input matInput name="hierarchyName" [(ngModel)]="model.name" placeholder="Ex. Wakanda"
+          [disabled]="disabledAll">
       </mat-form-field>
       <mat-form-field appearance="fill">
         <mat-label>Hierarchy Level</mat-label>
@@ -31,9 +34,10 @@
     <app-sidebar></app-sidebar>
     <div>
       <h1>{{title}}</h1>
-      <div class="panel panel-default panel-body">
+      <main class="panel panel-default panel-body mat-elevation-z4">
         <!-- Error Section-->
-        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
+        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
+          [closeError]="closeError"></app-errors>
         <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
           <div class="panel-body padB0 marB0 noBorder">
             <ngb-alert type="danger" (closed)="closeError()">
@@ -42,8 +46,12 @@
                 <table class="table table-bordered table-striped cf no-margin">
                   <thead class="cf">
                     <tr>
-                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                      <th class="numeric">
+                        <div class="th"> <span>Row</span></div>
+                      </th>
+                      <th class="numeric">
+                        <div class="th"> <span>Error Message</span></div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -65,8 +73,12 @@
                 <table class="table table-bordered table-striped cf no-margin">
                   <thead class="cf">
                     <tr>
-                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                      <th class="numeric">
+                        <div class="th"> <span>Row</span></div>
+                      </th>
+                      <th class="numeric">
+                        <div class="th"> <span>Error Message</span></div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -85,7 +97,8 @@
           <mat-form-field appearance="fill">
             <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
-            <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyFilter($event)">
+            <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="input.value=''; applyFilter($event)">
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
@@ -93,7 +106,7 @@
             <mat-icon>add_location</mat-icon> Add
           </button>
         </div>
-        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" [trackBy]="identity">
+        <table mat-table [dataSource]="dataSource" matSort [trackBy]="identity">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Region</th>
             <td mat-cell *matCellDef="let rh">{{rh.name}}</td>
@@ -108,7 +121,8 @@
           </ng-container>
           <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
-            <td mat-cell *matCellDef="let rh"><mat-icon>{{rh.active === true || rh.active === "true" ? "check": ""}}</mat-icon></td>
+            <td mat-cell *matCellDef="let rh"><mat-icon>{{rh.active === true || rh.active === "true" ? "check":
+                ""}}</mat-icon></td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row (click)="edit(row.id); drawer.open()" *matRowDef="let row; columns: displayedColumns;"></tr>
@@ -117,9 +131,9 @@
           </tr>
         </table>
         <footer>
-          <span> Showing {{dataSource.filteredData.length}} entries	</span>
+          <span> Showing {{dataSource.filteredData.length}} entries </span>
         </footer>
-      </div>
+      </main>
     </div>
   </mat-drawer-content>
 </mat-drawer-container>

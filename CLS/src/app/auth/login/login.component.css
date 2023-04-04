@@ -1,71 +1,90 @@
-body {
-    background-color: red !important;
-}
-
 .login-page {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #3D4051;
-    z-index: 2;
-}
-.login-box-inner {
-    background-color: #0A8CAA;
-    width: 520px;
-    margin: 15% auto 0;
-    height: 300px;
-}
-.login-logo {
-    background-color: #3D4051;
-    text-align: center;
-    padding: 30px;
-}
-.login-box {
-    background-color: white;
-    width: 450px;
-    margin: 0 auto;
-    position: relative;
-    top: -190px;
-    box-shadow: 0px 4px 13px 0px rgba(0,0,0,0.95);
+  position: absolute;
+  inset: 0;
+  background-color: #3D4051;
+  display: grid;
+  place-content: center;
 }
 
-.login-form-title{
-    color: #0097A7!important;
-    font-size: 24px;
-    margin: 20px auto;
+.login-box {
+  position: relative;
+  height: 460px;
+  width: 520px;
 }
-.login-form-control {
-    border: none;
-    border-bottom: solid 1px;
-    width: 100%;
-    margin: 20px auto;
+
+.login-box-inner {
+  position: absolute;
+  height: 300px;
+  inset: auto 0 0 0;
+  background-color: #0A8CAA;
 }
+
+.login-logo {
+  width: 450px;
+  position: relative;
+  top: -174px;
+  margin: 2em auto;
+  text-align: center;
+  background-color: #ddd;
+  box-shadow: 0px 4px 13px 0px rgba(0, 0, 0, 0.95);
+}
+
+.login-logo svg {
+  width: calc(100% - 4em);
+  height: auto;
+  margin: 2em 2em 0 2em;
+  filter: drop-shadow(3px 1px 8px hsl(7 100% 15% / .5));
+}
+
+h1 {
+  text-transform: uppercase;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #828282;
+  margin: 1ch auto 1em;
+}
+
 .login-form {
-    width: 80%;
-    margin: 20px auto;
+  width: 100%;
+  background: white;
+  padding: 1ch 2em 0;
+  text-align: initial;
 }
+
+.login-form-title {
+  margin: 1em;
+  text-align: center;
+  color: #0097A7;
+  font-size: 24px;
+}
+
+.login-form-control {
+  border: none;
+  border-bottom: solid 1px;
+  width: 100%;
+  margin: 20px auto;
+}
+
 input:focus {
-    border: none !important;
-    border-bottom: solid 1px #0097A7 !important;
-    box-shadow: none;
+  border: none !important;
+  border-bottom: solid 1px #0097A7 !important;
+  box-shadow: none;
 }
+
 .text-right {
-    text-align: right;
-    padding-bottom: 20px;
+  text-align: right;
+  padding-bottom: 1em;
 }
 
 .login-form-btn {
-    color: #0097A7;
-    background-color: white;
-    border: none;
-    padding: 5px;
+  color: #0097A7;
+  background-color: white;
+  border: none;
+  padding: 5px;
 
 }
 
 .login-form-btn:hover {
-    background-color: #eee;
-}
-
-.checkbox {
-  padding: .5ch;
+  background-color: #eee;
 }

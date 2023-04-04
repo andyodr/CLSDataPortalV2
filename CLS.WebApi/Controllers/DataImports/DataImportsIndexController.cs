@@ -2,6 +2,7 @@ using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.DataImports;
 
@@ -22,63 +23,60 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<DataImportsMainObject> Get() {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
-			var returnObject = new DataImportsMainObject {
-				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Helper.intervals.yearly)
+			var result = new DataImportsMainObject {
+				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>(),
 				Intervals = new List<IntervalsObject>(),
 				IntervalId = _config.DefaultInterval,
-				CalendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
+				CalendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
 			};
 
 			//returnObject.calculationTime.current = DateTime.Now;
 			string sCalculationTime = _dbc.Setting.First().CalculateSchedule ?? string.Empty;
-			returnObject.CalculationTime = Helper.CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
-										   Helper.CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
-										   Helper.CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
+			result.CalculationTime = CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
+										   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
+										   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
 			// Find Current Year from previuos default interval
-			var calendarId = Helper.FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
-			returnObject.CurrentYear = _dbc.Calendar.Where(c => c.Id == calendarId).First().Year;
+			var calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
+			result.CurrentYear = _dbc.Calendar.Where(c => c.Id == calendarId).First().Year;
 
 			//intervals
 			var intervals = _dbc.Interval;
 			foreach (var interval in intervals) {
-				returnObject.Intervals.Add(new() {
+				result.Intervals.Add(new() {
 					Id = interval.Id,
 					Name = interval.Name
 				});
 			}
 
 			//dataImport
-			DataImportObject measureData = Helper.DataImportHeading(Helper.dataImports.measureData);
-			returnObject.DataImport.Add(measureData);
+			DataImportObject measureData = DataImportHeading(dataImports.measureData);
+			result.DataImport.Add(measureData);
 
-			if (_user.RoleId == (int)Helper.userRoles.systemAdministrator) {
-				DataImportObject targetData = Helper.DataImportHeading(Helper.dataImports.target);
-				returnObject.DataImport.Add(targetData);
+			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
+				DataImportObject targetData = DataImportHeading(dataImports.target);
+				result.DataImport.Add(targetData);
 
 				// This is for kris only
 				if (_config.usesCustomer) {
-					DataImportObject customerRegionData = Helper.DataImportHeading(Helper.dataImports.customer);
-					returnObject.DataImport.Add(customerRegionData);
+					DataImportObject customerRegionData = DataImportHeading(dataImports.customer);
+					result.DataImport.Add(customerRegionData);
 				}
 
 			}
 
-			return returnObject;
+			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

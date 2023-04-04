@@ -1,12 +1,13 @@
-﻿using CLS.WebApi.Data;
+using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
 [ApiController]
 [Route("api/measureDefinition/type/[controller]")]
-[Authorize(Roles = "Regional Administrator, System Administrator")]
+[Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
@@ -17,10 +18,7 @@ public class AddController : ControllerBase
 	[HttpPost]
 	public ActionResult<MeasureTypeModel> Post(MeasureTypeObject value) {
 		try {
-			if (Helper.CreateUserObject(User) is UserObject u) {
-				_user = u;
-			}
-			else {
+			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
@@ -42,7 +40,7 @@ public class AddController : ControllerBase
 			//value.id = _measureTypeRepository.All().Where(m => m.Name == value.name).First().Id;
 			value.Id = measureType.Id;
 
-			Helper.AddAuditTrail(_context,
+			AddAuditTrail(_context,
 				Resource.WEB_PAGES,
 				"WEB-08",
 				Resource.MEASURE_TYPE,
@@ -55,7 +53,7 @@ public class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(Helper.ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_context, e, _user.Id));
 		}
 	}
 }
