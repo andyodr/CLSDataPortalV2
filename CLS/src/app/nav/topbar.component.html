@@ -37,14 +37,14 @@
   </div>
   <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true"
       aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
-  <div class="dropdown" *ngIf="(api.currentUser$ | async) as user" dropdown style="cursor: pointer;">
-    <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>
-      Welcome {{user.firstName || user.userName}}
-    </a>
-    <div class="dropdown-menu mt-3" *dropdownMenu>
-      <a *ngIf="user.roleId > 2" class="dropdown-item" [routerLink]="['users']">User Management</a>
-      <a *ngIf="user.roleId > 2" class="dropdown-item" [routerLink]="['settings']">Settings</a>
-      <a class="dropdown-item" (click)="logout()">Logout</a>
-    </div>
+  <div class="dropdown" *ngIf="(api.currentUser$ | async) as user">
+    <button mat-button [matMenuTriggerFor]="menu">
+      Greetings {{user.firstName || user.userName}}
+    </button>
+    <mat-menu #menu="matMenu">
+      <a *ngIf="user.roleId > 2" mat-menu-item [routerLink]="['users']">User Management</a>
+      <a *ngIf="user.roleId > 2" mat-menu-item [routerLink]="['settings']">Settings</a>
+      <a mat-menu-item (click)="logout()">Logout</a>
+    </mat-menu>
   </div>
 </div>
