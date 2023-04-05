@@ -314,19 +314,17 @@ export class MeasureDataComponent implements OnInit {
 
     onEdit(measureDataRow: MeasureDataDto) {
 
-        if (!this.allow || this.locked) return;
-        
+        //if (!this.allow || this.locked) return;
         this.isEditMode = true;
-        this.selectedRow = { ...measureDataRow };
-
-        // this.selectedRow = measureDataRow;
+        this.selectedRow = measureDataRow;
+        // this.selectedRow = { ...measureDataRow };
         // this.model.explanation = measureDataRow.explanation;
         // this.model.action = measureDataRow.action;
     }
 
     onSave(measureDataRow: MeasureDataDto) {
 
-        if (!this.allow || this.locked) return;
+        //if (!this.allow || this.locked) return;
 
         this.isEditMode = false
         this.selectedRow = { ...measureDataRow };
@@ -381,6 +379,7 @@ export class MeasureDataComponent implements OnInit {
                 this.processLocalError(this.title, err.statusText, null, err.status, null);
             }
         })
+        this.loadTable();
     }
 
     onCancel() {
