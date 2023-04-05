@@ -29,56 +29,16 @@ import { AppDialog } from '../app-dialog.component';
 })
 export class MeasureDataComponent implements OnInit {
 
+    title = 'Measure Data';
     measureDataResponse: MeasureDataApiResponse | undefined;
 
-    //------------------ Table Properties ------------------
-    measureDataList: MeasureDataDto[] = [];
-    measureDataRow: MeasureDataDto | undefined
-
-    dataSource = new MatTableDataSource<MeasureDataDto>()
-    displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
-    @ViewChild(MatSort) sort!: MatSort
-
-    editingMeasureType!: any
-    selectedMeasureType: MeasureType = { id: 0, name: "" }
-
-    isEditMode = false
-    selectedRow: MeasureDataDto | undefined
-    expandDetail = new ToggleQuery()
-
-    //------------------ Local Properties ------------------
-    title = 'Measure Data';
-    showContentPage = true
-
-    Intervals = Intervals
-    dataRange = "";
-    progress = false
-    disabledAll = true;
-    btnDisabled = false;
-    skMeasureData = "";
-    allow = false;
-    editValue = false;
-    showActionButtons = true;
-    editBgColor = true;
-    filteredPage = null;
-
-    locked: boolean | undefined
-    calendarId!: number;
-    day!: string;
-    hierarchyId!: number;
-    measureTypeId!: number;
-
-    measureDataListNew: MeasureDataDto[] = [];
-    dataSourceCopy: any;
-
-    //------------------ Filter Properties ------------------
+    //Filter Properties
     drawer = {
         title: "Filter",
         button: "Apply",
         position: "start" as "start" | "end"
     }
     filters!: MeasureDataFilterResponseDto
-
     @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
     select = {
         intervals: [] as IntervalDto[],
@@ -95,8 +55,46 @@ export class MeasureDataComponent implements OnInit {
     intervalList!: IntervalDto[]
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
+    Intervals = Intervals
+    
+    // Selection Calculated
+    selCalculated = [
+        { id: 0, name: "Manual and Calculated" },
+        { id: 1, name: "Manual" },
+        { id: 2, name: "Calculated" }
+    ];
 
-    //------------------ Model ------------------
+    //Table Properties
+    measureDataList: MeasureDataDto[] = [];
+    //measureDataRow: MeasureDataDto | undefined
+    selectedRow: MeasureDataDto | undefined
+    dataSource = new MatTableDataSource<MeasureDataDto>()
+    displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
+    @ViewChild(MatSort) sort!: MatSort
+    editingMeasureType!: any
+    selectedMeasureType: MeasureType = { id: 0, name: "" }
+    isEditMode = false
+    expandDetail = new ToggleQuery()
+
+    //Local Properties
+    progress = false
+    showContentPage = true
+    dataRange = "";
+    disabledAll = true;
+    btnDisabled = false;
+    skMeasureData = "";
+    allow = false;
+    editValue = false;
+    showActionButtons = true;
+    //editBgColor = true;
+    //filteredPage = null;
+    locked: boolean | undefined
+    calendarId!: number;
+    day!: string;
+    hierarchyId!: number;
+    measureTypeId!: number;
+
+    //Model
     model = {
         fIntervalSelected: undefined as IntervalDto | undefined,
         fYearSelected: undefined as { id: number, year: number } | undefined,
@@ -117,12 +115,9 @@ export class MeasureDataComponent implements OnInit {
         selCalSelected: 0,
     }
 
-    //----------------- Error handling within the component
+    //Error handling within the component
     errorMsg: any = ""
     showError: boolean = false;
-
-
-
 
     constructor(private measureDataService: MeasureDataService, private logger: LoggerService, private dialog: MatDialog) { }
 
@@ -153,7 +148,14 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
-    /** Initialize Week/Month/Quarter select menus in Filter drawer after Interval or Year changes */
+    // -----------------------------------------------------------------------------
+    // Filter Selection
+    // -----------------------------------------------------------------------------
+    doFilter() {
+        this.drawer = { title: "Filter", button: "Apply", position: "start" }
+    }
+
+    /** Initialize Week/Month/Quarter select menus in Filter drawer after Interval or Year changes **/
     intervalChange(loadTable = false) {
         const { fIntervalSelected, fYearSelected } = this.model
         if (fIntervalSelected?.id == Intervals.Yearly || fYearSelected == null || fIntervalSelected == null) return
@@ -190,6 +192,9 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
+    // -----------------------------------------------------------------------------
+    // Load Table Data
+    // -----------------------------------------------------------------------------
     loadTable(): void {
         this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
@@ -215,12 +220,12 @@ export class MeasureDataComponent implements OnInit {
                 params.calendarId = fYearSelected.id
                 break
         }
-
         if (!this.model.fMeasureTypeSelected) return
         params.measureTypeId = this.model.fMeasureTypeSelected.id
 
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
         params.hierarchyId = this.model.selectedRegion
+
         this.getMeasureDataList(params)
     }
 
@@ -233,13 +238,14 @@ export class MeasureDataComponent implements OnInit {
         this.hierarchyId = parameters!.hierarchyId;
         this.measureTypeId = parameters!.measureTypeId;
 
-        this.progress = true;
-
         let params = new HttpParams()
             .set("calendarId", (parameters!.calendarId).toString())
             .set("hierarchyId", (parameters!.hierarchyId).toString())
             .set("measureTypeId", (parameters!.measureTypeId).toString())
-            //console.log(" get measure data list params", params.toString());
+
+        this.progress = true;
+
+        // Call Server - GET Measure Data List
         this.measureDataService.getMeasureDataList(params)
         .pipe(finalize(() => this.progress = false))
         .subscribe({
@@ -271,7 +277,6 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
-
     applyTableFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
@@ -280,14 +285,6 @@ export class MeasureDataComponent implements OnInit {
     // -----------------------------------------------------------------------------
     // Selection Calculated
     // -----------------------------------------------------------------------------
-    selCalculated = [
-        { id: 0, name: "Manual and Calculated" },
-        { id: 1, name: "Manual" },
-        { id: 2, name: "Calculated" }
-    ];
-
-    itgSelCal = { calculated: 0, manual: 1, all: 2 };
-
     onSelCalChange(): void {
         console.log("onSelCalChange: ", this.model.selCalSelected);
 
@@ -307,17 +304,8 @@ export class MeasureDataComponent implements OnInit {
     // -----------------------------------------------------------------------------
     // Buttons
     // -----------------------------------------------------------------------------
-
     refresh() {
-        //if ( !itgIsNull(filteredPage) ){
-        if (this.filterSelected) {
-            this.loadTable();
-        }
-    }
-
-    doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
+        if (this.filterSelected) this.loadTable();
     }
 
     identity(index: number, item: any) {
@@ -325,29 +313,27 @@ export class MeasureDataComponent implements OnInit {
     }
 
     onEdit(measureDataRow: MeasureDataDto) {
+
+        if (!this.allow || this.locked) return;
+        
         this.isEditMode = true;
-        // this.selectedRow = { ...targetRow };
-        this.selectedRow = measureDataRow;
-        this.model.explanation = measureDataRow.explanation;
-        this.model.action = measureDataRow.action;
+        this.selectedRow = { ...measureDataRow };
+
+        // this.selectedRow = measureDataRow;
+        // this.model.explanation = measureDataRow.explanation;
+        // this.model.action = measureDataRow.action;
     }
 
     onSave(measureDataRow: MeasureDataDto) {
 
-        //this.isEditMode = false
+        if (!this.allow || this.locked) return;
+
+        this.isEditMode = false
+        this.selectedRow = { ...measureDataRow };
 
         this.showError = false;
         this.disabledAll = true;
-
-        this.selectedRow = { ...measureDataRow };
-
-        console.log("onSave MeasureDataRow: ", measureDataRow);
-
-        // if (!this.allow || this.locked) {
-        //     return;
-        // }
-
-        //const measureDataRowNew = { ...measureDataRow };
+        //console.log("onSave MeasureDataRow: ", measureDataRow);
 
         const measureDataId = measureDataRow.id;
         const measureDataValue = measureDataRow.value;
@@ -365,7 +351,7 @@ export class MeasureDataComponent implements OnInit {
             "action": measureDataAction
            }
 
-        if (measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
+        if (measureDataRow.explanation == body.explanation || measureDataRow.action == body.action) {
             this.logger.logInfo("There are no changes for " + measureDataRow.name + ". Unable to Save.")
             const dialogRef = this.dialog.open(AppDialog, {
                 width: '450px',
@@ -376,12 +362,9 @@ export class MeasureDataComponent implements OnInit {
             });
         }
 
-        // Call Server - PUT
         this.progress = true;
-        console.log("measureDataId on updateMeasureData", measureDataId);
-        console.log("body on updateMeasureData", body);
 
-
+        // Call Server - PUT Measure Data
         this.measureDataService.updateMeasureData(body)
         .pipe(finalize(() => this.progress = false))
         .subscribe({
@@ -400,23 +383,17 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
-    onCancel(measureDataRow: MeasureDataDto) {
-        this.isEditMode = false
+    onCancel() {
+        this.isEditMode = false;
+        this.disabledAll = false;
+        this.model.explanation = "";
+        this.model.action = "";
         this.loadTable();
     }
 
-    doFilter() {
-        this.drawer = { title: "Filter", button: "Apply", position: "start" }
-    }
-
-    isBoolShow(str: string | boolean): boolean {
-        return ((str === "true") || (str === true));
-    }
-
-    toggleFilterOpen(): void {
-        // toggle filter side nav
-    }
-
+    // -----------------------------------------------------------------------------
+    // Error Handling
+    // -----------------------------------------------------------------------------
     closeError(): void {
         this.errorMsg = "";
         this.showError = false;
@@ -434,366 +411,55 @@ export class MeasureDataComponent implements OnInit {
     }
 
 
-    //================================================================================================
-    // Called from FilterCtrl only
-
-
-    oldgetData(filtered: any) {
-        this.showError = false;
-        this.disabledAll = true;
-        this.dataRange = "";
-
-        this.filteredPage = filtered;
-        this.calendarId = filtered.calendarId;
-        //this.day = filtered.day;
-        this.hierarchyId = filtered.hierarchyId;
-        this.measureTypeId = filtered.measureTypeId;
-        this.measureDataService.getMeasureDataList(filtered).subscribe({
-            next: response => {
-                if (this.itgIsNull(response.error)) {
-                    this.calendarId = response.calendarId;
-                    this.measureDataList = response.data;
-                    this.dataRange = response.range;
-                    this.allow = response.allow;
-                    this.locked = response.locked;
-                    this.editValue = response.editValue;
-                    this.showActionButtons = this.allow && !this.locked;
-                    this.measureDataResponse = response;
-                    this.dataSource = new MatTableDataSource(response.data)
-                    this.dataSource.sort = this.sort
-                    console.log("Datasource: ", this.dataSource)
-                    this.loadTable();
-                } else {
-                    this.processLocalError(this.title, response.error.message, response.error.id, null, response.error.authError);
-                }
-                this.disabledAll = false;
-            },
-            error: error => {
-                this.showError = true;
-                this.processLocalError(this.title, error.statusText, -99, error.status, null);
-            }
-        })
-        //console.log(object);
-        //this.loadTable();
-    }
-
-    oldedit(data: any) {
-        if (!this.allow || this.locked) { return; }
-
-        this.disabledAll = true;
-        const id = data.id;
-
-        if (this.editValue && !data.calculated) {
-            this.editBgColor = false;
-        }
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = '';
-            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = '';
-            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
-        }
-    }
-
-    oldedit2(data: any) {
-        //this.disabledAll = true;
-        this.editValue = true;
-        console.log("edit2");
-        console.log("edit2 data: ", data);
-        console.log("edit2 editValue: ", this.editValue);
-        if (!this.allow || this.locked) { return; }
-        console.log("edit2 data: ", data);
-        this.disabledAll = false;
-        const id = data.id;
-
-        if (this.editValue && !data.calculated) {
-            this.editBgColor = false;
-        }
-
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = '';
-            idB.innerHTML = `<textarea class="mExp${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.explanation) }</textarea>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = '';
-            idC.innerHTML = `<textarea class="mAct${ id }" rows="2" maxlength="300">${ this.itgStrNullToEmpty(data.action) }</textarea>`;
-        }
-    }
-
-
-
-    oldcancel(data: any) {
-        this.disabledAll = false;
-        this.editValue = false;
-        const id = data.id;
-        console.log("cancel");
-        console.log("cancel data: ", data);
-        console.log("cancel editValue: ", this.editValue);
-
-        if (this.editValue && !data.calculated) {
-            if (this.editValue) {
-                this.editBgColor = true;
-                const idA = document.querySelector(`.tdA${ id }`);
-                if (idA) {
-                    idA.classList.add(this.getBgColor(data));
-                    idA.innerHTML = `<span>${ this.itgStrNullToEmpty(data.value) }</span>`;
-                }
-            }
-        }
-        const idB = document.querySelector(`.tdB${ id }`);
-        if (idB) {
-            idB.innerHTML = `<span>${ this.itgStrNullToEmpty(data.explanation) }</span>`;
-        }
-        const idC = document.querySelector(`.tdC${ id }`);
-        if (idC) {
-            idC.innerHTML = `<span>${ this.itgStrNullToEmpty(data.action) }</span>`;
-        }
-    }
-
-    oldsave(data: any): void {
-        if (!this.allow || this.locked) {
-            return;
-        }
-
-        this.showError = false;
-        this.disabledAll = true;
-        let msg = '';
-        const id = data.id;
-        let mVal = data.value;
-
-        if (this.editValue && !data.calculated) {
-            const mVal = (<HTMLInputElement>document.querySelector('.mVal' + id)).value;
-            if (!this.itgIsEmpty(mVal)) {
-                if (!this.itgIsNumeric(mVal)) {
-                    (<HTMLInputElement>document.querySelector('.mVal' + id)).focus();
-                    const msg = 'Measure Value must be a Number.';
-                    //return dialog.alert(this.title, msg);
-                };
-            }
-        }
-
-        const mExp = (<HTMLInputElement>document.querySelector('.mExp' + id)).value.trim();
-        const mAct = (<HTMLInputElement>document.querySelector('.mAct' + id)).value.trim();
-
-        data.explanation = this.itgStrNullToEmpty(data.explanation);
-        data.action = this.itgStrNullToEmpty(data.action);
-
-        const dataNew = { ...data };
-
-        if (this.itgIsEmpty(mVal)) {
-            dataNew.value = null;
-        } else {
-            dataNew.value = Number(mVal);
-        }
-
-        dataNew.explanation = mExp;
-        dataNew.action = mAct;
-
-        // if (this.isEqual(data, dataNew)) {
-        //   msg =
-        //     "There are no changes for <br /> '" +
-        //     dataNew.name +
-        //     "'.<br /> Unable to Save.";
-        //   return dialog.alert(this.title, msg);
-        // }
-
-        // Call Server - PUT
-
-        // this.pages.measureData
-        //   .update(
-        //     {
-        //       calendarId: this.calendarId,
-        //       day: null,
-        //       hierarchyId: this.hierarchyId,
-        //       measureTypeId: this.measureTypeId,
-        //       measureDataId: data.id,
-        //       measureValue: mVal,
-        //       explanation: mExp,
-        //       action: mAct,
-        //     },
-        //     (value) => {
-        //       if (itgIsNull(value.error) && value.data.length > 0) {
-        //         data.value = value.data[0].value;
-        //         data.explanation = value.data[0].explanation;
-        //         data.action = value.data[0].action;
-        //         data.updated = value.data[0].updated;
-        //         //logger.logSuccess('Measure ' + data.name + ' updated.');
-        //         this.progress(false);
-        //         this.cancel(data);
-        //       } else {
-        //         this.processLocalError(
-        //           this.title,
-        //           value.error.message,
-        //           value.error.id,
-        //           null,
-        //           value.error.authError
-        //         );
-        //       }
-        //       this.disabledAll = false;
-        //     },
-        //     (err: { statusText: string; status: number | null; }) => {
-        //       this.processLocalError(this.title, err.statusText, null, err.status, null);
-        //     }
-        //   );
-
-        this.oldcancel(data);
-    }
-
     // -----------------------------------------------------------------------------
-    // Styles
+    // Styles - Not in Use - Handled on Template
     // -----------------------------------------------------------------------------
-
-    // Measure Value Bg colors
-    getBgColor(element: MeasureDataDto): string {
-        // if ( !this.editBgColor ) return "";
-        // if ( itgIsEmpty(element.value) ) return "";
-        // if ( itgIsNull(element.target) && itgIsNull(element.yellow) ) return "";
-        // if (!this.editBgColor) {
-        //     return "";
-        // }
-
-        if (!element.value) {
+    getBgColor2(element: MeasureDataDto): string {
+        if (!element.value || (!element.target && !element.yellow)) {
             return "";
         }
-
-        if (!element.target && !element.yellow) {
-            return "";
-        }
-
-        const red = "td.bgred";
-        const yellow = "td.bgorange";
-        const green = "td.bggreen";
-        let result = red;
 
         if (!element.target) {
-            if (element.value >= element.yellow) {
-                return green;
-            }
-            return result;
+            return element.value >= element.yellow ? "bggreen" : "bgred";
         }
+
         if (!element.yellow) {
-            if (element.value >= element.target) {
-                return green;
-            }
-            return result;
+            return element.value >= element.target ? "bggreen" : "bgred";
         }
+
         if (element.target >= element.yellow) {
             if (element.value >= element.yellow) {
-                result = yellow;
+                return "bgorange";
             }
             if (element.value >= element.target) {
-                result = green;
+                return "bggreen";
             }
         }
+
         if (element.target < element.yellow) {
             if (element.value <= element.yellow) {
-                result = yellow;
+                return "bgorange";
             }
             if (element.value <= element.target) {
-                result = green;
-            }
-        }
-        console.log("getBgColor result: " , result);
-        return result;
-
-    }
-
-    getBgColor2(data: any): string {
-        if (!data.value || (!data.target && !data.yellow)) {
-            return "";
-        }
-
-        if (!data.target) {
-            return data.value >= data.yellow ? "bgreen" : "bgred";
-        }
-
-        if (!data.yellow) {
-            return data.value >= data.target ? "bgreen" : "bgred";
-        }
-
-        if (data.target >= data.yellow) {
-            if (data.value >= data.yellow) {
-                return "bgorange";
-            }
-            if (data.value >= data.target) {
-                return "bgreen";
-            }
-        }
-
-        if (data.target < data.yellow) {
-            if (data.value <= data.yellow) {
-                return "bgorange";
-            }
-            if (data.value <= data.target) {
-                return "bgreen";
+                return "bggreen";
             }
         }
 
         return "bgred";
     }
 
-    getBorderColor(targetVal: any, yellowVal: any): void {
-        const red = 'border-danger2';
-        const yellow = 'border-warning2';
-        const green = 'border-success2';
-
-        const mVal = document.querySelectorAll('.mVal');
-        mVal.forEach(elem => elem.classList.remove(red, yellow, green));
-
-        if (this.itgIsEmpty(mVal)) {
-            return;
-        }
-
-        if (this.itgIsNull(targetVal)) {
-            if (mVal >= yellowVal) {
-                mVal.forEach(elem => elem.classList.add(green));
-                return;
-            }
-            mVal.forEach(elem => elem.classList.add(red));
-            return;
-        }
-
-        if (this.itgIsNull(yellowVal)) {
-            if (mVal >= targetVal) {
-                mVal.forEach(elem => elem.classList.add(green));
-                return;
-            }
-            mVal.forEach(elem => elem.classList.add(red));
-            return;
-        }
-
-        if (targetVal >= yellowVal) {
-            if (mVal >= targetVal) {
-                mVal.forEach(elem => elem.classList.add(green));
-                return;
-            }
-            if (mVal >= yellowVal) {
-                mVal.forEach(elem => elem.classList.add(yellow));
-                return;
-            }
-        }
-        if (targetVal < yellowVal) {
-            if (mVal <= targetVal) {
-                mVal.forEach(elem => elem.classList.add(green));
-                return;
-            }
-            if (mVal <= yellowVal) {
-                mVal.forEach(elem => elem.classList.add(yellow));
-                return;
-            }
-        }
-        mVal.forEach(elem => elem.classList.add(red));
-    }
-
 
     // -----------------------------------------------------------------------------
     // Utils
     // -----------------------------------------------------------------------------
+    doEditType() {
+        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
+        this.editingMeasureType = { ...this.selectedMeasureType }
+    }
+
+    isBoolShow(str: string | boolean): boolean {
+        return ((str === "true") || (str === true));
+    }
 
     itgIsEmpty(value: any): boolean {
         if (!this.itgIsNull(value)) {

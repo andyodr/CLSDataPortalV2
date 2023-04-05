@@ -226,7 +226,7 @@
               <button mat-raised-button color="primary" (click)="onSave(element)" *ngIf="isEditMode && element == selectedRow">
                 <mat-icon>save</mat-icon>
               </button>
-              <button mat-raised-button color="warn" (click)="onCancel(element)" *ngIf="isEditMode && element == selectedRow">
+              <button mat-raised-button color="warn" (click)="onCancel()" *ngIf="isEditMode && element == selectedRow">
                 <mat-icon>cancel</mat-icon>
               </button>
             </td>

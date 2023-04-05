@@ -20,7 +20,7 @@ export class MeasureDataService {
   getFilters() {
     return this.http.get<MeasureDataFilterResponseDto>(this.baseUrl + "filter").pipe(
       map((response: MeasureDataFilterResponseDto) => {
-        console.log("Filter Response : ", response)
+        //console.log("Filter Response : ", response)
         return response
       })
     )
@@ -29,7 +29,7 @@ export class MeasureDataService {
   getFiltersIntervals(params: HttpParams) {
     return this.http.get<FiltersIntervalsDto>(environment.baseUrl + "api/filters/intervals", { params }).pipe(
       map((response: FiltersIntervalsDto) => {
-        console.log("Filters Intervals Response : ", response)
+        //console.log("Filters Intervals Response : ", response)
         return response
       })
     )
@@ -38,7 +38,7 @@ export class MeasureDataService {
   getMeasureDataList(params: HttpParams) {
     return this.http.get<MeasureDataApiResponse>(this.baseUrl + "Index/", {params}).pipe(
       map((response: MeasureDataApiResponse) => {
-        console.log("Measure Data Response : ", response)
+        //console.log("Measure Data Response : ", response)
         return response
       })
     )
@@ -47,7 +47,7 @@ export class MeasureDataService {
   updateMeasureData(body:MeasureDataPutDto): Observable<MeasureDataApiResponse> {
     return this.http.put<MeasureDataApiResponse>(this.baseUrl + "Index/", body).pipe(
       map((response: MeasureDataApiResponse) => {
-        console.log("Measure Data Response : ", response)
+        //console.log("Measure Data Response : ", response)
         return response
       })
     )
