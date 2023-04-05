@@ -3,23 +3,10 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { ErrorModel } from '../_models/error';
-import {MeasureDataApiResponse, MeasureDataDto, MeasureDataFilterResponseDto, MeasureDataPutDto } from '../_models/measureData';
+import {FiltersIntervalsDto, MeasureDataApiResponse, MeasureDataDto, MeasureDataFilterResponseDto, MeasureDataPutDto } from '../_models/measureData';
 
 
-export type FiltersIntervalsData = {
-  error?: ErrorModel
-  id: number
-  number?: number | null
-  startDate?: string
-  endDate?: string
-  month?: string
-  locked?: boolean
-}
 
-export type FiltersIntervalsDto = {
-  calendarId: number
-  data: FiltersIntervalsData[]
-}
 
 @Injectable({
   providedIn: 'root'

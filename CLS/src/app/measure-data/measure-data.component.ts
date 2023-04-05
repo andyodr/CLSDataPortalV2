@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { Intervals, MSG_ERROR_PROCESSING } from '../lib/app-constants';
-import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto } from '../_models/measureData';
-import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
+import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
+import { MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { filter, finalize, Subscription } from 'rxjs';
@@ -349,7 +349,7 @@ export class MeasureDataComponent implements OnInit {
 
         //const measureDataRowNew = { ...measureDataRow };
 
-        const measureDataId = parseInt(measureDataRow.id);
+        const measureDataId = measureDataRow.id;
         const measureDataValue = measureDataRow.value;
         const measureDataExplanation = this.model.explanation;
         const measureDataAction = this.model.action;
