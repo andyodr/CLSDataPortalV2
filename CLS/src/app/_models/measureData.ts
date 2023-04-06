@@ -10,7 +10,7 @@ export interface MeasureDataApiResponse {
     confirmed: boolean;
     filter: measureDataFilter;
     data: MeasureDataDto[];
-    error?: any;
+    error?: ErrorModel;
 }
 
 export interface MeasureDataDto {

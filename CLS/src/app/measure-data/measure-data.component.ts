@@ -39,7 +39,7 @@ export class MeasureDataComponent implements OnInit {
         position: "start" as "start" | "end"
     }
     filters!: MeasureDataFilterResponseDto
-    @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
+    filterSelected: string[] = []
     select = {
         intervals: [] as IntervalDto[],
         years: [] as { id: number, year: number }[],
@@ -49,9 +49,9 @@ export class MeasureDataComponent implements OnInit {
         measureTypes: [] as MeasureType[],
         hierarchy: [] as RegionFilter[]
     }
-    filterSelected: string[] = []
     hierarchy: RegionFilter[] = []
     hierarchyLevels!: { id: number, name: string }[]
+    @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
     intervalList!: IntervalDto[]
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
