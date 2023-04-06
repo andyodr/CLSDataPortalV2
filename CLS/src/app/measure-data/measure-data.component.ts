@@ -409,7 +409,6 @@ export class MeasureDataComponent implements OnInit {
         return title + message  // TODO: finish
     }
 
-
     // -----------------------------------------------------------------------------
     // Styles - Not in Use - Handled on Template
     // -----------------------------------------------------------------------------

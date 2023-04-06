@@ -17,11 +17,11 @@ import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 import { TargetsComponent } from './targets/targets.component';
 import { MeasuresComponent } from './measures/measures.component';
 
-const title = "Deliver Data - "
+const title = "DELIVER - "
 
 const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-    { path: 'measuredata', component: MeasureDataComponent },
+    { path: 'measuredata', title: `${ title }Measure Data`, component: MeasureDataComponent },
     {
         path: "users", children: [
             { path: "add", title: `${ title }Add User`, component: UserAddComponent },
