@@ -2,7 +2,8 @@ import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { BehaviorSubject, tap } from "rxjs"
 import { AuthenticatedUser } from "../_models/user"
-import { environment } from "../environments/environment"
+import { environment } from "../../environments/environment"
+import { Router } from "@angular/router"
 
 export type SignIn = {
     userName: string,

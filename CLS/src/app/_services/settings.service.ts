@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { Router } from "@angular/router"
 import { Observable } from "rxjs"
-import { environment } from "../environments/environment"
+import { environment } from "../../environments/environment"
 import { ErrorModel } from "../_models/error"
 
 export type CalendarLock = {

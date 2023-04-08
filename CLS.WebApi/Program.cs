@@ -39,12 +39,10 @@ if (app.Environment.IsDevelopment()) {
 else {
 	app.UseExceptionHandler("/Error");
 	app.MapGet("Error", () => Results.Problem());
-	app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseCookiePolicy(new() { MinimumSameSitePolicy = SameSiteMode.Strict });
+app.UseCookiePolicy(new() { MinimumSameSitePolicy = SameSiteMode.Lax });
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

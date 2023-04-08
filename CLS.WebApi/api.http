@@ -1,0 +1,38 @@
+# REST Client documentation https://github.com/Huachao/vscode-restclient
+
+@localhost = localhost:40443
+@home = hw.scylla-brill.ts.net
+@host = {{home}}
+
+POST https://{{host}}/api/SignIn
+Content-Type: multipart/form-data;boundary="boundary"
+
+--boundary
+Content-Disposition: form-data; name="userName"
+
+CLSDataPortal
+--boundary
+Content-Disposition: form-data; name="password"
+
+CLSDataPortal01
+--boundary
+Content-Disposition: form-data; name="persistent"
+
+false
+--boundary--
+
+###
+
+GET https://{{host}}/api/SignOut
+
+###
+
+GET https://{{host}}/api/measuredata/filter
+
+###
+
+GET https://{{host}}/api/Authorize
+
+###
+
+GET https://{{host}}/
