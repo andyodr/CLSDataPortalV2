@@ -166,11 +166,11 @@ table {
 }
 
 .mat-column-value {
-  width: 6em;
+  width: 2em;
 }
 
 .mat-column-units {
-  width: 2em;
+  width: 1em;
 }
 
 .mat-column-explanation {
@@ -182,11 +182,11 @@ table {
 }
 
 .mat-column-updated {
-  width: 6em;
+  width: 4em;
 }
 
 .mat-column-rowactions {
-  width: 4em;
+  width: 2em;
 }
 
 tr.detail-row {
@@ -224,7 +224,7 @@ tr.table-row:not(.expanded-row):active {
 
 .detail-items-2 {
   grid-row: 1;
-  width: max-content;
+  // width: max-content;
   display: grid;
   grid-template: auto auto / auto auto;
   column-gap: 1em;

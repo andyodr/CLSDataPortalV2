@@ -1,14 +1,6 @@
 import { RegionFilter } from "../_services/hierarchy.service";
 import { ErrorModel } from "./error";
 
-// export interface Filter {
-//     intervalId: number;
-//     calendarId: number;
-//     year: number;
-//     measureTypeId: number;
-//     hierarchyId: number;
-// }
-
 export interface MeasureDataApiResponse {
     range: string;
     calendarId: number;
@@ -18,12 +10,12 @@ export interface MeasureDataApiResponse {
     confirmed: boolean;
     filter: measureDataFilter;
     data: MeasureDataDto[];
-    error?: any;
+    error?: ErrorModel;
 }
 
 export interface MeasureDataDto {
-    //id: number;
-    id: string;
+    id: number;
+    //id: string;
     name: string;
     value: number;
     explanation?: any;
@@ -67,10 +59,6 @@ export interface MeasureDataPutDto {
     action: string;
 }
 
-
-
-//--------------------------------------------
-
 export type MeasureType = {
     id: number,
     name: string,
@@ -98,3 +86,18 @@ export type MeasureDataFilterResponseDto = {
     currentCalendarIds?: CurrentCalendarIds
     filter: measureDataFilter
 }
+
+export type FiltersIntervalsData = {
+    error?: ErrorModel
+    id: number
+    number?: number | null
+    startDate?: string
+    endDate?: string
+    month?: string
+    locked?: boolean
+  }
+  
+  export type FiltersIntervalsDto = {
+    calendarId: number
+    data: FiltersIntervalsData[]
+  }

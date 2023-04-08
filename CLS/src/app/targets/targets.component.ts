@@ -29,32 +29,64 @@ export class TargetsComponent implements OnInit {
 
     title = "Targets"
     targetResponse: TargetApiResponse | undefined;
+
+    //Filter Properties
+    drawer = {
+        title: "Filter",
+        button: "Apply",
+        position: "start" as "start" | "end"
+    }
     filters!: TargetFilter
     filtersSelected: string[] = []
-    dataSource = new MatTableDataSource<TargetDto>()
-    displayedColumns = ["name", "value", "yellow", "updated", "actions"]
-    expand = new ToggleQuery()
-    //@ViewChild(MatTable) matTable!: MatTable<MeasuresTableRow>
-    @ViewChild(MatSort) sort!: MatSort
-    measureTypes: MeasureType[] = []
-    selectedMeasureType: MeasureType = { id: 0, name: "" }
-    progress = false
-    disabledAll = false
-    errorMsg: any = ""
-    showError = false
-    showContentPage = false
-    editingMeasureType!: MeasureType
-    hierarchyId: number | null = null;
-    measureTypeId: number | null = null;
-    btnDisabled = false;
-    allow = false;
     hierarchy: RegionFilter[] = []
     selectedRegion = null as number | number[] | null
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
 
+    //Table Properties
+    targetList: TargetDto[] = [];
+    selectedRow: TargetDto | undefined
+    dataSource = new MatTableDataSource<TargetDto>()
+    displayedColumns = ["name", "value", "yellow", "updated", "actions"]
+    expand = new ToggleQuery()
+    @ViewChild(MatSort) sort!: MatSort
+    editingMeasureType!: any
+    selectedMeasureType: MeasureType = { id: 0, name: "" }
+    isEditMode = false
+    expandDetail = new ToggleQuery()
+
+    //Local Properties
+    progress = false
+    showContentPage = true
+    dataRange = "";
+    disabledAll = true;
+    btnDisabled = false;
+    skMeasureData = "";
+    allow = false;
+    editValue = false;
+    showActionButtons = true;
+    // editValue: boolean | undefined;
+    // showActionButtons: boolean | undefined;
+    //editBgColor = true;
+    //filteredPage = null;
+    locked: boolean | undefined
+    calendarId!: number;
+    day!: string;
+    hierarchyId!: number;
+    measureTypeId!: number;
 
 
-    @Output() progressEvent = new EventEmitter<boolean>();
+
+
+
+    measureTypes: MeasureType[] = []
+
+
+
+
+
+
+
+    //@Output() progressEvent = new EventEmitter<boolean>();
     //targetResponse: TargetApiResponse | undefined;
 
     //----------------Table Properties----------------
@@ -69,9 +101,7 @@ export class TargetsComponent implements OnInit {
     //selectedMeasureType: MeasureType = { id: 0, name: "" }
 
 
-    isEditMode = false
-    selectedRow: TargetDto | undefined
-    expandDetail = new ToggleQuery()
+   
 
     //------------------ Local Properties ------------------
     //title = "Targets"
@@ -82,7 +112,7 @@ export class TargetsComponent implements OnInit {
         measureTypes: true,
         hierarchy: true
     };
-    targetList: TargetDto[] = [];
+    
     //hierarchyId: number | null = null;
     //measureTypeId: number | null = null;
     measureId: number | null = null
@@ -93,9 +123,6 @@ export class TargetsComponent implements OnInit {
     confirmed = false;
     //showContentPage = false
 
-    locked: boolean | undefined;
-    editValue: boolean | undefined;
-    showActionButtons: boolean | undefined;
 
     target: number | null = null
     yellow: number = 0
@@ -115,11 +142,7 @@ export class TargetsComponent implements OnInit {
     };
 
     //------------------ Filter Properties ------------------
-    drawer = {
-        title: "Filter",
-        button: "Apply",
-        position: "start" as "start" | "end"
-    }
+
 
     //filters!: TargetFilterResponseDto
     //filtersDisplay: string[] = []
@@ -169,9 +192,10 @@ export class TargetsComponent implements OnInit {
 
     //yellow: number | null = null
 
-    //----------------- Error handling within the component
-    //errorMsg: any = ""
-    //showError: boolean = false;
+    //Error handling within the component
+    errorMsg: any = ""
+    showError: boolean = false;
+
 
 
 

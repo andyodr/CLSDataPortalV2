@@ -13,8 +13,9 @@ import { ProgressBarMode } from "@angular/material/progress-bar"
 import { ToggleService } from "../_services/toggle.service"
 import { ErrorModel } from "../_models/error"
 import { LoggerService } from "../_services/logger.service"
-import { FiltersIntervalsData, MeasureDataService } from "../_services/measure-data.service"
+import { MeasureDataService } from "../_services/measure-data.service"
 import { IntervalDto } from "../_services/measure-definition.service"
+import { FiltersIntervalsData } from "../_models/measureData"
 
 type DataOut = {
     dataImport: number
