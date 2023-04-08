@@ -145,6 +145,11 @@ h4 {
   color: hsl(var(--mat-primary-600));
 }
 
+.fixed-top.fixed-top {
+  position: fixed;
+  inset: 0 0 auto 0;
+}
+
 .panel {
   margin-bottom: 20px;
   background: #fff;
