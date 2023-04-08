@@ -38,8 +38,8 @@ const routes: Routes = [
             { path: 'home', component: HomeComponent },
         ]
     },
-    { path: 'targets', component: TargetsComponent },
-    { path: 'measures', component: MeasuresComponent },
+    { path: 'targets', title: `${ title }Targets`, component: TargetsComponent },
+    { path: 'measures', title: `${ title }Measures`, component: MeasuresComponent },
     {
         path: "measuredefinition", children: [
             { path: "", title: `${ title }Measure Definitions`, component: MeasureDefinitionComponent },
