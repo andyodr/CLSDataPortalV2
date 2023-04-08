@@ -13,7 +13,7 @@ namespace CLS.WebApi.Controllers;
 
 [ApiController]
 [Route("api")]
-[AllowAnonymous]
+[Authorize]
 public class AccountController : Controller
 {
 	private readonly ConfigurationObject _config;
@@ -39,6 +39,7 @@ public class AccountController : Controller
 	/// Authenticate the user and sign in to the application.
 	/// </summary>
 	[HttpPost("[action]")]
+	[AllowAnonymous]
 	[SupportedOSPlatform("windows")]
 	public async Task<IActionResult> SignIn([FromForm] RequestDto form) {
 		bool continueLogin = true;
@@ -89,6 +90,10 @@ public class AccountController : Controller
 			}
 
 			await HttpContext.SignInAsync(principal, properties);
+
+			// cookie with same expiration but readable by scripts for purposes of determining signed-in status
+			HttpContext.Response.Cookies.Append("AuthPresent", properties.ExpiresUtc?.ToString("u") ?? "",
+				new CookieOptions { Expires = properties.ExpiresUtc, IsEssential = true });
 			AddAuditTrail(_dbc,
 				Resource.SECURITY,
 				"SEC-01",
@@ -136,6 +141,7 @@ public class AccountController : Controller
 		}
 
 		await HttpContext.SignOutAsync();
+		HttpContext.Response.Cookies.Delete("AuthPresent");
 		return SignOut();
 	}
 

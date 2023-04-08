@@ -18,7 +18,7 @@ export class AccountService {
     private currentUserSource = new BehaviorSubject<AuthenticatedUser | null>(null)
     currentUser$ = this.currentUserSource.asObservable()
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private router: Router) { }
 
     login(model: SignIn) {
         var form = new FormData()
@@ -37,6 +37,7 @@ export class AccountService {
         return this.currentUserSource.value;
     }
 
+    /** Perform SignOut and navigate to SignIn screen */
     logout() {
         this.http.get(environment.baseUrl + "api/SignOut", { observe: "response" })
             .subscribe({
@@ -44,9 +45,10 @@ export class AccountService {
                     if (result.status == 200) {
                         if (!this.getCurrentUser()?.persist) {
                             localStorage.removeItem("user")
+                            this.currentUserSource.next(null)
                         }
 
-                        this.currentUserSource.next(null)
+                        this.router.navigateByUrl("/")
                     }
                     else {
                         console.error(`Unexpected status: {result.status}`)
