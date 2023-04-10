@@ -91,7 +91,7 @@ public class AccountController : Controller
 			await HttpContext.SignInAsync(principal, properties);
 
 			// cookie with same expiration but readable by scripts for purposes of determining signed-in status
-			HttpContext.Response.Cookies.Append("AuthPresent", properties.ExpiresUtc?.ToString("u") ?? "",
+			Response.Cookies.Append("AuthPresent", properties.ExpiresUtc?.ToString("u") ?? "",
 				new CookieOptions { Expires = properties.ExpiresUtc, IsEssential = true });
 			AddAuditTrail(_dbc,
 				Resource.SECURITY,
@@ -140,7 +140,7 @@ public class AccountController : Controller
 		}
 
 		await HttpContext.SignOutAsync();
-		HttpContext.Response.Cookies.Delete("AuthPresent");
+		Response.Cookies.Delete("AuthPresent");
 		return SignOut();
 	}
 

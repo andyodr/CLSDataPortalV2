@@ -3,8 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 
 const routes: Routes = [
-    { path: '', component: LoginComponent, children: []}
-];
+    { path: "", title: "DELIVER Portal - Sign In", component: LoginComponent, children: []}
+]
 
 @NgModule({
     imports: [RouterModule.forChild(routes)],

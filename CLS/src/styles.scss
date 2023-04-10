@@ -18,7 +18,7 @@
   font-family: "Roboto";
   font-weight: 200;
   src: url("assets/fonts/roboto-thin-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-thin-webfont.woff") format("woff");
+    url("assets/fonts/roboto-thin-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -26,14 +26,14 @@
   font-weight: 200;
   font-style: italic;
   src: url("assets/fonts/roboto-thinitalic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-thinitalic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-thinitalic-webfont.woff") format("woff");
 }
 
 @font-face {
   font-family: "Roboto";
   font-weight: 300;
   src: url("assets/fonts/roboto-light-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-light-webfont.woff") format("woff");
+    url("assets/fonts/roboto-light-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -41,14 +41,14 @@
   font-weight: 300;
   font-style: italic;
   src: url("assets/fonts/roboto-lightitalic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-lightitalic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-lightitalic-webfont.woff") format("woff");
 }
 
 @font-face {
   font-family: "Roboto";
   font-weight: 400;
   src: url("assets/fonts/roboto-regular-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-regular-webfont.woff") format("woff");
+    url("assets/fonts/roboto-regular-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -56,14 +56,14 @@
   font-weight: 400;
   font-style: italic;
   src: url("assets/fonts/roboto-italic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-italic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-italic-webfont.woff") format("woff");
 }
 
 @font-face {
   font-family: "Roboto";
   font-weight: 500;
   src: url("assets/fonts/roboto-medium-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-medium-webfont.woff") format("woff");
+    url("assets/fonts/roboto-medium-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -71,14 +71,14 @@
   font-weight: 500;
   font-style: italic;
   src: url("assets/fonts/roboto-mediumitalic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-mediumitalic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-mediumitalic-webfont.woff") format("woff");
 }
 
 @font-face {
   font-family: "Roboto";
   font-weight: 700;
   src: url("assets/fonts/roboto-bold-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-bold-webfont.woff") format("woff");
+    url("assets/fonts/roboto-bold-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -86,14 +86,14 @@
   font-weight: 700;
   font-style: italic;
   src: url("assets/fonts/roboto-bolditalic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-bolditalic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-bolditalic-webfont.woff") format("woff");
 }
 
 @font-face {
   font-family: "Roboto";
   font-weight: 900;
   src: url("assets/fonts/roboto-black-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-black-webfont.woff") format("woff");
+    url("assets/fonts/roboto-black-webfont.woff") format("woff");
 }
 
 @font-face {
@@ -101,7 +101,7 @@
   font-weight: 900;
   font-style: italic;
   src: url("assets/fonts/roboto-blackitalic-webfont.woff2") format("woff2"),
-       url("assets/fonts/roboto-blackitalic-webfont.woff") format("woff");
+    url("assets/fonts/roboto-blackitalic-webfont.woff") format("woff");
 }
 
 .material-icons {
@@ -187,4 +187,8 @@ h4 {
 
 .tooltips {
   background: var(--jaguar-black);
+}
+
+.select-none {
+  user-select: none;
 }
