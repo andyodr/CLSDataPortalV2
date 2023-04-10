@@ -101,13 +101,23 @@ export class MeasureDefinitionService {
         }
     }
 
+    addMeasureDefinition(dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
+        return this.http
+        .post<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`, dto)
+    }
+
     updateMeasureDefinition(id: number, dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
         return this.http
         .put<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/edit/${ id }`, dto)
     }
 
-    addMeasureDefinition(dto: MeasureDefinition): Observable<MeasureDefinitionEditDto> {
+    addMeasureType(dto: MeasureType) {
         return this.http
-        .post<MeasureDefinitionEditDto>(`${ this.baseUrl }/measure/add`, dto)
+        .post<{ id: number, measureTypes: MeasureType[]}>(`${ this.baseUrl }/type/add`, dto)
+    }
+
+    updateMeasureType(dto: MeasureType) {
+        return this.http
+        .put<{ id: number, measureTypes: MeasureType[]}>(`${ this.baseUrl }/type/edit`, dto)
     }
 }

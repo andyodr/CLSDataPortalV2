@@ -41,7 +41,7 @@ public class AddController : ControllerBase
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var mt in measureTypes) {
-				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = mt.Id, Name = mt.Name });
+				returnObject.MeasureTypes.Add(new (mt.Id, mt.Name, mt.Description));
 			}
 
 			return returnObject;
@@ -87,7 +87,7 @@ public class AddController : ControllerBase
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				result.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				result.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
 			}
 
 			// Get Values from Page

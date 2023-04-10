@@ -6,12 +6,15 @@
       <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button [attr.aria-label]="drawer.button" (click)="loadTable(); drwr.close()">
-        <mat-icon>save_alt</mat-icon> {{drawer.button}}
+      <button *ngIf="drawer.filter" mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> Apply
+      </button>
+      <button *ngIf="!drawer.filter" mat-raised-button aria-label="Save" (click)="save(); drwr.close()">
+        <mat-icon>save_alt</mat-icon> Save
       </button>
     </header>
     <form>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'start'">
+      <mat-form-field appearance="fill" [hidden]="!drawer.filter">
         <mat-label>Measure Type</mat-label>
         <mat-select name="level" [(ngModel)]="selectedMeasureType" [disabled]="disabledAll">
           <mat-option *ngFor="let measureType of measureTypes" [value]="measureType">
@@ -19,14 +22,14 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+      <mat-form-field appearance="fill" *ngIf="!drawer.filter">
         <mat-label>Measure Type Name</mat-label>
-        <input matInput name="measureTypeName" [(ngModel)]="editingMeasureType.name" placeholder="Ex. Customer Service"
+        <input matInput name="measureTypeName" [(ngModel)]="measureTypeInput.name" placeholder="Ex. Customer Service"
           [disabled]="disabledAll">
       </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="drawer.position == 'end'">
+      <mat-form-field appearance="fill" *ngIf="!drawer.filter">
         <mat-label>Measure Type Description</mat-label>
-        <input matInput name="measureTypeDescription" [(ngModel)]="editingMeasureType.description"
+        <input matInput name="measureTypeDescription" [(ngModel)]="measureTypeInput.description"
           placeholder="Ex. Customer Service" [disabled]="disabledAll">
       </mat-form-field>
     </form>

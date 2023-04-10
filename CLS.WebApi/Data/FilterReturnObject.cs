@@ -1,8 +1,10 @@
-﻿namespace CLS.WebApi.Data;
+using CLS.WebApi.Controllers.MeasureDefinition.Type;
+
+namespace CLS.WebApi.Data;
 
 public class FilterReturnObject
 {
-	public IList<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
+	public IList<MeasureType> MeasureTypes { get; set; } = null!;
 
 	public List<RegionFilterObject>? Hierarchy { get; set; }
 

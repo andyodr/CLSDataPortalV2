@@ -1,4 +1,6 @@
-﻿namespace CLS.WebApi.Data;
+using CLS.WebApi.Controllers.MeasureDefinition.Type;
+
+namespace CLS.WebApi.Data;
 
 public class MeasureDefinitionIndexReturnObject
 {
@@ -10,7 +12,7 @@ public class MeasureDefinitionIndexReturnObject
 
 	public List<IntervalsObject> Intervals { get; set; } = null!;
 
-	public List<MeasureTypeFilterObject> MeasureTypes { get; set; } = null!;
+	public List<MeasureType> MeasureTypes { get; set; } = null!;
 
 	public List<AggregationFunction> AggFunctions { get; set; } = null!;
 

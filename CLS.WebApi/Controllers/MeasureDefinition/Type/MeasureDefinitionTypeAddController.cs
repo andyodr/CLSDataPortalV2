@@ -5,55 +5,56 @@ using static CLS.WebApi.Helper;
 
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
+public record MeasureType(int? Id, string Name, string? Description);
+public record MeasureTypeResult(int id, IList<MeasureType> measureTypes);
+
 [ApiController]
 [Route("api/measureDefinition/type/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class AddController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public AddController(ApplicationDbContext context) => _context = context;
+	public AddController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpPost]
-	public ActionResult<MeasureTypeModel> Post(MeasureTypeObject value) {
+	public ActionResult<MeasureTypeResult> Post(MeasureType body) {
 		try {
 			if (CreateUserObject(User) is not UserObject _user) {
 				return Unauthorized();
 			}
 
-			var returnObject = new MeasureTypeModel { Data = new() };
-
 			// Validates name
-			int validateCount = _context.MeasureType.Where(m => m.Name.Trim().ToLower() == value.Name.Trim().ToLower()).Count();
+			int validateCount = _dbc.MeasureType
+				.Where(m => m.Name.Trim().ToLower() == body.Name.Trim().ToLower()).Count();
 			if (validateCount > 0) {
 				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var measureType = _context.MeasureType.Add(new() {
-				Description = value.Description,
-				Name = value.Name,
+			var mtype = _dbc.MeasureType.Add(new() {
+				Name = body.Name,
+				Description = body.Description,
 				LastUpdatedOn = lastUpdatedOn
 			}).Entity;
-			_context.SaveChanges();
-			//value.id = _measureTypeRepository.All().Where(m => m.Name == value.name).First().Id;
-			value.Id = measureType.Id;
+			_dbc.SaveChanges();
 
-			AddAuditTrail(_context,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-08",
 				Resource.MEASURE_TYPE,
-				@"Added / ID=" + measureType.Id.ToString(),
+				@"Added / ID=" + mtype.Id.ToString(),
 				lastUpdatedOn,
 				_user.Id
 			);
 
-			returnObject.Data = value;
-			return returnObject;
+			return new MeasureTypeResult(mtype.Id,
+				_dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
+			);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

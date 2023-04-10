@@ -1,3 +1,4 @@
+using CLS.WebApi.Controllers.MeasureDefinition.Type;
 using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,13 +28,13 @@ public class FilterController : ControllerBase
 
 			var result = new FilterReturnObject {
 				Intervals = null,
-				MeasureTypes = new List<MeasureTypeFilterObject>(),
+				MeasureTypes = new List<MeasureType>(),
 				Hierarchy = new() { Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id) }
 			};
 
 			result.MeasureTypes = _dbc.MeasureType
 				.OrderBy(m => m.Id)
-				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name, Description = m.Description })
+				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 				.ToArray();
 
 			_user.savedFilters[pages.target].measureTypeId ??= _dbc.MeasureType.First().Id;

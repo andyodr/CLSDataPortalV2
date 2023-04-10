@@ -1,3 +1,4 @@
+using CLS.WebApi.Controllers.MeasureDefinition.Type;
 using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,7 +66,7 @@ public class FilterController : ControllerBase
 			}
 
 			filter.MeasureTypes = _dbc.MeasureType.OrderBy(m => m.Id)
-				.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name })
+				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 				.ToArray();
 			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id));
 

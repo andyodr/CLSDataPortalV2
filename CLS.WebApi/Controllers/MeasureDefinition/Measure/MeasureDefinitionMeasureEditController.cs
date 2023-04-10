@@ -43,7 +43,8 @@ public class EditController : ControllerBase
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTracking()) {
-				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				returnObject.MeasureTypes
+					.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
 			foreach (var md in _context.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
@@ -116,7 +117,7 @@ public class EditController : ControllerBase
 
 			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				returnObject.MeasureTypes.Add(new MeasureTypeFilterObject { Id = measureType.Id, Name = measureType.Name });
+				returnObject.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
 			}
 
 			var mDef = _context.MeasureDefinition.Where(m => m.Id == dto.Id).Single();

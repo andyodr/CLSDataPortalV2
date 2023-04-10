@@ -34,11 +34,11 @@ export class MeasureDefinitionComponent implements OnInit {
     showContentPage = false
     drawer = {
         title: "Filter",
-        button: "Apply",
+        filter: true,
         position: "start" as "start" | "end"
     }
 
-    editingMeasureType!: MeasureType
+    measureTypeInput!: MeasureType
 
     constructor(private api: MeasureDefinitionService, public logger: LoggerService) { }
 
@@ -69,20 +69,36 @@ export class MeasureDefinitionComponent implements OnInit {
             })
     }
 
+    save() {
+        this.progress = true
+        var obsv = this.measureTypeInput.id ? this.api.updateMeasureType(this.measureTypeInput)
+            : this.api.addMeasureType(this.measureTypeInput)
+        obsv.pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: result => {
+                    this.measureTypes = result.measureTypes
+                    let current = result.measureTypes.find(t => t.id === result.id)
+                    this.selectedMeasureType = current ?? result.measureTypes[0]
+                    this.loadTable()
+                }
+            })
+    }
+
     doFilter() {
-        this.drawer = { title: "Filter", button: "Apply", position: "start" }
+        this.drawer = { title: "Filter", position: "start", filter: true }
     }
 
     doAddType() {
-        this.drawer = { title: "Add Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { id: 0, name: "", description: "" }
+        this.drawer = { title: "Add Measure Type", position: "end", filter: false }
+        this.measureTypeInput = { id: 0, name: "", description: "" }
     }
 
     doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
+        this.drawer = { title: "Edit Measure Type", position: "end", filter: false }
+        this.measureTypeInput = { ...this.selectedMeasureType }
     }
 
+    /** filter input keyup event */
     applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()

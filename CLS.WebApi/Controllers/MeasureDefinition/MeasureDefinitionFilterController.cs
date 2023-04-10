@@ -1,3 +1,4 @@
+using CLS.WebApi.Controllers.MeasureDefinition.Type;
 using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ public class FilterController : ControllerBase
 			}
 
 			var result = new FilterReturnObject {
-				MeasureTypes = _dbc.MeasureType.Select(m => new MeasureTypeFilterObject { Id = m.Id, Name = m.Name }).ToArray()
+				MeasureTypes = _dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
 			};
 
 			_user.savedFilters[pages.measureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
