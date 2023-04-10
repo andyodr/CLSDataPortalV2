@@ -1,6 +1,7 @@
 using CLS.WebApi;
 using CLS.WebApi.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -19,7 +20,14 @@ builder.Services
 	})
 	.Configure<ConfigurationObject>(builder.Configuration.GetSection(ConfigurationObject.Section))
 	.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"))
-	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+if (Directory.Exists(@"C:\inetpub")) {
+	builder.Services
+		.AddDataProtection()
+		.PersistKeysToFileSystem(new DirectoryInfo(@"C:\inetpub\keys"));
+}
+
+builder.Services
 	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(options => {
 		options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
