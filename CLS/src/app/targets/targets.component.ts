@@ -37,10 +37,34 @@ export class TargetsComponent implements OnInit {
         position: "start" as "start" | "end"
     }
     filters!: TargetFilter
+    //filters!: TargetFilterResponseDto
     filtersSelected: string[] = []
     hierarchy: RegionFilter[] = []
     selectedRegion = null as number | number[] | null
-    @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
+
+    @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
+    
+    select = {
+        measureTypes: [] as MeasureType[],
+        hierarchy: [] as RegionFilter[]
+    }
+
+    filtersDisplay: string[] | undefined;
+
+    //hierarchy: RegionFilter[] = []
+    hierarchyLevels!: { name: string, id: number }[]
+    yearList!: { name: string, id: number }[]
+    measureTypeList!: { name: string, id: number }[]
+    //measureTypes: MeasureType[] = []
+    //selectedMeasureType: MeasureType | undefined //= { id: 0, name: "" }
+    selectedMeasureTypeId!: number
+    // selectedMeasureType?: MeasureType
+    selectedHierarchy = null as number | number[] | null
+
+    filtered: TargetApiParams = {
+        hierarchyId: 1,
+        measureTypeId: 1,
+    }
 
     //Table Properties
     targetList: TargetDto[] = [];
@@ -66,66 +90,21 @@ export class TargetsComponent implements OnInit {
     showActionButtons = true;
     // editValue: boolean | undefined;
     // showActionButtons: boolean | undefined;
-    //editBgColor = true;
-    //filteredPage = null;
     locked: boolean | undefined
     calendarId!: number;
-    day!: string;
     hierarchyId!: number;
     measureTypeId!: number;
 
-
-
-
-
     measureTypes: MeasureType[] = []
-
-
-
-
-
-
-
-    //@Output() progressEvent = new EventEmitter<boolean>();
-    //targetResponse: TargetApiResponse | undefined;
-
-    //----------------Table Properties----------------
-    //targetList: TargetDto[] = [];
     targetRow: TargetDto | undefined
-    // dataSource = new MatTableDataSource([] as TargetDto[])
-    //dataSource = new MatTableDataSource<TargetDto>()
-    //displayedColumns = ["name", "value", "yellow", "updated", "actions"]
-    //@ViewChild(MatSort) sort!: MatSort
 
-    //editingMeasureType!: any
-    //selectedMeasureType: MeasureType = { id: 0, name: "" }
-
-
-   
-
-    //------------------ Local Properties ------------------
-    //title = "Targets"
-    //showContentPage = true
-
-    filterDisplay = {
-        intervals: false,
-        measureTypes: true,
-        hierarchy: true
-    };
-    
-    //hierarchyId: number | null = null;
-    //measureTypeId: number | null = null;
     measureId: number | null = null
-    //disabledAll = false
-    //btnDisabled = false;
     skTargets = "";
-    //allow = false;
     confirmed = false;
-    //showContentPage = false
 
 
-    target: number | null = null
-    yellow: number = 0
+    target: number | null = null //or this.model.target
+    yellow: number = 0 //or this.model.yellow
     applyToChildren: boolean | null = null
     isCurrentUpdate: boolean | null = null
     confirmIntervals: ConfirmIntervals | null = null
@@ -141,63 +120,18 @@ export class TargetsComponent implements OnInit {
         targetCount: null
     };
 
-    //------------------ Filter Properties ------------------
-
-
-    //filters!: TargetFilterResponseDto
-    //filtersDisplay: string[] = []
-    //@ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
-
-
-    @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
-    select = {
-        measureTypes: [] as MeasureType[],
-        hierarchy: [] as RegionFilter[]
-    }
-
-    filtersDisplay: string[] | undefined;
-
-    //hierarchy: RegionFilter[] = []
-    hierarchyLevels!: { name: string, id: number }[]
-    yearList!: { name: string, id: number }[]
-    measureTypeList!: { name: string, id: number }[]
-    //measureTypes: MeasureType[] = []
-    //selectedMeasureType: MeasureType | undefined //= { id: 0, name: "" }
-    selectedMeasureTypeId!: number
-    selectedHierarchy = null as number | number[] | null
-    filterSelected: string[] = []
-
-    filtered: TargetApiParams = {
-        hierarchyId: 1,
-        measureTypeId: 1,
-    }
-    // measureTypes: MeasureType[] = []
-    // selectedMeasureType?: MeasureType
-    // hierarchy: RegionFilter[] = []
-    // hierarchyLevels!: { name: string, id: number }[]
-    // selectedHierarchy = null as number | number[] | null
-    // filtered: TargetApiParams = {
-    //     hierarchyId: 1,
-    //     measureTypeId: 1,
-    // }
-
-    //------------------  Model ------------------
+    //Model
     model = {
         value: 0,
-        target: 0,
-        yellow: 0,
+        target: 0, //or this.target
+        yellow: 0, //or this.target
         measureType: 0,
         selectedRegion: null as number | number[] | null,
     }
 
-    //yellow: number | null = null
-
     //Error handling within the component
     errorMsg: any = ""
     showError: boolean = false;
-
-
-
 
     constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog) { }
 
@@ -213,16 +147,9 @@ export class TargetsComponent implements OnInit {
                     this.hierarchy = dtofilter.hierarchy
                     this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
 
-                    console.log("target on init dto.filter", dtofilter.filter);
-                    console.log("target on init dto", dtofilter);
-
-                    //this.dataSource.data = dtofilter.measures.data
-                    this.dataSource.sort = this.sort;
-
                     //const { hierarchyId, measureTypeId } = dtofilter.filter
                     const hierarchyId = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
                     const measureTypeId = dtofilter.filter.measureTypeId ?? dtofilter.measureTypes.at(0)?.id ?? 1
-
                     //this.selectedMeasureType = dtofilter.measureTypes.find(t => t.id == measureTypeId)
                     this.selectedMeasureTypeId = measureTypeId
                     this.selectedHierarchy = hierarchyId
@@ -233,6 +160,9 @@ export class TargetsComponent implements OnInit {
             })
     }
 
+    // -----------------------------------------------------------------------------
+    // Load Table Data
+    // -----------------------------------------------------------------------------
     loadTable(): void {
 
         if (!this.selectedMeasureType || typeof this.selectedHierarchy !== "number") return
@@ -247,14 +177,13 @@ export class TargetsComponent implements OnInit {
         this.filtered.measureTypeId = this.selectedMeasureType.id
         this.filtersDisplay = [
             this.selectedMeasureType?.name ?? "?",
-            this.tree.ancestorPath.join(" | ")
+            this.treeControl.ancestorPath.join(" | ")
         ]
         //this.showError = false;
         //this.disabledAll = true;
         this.getTargetsList(params);
     }
 
-    //----------------getTargetsList----------------
     getTargetsList(parameters: { measureTypeId: number; hierarchyId: number; } | undefined) {
         this.showError = false;
         this.disabledAll = true;
@@ -262,10 +191,14 @@ export class TargetsComponent implements OnInit {
         this.hierarchyId = parameters!.hierarchyId;
         this.measureTypeId = parameters!.measureTypeId;
 
-        this.progress = true
+
         let params = new HttpParams()
             .set("hierarchyId", (parameters!.hierarchyId).toString())
             .set("measureTypeId", (parameters!.measureTypeId).toString())
+
+        this.progress = true
+
+        // Call Server - GET Target List
         this.targetService.getTargetList(params)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
@@ -274,11 +207,10 @@ export class TargetsComponent implements OnInit {
                     this.targetList = targetResponse.data;
                     this.dataSource.data = targetResponse.data;
                     this.dataSource.sort = this.sort;
-                    console.log("Target List on getTargetList: ", this.targetList)
                     console.log("Datasource on getTargetList: ", this.dataSource)
 
-                    // this.hierarchyId? = parameters?.hierarchyId;
-                    // this.measureTypeId? = parameters?.measureTypeId;
+                    this.hierarchyId = parameters!.hierarchyId;
+                    this.measureTypeId = parameters!.measureTypeId;
 
                     this.allow = targetResponse.allow;
                     this.confirmed = targetResponse.confirmed
@@ -287,10 +219,6 @@ export class TargetsComponent implements OnInit {
                     this.editValue = targetResponse.editValue;
                     this.showActionButtons = this.allow && !this.locked;
                     this.disabledAll = false;
-
-                    //this.confirmIntervals = targetResponse.confirmIntervals;
-
-                    //this.progress(false);
                     this.logger.logInfo("Target List Loaded")
                 },
                 error: err => {
@@ -298,7 +226,6 @@ export class TargetsComponent implements OnInit {
                     this.errorMsg = err
                     this.showError = true
                     this.processLocalError(this.title, err.statusText, null, err.status, null);
-                    //this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
                 }
             })
     }
@@ -321,6 +248,9 @@ export class TargetsComponent implements OnInit {
         };
     }
 
+    // -----------------------------------------------------------------------------
+    // Utils
+    // -----------------------------------------------------------------------------
     identity(index: number, item: any) {
         return item.id
     }
@@ -334,48 +264,32 @@ export class TargetsComponent implements OnInit {
         // if (!this.allow || this.locked) {
         //     return;
         // }
-
-        //this.selectedRow = { ...targetRow };
-        // this.selectedRow = targetRow;
-        // console.log("Selected Row: ", this.selectedRow)
-        // if (targetRow.value !== undefined) {
-        //     this.model.value = targetRow.target;
-        // }
-        //this.model.value = targetRow.target;
-        //this.model.yellow = targetRow.yellow;
         this.isEditMode = true;
         this.selectedRow = targetRow;
-        this.model.target = targetRow.target;
-        this.model.yellow = targetRow.yellow;
-    }
-
-    onCancel(targetRow: TargetDto) {
-        this.isEditMode = false
-        this.loadTable();
+        // this.selectedRow = { ...targetRow };
+        // this.model.target = targetRow.target;
+        // this.model.yellow = targetRow.yellow;
     }
 
     onSave(targetRow: TargetDto) {
-
-        this.isEditMode = false
-        //this.showError = false;
-        //this.disabledAll = true;
-
-        this.selectedRow = targetRow;
-
-        console.log("onSave TargetRow: ", targetRow);
 
         // if (!this.allow || this.locked) {
         //     return;
         // }
 
-        //const measureDataRowNew = { ...measureDataRow };
+        this.isEditMode = false
+        this.selectedRow = { ...targetRow };
+        // this.selectedRow = targetRow;
+
+        this.showError = false;
+        this.disabledAll = true;
+        //console.log("onSave TargetRow: ", targetRow);
 
         const hierarchyId = this.hierarchyId;
-        //const measureId = parseInt(targetRow.id);
         const measureId = targetRow.id;
         const measureTypeId = this.measureTypeId;
         const target = this.model.value;
-        // const yellow = this.model.yellow;
+        const yellow = this.model.yellow;
         const applyToChildren = true;
         const isCurrentUpdate = true;
         const confirmIntervals = {
@@ -385,9 +299,7 @@ export class TargetsComponent implements OnInit {
             quarterly: true,
             yearly: true
         }
-
-
-        //this.dataConfirmedReset();
+        this.dataConfirmedReset();
 
         // Check if values are null and convert it to a default value if necessary
         const fixedHierarchyId = hierarchyId === null ? 0 : hierarchyId;
@@ -401,7 +313,6 @@ export class TargetsComponent implements OnInit {
             "yellow": this.yellow,
             "applyToChildren": false,
             "isCurrentUpdate": false,
-            //"confirmIntervals": null
             "confirmIntervals": {
                 "daily": true,
                 "weekly": true,
@@ -411,35 +322,28 @@ export class TargetsComponent implements OnInit {
             }
         }
 
-        // if (targetRow.target == body.target && targetRow.yellow == body.yellow) {
-        //     this.logger.logInfo("There are no changes for " + targetRow.name + ". Unable to Save.")
-        //     const dialogRef = this.dialog.open(AppDialog, {
-        //         width: '450px',
-        //         data: {
-        //             title: 'Alert',
-        //             msg: 'There are no changes for ' + targetRow.name + '. Unable to Save.'
-        //         }
-        //     });
-        // }
+        if (targetRow.target == body.target && targetRow.yellow == body.yellow) {
+            this.logger.logInfo("There are no changes for " + targetRow.name + ". Unable to Save.")
+            const dialogRef = this.dialog.open(AppDialog, {
+                width: '450px',
+                data: {
+                    title: 'Alert',
+                    msg: 'There are no changes for ' + targetRow.name + '. Unable to Save.'
+                }
+            });
+        }
 
-        // Call Server - PUT
         this.progress = true
-        //console.log("body for updateTarget", body);
-        console.log("fixedHierarchyId onSaveTarget", fixedHierarchyId);
 
-        console.log("body on updateTarget", body);
-
-
+         // Call Server - PUT Target
         this.targetService.updateTarget(body)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: targetResponse => {
                     this.logger.logInfo("Measure Data Updated")
                     console.log("targetResponse on updateTarget", targetResponse);
-                    //this.progress(false);
-                    //this.disabledAll = false;
-                    //this.loadTable();
-                    //this.dataSource.data = targetResponse.data;
+                    this.disabledAll = false;
+                    this.loadTable();
                 },
                 error: err => {
                     this.logger.logError(err.message)
@@ -449,45 +353,26 @@ export class TargetsComponent implements OnInit {
                 }
             })
 
-        this.loadTable()
-
+        // this.model.target = null;
+        // this.model.yellow = "";
+        //this.loadTable()
     }
 
-    save() {
-        this.loadTable()
+    onCancel(targetRow: TargetDto) {
+        this.isEditMode = false
+        this.disabledAll = false;
+        // this.model.target = null;
+        // this.model.yellow = "";
+        this.loadTable();
     }
-
-
-    closeError() {
-        this.errorMsg = ""
-        this.showError = false
-    }
-
-    edit(data: any) {
-        this.skTargets = "edit";
-    }
-    save1(data: any) {
-        this.skTargets = "save";
-    }
-    cancel(data: any) {
-        this.skTargets = "cancel";
-    }
-
-
-    processLocalError(name: string, message: string, id: any, status: unknown, authError: any) {
-        this.errorMsg = processError(name, message, id, status)
-        this.showError = true
-        this.disabledAll = false
-        this.showContentPage = (authError != true)
-    }
-
 
     applyToChildrenAction(): void {
         // if (!this.allow) {
         //   return;
         // }
-        // this.showError = false;
-        // this.disabledAll = true;
+        this.showError = false;
+        this.disabledAll = true;
+
         const dialogRef = this.dialog.open(AppDialog, {
             width: '450px',
             data: {
@@ -515,8 +400,6 @@ export class TargetsComponent implements OnInit {
         });
     }
 
-
-
     confirmTarget(): void {
         const dialogRef = this.dialog.open(AppDialog);
         dialogRef.afterClosed().subscribe((result) => {
@@ -541,8 +424,7 @@ export class TargetsComponent implements OnInit {
     }
 
     applyToChildrenSave(): void {
-        // Call Server - PUT
-        //this.progress(true);
+
         const targetDtoApplyChildrenSave = {
             hierarchyId: this.hierarchyId ?? undefined,
             measureTypeId: this.measureTypeId ?? undefined,
@@ -569,11 +451,7 @@ export class TargetsComponent implements OnInit {
             yearly: true
         }
 
-        //this.dataSource.a
-
-
-
-        //this.dataConfirmedReset();
+        this.dataConfirmedReset();    
 
         // Check if values are null and convert it to a default value if necessary
         const fixedHierarchyId = hierarchyId === null ? 0 : hierarchyId;
@@ -592,12 +470,13 @@ export class TargetsComponent implements OnInit {
         }
 
         this.progress = true
+        
+        // Call Server - PUT Target Apply to Children
         this.targetService.applyTargetToChildren(body)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: value => {
                     this.logger.logSuccess('Success: Targets applied to children.');
-                    //this.progress(false);
                 },
                 error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
                 complete: () => { this.disabledAll = false; }
@@ -618,28 +497,65 @@ export class TargetsComponent implements OnInit {
             isCurrentUpdate: this.dataConfirmed.isCurrentUpdate,
             confirmIntervals: this.dataConfirmed.confirmIntervals,
         }
+    
+        this.progress = true
 
-        // this.targetService.updateTarget2(this.dataConfirmed.id, targetDtoSave).subscribe({
-        //     next: value => {
-        //         if (!(value.error) && value.data.length > 0) {
-        //             this.dataConfirmed.data.target = value.data[0].target;
-        //             this.dataConfirmed.data.yellow = value.data[0].yellow;
-        //             this.dataConfirmed.data.targetId = value.data[0].targetId;
-        //             this.dataConfirmed.data.targetCount = value.data[0].targetCount;
-        //             this.dataConfirmed.data.updated = value.data[0].updated;
-        //             this.logger.logSuccess('Measure ' + this.dataConfirmed.data.name + ' updated.');
-        //             this.logger.logSuccess('Success: Target saved.');
-        //             //this.progress(false);
-        //             this.cancel(this.dataConfirmed.data);
-        //         } else {
-        //             this.logger.logError('Error: Target not saved.');
-        //         }
-        //         //this.progress(false);
-        //     },
-        //     error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
-        //     complete: () => { this.disabledAll = false; }
-        // });
+        // Call Server - PUT Target
+        this.targetService.updateTarget2(this.dataConfirmed.id, targetDtoSave)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+            next: value => {
+                    if (!(value.error) && value.data.length > 0) {
+                        this.dataConfirmed.data.target = value.data[0].target;
+                        this.dataConfirmed.data.yellow = value.data[0].yellow;
+                        this.dataConfirmed.data.targetId = value.data[0].targetId;
+                        this.dataConfirmed.data.targetCount = value.data[0].targetCount;
+                        this.dataConfirmed.data.updated = value.data[0].updated;
+                        this.logger.logSuccess('Measure ' + this.dataConfirmed.data.name + ' updated.');
+                        this.logger.logSuccess('Success: Target saved.');
+                        this.cancel(this.dataConfirmed.data);
+                    } else {
+                        this.logger.logError('Error: Target not saved.');
+                    }
+                },
+                error: err => this.processLocalError(this.title, err.statusText, null, err.status, null),
+                complete: () => { this.disabledAll = false; }
+            });
     }
+
+    // -----------------------------------------------------------------------------
+    // Error Handling
+    // -----------------------------------------------------------------------------
+    closeError(): void {
+        this.errorMsg = "";
+        this.showError = false;
+    }
+
+    processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
+        this.errorMsg = this.processError(title, message, id, status);
+        this.progress = false;
+        this.disabledAll = false;
+        this.showContentPage = (authError !== true);
+    }
+
+    processError(title: string, message: string, id: number | null, status: number | null): string {
+        return title + message  // TODO: finish
+    }
+
+    // -----------------------------------------------------------------------------
+    // From Previous Code
+    // -----------------------------------------------------------------------------
+
+    edit(data: any) {
+        this.skTargets = "edit";
+    }
+    save(data: any) {
+        this.skTargets = "save";
+    }
+    cancel(data: any) {
+        this.skTargets = "cancel";
+    }
+
 }
 
 class ToggleQuery {

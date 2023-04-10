@@ -308,10 +308,6 @@ export class MeasureDataComponent implements OnInit {
         if (this.filterSelected) this.loadTable();
     }
 
-    identity(index: number, item: any) {
-        return item.id
-    }
-
     onEdit(measureDataRow: MeasureDataDto) {
 
         //if (!this.allow || this.locked) return;
@@ -368,7 +364,7 @@ export class MeasureDataComponent implements OnInit {
         .subscribe({
             next: measureDataResponse => {
                 this.logger.logInfo("Measure Data Updated")
-                console.log("measureDataId on updateMeasureData", measureDataResponse);
+                console.log("measureData on updateMeasureData", measureDataResponse);
                 this.disabledAll = false;
                 this.loadTable();
             },
@@ -381,7 +377,7 @@ export class MeasureDataComponent implements OnInit {
         })
         this.model.explanation = "";
         this.model.action = "";
-        this.loadTable();
+        //this.loadTable();
     }
 
     onCancel() {
@@ -448,10 +444,14 @@ export class MeasureDataComponent implements OnInit {
         return "bgred";
     }
 
-
     // -----------------------------------------------------------------------------
     // Utils
     // -----------------------------------------------------------------------------
+
+    identity(index: number, item: any) {
+        return item.id
+    }
+
     doEditType() {
         this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
         this.editingMeasureType = { ...this.selectedMeasureType }

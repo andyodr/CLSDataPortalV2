@@ -49,6 +49,18 @@ export type TargetFilter = {
   measures: TargetApiResponse
 }
 
+export interface TargetFilterResponseDto {
+  measureTypes: MeasureType[]
+  hierarchy: RegionFilter[]
+  intervals: IntervalDto[]
+  years: { id: number, year: number }[]
+  error: ErrorModel
+  filter: Filter
+  currentCalendarIds: CurrentCalendarIds
+  measures: TargetApiResponse
+}
+
+
 export type Filter = {
   hierarchyId?: number
   measureTypeId?: number
@@ -84,16 +96,6 @@ export type CurrentCalendarIds = {
   monthlyCalendarId: number
   quarterlyCalendarId: number
   yearlyCalendarId: number
-}
-
-export interface TargetFilterResponseDto {
-  measureTypes: MeasureType[]
-  hierarchy: RegionFilter[]
-  intervals: IntervalDto[]
-  years: { id: number, year: number }[]
-  error: ErrorModel
-  filter: TargetFilter
-  currentCalendarIds: CurrentCalendarIds
 }
 
 export type FilterResponseDto = {
