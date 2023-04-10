@@ -13,7 +13,7 @@ namespace CLS.WebApi.Controllers;
 
 [ApiController]
 [Route("api")]
-[Authorize]
+[AllowAnonymous]
 public class AccountController : Controller
 {
 	private readonly ConfigurationObject _config;
@@ -39,7 +39,6 @@ public class AccountController : Controller
 	/// Authenticate the user and sign in to the application.
 	/// </summary>
 	[HttpPost("[action]")]
-	[AllowAnonymous]
 	[SupportedOSPlatform("windows")]
 	public async Task<IActionResult> SignIn([FromForm] RequestDto form) {
 		bool continueLogin = true;

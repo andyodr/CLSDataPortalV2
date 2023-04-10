@@ -9,11 +9,12 @@ import {
 import { catchError, Observable } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
 import { LoggerService } from '../_services/logger.service';
+import { AccountService } from "../_services/account.service"
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
 
-  constructor(private router: Router, private logger: LoggerService) {}
+  constructor(private router: Router, private api: AccountService, private logger: LoggerService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
@@ -37,7 +38,7 @@ export class ErrorInterceptor implements HttpInterceptor {
               break
             case 401:
               this.logger.logError("Unauthorised " + error.status.toString())
-              this.router.navigate(["/"])
+              this.api.logout()
               break
             case 404:
               this.router.navigateByUrl('/not-found');
