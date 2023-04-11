@@ -254,6 +254,7 @@ export class MeasureDataComponent implements OnInit {
                 this.measureDataList = measureDataResponse.data
                 this.dataSource.data = measureDataResponse.data
                 this.dataSource.sort = this.sort
+                console.log("MeasureDataResponse on getMeasureDataList: ", this.measureDataResponse)
                 console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
                 this.calendarId = measureDataResponse.calendarId;
