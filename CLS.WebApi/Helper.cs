@@ -161,7 +161,7 @@ public static class Helper
 
 		// If children are a rollup
 		if (dbc.Measure.Where(m => m.MeasureDefinitionId == measureDefId
-				&& m.HierarchyId == hId && m.Active == true && m.Rollup == true).Any()) {
+				&& m.Hierarchy!.HierarchyParentId == hId && m.Active == true && m.Rollup == true).Any()) {
 			return true;
 		}
 
