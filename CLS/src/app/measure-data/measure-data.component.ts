@@ -71,7 +71,6 @@ export class MeasureDataComponent implements OnInit {
     dataSource = new MatTableDataSource<MeasureDataDto>()
     displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
     @ViewChild(MatSort) sort!: MatSort
-    editingMeasureType!: any
     selectedMeasureType: MeasureType = { id: 0, name: "" }
     isEditMode = false
     expandDetail = new ToggleQuery()
@@ -112,6 +111,7 @@ export class MeasureDataComponent implements OnInit {
         selectedRegion: null as number | number[] | null,
         explanation: "",
         action: "",
+        value: undefined as number | undefined,
         selCalSelected: 0,
     }
 
@@ -331,7 +331,10 @@ export class MeasureDataComponent implements OnInit {
         //console.log("onSave MeasureDataRow: ", measureDataRow);
 
         const measureDataId = measureDataRow.id;
-        const measureDataValue = measureDataRow.value;
+        let measureDataValue = measureDataRow.value;
+        if (!measureDataRow.calculated) {
+            measureDataValue = this.model.value as number;
+        }
         const measureDataExplanation = this.model.explanation;
         const measureDataAction = this.model.action;
 
@@ -451,11 +454,6 @@ export class MeasureDataComponent implements OnInit {
 
     identity(index: number, item: any) {
         return item.id
-    }
-
-    doEditType() {
-        this.drawer = { title: "Edit Measure Type", button: "Save", position: "end" }
-        this.editingMeasureType = { ...this.selectedMeasureType }
     }
 
     isBoolShow(str: string | boolean): boolean {

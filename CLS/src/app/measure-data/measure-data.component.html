@@ -174,7 +174,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>
             <td mat-cell *matCellDef="let element"> <mat-icon>{{ element.calculated === true ? "check": "" }}</mat-icon></td>
           </ng-container>
-          <ng-container matColumnDef="value">
+          <!-- <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
             <td mat-cell *matCellDef="let element"> 
               <ng-container *ngIf="!element.target">{{element.target}}</ng-container>
@@ -184,6 +184,24 @@
                   bggreen: (element.value >= element.target && element.target >= element.yellow) || (element.value <= element.target && element.target < element.yellow),
                   bgorange: (element.value >= element.yellow && element.target >= element.yellow) || (element.value <= element.yellow && element.target < element.yellow && element.target >= 0) }">
                   {{element.target}}</span>
+              </ng-container>
+            </td>
+          </ng-container> -->
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
+            <td mat-cell *matCellDef="let element"> 
+              <ng-container *ngIf="!element.value">{{element.value}}</ng-container>
+              <ng-container *ngIf="element.value">
+                <span style="padding: 0 1ch;" [ngClass]="{
+                  bgred: !element.value || (!element.target && !element.yellow),
+                  bggreen: (element.value >= element.target && element.target >= element.yellow) || (element.value <= element.target && element.target < element.yellow),
+                  bgorange: (element.value >= element.yellow && element.target >= element.yellow) || (element.value <= element.yellow && element.target < element.yellow && element.target >= 0) }">
+                  {{element.value}}</span>
+              </ng-container>
+              <ng-container *ngIf="!element.calculated && isEditMode && element == selectedRow">
+                <mat-form-field>
+                  <input matInput type="number" [(ngModel)]="model.value" [disabled]="disabledAll || btnDisabled">
+                </mat-form-field>
               </ng-container>
             </td>
           </ng-container>
