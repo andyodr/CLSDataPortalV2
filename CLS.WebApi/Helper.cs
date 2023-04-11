@@ -125,20 +125,6 @@ public static class Helper
 		return children;
 	}
 
-	internal static ICollection<RegionFilterObject> GetSubsAll(ApplicationDbContext dbc, int id) {
-		var children = dbc.Hierarchy
-			.Where(h => h.HierarchyParentId == id)
-			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
-			.AsNoTrackingWithIdentityResolution()
-			.ToArray();
-		foreach (var rfo in children) {
-			rfo.Sub = GetSubsAll(dbc, rfo.Id);
-			rfo.Count = rfo.Sub.Count;
-		}
-
-		return children;
-	}
-
 	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext dbc, int id, UserObject user) {
 		var children = new List<RegionFilterObject>();
 		var hierarchyList = dbc.Hierarchy
