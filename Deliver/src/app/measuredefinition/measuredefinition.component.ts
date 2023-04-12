@@ -22,7 +22,7 @@ export class MeasureDefinitionComponent implements OnInit {
     filters!: FilterResponseDto
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasureDefinition>()
-    displayedColumns = ["name", "varName", "description", "calculated", "interval", "priority"]
+    displayedColumns = ["id", "name", "varName", "description", "calculated", "interval", "priority"]
     expandDetail = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     measureTypes: MeasureType[] = []

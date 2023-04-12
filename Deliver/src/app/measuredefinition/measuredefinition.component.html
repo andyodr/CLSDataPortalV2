@@ -124,6 +124,10 @@
           </mat-menu>
         </div>
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows [trackBy]="identity">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let mdef"> {{mdef.id}} </td>
+          </ng-container>
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Measure Definition </th>
             <td mat-cell *matCellDef="let mdef"> {{mdef.name}} </td>
