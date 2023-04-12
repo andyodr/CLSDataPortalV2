@@ -40,7 +40,7 @@ public class AddController : ControllerBase
 
 			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var mt in measureTypes) {
-				returnObject.MeasureTypes.Add(new (mt.Id, mt.Name, mt.Description));
+				returnObject.MeasureTypes.Add(new(mt.Id, mt.Name, mt.Description));
 			}
 
 			return returnObject;
@@ -76,17 +76,17 @@ public class AddController : ControllerBase
 
 			var intervals = _dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals) {
-				result.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
+				result.Intervals.Add(new() { Id = interval.Id, Name = interval.Name });
 			}
 
 			var units = _dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
-				result.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
+				result.Units.Add(new() { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
 			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				result.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
+				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
 			// Get Values from Page
@@ -110,20 +110,21 @@ public class AddController : ControllerBase
 			// Set values from page
 			var currentMD = new Data.Models.MeasureDefinition {
 				Name = body.Name,
+				MeasureTypeId = body.MeasureTypeId,
 				VariableName = body.VarName,
 				Description = body.Description,
 				Precision = body.Precision,
 				Priority = (short)body.Priority,
 				FieldNumber = body.FieldNumber,
+				UnitId = body.UnitId,
 				Calculated = (bool)body.Calculated,
 				Expression = body.Expression,
+				ReportIntervalId = body.IntervalId,
 				AggDaily = daily,
 				AggWeekly = weekly,
 				AggMonthly = monthly,
 				AggQuarterly = quarterly,
-				AggYearly = yearly,
-				MeasureTypeId = body.MeasureTypeId,
-				UnitId = body.UnitId
+				AggYearly = yearly
 			};
 
 			if (daily || weekly || monthly || quarterly || yearly) {
@@ -141,7 +142,7 @@ public class AddController : ControllerBase
 
 			var test = _dbc.MeasureDefinition.Add(currentMD);
 			_dbc.SaveChanges();
-			var md = new MeasureDefinitionEdit(body) { Id = currentMD.Id };
+			MeasureDefinitionEdit md = new(body) { Id = currentMD.Id };
 			result.Data.Add(md);
 
 			// Create Measure and Target records
