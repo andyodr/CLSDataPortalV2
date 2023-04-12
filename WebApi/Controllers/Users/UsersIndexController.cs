@@ -14,7 +14,6 @@ public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -27,38 +26,38 @@ public class IndexController : ControllerBase
 	/// <returns></returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
-		var returnObject = new UserIndexGetObject { Data = new(), Hierarchy = null, Roles = new() };
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		UserIndexGetObject result = new() { Data = new List<UserIndexDto>(), Hierarchy = null, Roles = new() };
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			var userRoles = _context.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles.AsNoTracking()) {
-				returnObject.Roles.Add(new() { Id = role.Id, Name = role.Name });
+				result.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
 			var users = _context.User.OrderBy(u => u.UserName);
 			foreach (var user in users.Include(u => u.UserRole).AsNoTracking()) {
 				var currentUser = new UserIndexDto {
-					id = user.Id,
-					userName = user.UserName,
-					lastName = user.LastName,
-					firstName = user.FirstName,
-					department = user.Department,
-					roleName = user.UserRole!.Name,
-					active = boolToString(user.Active)
+					Id = user.Id,
+					UserName = user.UserName,
+					LastName = user.LastName,
+					FirstName = user.FirstName,
+					Department = user.Department,
+					RoleName = user.UserRole!.Name,
+					Active = user.Active
 				};
 
-				if (currentUser.userName == _config.byPassUserName && _user.UserName != _config.byPassUserName) {
+				if (currentUser.UserName == _config.byPassUserName && _user.UserName != _config.byPassUserName) {
 
 				}
 				else {
-					returnObject.Data.Add(currentUser);
+					result.Data.Add(currentUser);
 				}
 			}
 
-			return returnObject;
+			return result;
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(_context, e, _user.Id));

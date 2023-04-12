@@ -27,7 +27,9 @@ public class FilterController : ControllerBase
 				MeasureTypes = _dbc.MeasureType
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 					.ToArray(),
-				Hierarchy = new() { Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id) }
+				Hierarchy = new RegionFilterObject[] {
+					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
+				}
 			};
 
 			var hierarchyId = _user.savedFilters[pages.measure].hierarchyId ??= 1;

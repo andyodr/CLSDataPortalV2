@@ -16,7 +16,6 @@ public class FilterController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public FilterController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -37,38 +36,25 @@ public class FilterController : ControllerBase
 		}
 	}
 
-	// Used first time Measure Data page is open.
 	private IActionResult Filter() {
-		var filter = new FilterReturnObject {
-			Intervals = new(),
-			Hierarchy = new(),
-			Years = new(),
-			CurrentCalendarIds = new()
-		};
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
-			//USE SAVED FILTER
-			var intervals = _dbc.Interval.OrderBy(i => i.Id);
-			foreach (var interval in intervals.AsNoTrackingWithIdentityResolution()) {
-				filter.Intervals.Add(new() { Id = interval.Id, Name = interval.Name });
-			}
-
-			var cals = _dbc.Calendar
-						.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
-						.OrderByDescending(y => y.Year);
-
-			foreach (var cal in cals.AsNoTrackingWithIdentityResolution()) {
-				filter.Years.Add(new YearsObject { id = cal.Id, year = cal.Year });
-			}
-
-			filter.MeasureTypes = _dbc.MeasureType.OrderBy(m => m.Id)
-				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
-				.ToArray();
-			filter.Hierarchy.Add(Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id));
+			FilterReturnObject filter = new() {
+				Intervals = _dbc.Interval.OrderBy(i => i.Id)
+					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
+				Hierarchy = new RegionFilterObject[] {
+					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
+				},
+				Years = _dbc.Calendar
+					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
+					.OrderByDescending(c => c.Year).Select(c => new YearsObject { id = c.Id, year = c.Year }).ToArray(),
+				CurrentCalendarIds = new(),
+				MeasureTypes = _dbc.MeasureType.OrderBy(m => m.Id)
+					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
+			};
 
 			// set current Calendar Ids
 			//try
@@ -135,18 +121,18 @@ public class FilterController : ControllerBase
 
 	// Used after Measure Data page has been open already.
 	private IActionResult Filter(MeasureDataFilterReceiveObject values) {
-		var returnObject = new List<GetIntervalsObject>();
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
+			var result = new List<GetIntervalsObject>();
 			_user.savedFilters[pages.measureData].intervalId = values.intervalId;
 
 			if (values.intervalId == (int)Intervals.Weekly) {
 				var cal = _dbc.Calendar.OrderBy(c => c.WeekNumber).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
-					returnObject.Add(new GetIntervalsObject {
+					result.Add(new GetIntervalsObject {
 						id = c.Id,
 						number = c.WeekNumber,
 						startDate = c.StartDate.ToString(),
@@ -158,7 +144,7 @@ public class FilterController : ControllerBase
 			else if (values.intervalId == (int)Intervals.Monthly) {
 				var cal = _dbc.Calendar.OrderBy(c => c.Month).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
 				foreach (var c in cal.AsNoTracking()) {
-					returnObject.Add(new GetIntervalsObject {
+					result.Add(new GetIntervalsObject {
 						id = c.Id,
 						number = c.WeekNumber,
 						startDate = c.StartDate.ToString(),
@@ -177,15 +163,15 @@ public class FilterController : ControllerBase
 					month = null
 				});
 				foreach (var Object in dataObject) {
-					returnObject.Add(new GetIntervalsObject { id = Object.id, number = Object.number, startDate = Object.startDate, endDate = Object.endDate, month = Object.month });
+					result.Add(new GetIntervalsObject { id = Object.id, number = Object.number, startDate = Object.startDate, endDate = Object.endDate, month = Object.month });
 				}
 			}
 			else {
 				var intervalObject = new GetIntervalsObject();
 				intervalObject.error.Message = Resource.VAL_VALID_INTERVAL_ID;
-				returnObject.Add(intervalObject);
+				result.Add(intervalObject);
 			}
-			return Ok(returnObject);
+			return Ok(result);
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));

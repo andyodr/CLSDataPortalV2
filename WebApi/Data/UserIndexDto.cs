@@ -1,24 +1,24 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class UserIndexDto
 {
-	public int? id { get; set; }
+	public int? Id { get; set; }
 
-	public string userName { get; set; } = null!;
+	public string UserName { get; set; } = null!;
 
-	public string? lastName { get; set; }
+	public string? LastName { get; set; }
 
-	public string? firstName { get; set; }
+	public string? FirstName { get; set; }
 
-	public string? department { get; set; }
+	public string? Department { get; set; }
 
-	public string? roleName { get; set; } = null!;
+	public string? RoleName { get; set; } = null!;
 
-	public int roleId { get; set; }
+	public int RoleId { get; set; }
 
-	public List<int> hierarchiesId { get; set; } = null!;
+	public List<int> HierarchiesId { get; set; } = null!;
 
-	public string? hierarchyName { get; set; }
+	public string? HierarchyName { get; set; }
 
-	public string? active { get; set; }
+	public bool? Active { get; set; }
 }

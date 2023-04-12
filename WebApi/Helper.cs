@@ -43,24 +43,6 @@ public static class Helper
 		else throw new Exception(Resource.ERR_BYTE_TO_STRING);
 	}
 
-	public static bool? StringToBool(string? boolValue) {
-		if (boolValue is null)
-			return null;
-		else if (boolValue.ToLower() == "true")
-			return true;
-		else if (boolValue.ToLower() == "false")
-			return false;
-		else throw new Exception(Resource.ERR_STRING_TO_BOOL);
-	}
-
-	public static string boolToString(bool? boolValue) {
-		if (boolValue == true)
-			return "true";
-		else if (boolValue == false)
-			return "false";
-		else throw new Exception(Resource.ERR_STRING_TO_STRING);
-	}
-
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}

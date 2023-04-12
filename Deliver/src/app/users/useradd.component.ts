@@ -38,7 +38,7 @@ export class UserAddComponent implements OnInit {
         if (Array.isArray(hierarchiesId)) {
             this.api.addUser({
                 userName, firstName, lastName, roleId, department,
-                active: active.toString(),
+                active: active,
                 hierarchiesId
             }).subscribe(u => this.logger.logInfo(`New user id: ${u.data[0].id}`))
         }

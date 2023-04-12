@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi.Data;
+namespace CLS.WebApi.Data;
 
 public class UserIndexGetObject
 {
@@ -8,5 +8,5 @@ public class UserIndexGetObject
 
 	public List<RegionFilterObject>? Hierarchy { get; set; } = null!;
 
-	public List<UserIndexDto> Data { get; set; } = null!;
+	public IList<UserIndexDto> Data { get; set; } = null!;
 }

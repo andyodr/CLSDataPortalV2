@@ -11,7 +11,7 @@ export interface User {
     roleId: number
     hierarchiesId: number[]
     hierarchyName?: string
-    active?: string
+    active?: boolean
 }
 
 export interface AuthenticatedUser extends User {

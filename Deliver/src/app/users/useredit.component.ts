@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core"
-import { ActivatedRoute } from "@angular/router"
+import { ActivatedRoute, Router } from "@angular/router"
 import { RegionFilter } from "../_services/hierarchy.service"
 import { UserRole } from "../_models/user"
 import { LoggerService } from "../_services/logger.service"
@@ -26,7 +26,8 @@ export class UserEditComponent implements OnInit {
         selectedRegions: [] as number | number[] | null
     }
 
-    constructor(private route: ActivatedRoute, private api: UserService, private logger: LoggerService) { }
+    constructor(private router: Router, private route: ActivatedRoute,
+        private api: UserService, private logger: LoggerService) { }
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
@@ -42,7 +43,7 @@ export class UserEditComponent implements OnInit {
                     firstName: firstName ?? "",
                     lastName: lastName ?? "",
                     department: department ?? "",
-                    active: active === "true",
+                    active: active ?? false,
                     selectedRegions: hierarchiesId
                 }
             })
@@ -59,10 +60,14 @@ export class UserEditComponent implements OnInit {
                 lastName,
                 roleId,
                 department,
-                active: active.toString(),
+                active: active,
                 hierarchiesId
-            }).subscribe(ud => {
-                this.logger.logSuccess("User information saved")
+            }).subscribe({
+                next: result => {
+                    this.logger.logSuccess(`Saved UserId ${ result.data[0].id }`)
+                    setTimeout(() => this.router.navigate(["users"]), 500)
+                },
+                error: () => this.logger.logError("Error")
             })
         }
     }

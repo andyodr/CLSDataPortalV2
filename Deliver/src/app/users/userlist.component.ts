@@ -16,7 +16,7 @@ import { NavigationService } from "../_services/nav.service"
 export class UserListComponent implements OnInit, OnDestroy {
     title = "Users"
     dataSource = new MatTableDataSource<User>()
-    displayedColumns = ["userName", "lastName", "firstName", "department", "roleName", "active"]
+    displayedColumns = ["userName", "lastName", "firstName", "department", "roleName"]
     @ViewChild(MatSort) sort!: MatSort
     private userSubscription = new Subscription()
     toggle: any = true

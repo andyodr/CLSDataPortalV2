@@ -308,7 +308,7 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 			.ToArray();
 		var root = hierarchies[0].dto;
 
-		// create doubly-linked list implementing the parent/child hierarchy
+		// create doubly-linked list representing the parent/child hierarchy
 		var pairs = Enumerable.Range(0, hierarchies.Length).Select(i => new RegionParentChildPair()).ToArray();
 		for (var i = 0; i < hierarchies.Length; i++) {
 			var pair = pairs[i];
@@ -334,11 +334,12 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 			.ToArray();
 
 		// find pairs matching the user id
-		var matched = new HashSet<RegionFilterObject> { root };
+		var matched = new HashSet<RegionFilterObject>();
 		foreach (var pair in pairs) {
-			if (pair.dto!.Sub.Count == 0 && userHierarchy.Contains(pair.dto.Id)) {
+			if (pair.dto!.Sub.Count == 0 && Array.Exists(userHierarchy, i => i == pair.dto.Id)
+				|| Array.Exists(userHierarchy, i => i == pair.parent?.dto!.Id)) {
 				var found = pair;
-				while (found!.parent is not null) {
+				while (found is not null) {
 					matched.Add(found.dto!);
 					found = found.parent;
 				}

@@ -6,11 +6,11 @@ public class FilterReturnObject
 {
 	public IList<MeasureType> MeasureTypes { get; set; } = null!;
 
-	public List<RegionFilterObject>? Hierarchy { get; set; }
+	public IList<RegionFilterObject>? Hierarchy { get; set; }
 
-	public List<IntervalsObject>? Intervals { get; set; }
+	public IList<IntervalsObject>? Intervals { get; set; }
 
-	public List<YearsObject>? Years { get; set; }
+	public IList<YearsObject>? Years { get; set; }
 
 	public ErrorModel? Error { get; set; }
 

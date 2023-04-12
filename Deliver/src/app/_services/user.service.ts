@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RolesAndRegions, User, UserData } from '../_models/user';
 
@@ -14,7 +13,7 @@ export class UserService {
     constructor(private http: HttpClient) { }
 
     // Get Users from API
-    getUsers(): Observable<User[]> {
+    getUsers() {
         //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
         return this.http.get<User[]>(this.baseUrl + '/index')
     }
@@ -23,12 +22,12 @@ export class UserService {
         return this.http.get<UserData>(`${this.baseUrl}edit/${id}`)
     }
 
-    addUser(user: User): Observable<UserData> {
+    addUser(user: User) {
         return this.http.post<UserData>(`${this.baseUrl}add`, user)
     }
 
-    updateUser(user: User): Observable<User> {
-        return this.http.put<User>(`${this.baseUrl}edit/${user.id}`, user)
+    updateUser(user: User) {
+        return this.http.put<UserData>(`${this.baseUrl}edit/${user.id}`, user)
     }
 
     getRolesAndRegions() {
