@@ -16,5 +16,5 @@ public class MeasureDefinitionIndexReturnObject
 
 	public List<AggregationFunction> AggFunctions { get; set; } = null!;
 
-	public List<MeasureDefinitionViewModel>? Data { get; set; }
+	public List<MeasureDefinitionEdit>? Data { get; set; }
 }

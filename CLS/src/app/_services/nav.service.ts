@@ -29,7 +29,7 @@ export class NavigationService {
     selector: "[navigateBack]",
 })
 export class NavigateBackDirective {
-    constructor(private navigation: NavigationService, private route: ActivatedRoute) { }
+    constructor(private navigation: NavigationService) { }
 
     @Input() navigateBack?: string
     @HostListener("click")

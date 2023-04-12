@@ -12,20 +12,17 @@ namespace CLS.WebApi.Controllers.MeasureDefinition;
 public class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = null!;
 
 	public IndexController(ApplicationDbContext context) => _context = context;
 
 	[HttpGet("{measureTypeId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
+
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new() };
-
-			//_userRepository.Find(u => u.Id == record.userId).UserName
 
 			var mDef = from md in _context.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId
@@ -52,7 +49,7 @@ public class IndexController : ControllerBase
 					   };
 
 			foreach (var md in mDef.AsNoTrackingWithIdentityResolution()) {
-				var currentMD = new MeasureDefinitionViewModel {
+				MeasureDefinitionEdit currentMD = new() {
 					Id = md.id,
 					Name = md.name,
 					MeasureTypeId = measureTypeId,

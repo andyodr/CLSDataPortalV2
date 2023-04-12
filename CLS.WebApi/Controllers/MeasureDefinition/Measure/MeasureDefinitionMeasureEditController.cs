@@ -12,11 +12,10 @@ namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 public class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _dbc = context;
 
-	[HttpGet("{measureDefinitionId}")]
+	[HttpGet("{measureDefinitionId:min(1)}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			Units = new(),
@@ -26,11 +25,11 @@ public class EditController : ControllerBase
 			Data = new()
 		};
 
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			var units = _dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units.AsNoTracking()) {
 				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
@@ -48,7 +47,7 @@ public class EditController : ControllerBase
 			}
 
 			foreach (var md in _dbc.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
-				var currentMD = new MeasureDefinitionViewModel {
+				MeasureDefinitionEdit currentMD = new() {
 					Id = md.Id,
 					MeasureTypeId = md.MeasureTypeId,
 					Name = md.Name,
@@ -90,7 +89,7 @@ public class EditController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionViewModel body) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionEdit body) {
 		var result = new MeasureDefinitionIndexReturnObject {
 			Units = new(),
 			Intervals = new(),
@@ -117,23 +116,21 @@ public class EditController : ControllerBase
 
 			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				result.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
+				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
-			var mDef = _dbc.MeasureDefinition.Where(m => m.Id == body.Id).Single();
+			var mDef = _dbc.MeasureDefinition.Where(m => m.Id == body.Id).First();
 
 			// Validates name and variable name
-			int validateCount = _dbc.MeasureDefinition
-			  .Where(m =>
-					  m.Id != body.Id &&
-					  (m.Name.Trim().ToLower() == body.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower())
-					)
-			  .Count();
+			bool exists = _dbc.MeasureDefinition
+				.Where(m =>
+					m.Id != body.Id &&
+					(m.Name.Trim().ToLower() == body.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower())
+				).Any();
 
-			if (validateCount > 0) {
+			if (exists) {
 				throw new Exception(Resource.VAL_MEASURE_DEF_NAME_EXIST);
 			}
-
 
 			// Get Values from Page
 			if (body.Expression is null) {
@@ -153,8 +150,7 @@ public class EditController : ControllerBase
 			body.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
-			var mDef_ = _dbc.Entry(mDef);
-			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != body.IntervalId ||
+			bool createMeasureData = mDef.ReportIntervalId != body.IntervalId ||
 									 mDef.AggDaily != daily ||
 									 mDef.AggWeekly != weekly ||
 									 mDef.AggMonthly != monthly ||
@@ -170,21 +166,18 @@ public class EditController : ControllerBase
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
-			if (body.Id is not null) {
-				mDef.Id = (long)body.Id;
-			}
-
+			mDef.Id = body.Id;
 			mDef.Name = body.Name;
-			mDef_.Property("MeasureTypeId").CurrentValue = body.MeasureTypeId;
+			mDef.MeasureTypeId = body.MeasureTypeId;
 			mDef.VariableName = body.VarName;
 			mDef.Description = body.Description;
 			mDef.Precision = body.Precision;
 			mDef.Priority = (short)body.Priority;
 			mDef.FieldNumber = body.FieldNumber;
-			mDef_.Property("UnitId").CurrentValue = body.UnitId;
+			mDef.UnitId = body.UnitId;
 			mDef.Calculated = (bool)body.Calculated;
 			mDef.Expression = body.Expression;
-			mDef_.Property("ReportIntervalId").CurrentValue = body.IntervalId;
+			mDef.ReportIntervalId = body.IntervalId;
 			mDef.AggDaily = daily;
 			mDef.AggWeekly = weekly;
 			mDef.AggMonthly = monthly;

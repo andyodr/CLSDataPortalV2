@@ -51,7 +51,7 @@ public class AddController : ControllerBase
 	}
 
 	[HttpPost]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionViewModel body) {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionAdd body) {
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
@@ -61,7 +61,7 @@ public class AddController : ControllerBase
 				Units = new List<UnitsObject>(),
 				Intervals = new(),
 				MeasureTypes = new(),
-				Data = new List<MeasureDefinitionViewModel>()
+				Data = new()
 			};
 
 			// Validates name and variable name
@@ -141,11 +141,11 @@ public class AddController : ControllerBase
 
 			var test = _dbc.MeasureDefinition.Add(currentMD);
 			_dbc.SaveChanges();
-			body.Id = currentMD.Id;
-			result.Data.Add(body);
+			var md = new MeasureDefinitionEdit(body) { Id = currentMD.Id };
+			result.Data.Add(md);
 
 			// Create Measure and Target records
-			string measuresAndTargets = CreateMeasuresAndTargets(_dbc, _user.Id, body);
+			string measuresAndTargets = CreateMeasuresAndTargets(_dbc, _user.Id, md);
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
 			}

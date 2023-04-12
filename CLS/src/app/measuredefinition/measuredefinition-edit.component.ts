@@ -1,13 +1,14 @@
 import { Component, OnInit } from "@angular/core"
 import { MatCheckboxChange } from "@angular/material/checkbox"
 import { MatSelectChange } from "@angular/material/select"
-import { ActivatedRoute } from "@angular/router"
+import { ActivatedRoute, Router } from "@angular/router"
 import { Observable } from "rxjs"
 import { Intervals } from "../lib/app-constants"
 import { LoggerService } from "../_services/logger.service"
 import {
     IntervalDto, MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService,
-    MeasureType, Units } from "../_services/measure-definition.service"
+    MeasureType, Units
+} from "../_services/measure-definition.service"
 
 @Component({
     selector: "app-measuredefinition-edit",
@@ -43,7 +44,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
         yearly: false,
         aggFunction: null as { id: number, name: string } | null
     }
-    constructor(private route: ActivatedRoute, private api: MeasureDefinitionService, private logger: LoggerService) { }
+    constructor(private router: Router, private route: ActivatedRoute, private api: MeasureDefinitionService, private logger: LoggerService) { }
 
     ngOnInit(): void {
         this.route.paramMap.subscribe(params => {
@@ -128,7 +129,7 @@ export class MeasureDefinitionEditComponent implements OnInit {
 
     save() {
         const md = this.md
-        if (md.measureType != null && md.interval != null && md.unit != null && md.aggFunction != null ) {
+        if (md.measureType != null && md.interval != null && md.unit != null && md.aggFunction != null) {
             const { name, measureType: { id: measureTypeId }, interval: { id: intervalId },
                 varName, description, expression, unit: { id: unitId },
                 weekly, monthly, quarterly, yearly, aggFunction: { id: aggFunctionId } } = md
@@ -136,23 +137,28 @@ export class MeasureDefinitionEditComponent implements OnInit {
             precision ??= 0
             priority ??= 0
             fieldNumber ??= 0
+            let obs: Observable<MeasureDefinitionEditDto>
             if (md.id == null) {
-                this.api.addMeasureDefinition({
+                obs = this.api.addMeasureDefinition({
                     name, measureTypeId, intervalId, varName, description, expression, precision,
                     priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
-                }).subscribe({
-                    next: () => this.logger.logSuccess("saved")
                 })
             }
             else {
                 const { id } = md
-                this.api.updateMeasureDefinition(md.id, {
+                obs = this.api.updateMeasureDefinition(md.id, {
                     id, name, measureTypeId, intervalId, varName, description, expression, precision,
                     priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
-                }).subscribe({
-                    next: () => this.logger.logSuccess("saved")
                 })
             }
+
+            obs.subscribe({
+                next: result => {
+                    this.logger.logSuccess(`Saved ID ${result.data[0].id}`)
+                    setTimeout(() => this.router.navigate(["measuredefinition"]), 500)
+                },
+                error: () => this.logger.logError("Error")
+            })
         }
         else {
             this.logger.logError("Missing parameters")

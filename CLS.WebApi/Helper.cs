@@ -213,7 +213,7 @@ public static class Helper
 	}
 
 	internal static DataImportObject DataImportHeading(dataImports dataImport) {
-		DataImportObject result = new DataImportObject { Heading = new List<HeadingObject>() };
+		DataImportObject result = new() { Heading = new List<HeadingObject>() };
 
 		if (dataImport == dataImports.target) {
 			result.Id = (int)dataImports.target;
@@ -275,7 +275,7 @@ public static class Helper
 		return result;
 	}
 
-	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, MeasureDefinitionViewModel measureDef) {
+	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, MeasureDefinitionEdit measureDef) {
 		try {
 			string result = String.Empty;
 			var hierarchyRecords = from record in dbc.Hierarchy
@@ -285,7 +285,7 @@ public static class Helper
 				//create Measure records
 				_ = dbc.Measure.Add(new() {
 					HierarchyId = id.id,
-					MeasureDefinitionId = measureDef.Id ?? -1,
+					MeasureDefinitionId = measureDef.Id,
 					Active = true,
 					Expression = measureDef.Calculated,
 					Rollup = true,
