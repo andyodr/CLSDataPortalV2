@@ -11,10 +11,10 @@ namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public class EditController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public EditController(ApplicationDbContext context) => _context = context;
+	public EditController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpGet("{measureDefinitionId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
@@ -31,23 +31,23 @@ public class EditController : ControllerBase
 				return Unauthorized();
 			}
 
-			var units = _context.Unit.OrderBy(u => u.Id);
+			var units = _dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units.AsNoTracking()) {
 				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
-			var intervals = _context.Interval.OrderBy(i => i.Id);
+			var intervals = _dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTracking()) {
 				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
-			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTracking()) {
 				returnObject.MeasureTypes
 					.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
-			foreach (var md in _context.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
+			foreach (var md in _dbc.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
 				var currentMD = new MeasureDefinitionViewModel {
 					Id = md.Id,
 					MeasureTypeId = md.MeasureTypeId,
@@ -85,13 +85,13 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	[HttpPut("{id}")]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionViewModel dto) {
-		var returnObject = new MeasureDefinitionIndexReturnObject {
+	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionViewModel body) {
+		var result = new MeasureDefinitionIndexReturnObject {
 			Units = new(),
 			Intervals = new(),
 			MeasureTypes = new(),
@@ -99,34 +99,34 @@ public class EditController : ControllerBase
 			Data = new()
 		};
 
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
+
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+			var intervals = _dbc.Interval.OrderBy(i => i.Id);
 
-			var intervals = _context.Interval.OrderBy(i => i.Id);
-
-			var units = _context.Unit.OrderBy(u => u.Id);
+			var units = _dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
-				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
+				result.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
 			foreach (var interval in intervals) {
-				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
+				result.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
-			var measureTypes = _context.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
-				returnObject.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
+				result.MeasureTypes.Add(new (measureType.Id, measureType.Name, measureType.Description));
 			}
 
-			var mDef = _context.MeasureDefinition.Where(m => m.Id == dto.Id).Single();
+			var mDef = _dbc.MeasureDefinition.Where(m => m.Id == body.Id).Single();
 
 			// Validates name and variable name
-			int validateCount = _context.MeasureDefinition
+			int validateCount = _dbc.MeasureDefinition
 			  .Where(m =>
-					  m.Id != dto.Id &&
-					  (m.Name.Trim().ToLower() == dto.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == dto.VarName.Trim().ToLower())
+					  m.Id != body.Id &&
+					  (m.Name.Trim().ToLower() == body.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower())
 					)
 			  .Count();
 
@@ -136,25 +136,25 @@ public class EditController : ControllerBase
 
 
 			// Get Values from Page
-			if (dto.Expression is null) {
-				dto.Calculated = false;
+			if (body.Expression is null) {
+				body.Calculated = false;
 			}
 			else {
-				dto.Calculated = dto.Expression.Trim().Length > 0;
-				dto.Expression = dto.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
+				body.Calculated = body.Expression.Trim().Length > 0;
+				body.Expression = body.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
-			daily = (dto.Daily ?? false) && dto.IntervalId != (int)Intervals.Daily;
-			weekly = (dto.Weekly ?? false) && dto.IntervalId != (int)Intervals.Weekly;
-			monthly = (dto.Monthly ?? false) && dto.IntervalId != (int)Intervals.Monthly;
-			quarterly = (dto.Quarterly ?? false) && dto.IntervalId != (int)Intervals.Quarterly;
-			yearly = (dto.Yearly ?? false) && dto.IntervalId != (int)Intervals.Yearly;
-			dto.AggFunctionId ??= (byte)enumAggFunctions.summation;
+			daily = (body.Daily ?? false) && body.IntervalId != (int)Intervals.Daily;
+			weekly = (body.Weekly ?? false) && body.IntervalId != (int)Intervals.Weekly;
+			monthly = (body.Monthly ?? false) && body.IntervalId != (int)Intervals.Monthly;
+			quarterly = (body.Quarterly ?? false) && body.IntervalId != (int)Intervals.Quarterly;
+			yearly = (body.Yearly ?? false) && body.IntervalId != (int)Intervals.Yearly;
+			body.AggFunctionId ??= (byte)enumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
-			var mDef_ = _context.Entry(mDef);
-			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != dto.IntervalId ||
+			var mDef_ = _dbc.Entry(mDef);
+			bool createMeasureData = (int)mDef_.Property("ReportIntervalId").CurrentValue! != body.IntervalId ||
 									 mDef.AggDaily != daily ||
 									 mDef.AggWeekly != weekly ||
 									 mDef.AggMonthly != monthly ||
@@ -162,29 +162,29 @@ public class EditController : ControllerBase
 									 mDef.AggYearly != yearly;
 
 			// Check if some values were changed in order to update IsProcessed to 1 for measure data records
-			bool updateMeasureData = mDef.VariableName != dto.VarName ||
-									 mDef.Expression != dto.Expression ||
-									 mDef.AggFunction != dto.AggFunctionId ||
+			bool updateMeasureData = mDef.VariableName != body.VarName ||
+									 mDef.Expression != body.Expression ||
+									 mDef.AggFunction != body.AggFunctionId ||
 									 createMeasureData;
 
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
-			if (dto.Id is not null) {
-				mDef.Id = (long)dto.Id;
+			if (body.Id is not null) {
+				mDef.Id = (long)body.Id;
 			}
 
-			mDef.Name = dto.Name;
-			mDef_.Property("MeasureTypeId").CurrentValue = dto.MeasureTypeId;
-			mDef.VariableName = dto.VarName;
-			mDef.Description = dto.Description;
-			mDef.Precision = dto.Precision;
-			mDef.Priority = (short)dto.Priority;
-			mDef.FieldNumber = dto.FieldNumber;
-			mDef_.Property("UnitId").CurrentValue = dto.UnitId;
-			mDef.Calculated = (bool)dto.Calculated;
-			mDef.Expression = dto.Expression;
-			mDef_.Property("ReportIntervalId").CurrentValue = dto.IntervalId;
+			mDef.Name = body.Name;
+			mDef_.Property("MeasureTypeId").CurrentValue = body.MeasureTypeId;
+			mDef.VariableName = body.VarName;
+			mDef.Description = body.Description;
+			mDef.Precision = body.Precision;
+			mDef.Priority = (short)body.Priority;
+			mDef.FieldNumber = body.FieldNumber;
+			mDef_.Property("UnitId").CurrentValue = body.UnitId;
+			mDef.Calculated = (bool)body.Calculated;
+			mDef.Expression = body.Expression;
+			mDef_.Property("ReportIntervalId").CurrentValue = body.IntervalId;
 			mDef.AggDaily = daily;
 			mDef.AggWeekly = weekly;
 			mDef.AggMonthly = monthly;
@@ -192,9 +192,9 @@ public class EditController : ControllerBase
 			mDef.AggYearly = yearly;
 
 			if (daily || weekly || monthly || quarterly || yearly) {
-				mDef.AggFunction = dto.AggFunctionId;
+				mDef.AggFunction = body.AggFunctionId;
 
-				if (mDef.Calculated != true && dto.AggFunctionId == (byte)enumAggFunctions.expression) {
+				if (mDef.Calculated != true && body.AggFunctionId == (byte)enumAggFunctions.expression) {
 					mDef.AggFunction = (byte)enumAggFunctions.summation;
 				}
 			}
@@ -205,28 +205,15 @@ public class EditController : ControllerBase
 			mDef.LastUpdatedOn = lastUpdatedOn;
 			mDef.IsProcessed = (byte)IsProcessed.complete;
 
-			_context.SaveChanges();
-			returnObject.Data.Add(dto);
+			_dbc.SaveChanges();
+			result.Data.Add(body);
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				UpdateMeasureDataIsProcessed(_context, mDef.Id, _user.Id);
+				UpdateMeasureDataIsProcessed(_dbc, mDef.Id, _user.Id);
 			}
 
-			// Create Measure Data records for current intervals if they don't exists
-			if (createMeasureData) {
-				CreateMeasureDataRecords(_context, dto.IntervalId, mDef.Id);
-				if (weekly)
-					CreateMeasureDataRecords(_context, (int)Intervals.Weekly, mDef.Id);
-				if (monthly)
-					CreateMeasureDataRecords(_context, (int)Intervals.Monthly, mDef.Id);
-				if (quarterly)
-					CreateMeasureDataRecords(_context, (int)Intervals.Quarterly, mDef.Id);
-				if (yearly)
-					CreateMeasureDataRecords(_context, (int)Intervals.Yearly, mDef.Id);
-			}
-
-			AddAuditTrail(_context,
+			AddAuditTrail(_dbc,
 				Resource.WEB_PAGES,
 				"WEB-04",
 				Resource.MEASURE_DEFINITION,
@@ -235,10 +222,30 @@ public class EditController : ControllerBase
 				_user.Id
 			);
 
-			return returnObject;
+			// Create Measure Data records for current intervals if they don't exist
+			if (createMeasureData) {
+				CreateMeasureDataRecords(_dbc, body.IntervalId, mDef.Id);
+				if (weekly) {
+					CreateMeasureDataRecords(_dbc, (int)Intervals.Weekly, mDef.Id);
+				}
+
+				if (monthly) {
+					CreateMeasureDataRecords(_dbc, (int)Intervals.Monthly, mDef.Id);
+				}
+
+				if (quarterly) {
+					CreateMeasureDataRecords(_dbc, (int)Intervals.Quarterly, mDef.Id);
+				}
+
+				if (yearly) {
+					CreateMeasureDataRecords(_dbc, (int)Intervals.Yearly, mDef.Id);
+				}
+			}
+
+			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

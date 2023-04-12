@@ -6,10 +6,8 @@ import { Observable } from "rxjs"
 import { Intervals } from "../lib/app-constants"
 import { LoggerService } from "../_services/logger.service"
 import {
-    IntervalDto,
-    MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService, MeasureType,
-    Units
-} from "../_services/measure-definition.service"
+    IntervalDto, MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService,
+    MeasureType, Units } from "../_services/measure-definition.service"
 
 @Component({
     selector: "app-measuredefinition-edit",
@@ -138,18 +136,18 @@ export class MeasureDefinitionEditComponent implements OnInit {
             precision ??= 0
             priority ??= 0
             fieldNumber ??= 0
-            if (md.id != null) {
-                const { id } = md
-                this.api.updateMeasureDefinition(md.id, {
-                    id, name, measureTypeId, intervalId, varName, description, expression, precision,
+            if (md.id == null) {
+                this.api.addMeasureDefinition({
+                    name, measureTypeId, intervalId, varName, description, expression, precision,
                     priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
                 }).subscribe({
                     next: () => this.logger.logSuccess("saved")
                 })
             }
             else {
-                this.api.addMeasureDefinition({
-                    name, measureTypeId, intervalId, varName, description, expression, precision,
+                const { id } = md
+                this.api.updateMeasureDefinition(md.id, {
+                    id, name, measureTypeId, intervalId, varName, description, expression, precision,
                     priority, fieldNumber, unitId, weekly, monthly, quarterly, yearly, aggFunctionId
                 }).subscribe({
                     next: () => this.logger.logSuccess("saved")

@@ -30,7 +30,7 @@ public class TransferController : ControllerBase
 
 			// Runs SQL Job
 			try {
-				_ = _context.Database.ExecuteSql($"EXEC msdb.dbo.sp_start_job @job_name={_config.sQLJobSSIS}");
+				_ = _context.Database.ExecuteSql($"msdb.dbo.sp_start_job @job_name={_config.sQLJobSSIS}");
 				AddAuditTrail(_context,
 					Resource.WEB_PAGES,
 					"WEB-09",

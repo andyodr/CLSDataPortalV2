@@ -651,8 +651,7 @@ public static class Helper
 		// Create measure dtaa records if don't exist
 		int p_interval = intervalId, p_days_offset = 0;
 		try {
-			_ = dbc.Database.ExecuteSql($"EXEC [dbo].[spMeasureData] {p_interval} {p_days_offset}");
-
+			_ = dbc.Database.ExecuteSql($"spMeasureData {p_interval}, {p_days_offset}");
 			return true;
 		}
 		catch {
