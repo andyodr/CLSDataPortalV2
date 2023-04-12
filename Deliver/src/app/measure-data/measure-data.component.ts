@@ -349,13 +349,14 @@ export class MeasureDataComponent implements OnInit {
             "action": measureDataAction
            }
 
-        if (measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
-            this.logger.logInfo("There are no changes for " + measureDataRow.name + ". Unable to Save.")
+        if (measureDataRow.value == body.measureValue && measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
+            this.logger.logInfo("There are no changes for " + measureDataRow.name)
             const dialogRef = this.dialog.open(AppDialog, {
                 width: '450px',
                 data: {
                     title: 'Alert',
-                    msg: 'There are no changes for ' + measureDataRow.name + '. Unable to Save.'
+                    msg: 'There are no changes for ' + measureDataRow.name
+                    //msg: 'There are no changes for ' + measureDataRow.name + '. Unable to Save.'
                 }
             });
         }
@@ -381,6 +382,7 @@ export class MeasureDataComponent implements OnInit {
         })
         this.model.explanation = "";
         this.model.action = "";
+        this.model.value = undefined;
         //this.loadTable();
     }
 
@@ -389,6 +391,7 @@ export class MeasureDataComponent implements OnInit {
         this.disabledAll = false;
         this.model.explanation = "";
         this.model.action = "";
+        this.model.value = undefined;
         this.loadTable();
     }
 

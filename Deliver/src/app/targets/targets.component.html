@@ -128,7 +128,7 @@
               <ng-container *ngIf="!isEditMode || element == !selectedRow">{{element.target}}</ng-container>
               <ng-container *ngIf="isEditMode && element == selectedRow">
                 <mat-form-field>
-                  <input matInput type="number" [(ngModel)]="model.value" [disabled]="disabledAll">
+                  <input matInput type="number" [(ngModel)]="model.target" [disabled]="disabledAll">
                 </mat-form-field>
               </ng-container>
             </td>
