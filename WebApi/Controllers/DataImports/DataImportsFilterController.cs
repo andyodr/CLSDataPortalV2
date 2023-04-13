@@ -12,14 +12,14 @@ namespace CLS.WebApi.Controllers.DataImports;
 [Authorize]
 public class FilterController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 
-	public FilterController(ApplicationDbContext context) => _context = context;
+	public FilterController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpGet]
 	public ActionResult<IList<DataImportFilterGetAllObject>> Get(int intervalId, int year) {
 		try {
-			var calendarRecords = _context.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
+			var calendarRecords = _dbc.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
 			if (intervalId == (int)Intervals.Weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
@@ -54,21 +54,21 @@ public class FilterController : ControllerBase
 		}
 		catch (Exception e) {
 			var errorId = LogError(e.Message, e.InnerException, e.StackTrace);
-			var returnObject = new DataImportFilterGetAllObject { Error = new() };
-			returnObject.Error.Id = errorId;
-			returnObject.Error.Message = e.Message;
-			return BadRequest(returnObject);
+			DataImportFilterGetAllObject result = new() { Error = new() };
+			result.Error.Id = errorId;
+			result.Error.Message = e.Message;
+			return BadRequest(result);
 		}
 	}
 
 	protected int LogError(string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
 		try {
-			var entity = _context.ErrorLog.Add(new() {
+			var entity = _dbc.ErrorLog.Add(new() {
 				ErrorMessage = errorMessage,
 				ErrorMessageDetailed = detailedErrorMessage?.ToString() ?? string.Empty,
 				StackTrace = stacktrace ?? string.Empty
 			}).Entity;
-			_ = _context.SaveChanges();
+			_ = _dbc.SaveChanges();
 			return entity.Id;
 		}
 		catch {

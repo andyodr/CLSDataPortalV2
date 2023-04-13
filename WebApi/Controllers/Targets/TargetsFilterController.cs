@@ -12,7 +12,6 @@ namespace CLS.WebApi.Controllers.Targets;
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public FilterController(ApplicationDbContext context) => _dbc = context;
 
@@ -21,11 +20,11 @@ public class FilterController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<FilterReturnObject> Get() {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			var result = new FilterReturnObject {
 				Intervals = null,
 				MeasureTypes = new List<MeasureType>(),

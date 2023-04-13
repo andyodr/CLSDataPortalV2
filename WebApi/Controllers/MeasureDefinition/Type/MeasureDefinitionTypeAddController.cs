@@ -6,7 +6,7 @@ using static CLS.WebApi.Helper;
 namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
 
 public record MeasureType(int? Id, string Name, string? Description);
-public record MeasureTypeResult(int id, IList<MeasureType> measureTypes);
+public record MeasureTypeResult(int Id, IList<MeasureType> MeasureTypes);
 
 [ApiController]
 [Route("api/measureDefinition/type/[controller]")]
@@ -14,17 +14,16 @@ public record MeasureTypeResult(int id, IList<MeasureType> measureTypes);
 public class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public AddController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpPost]
 	public ActionResult<MeasureTypeResult> Post(MeasureType body) {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			// Validates name
 			int validateCount = _dbc.MeasureType
 				.Where(m => m.Name.Trim().ToLower() == body.Name.Trim().ToLower()).Count();

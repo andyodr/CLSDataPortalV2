@@ -26,14 +26,13 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		var result = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
+		MeasureDataIndexListObject result = new() { Data = new List<MeasureDataReturnObject>() };
 		DateTime? date = new();
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			result.Allow = _dbc.UserHierarchy
 				.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any();
 
@@ -177,14 +176,13 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<MeasureDataIndexListObject> Put(MeasureDataReceiveObject value) {
-		var returnObject = new MeasureDataIndexListObject();
+		MeasureDataIndexListObject result = new();
 		List<MeasureDataReturnObject> measureDataList = new();
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			//apply precision and validate unit if value != null
 			if (value.MeasureValue is not null) {
 				var precision = from md in _dbc.MeasureData.Where(md => md.Id == value.MeasureDataId)
@@ -233,8 +231,8 @@ public class IndexController : ControllerBase
 				  Updated = LastUpdatedOnObj(DateTime.Now, _user.UserName)
 			  }
 			);
-			returnObject.Data = measureDataList;
-			return returnObject;
+			result.Data = measureDataList;
+			return result;
 
 			//var measureData = _measureDataRepository.All().Where(m => m.Id == value.measureDataId);
 			//foreach (var metricData in measureData)

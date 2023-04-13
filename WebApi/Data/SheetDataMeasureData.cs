@@ -12,9 +12,9 @@ public class SheetDataMeasureData
 
 	public string? Explanation { get; set; }
 
-	public int rowNumber { get; set; }
+	public int RowNumber { get; set; }
 
-	public int unitId { get; set; }
+	public int UnitId { get; set; }
 
-	public byte precision { get; set; }
+	public byte Precision { get; set; }
 }
