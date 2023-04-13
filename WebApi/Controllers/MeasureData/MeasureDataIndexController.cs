@@ -14,7 +14,6 @@ public class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;

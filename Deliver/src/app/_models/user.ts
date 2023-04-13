@@ -18,6 +18,10 @@ export interface AuthenticatedUser extends User {
     persist: boolean
 }
 
+export interface UserState extends AuthenticatedUser {
+    filter: { measureTypeId?: number }
+}
+
 export interface RolesAndRegions {
     hierarchy: RegionFilter[]
     roles: UserRole[]

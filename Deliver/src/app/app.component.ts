@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthenticatedUser } from './_models/user';
+import { UserState } from "./_models/user"
 import { AccountService } from './_services/account.service';
 import { NavSettingsService } from './_services/nav-settings.service';
 import { ToggleService } from './_services/toggle.service';
@@ -23,11 +23,11 @@ export class AppComponent implements OnInit {
 	}
 
 	setCurrentUser() {
-		const userString = localStorage.getItem('user')
+		const userString = localStorage.getItem("userState")
 		if (!userString) return
-		const user: AuthenticatedUser = JSON.parse(userString!)
-        if (!user) return
-		this.api.setCurrentUser(user)
+		const userState = JSON.parse(userString!) as UserState
+        if (!userState) return
+		this.api.setCurrentUser(userState)
 	}
 
 	getCurrentUser() {
