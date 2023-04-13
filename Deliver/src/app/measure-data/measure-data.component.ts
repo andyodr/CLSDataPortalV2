@@ -148,6 +148,10 @@ export class MeasureDataComponent implements OnInit {
         })
     }
 
+    ngAfterViewInit() {
+        this.dataSource.sort = this.sort;
+    }
+
     // -----------------------------------------------------------------------------
     // Filter Selection
     // -----------------------------------------------------------------------------
