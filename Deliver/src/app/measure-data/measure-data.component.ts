@@ -14,6 +14,7 @@ import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { AppDialog } from '../app-dialog.component';
+import { AccountService } from '../_services/account.service';
 
 
 @Component({
@@ -56,7 +57,7 @@ export class MeasureDataComponent implements OnInit {
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
     Intervals = Intervals
-    
+
     // Selection Calculated
     selCalculated = [
         { id: 0, name: "Manual and Calculated" },
@@ -119,11 +120,11 @@ export class MeasureDataComponent implements OnInit {
     errorMsg: any = ""
     showError: boolean = false;
 
-    constructor(private measureDataService: MeasureDataService, private logger: LoggerService, private dialog: MatDialog) { }
+    constructor(private measureDataSvc: MeasureDataService, private acctSvc: AccountService, private logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.progress = true
-        this.measureDataService.getFilters()
+        this.measureDataSvc.getFilters()
         .pipe(finalize(() => this.progress = false))
         .subscribe({
             next: dtoFilter => {
@@ -138,7 +139,8 @@ export class MeasureDataComponent implements OnInit {
                     hierarchy: dtoFilter.hierarchy ?? []
                 }
 
-                const { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
+                let { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
+                measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId ?? measureTypeId
                 this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
                 this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
                 this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
@@ -166,7 +168,7 @@ export class MeasureDataComponent implements OnInit {
         let params = new HttpParams()
             .set("intervalId", fIntervalSelected.id)
             .set("year", (fYearSelected.year).toString())
-        this.measureDataService.getFiltersIntervals(params).subscribe({
+        this.measureDataSvc.getFiltersIntervals(params).subscribe({
             next: dto => {
                 let { intervalId, calendarId } = this.filters.filter
                 if (intervalId != fIntervalSelected.id || !calendarId) {
@@ -200,11 +202,11 @@ export class MeasureDataComponent implements OnInit {
     // Load Table Data
     // -----------------------------------------------------------------------------
     loadTable(): void {
-        this.filterSelected[0] = this.model.fIntervalSelected?.name ?? "?"
-        this.filterSelected[1] = this.model.fMeasureTypeSelected?.name ?? "?"
+        const { fMeasureTypeSelected, fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
+        this.filterSelected[0] = fIntervalSelected?.name ?? "?"
+        this.filterSelected[1] = fMeasureTypeSelected?.name ?? "?"
         this.filterSelected[2] = this.treeControl?.ancestorPath?.join(" | ") ?? "?"
 
-        const { fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
         const params = { calendarId: 0, measureTypeId: 0, hierarchyId: 0 }
         switch (fIntervalSelected?.id) {
             case Intervals.Weekly:
@@ -224,9 +226,9 @@ export class MeasureDataComponent implements OnInit {
                 params.calendarId = fYearSelected.id
                 break
         }
-        if (!this.model.fMeasureTypeSelected) return
-        params.measureTypeId = this.model.fMeasureTypeSelected.id
-
+        if (!fMeasureTypeSelected) return
+        this.acctSvc.saveFilter({ measureTypeId: fMeasureTypeSelected.id })
+        params.measureTypeId = fMeasureTypeSelected.id
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
         params.hierarchyId = this.model.selectedRegion
 
@@ -250,7 +252,7 @@ export class MeasureDataComponent implements OnInit {
         this.progress = true;
 
         // Call Server - GET Measure Data List
-        this.measureDataService.getMeasureDataList(params)
+        this.measureDataSvc.getMeasureDataList(params)
         .pipe(finalize(() => this.progress = false))
         .subscribe({
             next: measureDataResponse => {
@@ -368,7 +370,7 @@ export class MeasureDataComponent implements OnInit {
         this.progress = true;
 
         // Call Server - PUT Measure Data
-        this.measureDataService.updateMeasureData(body)
+        this.measureDataSvc.updateMeasureData(body)
         .pipe(finalize(() => this.progress = false))
         .subscribe({
             next: measureDataResponse => {

@@ -4,6 +4,7 @@ import { NavSettingsService } from "src/app/_services/nav-settings.service"
 import { AccountService, SignIn } from "../../_services/account.service"
 import { LoggerService } from "../../_services/logger.service"
 import { finalize } from "rxjs"
+import { UserState } from "src/app/_models/user"
 
 @Component({
     selector: "app-login",
@@ -48,7 +49,18 @@ export class LoginComponent implements OnInit, AfterViewInit {
             .subscribe({
                 next: user => {
                     try {
-                        localStorage.setItem("user", JSON.stringify(user))
+                        const userState = user as UserState
+                        userState.filter = {}
+                        const u = localStorage.getItem("userState")
+                        if (u) {
+                            const p = JSON.parse(u) as UserState
+                            if (p.id === user.id) {
+                                userState.filter = { measureTypeId: p.filter?.measureTypeId }
+                            }
+                        }
+
+                        this.api.setCurrentUser(userState)
+                        localStorage.setItem("userState", JSON.stringify(userState))
                     }
                     catch { }
                     this._navSettingsService.showNavBar()

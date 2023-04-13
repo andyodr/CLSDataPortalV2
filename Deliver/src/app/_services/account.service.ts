@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { BehaviorSubject, tap } from "rxjs"
-import { AuthenticatedUser } from "../_models/user"
+import { UserState, AuthenticatedUser } from "../_models/user"
 import { environment } from "../../environments/environment"
 import { Router } from "@angular/router"
 
@@ -15,7 +15,7 @@ export type SignIn = {
     providedIn: "root"
 })
 export class AccountService {
-    private currentUserSource = new BehaviorSubject<AuthenticatedUser | null>(null)
+    private currentUserSource = new BehaviorSubject<UserState | null>(null)
     currentUser$ = this.currentUserSource.asObservable()
 
     constructor(private http: HttpClient, private router: Router) { }
@@ -26,15 +26,24 @@ export class AccountService {
         form.append("password", model.password)
         form.append("persistent", model.persistent.toString())
         return this.http.post<AuthenticatedUser>(environment.baseUrl + "api/SignIn", form)
-            .pipe(tap(user => this.currentUserSource.next(user)))
     }
 
-    setCurrentUser(user: AuthenticatedUser) {
+    setCurrentUser(user: UserState) {
         this.currentUserSource.next(user)
     }
 
     getCurrentUser() {
         return this.currentUserSource.value;
+    }
+
+    saveFilter(filter: { [key: string]: any }) {
+        if (!this.currentUserSource.value) return
+        Object.assign(this.currentUserSource.value.filter, filter)
+        localStorage.setItem("userState", JSON.stringify(this.currentUserSource.value))
+    }
+
+    getFilters() {
+        return this.currentUserSource.value?.filter
     }
 
     /** Perform SignOut and navigate to SignIn screen */
@@ -44,14 +53,14 @@ export class AccountService {
                 next: result => {
                     if (result.status == 200) {
                         if (!this.getCurrentUser()?.persist) {
-                            localStorage.removeItem("user")
+                            localStorage.removeItem("userState")
                             this.currentUserSource.next(null)
                         }
 
                         this.router.navigateByUrl("/")
                     }
                     else {
-                        console.error(`Unexpected status: {result.status}`)
+                        console.error(`Unexpected status: ${result.status}`)
                     }
                 },
                 error: () => {

@@ -4,15 +4,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, _SnackBarContainer } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { filter, finalize, Subscription } from 'rxjs';
+import { finalize } from "rxjs"
 import { AppDialog } from '../app-dialog.component';
-import { processError } from '../lib/app-constants';
-import { Hierarchy, RegionFilter } from '../_services/hierarchy.service';
+import { RegionFilter } from "../_services/hierarchy.service"
 import { MeasureType, TargetApiResponse, TargetFilterResponseDto, TargetDto, ConfirmIntervals, TargetApiParams, TargetFilter } from '../_models/target';
 import { LoggerService } from '../_services/logger.service';;
 import { TargetService } from '../_services/target.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { HttpParams } from '@angular/common/http';
+import { AccountService } from "../_services/account.service"
 
 @Component({
     selector: 'app-targets',
@@ -43,7 +43,7 @@ export class TargetsComponent implements OnInit {
     selectedRegion = null as number | number[] | null
 
     @ViewChild(RegionTreeComponent) treeControl!: RegionTreeComponent
-    
+
     select = {
         measureTypes: [] as MeasureType[],
         hierarchy: [] as RegionFilter[]
@@ -57,14 +57,8 @@ export class TargetsComponent implements OnInit {
     measureTypeList!: { name: string, id: number }[]
     //measureTypes: MeasureType[] = []
     //selectedMeasureType: MeasureType | undefined //= { id: 0, name: "" }
-    selectedMeasureTypeId!: number
     // selectedMeasureType?: MeasureType
     selectedHierarchy = null as number | number[] | null
-
-    filtered: TargetApiParams = {
-        hierarchyId: 1,
-        measureTypeId: 1,
-    }
 
     //Table Properties
     targetList: TargetDto[] = [];
@@ -133,28 +127,25 @@ export class TargetsComponent implements OnInit {
     errorMsg: any = ""
     showError: boolean = false;
 
-    constructor(private targetService: TargetService, public logger: LoggerService, private dialog: MatDialog) { }
+    constructor(private targetSvc: TargetService, public acctSvc: AccountService, public logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.progress = true
-        this.targetService.getTargetFilter()
+        this.targetSvc.getTargetFilter()
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: dtofilter => {
                     this.filters = dtofilter;
                     this.measureTypes = dtofilter.measureTypes
-                    this.selectedMeasureType = dtofilter.measureTypes[0]
                     this.hierarchy = dtofilter.hierarchy
                     this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
 
                     //const { hierarchyId, measureTypeId } = dtofilter.filter
                     const hierarchyId = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
-                    const measureTypeId = dtofilter.filter.measureTypeId ?? dtofilter.measureTypes.at(0)?.id ?? 1
-                    //this.selectedMeasureType = dtofilter.measureTypes.find(t => t.id == measureTypeId)
-                    this.selectedMeasureTypeId = measureTypeId
+                    let measureTypeId = dtofilter.filter.measureTypeId
+                    measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId ?? measureTypeId
+                    this.selectedMeasureType = this.measureTypes.find(t => t.id == measureTypeId) ?? this.measureTypes[0]
                     this.selectedHierarchy = hierarchyId
-                    this.filtered.hierarchyId = hierarchyId
-                    this.filtered.measureTypeId = this.selectedMeasureTypeId
                     setTimeout(() => this.loadTable())
                 }
             })
@@ -164,23 +155,20 @@ export class TargetsComponent implements OnInit {
     // Load Table Data
     // -----------------------------------------------------------------------------
     loadTable(): void {
-
         if (!this.selectedMeasureType || typeof this.selectedHierarchy !== "number") return
+        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
 
         //this.filtersSelected = [ this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ") ]
 
         const params = { measureTypeId: 0, hierarchyId: 0 }
         params.measureTypeId = this.selectedMeasureType.id
         params.hierarchyId = this.selectedHierarchy
-
-        this.filtered.hierarchyId = this.selectedHierarchy
-        this.filtered.measureTypeId = this.selectedMeasureType.id
         this.filtersDisplay = [
             this.selectedMeasureType?.name ?? "?",
             this.treeControl.ancestorPath.join(" | ")
         ]
+
         //this.showError = false;
-        //this.disabledAll = true;
         this.getTargetsList(params);
     }
 
@@ -199,7 +187,7 @@ export class TargetsComponent implements OnInit {
         this.progress = true
 
         // Call Server - GET Target List
-        this.targetService.getTargetList(params)
+        this.targetSvc.getTargetList(params)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: targetResponse => {
@@ -336,7 +324,7 @@ export class TargetsComponent implements OnInit {
         this.progress = true
 
          // Call Server - PUT Target
-        this.targetService.updateTarget(body)
+        this.targetSvc.updateTarget(body)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: targetResponse => {
@@ -451,7 +439,7 @@ export class TargetsComponent implements OnInit {
             yearly: true
         }
 
-        this.dataConfirmedReset();    
+        this.dataConfirmedReset();
 
         // Check if values are null and convert it to a default value if necessary
         const fixedHierarchyId = hierarchyId === null ? 0 : hierarchyId;
@@ -470,9 +458,9 @@ export class TargetsComponent implements OnInit {
         }
 
         this.progress = true
-        
+
         // Call Server - PUT Target Apply to Children
-        this.targetService.applyTargetToChildren(body)
+        this.targetSvc.applyTargetToChildren(body)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: value => {
@@ -497,11 +485,11 @@ export class TargetsComponent implements OnInit {
             isCurrentUpdate: this.dataConfirmed.isCurrentUpdate,
             confirmIntervals: this.dataConfirmed.confirmIntervals,
         }
-    
+
         this.progress = true
 
         // Call Server - PUT Target
-        this.targetService.updateTarget2(this.dataConfirmed.id, targetDtoSave)
+        this.targetSvc.updateTarget2(this.dataConfirmed.id, targetDtoSave)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
             next: value => {

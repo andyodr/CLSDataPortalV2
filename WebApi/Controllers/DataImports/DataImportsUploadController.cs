@@ -369,39 +369,39 @@ public class UploadController : ControllerBase
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE_DATA });
 		}
 
-		//check Measure Definition Unit
+		//check Measure Definition percentage Unit
 		if (row.Value is double v && row.UnitId == 1 && (v < 0 || v > 1)) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_VALUE_UNIT });
 		}
 
 		//check Measure
-		var mco = _dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
+		var measures = _dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
 			&& m.MeasureDefinitionId == row.MeasureID)
 			.Include(m => m.MeasureDefinition)
+			.AsNoTrackingWithIdentityResolution()
 			.ToArray();
-		if (mco.Any()) {
-			foreach (var r in mco) {
-				MeasureCalculatedObject measureCalculated = new() {
-					reportIntervalId = r.MeasureDefinition!.ReportIntervalId,
-					calculated = r.MeasureDefinition.Calculated ?? false,
-					aggDaily = r.MeasureDefinition.AggDaily ?? false,
-					aggWeekly = r.MeasureDefinition.AggWeekly ?? false,
-					aggMonthly = r.MeasureDefinition.AggMonthly ?? false,
-					aggQuarterly = r.MeasureDefinition.AggQuarterly ?? false,
-					aggYearly = r.MeasureDefinition.AggYearly ?? false
-				};
-				var bMdExpression = r.Expression ?? false;
-				var hId = r.HierarchyId;
-				if (IsMeasureCalculated(_dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
-					result.Error.Add(new() {
-						Row = row.RowNumber,
-						Message = Resource.DI_ERR_CALCULATED
-					});
-				}
-			}
-		}
-		else {
+		if (measures.Length == 0) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+		}
+
+		foreach (var m in measures) {
+			MeasureCalculatedObject measureCalculated = new() {
+				reportIntervalId = m.MeasureDefinition!.ReportIntervalId,
+				calculated = m.MeasureDefinition.Calculated ?? false,
+				aggDaily = m.MeasureDefinition.AggDaily ?? false,
+				aggWeekly = m.MeasureDefinition.AggWeekly ?? false,
+				aggMonthly = m.MeasureDefinition.AggMonthly ?? false,
+				aggQuarterly = m.MeasureDefinition.AggQuarterly ?? false,
+				aggYearly = m.MeasureDefinition.AggYearly ?? false
+			};
+			var bMdExpression = m.Expression ?? false;
+			var hId = m.HierarchyId;
+			if (IsMeasureCalculated(_dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
+				result.Error.Add(new() {
+					Row = row.RowNumber,
+					Message = Resource.DI_ERR_CALCULATED
+				});
+			}
 		}
 	}
 
