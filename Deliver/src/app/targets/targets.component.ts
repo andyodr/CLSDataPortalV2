@@ -64,7 +64,7 @@ export class TargetsComponent implements OnInit {
     targetList: TargetDto[] = [];
     selectedRow: TargetDto | undefined
     dataSource = new MatTableDataSource<TargetDto>()
-    displayedColumns = ["name", "value", "yellow", "updated", "actions"]
+    displayedColumns = ["name", "target", "yellow", "updated", "actions"]
     expand = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     editingMeasureType!: any
@@ -151,6 +151,19 @@ export class TargetsComponent implements OnInit {
             })
     }
 
+    ngAfterViewInit() {
+        this.dataSource.sort = this.sort;
+        this.dataSource.sortingDataAccessor = (item, property) => {
+            switch (property) {
+                case 'name': return item.name;
+                case 'target': return item.target;
+                case 'yellow': return item.yellow;
+                case 'updated': return item.updated.longDt;
+                default: return (item as any)[property];
+            }
+        };
+    }
+
     // -----------------------------------------------------------------------------
     // Load Table Data
     // -----------------------------------------------------------------------------
@@ -194,7 +207,7 @@ export class TargetsComponent implements OnInit {
                     this.targetResponse = targetResponse;
                     this.targetList = targetResponse.data;
                     this.dataSource.data = targetResponse.data;
-                    this.dataSource.sort = this.sort;
+                    //this.dataSource.sort = this.sort;
                     console.log("Datasource on getTargetList: ", this.dataSource)
 
                     this.hierarchyId = parameters!.hierarchyId;

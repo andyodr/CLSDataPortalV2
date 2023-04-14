@@ -152,6 +152,18 @@ export class MeasureDataComponent implements OnInit {
 
     ngAfterViewInit() {
         this.dataSource.sort = this.sort;
+        this.dataSource.sortingDataAccessor = (item, property) => {
+            switch (property) {
+                case 'name': return item.name;
+                case 'calculated': return item.calculated;
+                case 'value': return item.value;
+                case 'units': return item.units;
+                case 'explanation': return item.explanation;
+                case 'action': return item.action;
+                case 'updated': return item.updated.longDt;
+                default: return (item as any)[property];
+            }
+        };
     }
 
     // -----------------------------------------------------------------------------
@@ -262,7 +274,7 @@ export class MeasureDataComponent implements OnInit {
                 // if (this.dataSource) {
                 //     this.dataSource.sort = this.sort;
                 //   }
-                this.dataSource.sort = this.sort
+                //this.dataSource.sort = this.sort
                 console.log("MeasureDataResponse on getMeasureDataList: ", this.measureDataResponse)
                 console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
