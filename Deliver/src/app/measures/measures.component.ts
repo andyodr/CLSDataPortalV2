@@ -2,8 +2,10 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnInit, ViewChild } from "@angular/core"
 import { MatSort } from "@angular/material/sort"
 import { MatTable, MatTableDataSource } from "@angular/material/table"
+import { finalize } from "rxjs"
 import { processError } from "../lib/app-constants"
 import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
+import { AccountService } from "../_services/account.service"
 import { RegionFilter } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureType } from "../_services/measure-definition.service"
@@ -11,7 +13,6 @@ import {
     MeasureApiResponse, MeasureFilter,
     MeasureService, RegionActiveCalculatedDto
 } from "../_services/measure.service"
-import { finalize } from "rxjs"
 
 interface MeasuresTableRow {
     id: number
@@ -67,9 +68,10 @@ export class MeasuresComponent implements OnInit {
     selectedRegion = null as number | number[] | null
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
 
-    constructor(private api: MeasureService, public logger: LoggerService) { }
+    constructor(private api: MeasureService, private acctSvc: AccountService, public logger: LoggerService) { }
 
     ngOnInit(): void {
+        const measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId
         this.progress = true
         this.api.getMeasureFilter()
             .pipe(finalize(() => this.progress = false))
@@ -77,7 +79,8 @@ export class MeasuresComponent implements OnInit {
                 next: dto => {
                     this.filters = dto
                     this.measureTypes = dto.measureTypes
-                    this.selectedMeasureType = dto.measureTypes[0]
+                    const selectedMeasureType = this.measureTypes.find(t => t.id == measureTypeId)
+                    this.selectedMeasureType = selectedMeasureType ?? dto.measureTypes[0]
                     this.hierarchy = dto.hierarchy
                     this.selectedRegion = dto.filter.hierarchyId ?? dto.hierarchy.at(0)?.id ?? 1
                     // delay because it depends on output from a child component
@@ -95,6 +98,7 @@ export class MeasuresComponent implements OnInit {
 
     loadTable() {
         this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")]
+        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
         const params = {
             measureTypeId: this.selectedMeasureType.id,
             hierarchyId: typeof this.selectedRegion === "number" ? this.selectedRegion : (this.hierarchy.at(0)?.id ?? 1)

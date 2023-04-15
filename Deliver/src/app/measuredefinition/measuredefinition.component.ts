@@ -2,9 +2,10 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnInit, ViewChild } from "@angular/core"
 import { MatSort } from "@angular/material/sort"
 import { MatTableDataSource } from "@angular/material/table"
+import { finalize } from "rxjs"
+import { AccountService } from "../_services/account.service"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
-import { finalize } from "rxjs"
 
 @Component({
     selector: "app-measuredefinition",
@@ -40,9 +41,10 @@ export class MeasureDefinitionComponent implements OnInit {
 
     measureTypeInput!: MeasureType
 
-    constructor(private api: MeasureDefinitionService, public logger: LoggerService) { }
+    constructor(private api: MeasureDefinitionService, private acctSvc: AccountService, public logger: LoggerService) { }
 
     ngOnInit(): void {
+        const measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId
         this.progress = true
         this.api.getMeasureDefinitionFilter()
             .pipe(finalize(() => this.progress = false))
@@ -50,7 +52,8 @@ export class MeasureDefinitionComponent implements OnInit {
                 next: filters => {
                     this.filters = filters
                     this.measureTypes = filters.measureTypes
-                    this.selectedMeasureType = filters.measureTypes[0]
+                    const selectedMeasureType = this.measureTypes.find(t => t.id == measureTypeId)
+                    this.selectedMeasureType = selectedMeasureType ?? this.measureTypes[0]
                     this.dataSource.sort = this.sort
                     this.loadTable()
                 }
@@ -59,6 +62,7 @@ export class MeasureDefinitionComponent implements OnInit {
 
     loadTable() {
         this.filtersSelected = [this.selectedMeasureType.name]
+        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
         this.progress = true
         this.api.getMeasureDefinition(this.selectedMeasureType.id)
             .pipe(finalize(() => this.progress = false))
