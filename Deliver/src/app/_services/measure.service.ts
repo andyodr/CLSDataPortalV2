@@ -66,8 +66,12 @@ export class MeasureService {
         return this.http.get<MeasureApiResponse>(this.baseUrl + "/index", { params: params })
     }
 
-    getMeasureFilter(): Observable<MeasureFilter> {
-        return this.http.get<MeasureFilter>(this.baseUrl + "/filter")
+    getMeasureFilter(measureTypeId?: number, hierarchyId?: number): Observable<MeasureFilter> {
+        if (!measureTypeId || !hierarchyId) {
+            return this.http.get<MeasureFilter>(this.baseUrl + "/filter")
+        }
+
+        return this.http.get<MeasureFilter>(`${this.baseUrl}/filter/${measureTypeId}/${hierarchyId}`)
     }
 
     updateMeasures(body: MeasureDefinitionPutDto): Observable<MeasureApiResponse> {

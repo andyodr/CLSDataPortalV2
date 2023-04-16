@@ -50,12 +50,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 next: user => {
                     try {
                         const userState = user as UserState
-                        userState.filter = {}
-                        const u = localStorage.getItem("userState")
-                        if (u) {
-                            const p = JSON.parse(u) as UserState
-                            if (p.id === user.id) {
-                                userState.filter = { measureTypeId: p.filter?.measureTypeId }
+                        userState.filter = { measureTypeId: 0, hierarchyId: 0 }
+                        const stored = localStorage.getItem("userState")
+                        if (stored) {
+                            const parsed = JSON.parse(stored) as UserState
+                            if (parsed.id === userState.id) {
+                                userState.filter = parsed.filter
                             }
                         }
 

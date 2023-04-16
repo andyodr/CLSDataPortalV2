@@ -36,9 +36,9 @@ export class AccountService {
         return this.currentUserSource.value;
     }
 
-    saveFilter(filter: { [key: string]: any }) {
+    saveSettings(settings: { [key: string]: any }) {
         if (!this.currentUserSource.value) return
-        Object.assign(this.currentUserSource.value.filter, filter)
+        Object.assign(this.currentUserSource.value.filter, settings)
         localStorage.setItem("userState", JSON.stringify(this.currentUserSource.value))
     }
 

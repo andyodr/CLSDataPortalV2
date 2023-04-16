@@ -71,9 +71,11 @@ export class MeasuresComponent implements OnInit {
     constructor(private api: MeasureService, private acctSvc: AccountService, public logger: LoggerService) { }
 
     ngOnInit(): void {
-        const measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId
+        const userSettings = this.acctSvc.getCurrentUser()?.filter
+        const measureTypeId = userSettings?.measureTypeId
+        const hierarchyId = userSettings?.hierarchyId
         this.progress = true
-        this.api.getMeasureFilter()
+        this.api.getMeasureFilter(measureTypeId, hierarchyId)
             .pipe(finalize(() => this.progress = false))
             .subscribe({
                 next: dto => {
@@ -82,7 +84,7 @@ export class MeasuresComponent implements OnInit {
                     const selectedMeasureType = this.measureTypes.find(t => t.id == measureTypeId)
                     this.selectedMeasureType = selectedMeasureType ?? dto.measureTypes[0]
                     this.hierarchy = dto.hierarchy
-                    this.selectedRegion = dto.filter.hierarchyId ?? dto.hierarchy.at(0)?.id ?? 1
+                    this.selectedRegion = hierarchyId || dto.filter.hierarchyId || dto.hierarchy.at(0)?.id || 1
                     // delay because it depends on output from a child component
                     setTimeout(() => this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")])
                     this.dataSource.sort = this.sort
@@ -98,7 +100,7 @@ export class MeasuresComponent implements OnInit {
 
     loadTable() {
         this.filtersSelected = [this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ")]
-        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
+        this.acctSvc.saveSettings({ measureTypeId: this.selectedMeasureType.id })
         const params = {
             measureTypeId: this.selectedMeasureType.id,
             hierarchyId: typeof this.selectedRegion === "number" ? this.selectedRegion : (this.hierarchy.at(0)?.id ?? 1)

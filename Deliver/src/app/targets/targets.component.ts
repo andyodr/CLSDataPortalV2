@@ -141,9 +141,11 @@ export class TargetsComponent implements OnInit {
                     this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
 
                     //const { hierarchyId, measureTypeId } = dtofilter.filter
-                    const hierarchyId = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
-                    let measureTypeId = dtofilter.filter.measureTypeId
-                    measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId ?? measureTypeId
+                    const userSettings = this.acctSvc.getCurrentUser()?.filter
+                    let hierarchyId = userSettings?.hierarchyId
+                    hierarchyId ||= dtofilter.filter.hierarchyId || dtofilter.hierarchy.at(0)?.id || 1
+                    let measureTypeId = userSettings?.measureTypeId
+                    measureTypeId ||= dtofilter.filter.measureTypeId
                     this.selectedMeasureType = this.measureTypes.find(t => t.id == measureTypeId) ?? this.measureTypes[0]
                     this.selectedHierarchy = hierarchyId
                     setTimeout(() => this.loadTable())
@@ -169,13 +171,17 @@ export class TargetsComponent implements OnInit {
     // -----------------------------------------------------------------------------
     loadTable(): void {
         if (!this.selectedMeasureType || typeof this.selectedHierarchy !== "number") return
-        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
 
         //this.filtersSelected = [ this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ") ]
 
         const params = { measureTypeId: 0, hierarchyId: 0 }
         params.measureTypeId = this.selectedMeasureType.id
         params.hierarchyId = this.selectedHierarchy
+        this.acctSvc.saveSettings({
+            measureTypeId: this.selectedMeasureType.id,
+            hierarchyId: this.selectedHierarchy
+        })
+
         this.filtersDisplay = [
             this.selectedMeasureType?.name ?? "?",
             this.treeControl.ancestorPath.join(" | ")

@@ -1,21 +1,19 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Intervals, MSG_ERROR_PROCESSING } from '../lib/app-constants';
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { filter, finalize, Subscription } from 'rxjs';
-import { NavigationService } from '../_services/nav.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { finalize } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
-import { Hierarchy, RegionFilter, RegionFlatNode } from '../_services/hierarchy.service';
+import { RegionFilter } from '../_services/hierarchy.service';
 import { IntervalDto, MeasureType } from '../_services/measure-definition.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { AppDialog } from '../app-dialog.component';
 import { AccountService } from '../_services/account.service';
-
 
 @Component({
     selector: 'app-measure-data',
@@ -125,29 +123,31 @@ export class MeasureDataComponent implements OnInit {
     ngOnInit(): void {
         this.progress = true
         this.measureDataSvc.getFilters()
-        .pipe(finalize(() => this.progress = false))
-        .subscribe({
-            next: dtoFilter => {
-                this.filters = dtoFilter
-                this.select = {
-                    intervals: dtoFilter.intervals ?? [],
-                    years: dtoFilter.years ?? [],
-                    weeks: [],
-                    months: [],
-                    quarters: [],
-                    measureTypes: dtoFilter.measureTypes,
-                    hierarchy: dtoFilter.hierarchy ?? []
-                }
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: dtoFilter => {
+                    this.filters = dtoFilter
+                    this.select = {
+                        intervals: dtoFilter.intervals ?? [],
+                        years: dtoFilter.years ?? [],
+                        weeks: [],
+                        months: [],
+                        quarters: [],
+                        measureTypes: dtoFilter.measureTypes,
+                        hierarchy: dtoFilter.hierarchy ?? []
+                    }
 
-                let { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
-                measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId ?? measureTypeId
-                this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
-                this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
-                this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
-                this.model.fYearSelected = dtoFilter.years?.at(0)
-                this.intervalChange(true)
-            }
-        })
+                    let { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
+                    const savedSettings = this.acctSvc.getCurrentUser()?.filter
+                    measureTypeId = savedSettings?.measureTypeId || measureTypeId
+                    hierarchyId = savedSettings?.hierarchyId || hierarchyId
+                    this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
+                    this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
+                    this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
+                    this.model.fYearSelected = dtoFilter.years?.at(0)
+                    this.intervalChange(true)
+                }
+            })
     }
 
     ngAfterViewInit() {
@@ -238,12 +238,16 @@ export class MeasureDataComponent implements OnInit {
                 params.calendarId = fYearSelected.id
                 break
         }
+
         if (!fMeasureTypeSelected) return
-        this.acctSvc.saveFilter({ measureTypeId: fMeasureTypeSelected.id })
         params.measureTypeId = fMeasureTypeSelected.id
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
-        params.hierarchyId = this.model.selectedRegion
+        this.acctSvc.saveSettings({
+            measureTypeId: fMeasureTypeSelected.id,
+            hierarchyId: this.model.selectedRegion
+        })
 
+        params.hierarchyId = this.model.selectedRegion
         this.getMeasureDataList(params)
     }
 

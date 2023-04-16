@@ -62,7 +62,7 @@ export class MeasureDefinitionComponent implements OnInit {
 
     loadTable() {
         this.filtersSelected = [this.selectedMeasureType.name]
-        this.acctSvc.saveFilter({ measureTypeId: this.selectedMeasureType.id })
+        this.acctSvc.saveSettings({ measureTypeId: this.selectedMeasureType.id })
         this.progress = true
         this.api.getMeasureDefinition(this.selectedMeasureType.id)
             .pipe(finalize(() => this.progress = false))
