@@ -183,12 +183,12 @@
             <td mat-cell *matCellDef="let element"> 
               <ng-container *ngIf="!element.target && !isEditMode">{{element.value}}</ng-container>
               <ng-container *ngIf="element.value && element.target">
-                <span style="padding: 0 1ch;" [ngClass]="{
+                <div [ngClass]="{
                   bggreen: element.value >= element.target,
                   bgorange: element.value < element.target && element.value >= element.yellow,
                   bgred: element.value < element.yellow}">
                   {{element.value}}
-                </span>
+                </div>
               </ng-container>
               <ng-container *ngIf="!element.calculated && isEditMode && element == selectedRow">
                 <mat-form-field>

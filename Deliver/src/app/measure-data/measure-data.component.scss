@@ -96,18 +96,12 @@ mat-drawer form h5 {
   min-width: 8em;
 }
 
-// button,
-// a {
-//   min-width: 8em;
-// }
-
 .panel>button {
   margin: 6px 11px 10px 0px;
 }
 
 span.filter {
   color: white;
-  //background-color: gray;
   background: dimgray;
   margin: 9px;
   padding: 4px 11px;
@@ -163,22 +157,39 @@ table {
 
 .mat-column-calculated {
   width: 1em;
+  max-width: 4em;
 }
 
 .mat-column-value {
-  width: 2em;
+  width: 4em;
+}
+
+.mat-column-value>div {
+  margin-inline: .4em;
+  padding-inline: .4em;
 }
 
 .mat-column-units {
   width: 1em;
+  max-width: 3em;
 }
 
 .mat-column-explanation {
-  width: 24em;
+  width: 20em;
+  padding-inline: 1ch;
+}
+
+.mat-column-explanation>* {
+  width: 100%;
 }
 
 .mat-column-action {
-  width: 24em;
+  width: 20em;
+  padding-inline: 1ch;
+}
+
+.mat-column-action>* {
+  width: 100%;
 }
 
 .mat-column-updated {
@@ -215,7 +226,6 @@ tr.table-row:not(.expanded-row):active {
 
 .detail-items-1 {
   grid-row: 1;
-  width: max-content;
   display: grid;
   grid-template: auto auto / auto auto;
   column-gap: 1em;
@@ -224,7 +234,6 @@ tr.table-row:not(.expanded-row):active {
 
 .detail-items-2 {
   grid-row: 1;
-  // width: max-content;
   display: grid;
   grid-template: auto auto / auto auto;
   column-gap: 1em;
@@ -259,4 +268,3 @@ footer {
 .bggreen {
   background-color: #4caf50; /* green */
 }
-
