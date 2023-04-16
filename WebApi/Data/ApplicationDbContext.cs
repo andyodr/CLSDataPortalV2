@@ -1,17 +1,13 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Deliver.WebApi.Data.Models;
 
 namespace Deliver.WebApi.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+public class ApplicationDbContext : DbContext
 {
+	public ApplicationDbContext() : base() { }
 
-	public ApplicationDbContext() : base() {
-	}
-
-	public ApplicationDbContext(DbContextOptions options) : base(options) {
-	}
+	public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder) {
 		base.OnModelCreating(modelBuilder);

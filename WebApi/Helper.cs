@@ -85,34 +85,6 @@ public static class Helper
 		return children;
 	}
 
-	internal static List<RegionFilterObject> GetSubs(ApplicationDbContext dbc, int id, UserObject user) {
-		var children = new List<RegionFilterObject>();
-		var hierarchyList = dbc.Hierarchy
-			.Where(h => h.HierarchyParentId == id && h.Active == true)
-			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
-			.AsNoTrackingWithIdentityResolution()
-			.ToArray();
-		foreach (var rfo in hierarchyList) {
-			rfo.Sub = GetSubs(dbc, rfo.Id, user);
-			rfo.Count = rfo.Sub.Count;
-			rfo.Found = user.hierarchyIds.Contains(rfo.Id);
-			if (rfo.Found == false) {
-				var child = dbc.Hierarchy
-					.Where(c => c.HierarchyParentId == rfo.Id)
-					.Select(c => c.Id)
-					.Distinct()
-					.ToArray();
-				rfo.Found = user.hierarchyIds.Any(i => child.Contains(i));
-			}
-
-			if (rfo.Found == true) {
-				children.Add(rfo);
-			}
-		}
-
-		return children;
-	}
-
 	internal static bool IsMeasureCalculated(ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
 		// Expression calculated overrides calculated from MeasureDefinition if true only
 		if (isCalculatedExpression) {
@@ -127,7 +99,7 @@ public static class Helper
 
 		if (measureCalculated is null) {
 			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).FirstOrDefault();
-			measureCalculated = new MeasureCalculatedObject {
+			measureCalculated = new() {
 				reportIntervalId = measureDef?.ReportIntervalId ?? 0,
 				calculated = measureDef?.Calculated ?? false,
 				aggDaily = measureDef?.AggDaily ?? false,
