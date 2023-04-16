@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
 
-namespace CLS.WebApi.Data;
+namespace Deliver.WebApi.Data;
 
 public class ApiResult<T>
 {
@@ -40,7 +40,7 @@ public class ApiResult<T>
 	/// <param name="filterColumn">The filtering column name</param>
 	/// <param name="filterQuery">The filtering query (value to lookup)</param>
 	/// <returns>
-	/// A object containing the IQueryable paged/sorted/filtered result 
+	/// A object containing the IQueryable paged/sorted/filtered result
 	/// and all the relevant paging/sorting/filtering navigation info.
 	/// </returns>
 	public static async Task<ApiResult<T>> CreateAsync(
@@ -160,7 +160,7 @@ public class ApiResult<T>
 	public string? FilterColumn { get; set; }
 
 	/// <summary>
-	/// Filter Query string 
+	/// Filter Query string
 	/// (to be used within the given FilterColumn)
 	/// </summary>
 	public string? FilterQuery { get; set; }

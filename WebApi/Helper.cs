@@ -2,10 +2,10 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using CLS.WebApi.Data.Models;
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data.Models;
+using Deliver.WebApi.Data;
 
-namespace CLS.WebApi;
+namespace Deliver.WebApi;
 
 public static class Helper
 {
@@ -20,28 +20,6 @@ public static class Helper
 	public enum IsProcessed { no, measureData, complete }
 
 	public static int hierarchyGlobalId { get; set; } = 1;
-
-	public static Dictionary<string, UserObject> userCookies = new Dictionary<string, UserObject>();
-
-	public static byte? stringToByte(string boolValue) {
-		if (boolValue is null)
-			return null;
-		else if (boolValue.ToLower() == "true")
-			return 1;
-		else if (boolValue.ToLower() == "false")
-			return 0;
-		else throw new Exception(Resource.ERR_STRING_TO_BYTE);
-	}
-
-	public static string byteToString(byte? value) {
-		if (value is null)
-			return "null";
-		else if (value == 1)
-			return "true";
-		else if (value == 2)
-			return "false";
-		else throw new Exception(Resource.ERR_BYTE_TO_STRING);
-	}
 
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;

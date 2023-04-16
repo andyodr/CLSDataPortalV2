@@ -1,7 +1,8 @@
-﻿namespace CLS.WebApi.Data;
+namespace Deliver.WebApi.Data;
 
 public class UserCalendarLocks
 {
-	public int CalendarId { set; get; }
-	public bool? LockOverride { set; get; }
+	public int CalendarId { get; set; }
+
+	public bool? LockOverride { get; set; }
 }

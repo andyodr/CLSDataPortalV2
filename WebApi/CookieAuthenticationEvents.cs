@@ -1,9 +1,9 @@
-﻿using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 
-namespace CLS.WebApi;
+namespace Deliver.WebApi;
 
 public class CustomCookieAuthenticationEvents : CookieAuthenticationEvents
 {

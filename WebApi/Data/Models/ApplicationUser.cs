@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace CLS.WebApi.Data.Models;
+namespace Deliver.WebApi.Data.Models;
 
 public class ApplicationUser : IdentityUser
 {

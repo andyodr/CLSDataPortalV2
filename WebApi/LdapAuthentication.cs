@@ -1,10 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Runtime.Versioning;
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 
-namespace CLS.WebApi;
+namespace Deliver.WebApi;
 
 [SupportedOSPlatform("windows")]
 public class LdapAuthentication

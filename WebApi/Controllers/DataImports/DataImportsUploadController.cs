@@ -1,5 +1,5 @@
-using CLS.WebApi.Data;
-using CLS.WebApi.Data.Models;
+using Deliver.WebApi.Data;
+using Deliver.WebApi.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +8,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.DataImports;
+namespace Deliver.WebApi.Controllers.DataImports;
 
 [ApiController]
 [Route("api/dataimports/[controller]")]

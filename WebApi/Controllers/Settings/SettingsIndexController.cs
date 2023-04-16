@@ -1,12 +1,12 @@
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.Settings;
+namespace Deliver.WebApi.Controllers.Settings;
 
 [ApiController]
 [Route("api/settings/[controller]")]

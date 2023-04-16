@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi;
+namespace Deliver.WebApi;
 
 public class Resource
 {
@@ -15,14 +15,11 @@ public class Resource
 	public const string MEASURE_TYPE = "Measure Type";
 	public const string MEASURE = "Measure";
 	public const string DATA_IMPORT = "Data Import";
-	public const string USERS = "Users";
 	public const string SETTINGS = "Settings";
 	public const string SETTINGS_USERS = "Settings Users";
 	public const string SECURITY = "Security";
 	public const string SYSTEM = "System";
 	public const string WEB_PAGES = "Web Pages";
-	public const string WEB_SITE = "Web Site";
-	public const string FILTERS = "Filters";
 
 	public const string ERR_STRING_TO_BYTE = "String value doesn't represent a byte value.";
 	public const string ERR_STRING_TO_BOOL = "String value doesn't represent a boolean value.";

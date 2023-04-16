@@ -1,9 +1,9 @@
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.MeasureDefinition.Type;
+namespace Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
 public record MeasureType(int? Id, string Name, string? Description);
 public record MeasureTypeResult(int Id, IList<MeasureType> MeasureTypes);

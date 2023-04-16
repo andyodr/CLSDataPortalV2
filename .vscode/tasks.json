@@ -4,9 +4,9 @@
 		{
 			"type": "npm",
 			"script": "start",
-			"path": "CLS",
+			"path": "Deliver",
 			"problemMatcher": [],
-			"label": "npm: start - CLS",
+			"label": "npm: start - Deliver",
 			"detail": "ng serve --ssl --ssl-cert %APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem --ssl-key %APPDATA%\\ASP.NET\\https\\%npm_package_name%.key"
 		},
 		{
@@ -15,12 +15,12 @@
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/CLS.WebApi/CLS.WebApi.csproj",
+				"${workspaceFolder}/WebApi/Deliver.WebApi.csproj",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}\\CLS.WebApi"
+				"cwd": "${workspaceFolder}\\WebApi"
 			},
 			"problemMatcher": "$msCompile"
 		},
@@ -30,7 +30,7 @@
 			"type": "process",
 			"args": [
 				"publish",
-				"${workspaceFolder}/CLS.WebApi/CLS.WebApi.csproj",
+				"${workspaceFolder}/WebApi/Deliver.WebApi.csproj",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
@@ -44,7 +44,7 @@
 				"watch",
 				"run",
 				"--project",
-				"${workspaceFolder}/CLS.WebApi/CLS.WebApi.csproj"
+				"${workspaceFolder}/WebApi/Deliver.WebApi.csproj"
 			],
 			"problemMatcher": "$msCompile"
 		}

@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi.Data.Models;
+namespace Deliver.WebApi.Data.Models;
 
 public class CustomerHierarchy
 {

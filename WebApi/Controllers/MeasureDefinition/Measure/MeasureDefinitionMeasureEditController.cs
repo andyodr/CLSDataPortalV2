@@ -1,10 +1,10 @@
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.MeasureDefinition.Measure;
+namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]

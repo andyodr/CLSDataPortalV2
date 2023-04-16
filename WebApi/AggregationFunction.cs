@@ -1,4 +1,4 @@
-﻿namespace CLS.WebApi;
+﻿namespace Deliver.WebApi;
 
 public class AggregationFunction
 {

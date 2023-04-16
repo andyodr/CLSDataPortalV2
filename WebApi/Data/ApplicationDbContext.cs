@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using CLS.WebApi.Data.Models;
+using Deliver.WebApi.Data.Models;
 
-namespace CLS.WebApi.Data;
+namespace Deliver.WebApi.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {

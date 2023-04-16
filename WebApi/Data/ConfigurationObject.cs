@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata;
+using System.ComponentModel.DataAnnotations;
 
-namespace CLS.WebApi.Data;
+namespace Deliver.WebApi.Data;
 
 public class ConfigurationObject
 {

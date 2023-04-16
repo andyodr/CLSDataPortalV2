@@ -1,6 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 
-namespace CLS.WebApi.Data.Models;
+namespace Deliver.WebApi.Data.Models;
 
 public class Measure
 {

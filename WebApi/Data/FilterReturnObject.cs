@@ -1,6 +1,6 @@
-using CLS.WebApi.Controllers.MeasureDefinition.Type;
+using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
-namespace CLS.WebApi.Data;
+namespace Deliver.WebApi.Data;
 
 public class FilterReturnObject
 {

@@ -1,5 +1,5 @@
-namespace CLS.WebApi.Data;
-using static CLS.WebApi.Helper;
+namespace Deliver.WebApi.Data;
+using static Deliver.WebApi.Helper;
 
 public class UserObject
 {

@@ -1,11 +1,11 @@
-using CLS.WebApi.Data;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.Users;
+namespace Deliver.WebApi.Controllers.Users;
 
 [ApiController]
 [Route("api/users/[controller]")]

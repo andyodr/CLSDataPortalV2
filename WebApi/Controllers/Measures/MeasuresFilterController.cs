@@ -1,10 +1,10 @@
-using CLS.WebApi.Controllers.MeasureDefinition.Type;
-using CLS.WebApi.Data;
+using Deliver.WebApi.Controllers.MeasureDefinition.Type;
+using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static CLS.WebApi.Helper;
+using static Deliver.WebApi.Helper;
 
-namespace CLS.WebApi.Controllers.Measures;
+namespace Deliver.WebApi.Controllers.Measures;
 
 [ApiController]
 [Route("api/measures/[controller]")]
@@ -12,18 +12,17 @@ namespace CLS.WebApi.Controllers.Measures;
 public class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public FilterController(ApplicationDbContext context) => _dbc = context;
 
-	[HttpGet]
-	public ActionResult<FilterReturnObject> GetAll() {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+	[HttpGet("{measureTypeId?}/{hierarchyId?}")]
+	public ActionResult<FilterReturnObject> GetAll(int? measureTypeId, int? hierarchyId) {
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
-			var result = new FilterReturnObject {
+		try {
+			FilterReturnObject result = new() {
 				MeasureTypes = _dbc.MeasureType
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 					.ToArray(),
@@ -32,10 +31,10 @@ public class FilterController : ControllerBase
 				}
 			};
 
-			var hierarchyId = _user.savedFilters[pages.measure].hierarchyId ??= 1;
-			var measureTypeId = _user.savedFilters[pages.measure].measureTypeId ??= _dbc.MeasureType.First().Id;
+			var hId = _user.savedFilters[pages.measure].hierarchyId ??= 1;
+			var tId = _user.savedFilters[pages.measure].measureTypeId ??= _dbc.MeasureType.First().Id;
 			result.Filter = _user.savedFilters[pages.measure];
-			result.Measures = IndexController.GetMeasures(_dbc, hierarchyId, measureTypeId);
+			result.Measures = IndexController.GetMeasures(_dbc, hierarchyId ?? hId, measureTypeId ?? tId);
 			return result;
 		}
 		catch (Exception e) {
