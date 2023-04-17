@@ -180,8 +180,8 @@
           </ng-container>
           <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
-            <td mat-cell *matCellDef="let element"> 
-              <ng-container *ngIf="!element.target && !isEditMode">{{element.value}}</ng-container>
+            <td mat-cell *matCellDef="let element">
+              <ng-container *ngIf="!element.target && !isEditMode"> <div>{{element.value}}</div></ng-container>
               <ng-container *ngIf="element.value && element.target">
                 <div [ngClass]="{
                   bggreen: element.value >= element.target,
@@ -256,13 +256,15 @@
                   <b>Description: </b><span>{{element.description}}</span>
                   <b>Updated By: </b><span>{{element.updated.by}}</span>
                   <b>Updated: </b><span>{{element.updated.longDt}}</span>
-                  <span><b>Target: </b><span style="padding: 0 1ch;" class=" bggreen">{{element.target}}</span>
+                  <!-- <span><b>Target: </b><span style="padding: 0 1ch;" class=" bggreen">{{element.target}}</span>
                   <b> / </b><span style="padding: 0 1ch;" class=" bgorange">{{element.yellow}}</span>
+                  </span> -->
+                  <b>Target: </b>
+                  <span>
+                    <span style="padding: 0 1ch;" class="bggreen">{{element.target}}</span>
+                    <b>/</b>
+                    <span style="padding: 0 1ch;" class="bgorange">{{element.yellow}}</span>
                   </span>
-                  <!-- <b>Target: </b>
-                  <span style="padding: 0 1ch;" class="bggreen">{{element.target}}</span>
-                  <b>/</b>
-                  <span style="padding: 0 1ch;" class="bgorange">{{element.yellow}}</span> -->
                   <!-- <span><b>Updated By: </b><span>{{element.updated.by}}</span></span> -->
                 </div>
                 <div class="detail-items-3"><b>{{element.expression ? 'Expression: ' : ''}}</b> {{element.expression}}</div>
