@@ -36,34 +36,34 @@ public class IntervalsController : ControllerBase
 			switch (values.intervalId) {
 				case (int)Intervals.Weekly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
-						id = d.Id,
-						number = d.WeekNumber,
-						startDate = d.StartDate.ToString(),
-						endDate = d.EndDate.ToString(),
-						month = null
+						Id = d.Id,
+						Number = d.WeekNumber,
+						StartDate = d.StartDate.ToString(),
+						EndDate = d.EndDate.ToString(),
+						Month = null
 					}));
 					break;
 				case (int)Intervals.Monthly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Month).Select(d => new GetIntervalsObject {
-						id = d.Id,
-						number = d.WeekNumber,
-						startDate = d.StartDate.ToString(),
-						endDate = d.EndDate.ToString(),
-						month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(d.Month))
+						Id = d.Id,
+						Number = d.WeekNumber,
+						StartDate = d.StartDate.ToString(),
+						EndDate = d.EndDate.ToString(),
+						Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(d.Month))
 					}));
 					break;
 				case (int)Intervals.Quarterly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
-						id = d.Id,
-						number = d.Quarter,
-						startDate = d.StartDate.ToString(),
-						endDate = d.EndDate.ToString(),
-						month = null
+						Id = d.Id,
+						Number = d.Quarter,
+						StartDate = d.StartDate.ToString(),
+						EndDate = d.EndDate.ToString(),
+						Month = null
 					}));
 					break;
 				default:
 					var intervalObject = new GetIntervalsObject();
-					intervalObject.error.Message = Resource.VAL_VALID_INTERVAL_ID;
+					intervalObject.Error.Message = Resource.VAL_VALID_INTERVAL_ID;
 					returnObject.data.Add(intervalObject);
 					break;
 			}

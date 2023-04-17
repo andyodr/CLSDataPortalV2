@@ -27,51 +27,35 @@ public class FilterController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetIntervalsObject>))]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public IActionResult Get([FromQuery] MeasureDataFilterReceiveObject values) {
+	public async Task<IActionResult> GetAsync([FromQuery] MeasureDataFilterReceiveObject values, CancellationToken token) {
 		if (values.year is null) {
-			return Filter();
+			return await FilterAsync(token);
 		}
 		else {
-			return Filter(values);
+			return await FilterAsync(values, token);
 		}
 	}
 
-	private IActionResult Filter() {
+	private async Task<IActionResult> FilterAsync(CancellationToken token) {
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
 			FilterReturnObject filter = new() {
-				Intervals = _dbc.Interval.OrderBy(i => i.Id)
-					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
+				Intervals = await _dbc.Interval.OrderBy(i => i.Id)
+					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
 				Hierarchy = new RegionFilterObject[] {
 					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
 				},
-				Years = _dbc.Calendar
+				Years = await _dbc.Calendar
 					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
-					.OrderByDescending(c => c.Year).Select(c => new YearsObject { id = c.Id, year = c.Year }).ToArray(),
+					.OrderByDescending(c => c.Year)
+					.Select(c => new YearsObject { id = c.Id, year = c.Year }).ToArrayAsync(token),
 				CurrentCalendarIds = new(),
-				MeasureTypes = _dbc.MeasureType.OrderBy(m => m.Id)
-					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
+				MeasureTypes = await _dbc.MeasureType.OrderBy(m => m.Id)
+					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArrayAsync(token)
 			};
-
-			// set current Calendar Ids
-			//try
-			//{
-			//  filter.currentCalendarIds.weeklyCalendarId =
-			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Id;
-
-			//  filter.currentCalendarIds.monthlyCalendarId =
-			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Id;
-
-			// filter.currentCalendarIds.quarterlyCalendarId =
-			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Id;
-
-			// filter.currentCalendarIds.yearlyCalendarId =
-			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Id;
-			//}
-			//catch {}
 
 			// set Previous Calendar Ids
 			try {
@@ -120,58 +104,48 @@ public class FilterController : ControllerBase
 	}
 
 	// Used after Measure Data page has been open already.
-	private IActionResult Filter(MeasureDataFilterReceiveObject values) {
+	private async Task<IActionResult> FilterAsync(MeasureDataFilterReceiveObject body, CancellationToken token) {
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new List<GetIntervalsObject>();
-			_user.savedFilters[pages.measureData].intervalId = values.intervalId;
+			_user.savedFilters[pages.measureData].intervalId = body.intervalId;
 
-			if (values.intervalId == (int)Intervals.Weekly) {
-				var cal = _dbc.Calendar.OrderBy(c => c.WeekNumber).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
-				foreach (var c in cal.AsNoTracking()) {
-					result.Add(new GetIntervalsObject {
-						id = c.Id,
-						number = c.WeekNumber,
-						startDate = c.StartDate.ToString(),
-						endDate = c.StartDate.ToString(),
-						month = null
-					});
-				}
-			}
-			else if (values.intervalId == (int)Intervals.Monthly) {
-				var cal = _dbc.Calendar.OrderBy(c => c.Month).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
-				foreach (var c in cal.AsNoTracking()) {
-					result.Add(new GetIntervalsObject {
-						id = c.Id,
-						number = c.WeekNumber,
-						startDate = c.StartDate.ToString(),
-						endDate = c.EndDate.ToString(),
-						month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
-					});
-				}
-			}
-			else if (values.intervalId == (int)Intervals.Quarterly) {
-				var data = _dbc.Calendar.OrderBy(c => c.Quarter).Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
-				var dataObject = data.Select(d => new GetIntervalsObject {
-					id = d.Id,
-					number = d.WeekNumber,
-					startDate = d.StartDate.ToString(),
-					endDate = d.EndDate.ToString(),
-					month = null
-				});
-				foreach (var Object in dataObject) {
-					result.Add(new GetIntervalsObject { id = Object.id, number = Object.number, startDate = Object.startDate, endDate = Object.endDate, month = Object.month });
-				}
-			}
-			else {
-				var intervalObject = new GetIntervalsObject();
-				intervalObject.error.Message = Resource.VAL_VALID_INTERVAL_ID;
-				result.Add(intervalObject);
-			}
-			return Ok(result);
+			return body.intervalId switch {
+				(int)Intervals.Weekly => Ok(await _dbc.Calendar.OrderBy(c => c.WeekNumber)
+						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Select(c => new GetIntervalsObject {
+							Id = c.Id,
+							Number = c.WeekNumber,
+							StartDate = c.StartDate.ToString(),
+							EndDate = c.StartDate.ToString(),
+							Month = null
+						})
+						.ToArrayAsync(token)),
+				(int)Intervals.Monthly => Ok(await _dbc.Calendar.OrderBy(c => c.Month)
+						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Select(c => new GetIntervalsObject {
+							Id = c.Id,
+							Number = c.WeekNumber,
+							StartDate = c.StartDate.ToString(),
+							EndDate = c.EndDate.ToString(),
+							Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
+						})
+						.ToArrayAsync(token)),
+				(int)Intervals.Quarterly => Ok(await _dbc.Calendar.OrderBy(c => c.Quarter)
+						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Select(d => new GetIntervalsObject {
+							Id = d.Id,
+							Number = d.WeekNumber,
+							StartDate = d.StartDate.ToString(),
+							EndDate = d.EndDate.ToString(),
+							Month = null
+						}).ToArrayAsync(token)),
+				_ => Ok(new GetIntervalsObject() {
+					Error = new ErrorModel() { Message = Resource.VAL_VALID_INTERVAL_ID }
+				})
+			};
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
