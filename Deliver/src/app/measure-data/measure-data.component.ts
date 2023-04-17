@@ -342,6 +342,15 @@ export class MeasureDataComponent implements OnInit {
         // this.selectedRow = { ...measureDataRow };
         // this.model.explanation = measureDataRow.explanation;
         // this.model.action = measureDataRow.action;
+        if (!measureDataRow.calculated) {
+            this.model.value = measureDataRow.value;
+        }
+        if (measureDataRow.explanation) {
+            this.model.explanation = measureDataRow.explanation;
+        }
+        if (measureDataRow.action) {
+            this.model.action = measureDataRow.action;
+        }
     }
 
     onSave(measureDataRow: MeasureDataDto) {
