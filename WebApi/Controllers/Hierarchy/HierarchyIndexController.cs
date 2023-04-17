@@ -245,13 +245,13 @@ public class IndexController : ControllerBase
 	[NonAction]
 	public static RegionFilterObject CreateHierarchy(ApplicationDbContext dbc) {
 		// recursive CTE query
-		var hierarchies = dbc.Hierarchy.FromSql($@"WITH p AS
+		var hierarchies = dbc.Hierarchy.FromSql($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE HierarchyParentId IS NULL
 UNION ALL
 SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-FROM Hierarchy ch JOIN p ON ch.HierarchyParentId = p.Id)
-SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM p")
+FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id)
+SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r")
 			.AsEnumerable()
 			.Select(entity => new {
 				entity,
@@ -292,14 +292,14 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 	[NonAction]
 	public static RegionFilterObject CreateUserHierarchy(ApplicationDbContext dbc, int userId) {
 		// recursive CTE query
-		var hierarchies = dbc.Hierarchy.FromSql($@"WITH p AS
+		var hierarchies = dbc.Hierarchy.FromSql($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE HierarchyParentId IS NULL
 UNION ALL
 SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-FROM Hierarchy ch JOIN p ON ch.HierarchyParentId = p.Id
+FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id
 WHERE ch.Active = 1)
-SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM p")
+SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r")
 			.AsEnumerable()
 			.Select(entity => new {
 				entity,

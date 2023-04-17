@@ -80,14 +80,14 @@ public class AddController : ControllerBase
 			body.Id = user.Id;
 			if (body.HierarchiesId.Count > 0) {
 				// Add all the child hierarchies first before inserting UserHierarchy
-				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH f AS
+				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE Id IN ({string.Join(',', body.HierarchiesId)})
 UNION ALL
 SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
-FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
+FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
 WHERE h.HierarchyLevelId > 3)
-SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
+SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 				foreach (var hId in allSelectedHierarchies) {
 					_dbc.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
 				}

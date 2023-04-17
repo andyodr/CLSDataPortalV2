@@ -40,37 +40,35 @@ form {
   margin: 1em 0px;
 }
 
-.width-100 {
-  width: 100%;
-}
-
-.number-field {
-  width: 10em;
-  flex: 0;
-}
-
-.select-field {
-  min-width: 11em;
-}
-
-.field-group {
-  min-width: 40em;
-  display: inline-flex;
+.form-grid {
+  display: grid;
+  grid: auto-flow / repeat(auto-fit, minmax(7em, 1fr));
   gap: .625em;
 }
 
-.field-group:nth-of-type(3) {
-  min-width: calc(40em / 3 * 2);
+.span-2 {
+  grid-column: span 2;
 }
 
-div.field-group>* {
+.span-4 {
+  grid-column: span 4;
+}
+
+.span-all {
+  grid-column: 1 / -1;
+}
+
+.flex {
+  display: flex;
+  gap: .625em;
+}
+
+div.flex mat-checkbox {
   flex: 1;
-}
-
-div.field-group>mat-checkbox {
   margin: .625em 0em;
 }
 
-.field-group-label {
-  color: hsl(0 0% 0% / .54);
+.accent-6 {
+  color: hsl(var(--jaguar-gold));
+  opacity: .9;
 }

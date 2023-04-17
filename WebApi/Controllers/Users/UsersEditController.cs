@@ -116,14 +116,14 @@ public class EditController : ControllerBase
 
 			if (body.HierarchiesId.Count > 0) {
 				// UI only shows hierarchyLevel < 5, but we need to add all the child hierarchies as well
-				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH f AS
+				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE HierarchyLevelId < 4 AND Id IN ({string.Join(',', body.HierarchiesId)})
 UNION ALL
 SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
-FROM Hierarchy h JOIN f ON h.HierarchyParentId = f.Id
+FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
 WHERE h.HierarchyLevelId > 3)
-SELECT DISTINCT * FROM f").AsEnumerable().Select(h => h.Id).ToArray();
+SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 				_dbc.UserHierarchy
 					.Where(h => h.UserId == id && !allSelectedHierarchies.Contains(h.HierarchyId))
 					.ExecuteDelete();

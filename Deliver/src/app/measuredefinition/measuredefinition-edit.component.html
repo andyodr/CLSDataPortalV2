@@ -13,17 +13,18 @@
       </button>
     </div>
     <form #mdForm>
-      <div class="field-group">
-        <mat-form-field appearance="fill">
+      <div class="form-grid">
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Measure Definition Name</mat-label>
           <input matInput name="mdName" [(ngModel)]="md.name" required="true" placeholder="Ex. Cycle Count Performance"
             [disabled]="disabledAll">
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Variable Name</mat-label>
-          <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS" [disabled]="disabledAll">
+          <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS"
+            [disabled]="disabledAll">
         </mat-form-field>
-        <mat-form-field class="select-field" appearance="fill">
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Measure Type</mat-label>
           <mat-select name="measureType" [(ngModel)]="md.measureType" required="true" [disabled]="disabledAll">
             <mat-option *ngFor="let mt of measureTypes" [value]="mt">
@@ -31,18 +32,18 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-      </div>
-      <mat-form-field class="width-100" appearance="fill">
-        <mat-label>Description</mat-label>
-        <input matInput name="description" [(ngModel)]="md.description"
-          placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
-      </mat-form-field>
-      <div class="field-group">
-        <mat-form-field class="number-field" appearance="fill">
-          <mat-label>Precision</mat-label>
-          <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true" [disabled]="disabledAll">
+        <mat-form-field class="span-all" appearance="fill">
+          <mat-label>Description</mat-label>
+          <textarea matInput name="description" [(ngModel)]="md.description"
+            placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
+          </textarea>
         </mat-form-field>
-        <mat-form-field class="select-field" appearance="fill">
+        <mat-form-field appearance="fill">
+          <mat-label>Precision</mat-label>
+          <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true"
+            [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Units</mat-label>
           <mat-select name="unit" [(ngModel)]="md.unit" [disabled]="disabledAll">
             <mat-option *ngFor="let unit of units" [value]="unit">
@@ -50,22 +51,22 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field class="number-field" appearance="fill">
+        <mat-form-field appearance="fill">
           <mat-label>Field Number</mat-label>
-          <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true" [disabled]="disabledAll">
+          <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true"
+            [disabled]="disabledAll">
         </mat-form-field>
-      </div>
-      <mat-form-field class="width-100" appearance="fill">
-        <mat-label>Expression</mat-label>
-        <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
-          [disabled]="disabledAll"></textarea>
-      </mat-form-field>
-      <div class="field-group">
-        <mat-form-field class="number-field" appearance="fill">
+        <mat-form-field class="span-all" appearance="fill">
+          <mat-label>Expression</mat-label>
+          <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
+            [disabled]="disabledAll"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
           <mat-label>Priority</mat-label>
-          <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true" [disabled]="disabledAll">
+          <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true"
+            [disabled]="disabledAll">
         </mat-form-field>
-        <mat-form-field class="select-field" appearance="fill">
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Report Interval</mat-label>
           <mat-select name="intervals" [(ngModel)]="md.interval" (selectionChange)="intervalChanged($event)"
             [disabled]="disabledAll" #rint>
@@ -74,18 +75,18 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-      </div>
-      <div class="field-group-label">Aggregation Intervals</div>
-      <div class="field-group">
-        <mat-checkbox name="weekly" [(ngModel)]="md.weekly" color="primary" (change)="cbChanged($event)"
-          [disabled]="rint.value == null || rint.value.id >= Intervals.Weekly">Weekly</mat-checkbox>
-        <mat-checkbox name="monthly" [(ngModel)]="md.monthly" color="primary" (change)="cbChanged($event)"
-          [disabled]="rint.value == null || rint.value.id >= Intervals.Monthly">Monthly</mat-checkbox>
-        <mat-checkbox name="quarterly" [(ngModel)]="md.quarterly" color="primary" (change)="cbChanged($event)"
-          [disabled]="rint.value == null || rint.value.id >= Intervals.Quarterly">Quarterly</mat-checkbox>
-        <mat-checkbox name="yearly" [(ngModel)]="md.yearly" color="primary" (change)="cbChanged($event)"
-          [disabled]="rint.value == null || rint.value.id >= Intervals.Yearly">Yearly</mat-checkbox>
-        <mat-form-field class="select-field" appearance="fill">
+        <div class="span-all accent-6">Aggregation Intervals</div>
+        <div class="span-4 flex">
+          <mat-checkbox name="weekly" [(ngModel)]="md.weekly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Weekly">Weekly</mat-checkbox>
+          <mat-checkbox name="monthly" [(ngModel)]="md.monthly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Monthly">Monthly</mat-checkbox>
+          <mat-checkbox name="quarterly" [(ngModel)]="md.quarterly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Quarterly">Quarterly</mat-checkbox>
+          <mat-checkbox name="yearly" [(ngModel)]="md.yearly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Yearly">Yearly</mat-checkbox>
+        </div>
+        <mat-form-field class="span-2" appearance="fill">
           <mat-label>Aggregation Function</mat-label>
           <mat-select name="units" [(ngModel)]="md.aggFunction" required="true" [disabled]="disabledAll">
             <mat-option *ngFor="let fn of aggFunctions" [value]="fn">
