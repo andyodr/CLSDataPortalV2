@@ -15,6 +15,7 @@ app-sidebar~* {
 
 .panel-body {
   padding: 15px;
+  color: var(--jaguar-black);
 }
 
 .panel-header {
@@ -70,5 +71,5 @@ div.flex mat-checkbox {
 
 .accent-6 {
   color: hsl(var(--jaguar-gold));
-  opacity: .9;
+  opacity: .6;
 }

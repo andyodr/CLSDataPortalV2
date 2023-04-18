@@ -1,4 +1,6 @@
 namespace Deliver.WebApi.Data;
+
+using System.Security.Claims;
 using static Deliver.WebApi.Helper;
 
 public class UserObject
@@ -33,4 +35,16 @@ public class UserObject
 		{ pages.measureDefinition, new FilterSaveObject() },
 		{ pages.dataImports, new FilterSaveObject() }
 	};
+
+	public static implicit operator UserObject(ClaimsPrincipal userClaim) {
+		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		if (claimUserId is string userId) {
+			return new UserObject {
+				Id = int.Parse(userId),
+				UserName = userClaim.Identity!.Name!
+			};
+		}
+
+		return new UserObject();
+	}
 }

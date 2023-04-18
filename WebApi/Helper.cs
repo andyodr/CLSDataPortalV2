@@ -246,40 +246,6 @@ public static class Helper
 		}
 	}
 
-	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, int hierarchyId) {
-		try {
-			string result = String.Empty;
-			var dtNow = DateTime.Now;
-			foreach (var measureDef in dbc.MeasureDefinition.Select(md => new { md.Id, md.Calculated })) {
-				//create Measure records
-				_ = dbc.Measure.Add(new() {
-					HierarchyId = hierarchyId,
-					MeasureDefinitionId = measureDef.Id,
-					Active = true,
-					Expression = measureDef.Calculated,
-					Rollup = true,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			//make target ids
-			foreach (var measure in dbc.Measure.Where(m => m.HierarchyId == hierarchyId)) {
-				_ = dbc.Target.Add(new() {
-					Measure = measure,
-					Active = true,
-					UserId = userId,
-					IsProcessed = (byte)IsProcessed.complete,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			return result;
-		}
-		catch (Exception e) {
-			return e.Message;
-		}
-	}
-
 	public struct DateTimeSpan
 	{
 		private readonly int years;
@@ -366,9 +332,10 @@ public static class Helper
 	}
 
 	public static UpdatedObject LastUpdatedOnObj(DateTime lastUpdatedOn, string? userName) {
-		var update = new UpdatedObject();
-		update.By = userName;
-		update.LongDt = lastUpdatedOn.ToString();
+		UpdatedObject update = new() {
+			By = userName,
+			LongDt = lastUpdatedOn.ToString()
+		};
 
 		//// Convert to seconds
 		//int seconds = (int)DateTime.Now.Subtract(lastUpdatedOn).TotalSeconds;
@@ -422,15 +389,8 @@ public static class Helper
 	}
 
 	public static UserObject? CreateUserObject(ClaimsPrincipal userClaim) {
-		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-		if (claimUserId is string userId) {
-			return new UserObject {
-				Id = int.Parse(userId),
-				UserName = userClaim.Identity!.Name!
-			};
-		}
-
-		return null;
+		UserObject user = userClaim;
+		return user.Id > 0 ? user : null;
 	}
 
 	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext dbc) {

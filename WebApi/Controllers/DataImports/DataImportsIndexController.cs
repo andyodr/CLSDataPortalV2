@@ -43,7 +43,7 @@ public class IndexController : ControllerBase
 										   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
 										   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
-			// Find Current Year from previuos default interval
+			// Find Current Year from previous default interval
 			var calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
 			result.CurrentYear = _dbc.Calendar.Where(c => c.Id == calendarId).First().Year;
 

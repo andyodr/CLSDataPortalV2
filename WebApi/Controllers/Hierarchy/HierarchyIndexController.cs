@@ -68,7 +68,7 @@ public class IndexController : ControllerBase
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			_ = _dbc.SaveChanges();
-			var newHierarchy = new RegionsDataViewModel {
+			RegionsDataViewModel newHierarchy = new() {
 				Id = updatedHierarchy.Id,
 				Name = updatedHierarchy.Name,
 				LevelId = updatedHierarchy.HierarchyLevelId,
@@ -81,12 +81,12 @@ public class IndexController : ControllerBase
 			newHierarchy.ParentId = parent?.Id;
 			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			string measuresAndTargets = CreateMeasuresAndTargets(_dbc, _user.Id, newHierarchy.Id);
-			_dbc.SaveChanges();
-			if (!string.IsNullOrEmpty(measuresAndTargets)) {
-				throw new Exception(measuresAndTargets);
+			string creationResult = CreateMeasuresAndTargets(_user.Id, newHierarchy.Id);
+			if (!string.IsNullOrEmpty(creationResult)) {
+				throw new Exception(creationResult);
 			}
 
+			_dbc.SaveChanges();
 			var exists = (from measure in _dbc.Measure
 						  from md in measure.MeasureData
 						  where measure.HierarchyId == newHierarchy.Id
@@ -236,14 +236,47 @@ public class IndexController : ControllerBase
 		}
 	}
 
+	private string CreateMeasuresAndTargets(int userId, int hierarchyId) {
+		try {
+			string result = string.Empty;
+			var dtNow = DateTime.Now;
+			foreach (var measureDef in _dbc.MeasureDefinition.Select(md => new { md.Id, md.Calculated })) {
+				//create Measure records
+				_ = _dbc.Measure.Add(new() {
+					HierarchyId = hierarchyId,
+					MeasureDefinitionId = measureDef.Id,
+					Active = true,
+					Expression = measureDef.Calculated,
+					Rollup = true,
+					LastUpdatedOn = dtNow
+				});
+			}
+
+			//make target ids
+			foreach (var measure in _dbc.Measure.Where(m => m.HierarchyId == hierarchyId)) {
+				_ = _dbc.Target.Add(new() {
+					Measure = measure,
+					Active = true,
+					UserId = userId,
+					IsProcessed = (byte)IsProcessed.complete,
+					LastUpdatedOn = dtNow
+				});
+			}
+
+			return result;
+		}
+		catch (Exception e) {
+			return e.Message;
+		}
+	}
+
 	class RegionParentChildPair
 	{
 		public RegionFilterObject? dto;
 		public RegionParentChildPair? parent;
 	}
 
-	[NonAction]
-	public static RegionFilterObject CreateHierarchy(ApplicationDbContext dbc) {
+	private static RegionFilterObject CreateHierarchy(ApplicationDbContext dbc) {
 		// recursive CTE query
 		var hierarchies = dbc.Hierarchy.FromSql($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
