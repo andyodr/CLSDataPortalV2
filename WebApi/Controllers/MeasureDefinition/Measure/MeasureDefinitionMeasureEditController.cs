@@ -196,7 +196,7 @@ public class EditController : ControllerBase
 			}
 
 			mDef.LastUpdatedOn = lastUpdatedOn;
-			mDef.IsProcessed = (byte)IsProcessed.complete;
+			mDef.IsProcessed = (byte)IsProcessed.Complete;
 
 			_dbc.SaveChanges();
 			result.Data.Add(body);

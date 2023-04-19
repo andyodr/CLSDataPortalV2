@@ -26,8 +26,8 @@ public class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			_user.savedFilters[pages.measure].hierarchyId = hierarchyId;
-			_user.savedFilters[pages.measure].measureTypeId = measureTypeId;
+			_user.savedFilters[Pages.Measure].hierarchyId = hierarchyId;
+			_user.savedFilters[Pages.Measure].measureTypeId = measureTypeId;
 
 			return GetMeasures(_dbc, hierarchyId, measureTypeId);
 		}
@@ -108,9 +108,9 @@ public class IndexController : ControllerBase
 					_dbc.SaveChanges();
 
 					if (updateMeasureData) {
-						var EnumIsProcessed = IsProcessed.measureData;
+						var EnumIsProcessed = IsProcessed.MeasureData;
 						if (!measure.Active ?? true) {
-							EnumIsProcessed = IsProcessed.complete;
+							EnumIsProcessed = IsProcessed.Complete;
 						}
 
 						UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);

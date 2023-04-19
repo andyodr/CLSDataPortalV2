@@ -95,7 +95,7 @@ public class IndexController : ControllerBase
 				returnObject.Data.Add(currentMD);
 			}
 
-			_user.savedFilters[pages.measureDefinition].measureTypeId = measureTypeId;
+			_user.savedFilters[Pages.MeasureDefinition].measureTypeId = measureTypeId;
 			//returnObject.filter = _user.savedFilters[pages.measureDefinition];
 
 			return returnObject;

@@ -133,7 +133,7 @@ public class IndexController : ControllerBase
 				updateHierarchy.HierarchyParentId = null;
 			}
 
-			updateHierarchy.IsProcessed = (byte)IsProcessed.complete;
+			updateHierarchy.IsProcessed = (byte)IsProcessed.Complete;
 			_dbc.SaveChanges();
 
 			var newHierarchy = new RegionsDataViewModel {
@@ -258,7 +258,7 @@ public class IndexController : ControllerBase
 					Measure = measure,
 					Active = true,
 					UserId = userId,
-					IsProcessed = (byte)IsProcessed.complete,
+					IsProcessed = (byte)IsProcessed.Complete,
 					LastUpdatedOn = dtNow
 				});
 			}

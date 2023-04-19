@@ -27,8 +27,8 @@ public class FilterController : ControllerBase
 				MeasureTypes = _dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
 			};
 
-			_user.savedFilters[pages.measureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
-			result.Filter = _user.savedFilters[pages.measureDefinition];
+			_user.savedFilters[Pages.MeasureDefinition].measureTypeId ??= _dbc.MeasureType.FirstOrDefault()?.Id;
+			result.Filter = _user.savedFilters[Pages.MeasureDefinition];
 			return result;
 		}
 		catch (Exception e) {

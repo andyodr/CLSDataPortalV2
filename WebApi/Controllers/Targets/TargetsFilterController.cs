@@ -38,9 +38,9 @@ public class FilterController : ControllerBase
 				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 				.ToArray();
 
-			_user.savedFilters[pages.target].measureTypeId ??= _dbc.MeasureType.First().Id;
-			_user.savedFilters[pages.target].hierarchyId ??= 1;
-			result.Filter = _user.savedFilters[pages.target];
+			_user.savedFilters[Pages.Target].measureTypeId ??= _dbc.MeasureType.First().Id;
+			_user.savedFilters[Pages.Target].hierarchyId ??= 1;
+			result.Filter = _user.savedFilters[Pages.Target];
 			return result;
 		}
 

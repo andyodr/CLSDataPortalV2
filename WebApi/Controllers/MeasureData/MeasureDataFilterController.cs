@@ -71,30 +71,30 @@ public class FilterController : ControllerBase
 
 			//set filter values
 			// Get Previous Calendar Id
-			if (_user.savedFilters[pages.measureData].calendarId is null) {
-				_user.savedFilters[pages.measureData].calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
+			if (_user.savedFilters[Pages.MeasureData].calendarId is null) {
+				_user.savedFilters[Pages.MeasureData].calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
 			}
 
-			if (_user.savedFilters[pages.measureData].hierarchyId is null) {
-				_user.savedFilters[pages.measureData].hierarchyId = 1;
+			if (_user.savedFilters[Pages.MeasureData].hierarchyId is null) {
+				_user.savedFilters[Pages.MeasureData].hierarchyId = 1;
 			}
 
-			if (_user.savedFilters[pages.measureData].intervalId is null) {
-				_user.savedFilters[pages.measureData].intervalId = _config.DefaultInterval;
+			if (_user.savedFilters[Pages.MeasureData].intervalId is null) {
+				_user.savedFilters[Pages.MeasureData].intervalId = _config.DefaultInterval;
 			}
 
-			if (_user.savedFilters[pages.measureData].measureTypeId is null) {
-				_user.savedFilters[pages.measureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
+			if (_user.savedFilters[Pages.MeasureData].measureTypeId is null) {
+				_user.savedFilters[Pages.MeasureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
 			}
 
 			//if( _user.savedFilters[Helper.pages.measureData].year == null )
 			//  _user.savedFilters[Helper.pages.measureData].year =
 			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Year;
-			if (_user.savedFilters[pages.measureData].year is null) {
-				_user.savedFilters[pages.measureData].year = _dbc.Calendar.Find(_user.savedFilters[pages.measureData].calendarId)?.Year;
+			if (_user.savedFilters[Pages.MeasureData].year is null) {
+				_user.savedFilters[Pages.MeasureData].year = _dbc.Calendar.Find(_user.savedFilters[Pages.MeasureData].calendarId)?.Year;
 			}
 
-			filter.Filter = _user.savedFilters[pages.measureData];
+			filter.Filter = _user.savedFilters[Pages.MeasureData];
 
 			return Ok(filter);
 		}
@@ -110,7 +110,7 @@ public class FilterController : ControllerBase
 		}
 
 		try {
-			_user.savedFilters[pages.measureData].intervalId = body.intervalId;
+			_user.savedFilters[Pages.MeasureData].intervalId = body.intervalId;
 
 			return body.intervalId switch {
 				(int)Intervals.Weekly => Ok(await _dbc.Calendar.OrderBy(c => c.WeekNumber)

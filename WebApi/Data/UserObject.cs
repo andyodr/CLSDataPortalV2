@@ -27,13 +27,13 @@ public class UserObject
 
 	public List<UserCalendarLocks> calendarLockIds = new();
 
-	public Dictionary<pages, FilterSaveObject> savedFilters = new ()
+	public Dictionary<Pages, FilterSaveObject> savedFilters = new ()
 	{
-		{ pages.measureData, new FilterSaveObject() },
-		{ pages.target, new FilterSaveObject() },
-		{ pages.measure, new FilterSaveObject() },
-		{ pages.measureDefinition, new FilterSaveObject() },
-		{ pages.dataImports, new FilterSaveObject() }
+		{ Pages.MeasureData, new FilterSaveObject() },
+		{ Pages.Target, new FilterSaveObject() },
+		{ Pages.Measure, new FilterSaveObject() },
+		{ Pages.MeasureDefinition, new FilterSaveObject() },
+		{ Pages.DataImports, new FilterSaveObject() }
 	};
 
 	public static implicit operator UserObject(ClaimsPrincipal userClaim) {

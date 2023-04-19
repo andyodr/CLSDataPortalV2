@@ -101,7 +101,7 @@ public class EditController : ControllerBase
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.complete);
+					UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
 
 					AddAuditTrail(_context,
 						Resource.WEB_PAGES,

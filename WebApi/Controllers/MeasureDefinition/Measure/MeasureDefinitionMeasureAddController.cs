@@ -138,7 +138,7 @@ public class AddController : ControllerBase
 			}
 
 			currentMD.LastUpdatedOn = lastUpdatedOn;
-			currentMD.IsProcessed = (byte)IsProcessed.complete;
+			currentMD.IsProcessed = (byte)IsProcessed.Complete;
 
 			var test = _dbc.MeasureDefinition.Add(currentMD);
 			_dbc.SaveChanges();

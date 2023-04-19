@@ -79,9 +79,9 @@ public class IndexController : ControllerBase
 			result.Allow = User.IsInRole(Roles.SystemAdministrator.ToString()) && _dbc
 				.UserHierarchy
 				.Where(d => d.UserId == _user.Id && d.HierarchyId == hierarchyId).Any();
-			_user.savedFilters[pages.target].hierarchyId = hierarchyId;
-			_user.savedFilters[pages.target].measureTypeId = measureTypeId;
-			result.Filter = _user.savedFilters[pages.target];
+			_user.savedFilters[Pages.Target].hierarchyId = hierarchyId;
+			_user.savedFilters[Pages.Target].measureTypeId = measureTypeId;
+			result.Filter = _user.savedFilters[Pages.Target];
 			return result;
 		}
 		catch (Exception e) {
@@ -125,7 +125,7 @@ public class IndexController : ControllerBase
 			// Set current target to inactive if there are multiple targets
 			long returnTargetId = target.Id;
 
-			target.IsProcessed = (byte)IsProcessed.complete;
+			target.IsProcessed = (byte)IsProcessed.Complete;
 			target.LastUpdatedOn = lastUpdatedOn;
 			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
 
@@ -139,7 +139,7 @@ public class IndexController : ControllerBase
 					MeasureId = body.MeasureId ?? 0L,
 					LastUpdatedOn = lastUpdatedOn,
 					UserId = _user.Id,
-					IsProcessed = (byte)IsProcessed.complete
+					IsProcessed = (byte)IsProcessed.Complete
 				}).Entity;
 
 				_dbc.SaveChanges();
@@ -223,7 +223,7 @@ public class IndexController : ControllerBase
 					var target = _dbc.Target.Where(t => t.MeasureId == measureId && t.Active == true).First();
 
 					// Set current target to inactive if there are multiple targets
-					target.IsProcessed = (byte)IsProcessed.complete;
+					target.IsProcessed = (byte)IsProcessed.Complete;
 					target.LastUpdatedOn = lastUpdatedOn;
 
 					if (targetCount == 1 && target.Value is null && target.YellowValue is null) {
@@ -243,7 +243,7 @@ public class IndexController : ControllerBase
 							MeasureId = measureId,
 							LastUpdatedOn = lastUpdatedOn,
 							UserId = _user.Id,
-							IsProcessed = (byte)IsProcessed.complete
+							IsProcessed = (byte)IsProcessed.Complete
 						}).Entity;
 
 						// Update Target Id for all Measure Data records for current intervals
@@ -294,7 +294,7 @@ public class IndexController : ControllerBase
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.Complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
@@ -305,7 +305,7 @@ public class IndexController : ControllerBase
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.Complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
@@ -316,7 +316,7 @@ public class IndexController : ControllerBase
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.Complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}
@@ -327,7 +327,7 @@ public class IndexController : ControllerBase
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
-					item.IsProcessed = (byte)IsProcessed.complete;
+					item.IsProcessed = (byte)IsProcessed.Complete;
 					item.UserId = userId;
 					item.LastUpdatedOn = lastUpdatedOn;
 				}

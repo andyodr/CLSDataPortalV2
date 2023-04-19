@@ -82,7 +82,7 @@ public class UploadController : ControllerBase
 			// --------------------------------------------------------
 			// Process Target
 			// --------------------------------------------------------
-			if (dataImport == (int)dataImports.target) {
+			if (dataImport == (int)Helper.DataImports.Target) {
 				var listTarget = new List<SheetDataTarget>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
@@ -94,20 +94,20 @@ public class UploadController : ControllerBase
 						listTarget.Add(value);
 					}
 					else {
-						result.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
+                        result.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 					}
 				}
 
 				if (result.Error.Count != 0) {
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 
 				// Find duplicates
 				var duplicates = from t in listTarget
 								 group t by new { t.HierarchyID, t.MeasureID } into g
-								 where g.Count() > 1
+								 where g.Count<SheetDataTarget>() > 1
 								 select g.Key;
 				if (duplicates.Any()) {
 					var duplicateRows = from t in listTarget
@@ -117,37 +117,37 @@ public class UploadController : ControllerBase
 										select t.RowNumber;
 
 					foreach (var itemRow in duplicateRows) {
-						result.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
+                        result.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
 					}
 
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 
 				foreach (var row in listTarget) {
-					ValidateTargetRows(row, _user.Id);
+                    ValidateTargetRows(row, _user.Id);
 				}
 
 				if (result.Error.Count != 0) {
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 				else {
 					TaskList.Clear();
 					foreach (var row in listTarget) {
-						ImportTargetRecords(row, _user.Id);
+                        ImportTargetRecords(row, _user.Id);
 					}
 
-					result.Data = null;
-					AddAuditTrail(_dbc,
-						Resource.WEB_PAGES,
+                    result.Data = null;
+                    AddAuditTrail(_dbc,
+                        Resource.WEB_PAGES,
 						"WEB-06",
-						Resource.DATA_IMPORT,
+                        Resource.DATA_IMPORT,
 						@"Target Imported" + " / sheetName=" + sheetName,
-						DateTime.Now,
-						_user.Id
+                        DateTime.Now,
+                        _user.Id
 					);
 
 					return result;
@@ -156,36 +156,36 @@ public class UploadController : ControllerBase
 			// --------------------------------------------------------
 			// Process Customer Hierarchy
 			// --------------------------------------------------------
-			else if (dataImport == (int)dataImports.customer && _config.usesCustomer) {
+			else if (dataImport == (int)Helper.DataImports.Customer && _config.usesCustomer) {
 				var listCustomer = new List<SheetDataCustomer>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
 					if (value == null) { continue; }
-					ValidateCustomerRows(value, _user.Id);
+                    ValidateCustomerRows(value, _user.Id);
 					value!.rowNumber = rowNumber++;
 					listCustomer.Add(value);
 				}
 
 				if (result.Error.Count != 0) {
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 				else {
 					TaskList.Clear();
 					foreach (var row in listCustomer) {
-						ImportCustomerRecords(row);
+                        ImportCustomerRecords(row);
 					}
 
-					result.Data = null;
+                    result.Data = null;
 
-					AddAuditTrail(_dbc,
-						Resource.WEB_PAGES,
+                    AddAuditTrail(_dbc,
+                        Resource.WEB_PAGES,
 						"WEB-06",
-						Resource.DATA_IMPORT,
+                        Resource.DATA_IMPORT,
 						@"Customer Imported" + " / sheetName=" + sheetName,
-						DateTime.Now,
-						_user.Id
+                        DateTime.Now,
+                        _user.Id
 					);
 
 					return result;
@@ -196,7 +196,7 @@ public class UploadController : ControllerBase
 			// --------------------------------------------------------
 			else {
 				var calId = jsonObject["calendarId"];
-				calendarId = int.Parse(calId!.ToString());
+                calendarId = int.Parse(calId!.ToString());
 				var calendar = _dbc.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
 				var listMeasureData = new List<SheetDataMeasureData>();
 
@@ -219,37 +219,37 @@ public class UploadController : ControllerBase
 						listMeasureData.Add(value);
 					}
 					else {
-						result.Error.Add(new() { Row = value.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+                        result.Error.Add(new() { Row = value.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 					}
 				}
 
 				if (result.Error.Count != 0) {
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 
 				foreach (var row in listMeasureData) {
-					ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
+                    ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
 				}
 
 				if (result.Error.Count != 0) {
 					var temp = result.Error.OrderBy(e => e.Row);
-					result.Error = temp.ToList();
+                    result.Error = temp.ToList();
 					return result;
 				}
 				else {
 					TaskList.Clear();
 					foreach (var row in listMeasureData) {
-						ImportMeasureDataRecords(row, _user.Id);
+                        ImportMeasureDataRecords(row, _user.Id);
 					}
 
-					result.Data = null;
+                    result.Data = null;
 
-					AddAuditTrail(_dbc,
-						Resource.WEB_PAGES,
+                    AddAuditTrail(_dbc,
+                        Resource.WEB_PAGES,
 						"WEB-06",
-						Resource.DATA_IMPORT,
+                        Resource.DATA_IMPORT,
 						@"Measure Data Imported" +
 							" / CalendarId=" + calendar.Id.ToString() +
 							" / Interval=" + _dbc.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
@@ -258,8 +258,8 @@ public class UploadController : ControllerBase
 							" / Month=" + calendar.Month.ToString() +
 							" / Week=" + calendar.WeekNumber.ToString() +
 							" / sheetName=" + sheetName,
-						DateTime.Now,
-						_user.Id
+                        DateTime.Now,
+                        _user.Id
 					);
 
 					return result;
@@ -282,11 +282,12 @@ public class UploadController : ControllerBase
 
 	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
-			var returnObject = new DataImportsMainObject {
+			var returnObject = new DataImportsMainObject
+            {
 				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
 				CalculationTime = "00:01:00",
-				DataImport = new List<DataImportObject>() { DataImportHeading(dataImports.measureData) },
+				DataImport = new List<DataImportObject>() { DataImportHeading(Helper.DataImports.MeasureData) },
 				Intervals = _dbc.Interval.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
 				IntervalId = _config.DefaultInterval,
 				CalendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
@@ -299,10 +300,10 @@ public class UploadController : ControllerBase
 										   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
 			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
-				returnObject.DataImport.Add(DataImportHeading(dataImports.target));
+				returnObject.DataImport.Add(DataImportHeading(Helper.DataImports.Target));
 
 				if (_config.usesCustomer) {
-					DataImportObject customerRegionData = DataImportHeading(dataImports.customer);
+                    DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					returnObject.DataImport.Add(customerRegionData);
 				}
 
@@ -545,7 +546,7 @@ public class UploadController : ControllerBase
 				NumLateLines = row.NumLateLines,
 				NumOrdLens = row.NumOrdLens,
 				OrdQty = row.OrdQty,
-				IsProcessed = (byte)IsProcessed.complete,
+				IsProcessed = (byte)IsProcessed.Complete,
 				HeaderStatusCode = row.HeaderStatusCode,
 				HeaderStatus = row.HeaderStatus,
 				BlockCode = row.BlockCode,

@@ -158,13 +158,13 @@ public class IndexController : ControllerBase
 			}
 
 			result.Range = BuildRangeString(dto.CalendarId);
-			if (dto.CalendarId != _user.savedFilters[pages.measureData].calendarId) {
-				_user.savedFilters[pages.measureData].calendarId = dto.CalendarId;
-				_user.savedFilters[pages.measureData].intervalId = calendar.Interval.Id;
-				_user.savedFilters[pages.measureData].year = calendar.Year;
+			if (dto.CalendarId != _user.savedFilters[Pages.MeasureData].calendarId) {
+				_user.savedFilters[Pages.MeasureData].calendarId = dto.CalendarId;
+				_user.savedFilters[Pages.MeasureData].intervalId = calendar.Interval.Id;
+				_user.savedFilters[Pages.MeasureData].year = calendar.Year;
 			}
-			_user.savedFilters[pages.measureData].hierarchyId = dto.HierarchyId;
-			result.Filter = _user.savedFilters[pages.measureData];
+			_user.savedFilters[Pages.MeasureData].hierarchyId = dto.HierarchyId;
+			result.Filter = _user.savedFilters[Pages.MeasureData];
 
 			return result;
 		}
@@ -206,7 +206,7 @@ public class IndexController : ControllerBase
 			measureData.Explanation = value.Explanation;
 			measureData.Action = value.Action;
 			_dbc.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
-			measureData.IsProcessed = (byte)IsProcessed.measureData;
+			measureData.IsProcessed = (byte)IsProcessed.MeasureData;
 			measureData.LastUpdatedOn = lastUpdatedOn;
 			_dbc.SaveChanges();
 

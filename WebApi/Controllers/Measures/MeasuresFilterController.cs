@@ -31,9 +31,9 @@ public class FilterController : ControllerBase
 				}
 			};
 
-			var hId = _user.savedFilters[pages.measure].hierarchyId ??= 1;
-			var tId = _user.savedFilters[pages.measure].measureTypeId ??= _dbc.MeasureType.First().Id;
-			result.Filter = _user.savedFilters[pages.measure];
+			var hId = _user.savedFilters[Pages.Measure].hierarchyId ??= 1;
+			var tId = _user.savedFilters[Pages.Measure].measureTypeId ??= _dbc.MeasureType.First().Id;
+			result.Filter = _user.savedFilters[Pages.Measure];
 			result.Measures = IndexController.GetMeasures(_dbc, hierarchyId ?? hId, measureTypeId ?? tId);
 			return result;
 		}

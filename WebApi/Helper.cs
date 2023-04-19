@@ -9,15 +9,15 @@ namespace Deliver.WebApi;
 
 public static class Helper
 {
-	public enum pages { measureData, target, measure, measureDefinition, hierarchy, dataImports, settings, users }
+	public enum Pages { MeasureData, Target, Measure, MeasureDefinition, Hierarchy, DataImports, Settings, Users }
 
 	public enum Intervals { Daily = 1, Weekly = 2, Monthly = 3, Quarterly = 4, Yearly = 5 };
 
 	public enum Roles { PowerUser = 1, RegionalAdministrator = 2, SystemAdministrator = 3 }
 
-	public enum dataImports { measureData = 1, target = 2, customer = 3 }
+	public enum DataImports { MeasureData = 1, Target = 2, Customer = 3 }
 
-	public enum IsProcessed { no, measureData, complete }
+	public enum IsProcessed { No, MeasureData, Complete }
 
 	public static int hierarchyGlobalId { get; set; } = 1;
 
@@ -144,19 +144,19 @@ public static class Helper
 		}
 	}
 
-	internal static DataImportObject DataImportHeading(dataImports dataImport) {
+	internal static DataImportObject DataImportHeading(DataImports dataImport) {
 		DataImportObject result = new() { Heading = new List<HeadingObject>() };
 
-		if (dataImport == dataImports.target) {
-			result.Id = (int)dataImports.target;
+		if (dataImport == DataImports.Target) {
+			result.Id = (int)DataImports.Target;
 			result.Name = "Target";
 			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
 			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
 			result.Heading.Add(new HeadingObject { Title = "target", Required = true });
 			result.Heading.Add(new HeadingObject { Title = "yellow", Required = false });
 		}
-		else if (dataImport == dataImports.customer) {
-			result.Id = (int)dataImports.customer;
+		else if (dataImport == DataImports.Customer) {
+			result.Id = (int)DataImports.Customer;
 			result.Name = "Customer Region";
 			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
 			result.Heading.Add(new HeadingObject { Title = "calendarid", Required = true });
@@ -183,7 +183,7 @@ public static class Helper
 			result.Heading.Add(new HeadingObject { Title = "creditcode", Required = false });
 		}
 		else {
-			result.Id = (int)dataImports.measureData;
+			result.Id = (int)DataImports.MeasureData;
 			result.Name = "Measure Data";
 			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
 			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
@@ -515,7 +515,7 @@ public static class Helper
 		try {
 			_ = dbc.MeasureData
 				.Where(md => md.Measure!.MeasureDefinition!.Id == measureDefId)
-				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.measureData)
+				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.MeasureData)
 					.SetProperty(md => md.UserId, userId)
 					.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
 			return true;

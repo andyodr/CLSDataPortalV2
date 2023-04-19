@@ -56,17 +56,17 @@ public class IndexController : ControllerBase
 				});
 			}
 
-			//dataImport
-			DataImportObject measureData = DataImportHeading(dataImports.measureData);
+            //dataImport
+            DataImportObject measureData = DataImportHeading(Helper.DataImports.MeasureData);
 			result.DataImport.Add(measureData);
 
 			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
-				DataImportObject targetData = DataImportHeading(dataImports.target);
+                DataImportObject targetData = DataImportHeading(Helper.DataImports.Target);
 				result.DataImport.Add(targetData);
 
 				// This is for kris only
 				if (_config.usesCustomer) {
-					DataImportObject customerRegionData = DataImportHeading(dataImports.customer);
+                    DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					result.DataImport.Add(customerRegionData);
 				}
 
