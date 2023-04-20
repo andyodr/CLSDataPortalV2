@@ -3,7 +3,7 @@ namespace Deliver.WebApi.Data;
 using System.Security.Claims;
 using static Deliver.WebApi.Helper;
 
-public class UserObject
+public sealed class UserObject
 {
 	public int Id { get; set; }
 

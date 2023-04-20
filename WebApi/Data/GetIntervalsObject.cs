@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class GetIntervalsObject
+public sealed class GetIntervalsObject
 {
 	public ErrorModel Error { get; set; } = new();
 

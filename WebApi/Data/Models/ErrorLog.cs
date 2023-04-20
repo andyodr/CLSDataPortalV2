@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class ErrorLog
+public sealed class ErrorLog
 {
 	/// <summary>
 	/// The unique id and primary key for this ErrorLog

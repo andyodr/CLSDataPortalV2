@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class ErrorModel
+public sealed class ErrorModel
 {
 	public long Id { get; set; }
 

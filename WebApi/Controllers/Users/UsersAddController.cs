@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.Users;
 [ApiController]
 [Route("api/users/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class AddController : ControllerBase
+public sealed class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class HeadingObject
+public sealed class HeadingObject
 {
 	public string Title { get; set; } = null!;
 

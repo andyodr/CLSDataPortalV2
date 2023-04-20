@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class CalendarLock
+public sealed class CalendarLock
 {
 	public int Id { get; set; }
 

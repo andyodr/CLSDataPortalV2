@@ -10,15 +10,14 @@ namespace Deliver.WebApi.Controllers.Filters;
 [ApiController]
 [Route("api/filters/[controller]")]
 [Authorize]
-public class IntervalsController : ControllerBase
+public sealed class IntervalsController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
-	private readonly ApplicationDbContext _context;
-	private UserObject _user = null!;
+	private readonly ApplicationDbContext _dbc;
 
 	public IntervalsController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
-		_context = context;
+		_dbc = context;
 	}
 
 	/// <summary>
@@ -27,13 +26,13 @@ public class IntervalsController : ControllerBase
 	[HttpGet]
 	public ActionResult<IntervalListObject> Get([FromQuery] MeasureDataFilterReceiveObject values) {
 		var returnObject = new IntervalListObject();
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
-			var cal = _context.Calendar.Where(c => c.Interval.Id == values.intervalId && c.Year == values.year);
-			switch (values.intervalId) {
+		try {
+			var cal = _dbc.Calendar.Where(c => c.Interval.Id == values.IntervalId && c.Year == values.Year);
+			switch (values.IntervalId) {
 				case (int)Intervals.Weekly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
 						Id = d.Id,
@@ -68,15 +67,15 @@ public class IntervalsController : ControllerBase
 					break;
 			}
 
-			int intervalId = values.intervalId ?? _config.DefaultInterval;
-			returnObject.CalendarId = _context.Calendar
+			int intervalId = values.IntervalId ?? _config.DefaultInterval;
+			returnObject.CalendarId = _dbc.Calendar
 				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefault()?.Id ?? -1;
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

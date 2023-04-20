@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class HierarchyLevel
+public sealed class HierarchyLevel
 {
 	/// <summary>
 	/// The unique id and primary key for this HierarchyLevel

@@ -9,10 +9,9 @@ namespace Deliver.WebApi.Controllers.Measures;
 [ApiController]
 [Route("api/measures/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public IndexController(ApplicationDbContext context) => _dbc = context;
 
@@ -21,11 +20,11 @@ public class IndexController : ControllerBase
 	/// </summary>
 	[HttpGet]
 	public ActionResult<RegionIndexGetReturnObject> Get(int hierarchyId, int measureTypeId) {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			_user.savedFilters[Pages.Measure].hierarchyId = hierarchyId;
 			_user.savedFilters[Pages.Measure].measureTypeId = measureTypeId;
 

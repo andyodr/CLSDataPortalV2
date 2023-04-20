@@ -3,7 +3,7 @@ using Deliver.WebApi.Data.Models;
 
 namespace Deliver.WebApi.Data;
 
-public class ApplicationDbContext : DbContext
+public sealed class ApplicationDbContext : DbContext
 {
 	public ApplicationDbContext() : base() { }
 

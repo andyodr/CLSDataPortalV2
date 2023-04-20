@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [ApiController]
 [Route("api/dataimports/[controller]")]
 [Authorize]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
@@ -28,7 +28,7 @@ public class IndexController : ControllerBase
 		try {
 			var result = new DataImportsMainObject {
 				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
-						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
+						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>(),

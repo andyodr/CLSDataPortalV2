@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class DataImportsMainObject
+public sealed class DataImportsMainObject
 {
 	public ErrorModel? Error { get; set; }
 

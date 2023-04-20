@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasuresOwnerObject
+public sealed class MeasuresOwnerObject
 {
 	public long MeasureDefinitionId { get; set; }
 

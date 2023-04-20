@@ -12,7 +12,7 @@ namespace Deliver.WebApi.Controllers.MeasureData;
 [ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-public class FilterController : ControllerBase
+public sealed class FilterController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
@@ -28,7 +28,7 @@ public class FilterController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> GetAsync([FromQuery] MeasureDataFilterReceiveObject values, CancellationToken token) {
-		if (values.year is null) {
+		if (values.Year is null) {
 			return await FilterAsync(token);
 		}
 		else {
@@ -51,7 +51,7 @@ public class FilterController : ControllerBase
 				Years = await _dbc.Calendar
 					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
 					.OrderByDescending(c => c.Year)
-					.Select(c => new YearsObject { id = c.Id, year = c.Year }).ToArrayAsync(token),
+					.Select(c => new YearsObject { Id = c.Id, Year = c.Year }).ToArrayAsync(token),
 				CurrentCalendarIds = new(),
 				MeasureTypes = await _dbc.MeasureType.OrderBy(m => m.Id)
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArrayAsync(token)
@@ -98,6 +98,9 @@ public class FilterController : ControllerBase
 
 			return Ok(filter);
 		}
+		catch (TaskCanceledException) {
+			return StatusCode(499);
+		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
@@ -110,11 +113,11 @@ public class FilterController : ControllerBase
 		}
 
 		try {
-			_user.savedFilters[Pages.MeasureData].intervalId = body.intervalId;
+			_user.savedFilters[Pages.MeasureData].intervalId = body.IntervalId;
 
-			return body.intervalId switch {
+			return body.IntervalId switch {
 				(int)Intervals.Weekly => Ok(await _dbc.Calendar.OrderBy(c => c.WeekNumber)
-						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
 							Number = c.WeekNumber,
@@ -124,7 +127,7 @@ public class FilterController : ControllerBase
 						})
 						.ToArrayAsync(token)),
 				(int)Intervals.Monthly => Ok(await _dbc.Calendar.OrderBy(c => c.Month)
-						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
 							Number = c.WeekNumber,
@@ -134,7 +137,7 @@ public class FilterController : ControllerBase
 						})
 						.ToArrayAsync(token)),
 				(int)Intervals.Quarterly => Ok(await _dbc.Calendar.OrderBy(c => c.Quarter)
-						.Where(c => c.Interval.Id == body.intervalId && c.Year == body.year)
+						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(d => new GetIntervalsObject {
 							Id = d.Id,
 							Number = d.WeekNumber,

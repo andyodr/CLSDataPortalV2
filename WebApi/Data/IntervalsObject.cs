@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class IntervalsObject
+public sealed class IntervalsObject
 {
 	public int Id { get; set; }
 

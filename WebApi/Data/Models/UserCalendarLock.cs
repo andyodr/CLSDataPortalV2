@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class UserCalendarLock
+public sealed class UserCalendarLock
 {
 	public int Id { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class UserIndexGetObject
+public sealed class UserIndexGetObject
 {
 	public List<IntervalsObject> Roles { get; set; } = null!;
 

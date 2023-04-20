@@ -1,8 +1,8 @@
 namespace Deliver.WebApi.Data;
 
-public class YearsObject
+public sealed class YearsObject
 {
-	public int id { get; set; }
+	public int Id { get; set; }
 
-	public int year { get; set; }
+	public int Year { get; set; }
 }

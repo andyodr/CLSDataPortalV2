@@ -1,12 +1,18 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureCalculatedObject
+public sealed class MeasureCalculatedObject
 {
-	public int reportIntervalId { get; set; }
-	public bool calculated { get; set; }
-	public bool aggDaily { get; set; }
-	public bool aggWeekly { get; set; }
-	public bool aggMonthly { get; set; }
-	public bool aggQuarterly { get; set; }
-	public bool aggYearly { get; set; }
+	public int ReportIntervalId { get; set; }
+
+	public bool Calculated { get; set; }
+
+	public bool AggDaily { get; set; }
+
+	public bool AggWeekly { get; set; }
+
+	public bool AggMonthly { get; set; }
+
+	public bool AggQuarterly { get; set; }
+
+	public bool AggYearly { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class MeasureDefinition
+public sealed class MeasureDefinition
 {
 	public long Id { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class UnitsObject
+public sealed class UnitsObject
 {
 	public int Id { get; set; }
 

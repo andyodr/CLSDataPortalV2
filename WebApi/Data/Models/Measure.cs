@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace Deliver.WebApi.Data.Models;
 
-public class Measure
+public sealed class Measure
 {
 	public long Id { get; set; }
 

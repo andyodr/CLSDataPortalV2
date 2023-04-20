@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class AuditTrail
+public sealed class AuditTrail
 {
 	/// <summary>
 	/// The unique id and primary key for this AuditTrail

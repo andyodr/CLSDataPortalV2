@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureIDReturnObject
+public sealed class MeasureIDReturnObject
 {
 	public IList<MeasureTypeDataObject> Data { get; set; } = new List<MeasureTypeDataObject>();
 

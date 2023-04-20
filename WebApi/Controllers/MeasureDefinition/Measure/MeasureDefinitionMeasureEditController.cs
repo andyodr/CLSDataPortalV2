@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class EditController : ControllerBase
+public sealed class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 
@@ -21,7 +21,7 @@ public class EditController : ControllerBase
 			Units = new(),
 			Intervals = new(),
 			MeasureTypes = new(),
-			AggFunctions = AggregationFunctions.list,
+			AggFunctions = AggregationFunctions.List,
 			Data = new()
 		};
 
@@ -94,7 +94,7 @@ public class EditController : ControllerBase
 			Units = new(),
 			Intervals = new(),
 			MeasureTypes = new(),
-			AggFunctions = AggregationFunctions.list,
+			AggFunctions = AggregationFunctions.List,
 			Data = new()
 		};
 
@@ -147,7 +147,7 @@ public class EditController : ControllerBase
 			monthly = (body.Monthly ?? false) && body.IntervalId != (int)Intervals.Monthly;
 			quarterly = (body.Quarterly ?? false) && body.IntervalId != (int)Intervals.Quarterly;
 			yearly = (body.Yearly ?? false) && body.IntervalId != (int)Intervals.Yearly;
-			body.AggFunctionId ??= (byte)enumAggFunctions.summation;
+			body.AggFunctionId ??= (byte)EnumAggFunctions.summation;
 
 			// Check if some values were changed in order to create new measure data records
 			bool createMeasureData = mDef.ReportIntervalId != body.IntervalId ||
@@ -187,8 +187,8 @@ public class EditController : ControllerBase
 			if (daily || weekly || monthly || quarterly || yearly) {
 				mDef.AggFunction = body.AggFunctionId;
 
-				if (mDef.Calculated != true && body.AggFunctionId == (byte)enumAggFunctions.expression) {
-					mDef.AggFunction = (byte)enumAggFunctions.summation;
+				if (mDef.Calculated != true && body.AggFunctionId == (byte)EnumAggFunctions.expression) {
+					mDef.AggFunction = (byte)EnumAggFunctions.summation;
 				}
 			}
 			else {

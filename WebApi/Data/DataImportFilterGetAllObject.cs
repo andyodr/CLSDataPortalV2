@@ -1,10 +1,10 @@
 namespace Deliver.WebApi.Data;
 
-public class DataImportFilterGetAllObject
+public sealed class DataImportFilterGetAllObject
 {
 	public ErrorModel? Error { get; set; }
 
-	public int id { get; set; }
+	public int Id { get; set; }
 
 	public int? Number { get; set; }
 

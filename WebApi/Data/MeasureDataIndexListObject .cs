@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureDataIndexListObject
+public sealed class MeasureDataIndexListObject
 {
 	public string Range { get; set; } = null!;
 

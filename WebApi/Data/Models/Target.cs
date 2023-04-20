@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class Target
+public sealed class Target
 {
 	public long Id { get; set; }
 

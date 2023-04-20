@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class UserHierarchy
+public sealed class UserHierarchy
 {
 	public int Id { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Deliver.WebApi;
 
-public class AggregationFunction
+public sealed class AggregationFunction
 {
     public byte Id { get; init; }
     public string Name { get; init; } = string.Empty;
@@ -8,7 +8,7 @@ public class AggregationFunction
 
 public static class AggregationFunctions
 {
-    public static List<AggregationFunction> list = new()
+    public static List<AggregationFunction> List { get; set; } = new()
     {
           new AggregationFunction { Id = 0, Name = "Summation" },
           new AggregationFunction { Id = 1, Name = "Average" },
@@ -19,4 +19,4 @@ public static class AggregationFunctions
     };
 }
 
-public enum enumAggFunctions { summation = 0, average = 1, min = 2, max = 3, standardDeviation = 4, expression = 5 };
+public enum EnumAggFunctions { summation = 0, average = 1, min = 2, max = 3, standardDeviation = 4, expression = 5 };

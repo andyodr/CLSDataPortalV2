@@ -85,11 +85,11 @@ import { UserListComponent } from "./users/userlist.component";
         UserListComponent
     ],
     imports: [
-        AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
         FormsModule,
         HttpClientModule,
+        AppRoutingModule,
         MatButtonModule,
         MatCheckboxModule,
         MatDialogModule,

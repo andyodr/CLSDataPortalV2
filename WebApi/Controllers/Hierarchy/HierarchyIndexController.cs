@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.Hierarchy;
 [ApiController]
 [Route("api/hierarchy/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 

@@ -100,22 +100,22 @@ public static class Helper
 		if (measureCalculated is null) {
 			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).FirstOrDefault();
 			measureCalculated = new() {
-				reportIntervalId = measureDef?.ReportIntervalId ?? 0,
-				calculated = measureDef?.Calculated ?? false,
-				aggDaily = measureDef?.AggDaily ?? false,
-				aggWeekly = measureDef?.AggWeekly ?? false,
-				aggMonthly = measureDef?.AggMonthly ?? false,
-				aggQuarterly = measureDef?.AggQuarterly ?? false,
-				aggYearly = measureDef?.AggYearly ?? false
+				ReportIntervalId = measureDef?.ReportIntervalId ?? 0,
+				Calculated = measureDef?.Calculated ?? false,
+				AggDaily = measureDef?.AggDaily ?? false,
+				AggWeekly = measureDef?.AggWeekly ?? false,
+				AggMonthly = measureDef?.AggMonthly ?? false,
+				AggQuarterly = measureDef?.AggQuarterly ?? false,
+				AggYearly = measureDef?.AggYearly ?? false
 			};
 		}
 
 		// If Measure.Expression = 0, then check MeasureDefinition
-		if (measureCalculated.calculated) {
+		if (measureCalculated.Calculated) {
 			return isCalculatedExpression; // This is false
 		}
 		else {
-			if (measureCalculated.reportIntervalId == intervalId) {
+			if (measureCalculated.ReportIntervalId == intervalId) {
 				return false;
 			}
 
@@ -123,19 +123,19 @@ public static class Helper
 			// Checks aggregations from MeasureDefinition
 			switch (intervalId) {
 				case (int)Intervals.Daily:
-					bReturn = measureCalculated.aggDaily;
+					bReturn = measureCalculated.AggDaily;
 					break;
 				case (int)Intervals.Weekly:
-					bReturn = measureCalculated.aggWeekly;
+					bReturn = measureCalculated.AggWeekly;
 					break;
 				case (int)Intervals.Monthly:
-					bReturn = measureCalculated.aggMonthly;
+					bReturn = measureCalculated.AggMonthly;
 					break;
 				case (int)Intervals.Quarterly:
-					bReturn = measureCalculated.aggQuarterly;
+					bReturn = measureCalculated.AggQuarterly;
 					break;
 				case (int)Intervals.Yearly:
-					bReturn = measureCalculated.aggYearly;
+					bReturn = measureCalculated.AggYearly;
 					break;
 				default:
 					break;
@@ -150,46 +150,46 @@ public static class Helper
 		if (dataImport == DataImports.Target) {
 			result.Id = (int)DataImports.Target;
 			result.Name = "Target";
-			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "target", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "yellow", Required = false });
+			result.Heading.Add(new() { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new() { Title = "measureid", Required = true });
+			result.Heading.Add(new() { Title = "target", Required = true });
+			result.Heading.Add(new() { Title = "yellow", Required = false });
 		}
 		else if (dataImport == DataImports.Customer) {
 			result.Id = (int)DataImports.Customer;
 			result.Name = "Customer Region";
-			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "calendarid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "customergroup", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "customersubgroup", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "purchasetype", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "tradechannel", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "tradechannelgroup", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "sales", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "numorders", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "numlines", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "ordertype", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "numlateorders", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "numlatelines", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "numordlens", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "ordqty", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "headerstatuscode", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "headerstatus", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "blockcode", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "blocktext", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "rejectioncode", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "rejectiontext", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "creditstatuscheck", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "creditcode", Required = false });
+			result.Heading.Add(new() { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new() { Title = "calendarid", Required = true });
+			result.Heading.Add(new() { Title = "customergroup", Required = false });
+			result.Heading.Add(new() { Title = "customersubgroup", Required = false });
+			result.Heading.Add(new() { Title = "purchasetype", Required = false });
+			result.Heading.Add(new() { Title = "tradechannel", Required = false });
+			result.Heading.Add(new() { Title = "tradechannelgroup", Required = false });
+			result.Heading.Add(new() { Title = "sales", Required = false });
+			result.Heading.Add(new() { Title = "numorders", Required = false });
+			result.Heading.Add(new() { Title = "numlines", Required = false });
+			result.Heading.Add(new() { Title = "ordertype", Required = false });
+			result.Heading.Add(new() { Title = "numlateorders", Required = false });
+			result.Heading.Add(new() { Title = "numlatelines", Required = false });
+			result.Heading.Add(new() { Title = "numordlens", Required = false });
+			result.Heading.Add(new() { Title = "ordqty", Required = false });
+			result.Heading.Add(new() { Title = "headerstatuscode", Required = false });
+			result.Heading.Add(new() { Title = "headerstatus", Required = false });
+			result.Heading.Add(new() { Title = "blockcode", Required = false });
+			result.Heading.Add(new() { Title = "blocktext", Required = false });
+			result.Heading.Add(new() { Title = "rejectioncode", Required = false });
+			result.Heading.Add(new() { Title = "rejectiontext", Required = false });
+			result.Heading.Add(new() { Title = "creditstatuscheck", Required = false });
+			result.Heading.Add(new() { Title = "creditcode", Required = false });
 		}
 		else {
 			result.Id = (int)DataImports.MeasureData;
 			result.Name = "Measure Data";
-			result.Heading.Add(new HeadingObject { Title = "hierarchyid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "measureid", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "value", Required = true });
-			result.Heading.Add(new HeadingObject { Title = "explanation", Required = false });
-			result.Heading.Add(new HeadingObject { Title = "action", Required = false });
+			result.Heading.Add(new() { Title = "hierarchyid", Required = true });
+			result.Heading.Add(new() { Title = "measureid", Required = true });
+			result.Heading.Add(new() { Title = "value", Required = true });
+			result.Heading.Add(new() { Title = "explanation", Required = false });
+			result.Heading.Add(new() { Title = "action", Required = false });
 		}
 
 		return result;
@@ -278,9 +278,7 @@ public static class Helper
 
 		public static DateTimeSpan CompareDates(DateTime date1, DateTime date2) {
 			if (date2 < date1) {
-				var sub = date1;
-				date1 = date2;
-				date2 = sub;
+				(date2, date1) = (date1, date2);
 			}
 
 			DateTime current = date1;
@@ -289,7 +287,7 @@ public static class Helper
 			int days = 0;
 
 			Phase phase = Phase.Years;
-			DateTimeSpan span = new DateTimeSpan();
+			DateTimeSpan span = new();
 			int officialDay = current.Day;
 
 			while (phase != Phase.Done) {

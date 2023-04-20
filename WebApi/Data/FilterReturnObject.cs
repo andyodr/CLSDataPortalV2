@@ -2,7 +2,7 @@ using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
 namespace Deliver.WebApi.Data;
 
-public class FilterReturnObject
+public sealed class FilterReturnObject
 {
 	public IList<MeasureType> MeasureTypes { get; set; } = null!;
 

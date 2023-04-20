@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasuresIndexPutObject
+public sealed class MeasuresIndexPutObject
 {
 	public ErrorModel? Error { get; set; }
 

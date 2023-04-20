@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class RegionMetricsFilterObject
+public sealed class RegionMetricsFilterObject
 {
 	public ErrorModel Error { get; set; } = null!;
 

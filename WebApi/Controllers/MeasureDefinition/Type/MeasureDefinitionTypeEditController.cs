@@ -8,20 +8,19 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Type;
 [ApiController]
 [Route("/api/measuredefinition/type/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class EditController : ControllerBase
+public sealed class EditController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public EditController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpGet("{id:min(1)}")]
 	public ActionResult<MeasureType> Get(int id) {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			var measType = _dbc.MeasureType.Where(m => m.Id == id).Single();
 			return new MeasureType(measType.Id, measType.Name, measType.Description);
 		}
@@ -32,11 +31,11 @@ public class EditController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<MeasureTypeResult> Put(MeasureType body) {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			// Validates name
 			int validateCount = _dbc.MeasureType
 			  .Where(m => m.Id != body.Id && m.Name.Trim().ToLower() == body.Name.Trim().ToLower())

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class UserIndexDto
+public sealed class UserIndexDto
 {
 	public int? Id { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class UserSettingObject
+public sealed class UserSettingObject
 {
 	public int Id { get; set; }
 

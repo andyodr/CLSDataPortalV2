@@ -7,10 +7,12 @@ using static Deliver.WebApi.Helper;
 
 namespace Deliver.WebApi.Controllers.MeasureData;
 
+public record VariableName(long Id, string VarName);
+
 [ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
@@ -128,7 +130,7 @@ public class IndexController : ControllerBase
 					var varNames = new List<VariableName>();
 					foreach (var item in allVarNames) {
 						if (measureDataDto.Expression.Contains(item.VariableName)) {
-							varNames.Add(new VariableName { Id = item.Id, VarName = item.VariableName });
+							varNames.Add(new VariableName(item.Id, item.VariableName));
 						}
 					}
 					// Search measure data values from variables

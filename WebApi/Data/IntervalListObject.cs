@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class IntervalListObject
+public sealed class IntervalListObject
 {
 	public int CalendarId { get; set; }
 

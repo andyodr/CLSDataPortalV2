@@ -13,7 +13,7 @@ public class RegionsDataViewModelAdd
 	public bool Remove { get; set; }
 }
 
-public class RegionsDataViewModel: RegionsDataViewModelAdd
+public sealed class RegionsDataViewModel : RegionsDataViewModelAdd
 {
 	public int Id { get; set; }
 

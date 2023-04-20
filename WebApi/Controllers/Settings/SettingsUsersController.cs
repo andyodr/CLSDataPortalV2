@@ -9,10 +9,9 @@ namespace Deliver.WebApi.Controllers.Settings;
 [ApiController]
 [Route("api/settings/[controller]")]
 [Authorize]
-public class UsersController : ControllerBase
+public sealed class UsersController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public UsersController(ApplicationDbContext context) => _dbc = context;
 
@@ -32,12 +31,12 @@ public class UsersController : ControllerBase
 	/// <returns></returns>
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(Model dto) {
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
+
 		try {
 			var result = new SettingsGetReturnObject { Year = dto.Year, Users = new() { dto.User } };
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			var calendarRecords = _dbc.Calendar
 				.Where(c => c.Year == dto.Year && c.Interval.Id == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);

@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class Calendar
+public sealed class Calendar
 {
 	/// <summary>
 	/// The unique id and primary key for this Calendar

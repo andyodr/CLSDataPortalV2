@@ -11,7 +11,7 @@ public record MeasureTypeResult(int Id, IList<MeasureType> MeasureTypes);
 [ApiController]
 [Route("api/measureDefinition/type/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class AddController : ControllerBase
+public sealed class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 

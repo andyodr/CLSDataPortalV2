@@ -1,5 +1,7 @@
 namespace Deliver.WebApi.Data;
 
+public record TargetConfirmInterval(bool? Daily, bool? Weekly, bool? Monthly, bool? Quarterly, bool? Yearly);
+
 public class TargetGetAllObject
 {
 	public int HierarchyId { get; set; }

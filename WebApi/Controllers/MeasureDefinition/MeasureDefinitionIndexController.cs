@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition;
 [ApiController]
 [Route("api/measureDefinition/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
 
@@ -89,7 +89,7 @@ public class IndexController : ControllerBase
 						break;
 				}
 
-				var afn = AggregationFunctions.list.Find(x => x.Id == md.aggFunction!);
+				var afn = AggregationFunctions.List.Find(x => x.Id == md.aggFunction!);
 				currentMD.AggFunction = afn?.Name ?? string.Empty;
 				currentMD.AggFunctionId = afn?.Id;
 				returnObject.Data.Add(currentMD);

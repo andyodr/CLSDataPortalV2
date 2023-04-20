@@ -10,7 +10,7 @@ namespace Deliver.WebApi.Controllers.Users;
 [ApiController]
 [Route("api/users/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;

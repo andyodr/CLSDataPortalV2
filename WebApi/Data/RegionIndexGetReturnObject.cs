@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class RegionIndexGetReturnObject
+public sealed class RegionIndexGetReturnObject
 {
 	public ErrorModel? Error { get; set; }
 

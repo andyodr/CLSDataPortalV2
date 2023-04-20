@@ -10,11 +10,10 @@ namespace Deliver.WebApi.Controllers.Targets;
 [ApiController]
 [Route("api/targets/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class IndexController : ControllerBase
+public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
 
 	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -27,12 +26,12 @@ public class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get(int hierarchyId, int measureTypeId) {
 		var result = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
+
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			var defs = from mdef in _dbc.MeasureDefinition
 					   where mdef.MeasureTypeId == measureTypeId
 					   orderby mdef.FieldNumber, mdef.Name
@@ -91,11 +90,11 @@ public class IndexController : ControllerBase
 
 	[HttpPut]
 	public ActionResult<MeasureDataIndexListObject> Put(TargetGetAllObject body) {
-		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
+		try {
 			var lastUpdatedOn = DateTime.Now;
 			int targetCount = _dbc.Target.Where(t => t.Measure!.Id == body.MeasureId).Count();
 			var target = _dbc.Target
@@ -180,12 +179,11 @@ public class IndexController : ControllerBase
 	public ActionResult<MeasureDataIndexListObject> ApplyToChildren(TargetGetAllObject body) {
 		var result = new MeasureDataIndexListObject();
 		var lastUpdatedOn = DateTime.Now;
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
 			var hierarchyIds = GetAllChildren(body.HierarchyId);
 
 			// getAllChildren will add the parent and the children to the list
@@ -289,7 +287,7 @@ public class IndexController : ControllerBase
 		// Update Target Id for all Measure Data records for current intervals
 		if (confirmIntervals is not null) {
 			// Find current calendar Ids from confirmIntervals.
-			if (confirmIntervals.weekly ?? false) {
+			if (confirmIntervals.Weekly ?? false) {
 				int cWeekly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
@@ -300,7 +298,7 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			if (confirmIntervals.monthly ?? false) {
+			if (confirmIntervals.Monthly ?? false) {
 				int cMonthly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
@@ -311,7 +309,7 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			if (confirmIntervals.quarterly ?? false) {
+			if (confirmIntervals.Quarterly ?? false) {
 				int cQuarterly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
@@ -322,7 +320,7 @@ public class IndexController : ControllerBase
 				}
 			}
 
-			if (confirmIntervals.yearly ?? false) {
+			if (confirmIntervals.Yearly ?? false) {
 				int cYearly = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = _dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {

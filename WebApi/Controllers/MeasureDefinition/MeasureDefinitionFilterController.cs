@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition;
 [ApiController]
 [Route("api/measureDefinition/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class FilterController : ControllerBase
+public sealed class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;

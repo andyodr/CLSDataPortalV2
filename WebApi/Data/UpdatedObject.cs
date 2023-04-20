@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class UpdatedObject
+public sealed class UpdatedObject
 {
 	public string? By { get; set; }
 

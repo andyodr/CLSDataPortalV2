@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class MeasureType
+public sealed class MeasureType
 {
 	public int Id { get; set; }
 

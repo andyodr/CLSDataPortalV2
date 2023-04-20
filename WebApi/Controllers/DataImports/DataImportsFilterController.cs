@@ -10,7 +10,7 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class FilterController : ControllerBase
+public sealed class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 
@@ -23,7 +23,7 @@ public class FilterController : ControllerBase
 				.AsNoTrackingWithIdentityResolution();
 			if (intervalId == (int)Intervals.Weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
-					id = c.Id,
+					Id = c.Id,
 					Number = c.WeekNumber,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
@@ -32,7 +32,7 @@ public class FilterController : ControllerBase
 			}
 			else if (intervalId == (int)Intervals.Quarterly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
-					id = c.Id,
+					Id = c.Id,
 					Number = c.Quarter,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
@@ -41,7 +41,7 @@ public class FilterController : ControllerBase
 			}
 			else if (intervalId == (int)Intervals.Monthly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
-					id = c.Id,
+					Id = c.Id,
 					Number = c.Month,
 					StartDate = null,
 					EndDate = null,
@@ -61,7 +61,7 @@ public class FilterController : ControllerBase
 		}
 	}
 
-	protected int LogError(string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
+	private int LogError(string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
 		try {
 			var entity = _dbc.ErrorLog.Add(new() {
 				ErrorMessage = errorMessage,

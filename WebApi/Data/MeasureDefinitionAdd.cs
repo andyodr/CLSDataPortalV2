@@ -43,7 +43,7 @@ public class MeasureDefinitionAdd
 	public byte? AggFunctionId { get; set; }
 }
 
-public class MeasureDefinitionEdit : MeasureDefinitionAdd {
+public sealed class MeasureDefinitionEdit : MeasureDefinitionAdd {
 
 	public MeasureDefinitionEdit() { }
 

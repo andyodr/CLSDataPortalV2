@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class CustomerHierarchy
+public sealed class CustomerHierarchy
 {
 	/// <summary>
 	/// The unique id and primary key for this CustomerHierarchy

@@ -1,8 +1,10 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureDataFilterReceiveObject
+public sealed class MeasureDataFilterReceiveObject
 {
-	public int? intervalId { set; get; }
-	public int? year { set; get; }
-	public bool? isDataImport { get; set; }
+	public int? IntervalId { get; set; }
+
+	public int? Year { get; set; }
+
+	public bool? IsDataImport { get; set; }
 }

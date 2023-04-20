@@ -10,7 +10,7 @@ namespace Deliver.WebApi.Controllers.Settings;
 [ApiController]
 [Route("api/settings/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class TransferController : ControllerBase
+public sealed class TransferController : ControllerBase
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _context;

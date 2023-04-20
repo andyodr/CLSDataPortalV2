@@ -14,7 +14,7 @@ namespace Deliver.WebApi.Controllers;
 [ApiController]
 [Route("api")]
 [AllowAnonymous]
-public class AccountController : Controller
+public sealed class AccountController : Controller
 {
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
@@ -24,7 +24,7 @@ public class AccountController : Controller
 		_dbc = context;
 	}
 
-	public class RequestDto
+	public sealed class RequestDto
 	{
 		[Required]
 		public string UserName { get; set; } = null!;
@@ -40,7 +40,7 @@ public class AccountController : Controller
 	/// </summary>
 	[HttpPost("[action]")]
 	[SupportedOSPlatform("windows")]
-	public async Task<IActionResult> SignIn([FromForm] RequestDto form) {
+	public async Task<IActionResult> SignIn([FromForm] RequestDto form, CancellationToken token) {
 		bool continueLogin = true;
 		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
@@ -48,7 +48,7 @@ public class AccountController : Controller
 
 		// Checks if userName exists in database
 		if (continueLogin) {
-			user = CreateDetailedUserObject(_dbc, form.UserName);
+			user = await CreateDetailedUserObject(form.UserName, token);
 			if (user is null) {
 				msgErr = Resource.VAL_USERNAME_NOT_FOUND;
 				continueLogin = false;
@@ -144,15 +144,15 @@ public class AccountController : Controller
 		return SignOut();
 	}
 
-	private static UserObject? CreateDetailedUserObject(ApplicationDbContext dbc, string userName) {
-		var entity = dbc.User
+	private async Task<UserObject?> CreateDetailedUserObject(string userName, CancellationToken token) {
+		var entity = await _dbc.User
 			.Where(u => u.UserName == userName)
 			.Include(u => u.UserRole)
 			.Include(u => u.UserCalendarLocks)
 			.Include(u => u.UserHierarchies)
 			.AsSplitQuery()
-			.AsNoTrackingWithIdentityResolution().Single();
-		var localUser = new UserObject {
+			.AsNoTrackingWithIdentityResolution().FirstAsync(token);
+		UserObject user = new() {
 			Id = entity.Id,
 			RoleId = (Roles)entity.UserRole!.Id,
 			UserName = entity.UserName,
@@ -162,11 +162,11 @@ public class AccountController : Controller
 			Role = entity.UserRole.Name,
 			LastModified = entity.LastUpdatedOn
 		};
-		localUser.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
+		user.calendarLockIds.AddRange(entity.UserCalendarLocks!.Select(c => new UserCalendarLocks {
 			CalendarId = c.CalendarId,
 			LockOverride = c.LockOverride
 		}));
-		localUser.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
-		return localUser;
+		user.hierarchyIds.AddRange(entity.UserHierarchies!.Select(h => h.Id));
+		return user;
 	}
 }

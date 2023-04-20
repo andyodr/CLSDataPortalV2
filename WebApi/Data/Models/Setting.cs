@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class Setting
+public sealed class Setting
 {
 	public int Id { set; get; }
 

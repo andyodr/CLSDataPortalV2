@@ -15,12 +15,12 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [ApiController]
 [Route("api/dataimports/[controller]")]
 [Authorize]
-public class UploadController : ControllerBase
+public sealed class UploadController : ControllerBase
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
 	private readonly ConfigurationObject _config;
 	private readonly ApplicationDbContext _dbc;
-	private DataImportReturnObject result = new() { Data = new(), Error = new() };
+	private readonly DataImportReturnObject result = new() { Data = new(), Error = new() };
 	private int calendarId = -1;
 	private UserObject _user = new();
 
@@ -29,7 +29,7 @@ public class UploadController : ControllerBase
 		_dbc = context;
 	}
 
-	public class Model
+	public sealed class Model
 	{
 		[Required]
 		public int DataImport { get; set; }
@@ -285,7 +285,7 @@ public class UploadController : ControllerBase
 			var returnObject = new DataImportsMainObject
             {
 				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
-						.OrderByDescending(y => y.Year).Select(c => new YearsObject { year = c.Year, id = c.Id }).ToArray(),
+						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>() { DataImportHeading(Helper.DataImports.MeasureData) },
 				Intervals = _dbc.Interval.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
@@ -387,13 +387,13 @@ public class UploadController : ControllerBase
 
 		foreach (var m in measures) {
 			MeasureCalculatedObject measureCalculated = new() {
-				reportIntervalId = m.MeasureDefinition!.ReportIntervalId,
-				calculated = m.MeasureDefinition.Calculated ?? false,
-				aggDaily = m.MeasureDefinition.AggDaily ?? false,
-				aggWeekly = m.MeasureDefinition.AggWeekly ?? false,
-				aggMonthly = m.MeasureDefinition.AggMonthly ?? false,
-				aggQuarterly = m.MeasureDefinition.AggQuarterly ?? false,
-				aggYearly = m.MeasureDefinition.AggYearly ?? false
+				ReportIntervalId = m.MeasureDefinition!.ReportIntervalId,
+				Calculated = m.MeasureDefinition.Calculated ?? false,
+				AggDaily = m.MeasureDefinition.AggDaily ?? false,
+				AggWeekly = m.MeasureDefinition.AggWeekly ?? false,
+				AggMonthly = m.MeasureDefinition.AggMonthly ?? false,
+				AggQuarterly = m.MeasureDefinition.AggQuarterly ?? false,
+				AggYearly = m.MeasureDefinition.AggYearly ?? false
 			};
 			var bMdExpression = m.Expression ?? false;
 			var hId = m.HierarchyId;

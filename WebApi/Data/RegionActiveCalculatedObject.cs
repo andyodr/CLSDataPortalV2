@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class RegionActiveCalculatedObject
+public sealed class RegionActiveCalculatedObject
 {
 	public long Id { get; set; }
 

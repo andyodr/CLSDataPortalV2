@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureDataReceiveObject
+public sealed class MeasureDataReceiveObject
 {
 	public int CalendarId { get; set; }
 

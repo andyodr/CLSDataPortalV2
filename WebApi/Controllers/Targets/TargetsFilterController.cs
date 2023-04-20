@@ -9,7 +9,7 @@ namespace Deliver.WebApi.Controllers.Targets;
 [ApiController]
 [Route("api/targets/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class FilterController : ControllerBase
+public sealed class FilterController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 

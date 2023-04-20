@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class RegionOwnerObject
+public sealed class RegionOwnerObject
 {
 	public long Id { get; set; }
 

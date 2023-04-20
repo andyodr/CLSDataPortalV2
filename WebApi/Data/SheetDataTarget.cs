@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class SheetDataTarget
+public sealed class SheetDataTarget
 {
 	public int? HierarchyID { get; set; }
 

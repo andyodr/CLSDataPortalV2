@@ -8,7 +8,7 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public class AddController : ControllerBase
+public sealed class AddController : ControllerBase
 {
 	private readonly ApplicationDbContext _dbc;
 
@@ -19,7 +19,7 @@ public class AddController : ControllerBase
 		var returnObject = new MeasureDefinitionIndexReturnObject {
 			Units = new(),
 			Intervals = new(),
-			AggFunctions = AggregationFunctions.list,
+			AggFunctions = AggregationFunctions.List,
 			MeasureTypes = new()
 		};
 
@@ -104,7 +104,7 @@ public class AddController : ControllerBase
 			monthly = (body.Monthly ?? false) && body.IntervalId != (int)Intervals.Monthly;
 			quarterly = (body.Quarterly ?? false) && body.IntervalId != (int)Intervals.Quarterly;
 			yearly = (body.Yearly ?? false) && body.IntervalId != (int)Intervals.Yearly;
-			body.AggFunctionId ??= (byte)enumAggFunctions.summation;
+			body.AggFunctionId ??= (byte)EnumAggFunctions.summation;
 			var lastUpdatedOn = DateTime.Now;
 
 			// Set values from page
@@ -129,8 +129,8 @@ public class AddController : ControllerBase
 
 			if (daily || weekly || monthly || quarterly || yearly) {
 				currentMD.AggFunction = body.AggFunctionId;
-				if (currentMD.Calculated != true && body.AggFunctionId == (byte)enumAggFunctions.expression) {
-					currentMD.AggFunction = (byte)enumAggFunctions.summation;
+				if (currentMD.Calculated != true && body.AggFunctionId == (byte)EnumAggFunctions.expression) {
+					currentMD.AggFunction = (byte)EnumAggFunctions.summation;
 				}
 			}
 			else {

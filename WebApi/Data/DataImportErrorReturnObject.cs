@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class DataImportErrorReturnObject
+public sealed class DataImportErrorReturnObject
 {
 	public long? Id;
 

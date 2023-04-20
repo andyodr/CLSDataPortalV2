@@ -2,7 +2,7 @@ using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
 namespace Deliver.WebApi.Data;
 
-public class MeasureDefinitionIndexReturnObject
+public sealed class MeasureDefinitionIndexReturnObject
 {
 	public ErrorModel? Error { get; set; }
 

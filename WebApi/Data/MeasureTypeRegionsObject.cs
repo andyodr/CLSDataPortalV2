@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class MeasureTypeRegionsObject
+public sealed class MeasureTypeRegionsObject
 {
 	public long Id { get; set; }
 

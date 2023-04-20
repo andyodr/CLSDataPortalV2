@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class RegionFilterObject
+public sealed class RegionFilterObject
 {
 	public string Hierarchy { get; set; } = null!;
 

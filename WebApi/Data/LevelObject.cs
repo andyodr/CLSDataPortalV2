@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public class LevelObject
+public sealed class LevelObject
 {
 	public int Id { set; get; }
 

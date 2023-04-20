@@ -9,23 +9,21 @@ namespace Deliver.WebApi.Controllers.Measures;
 [ApiController]
 [Route("api/measures/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public class EditController : ControllerBase
+public sealed class EditController : ControllerBase
 {
-	private readonly ApplicationDbContext _context;
-	private UserObject _user = null!;
+	private readonly ApplicationDbContext _dbc;
 
-	public EditController(ApplicationDbContext context) => _context = context;
+	public EditController(ApplicationDbContext context) => _dbc = context;
 
 	[HttpGet]
 	public ActionResult<MeasureIDReturnObject> Get([FromQuery] MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
-			var measureDef = _context.MeasureDefinition
+			var measureDef = _dbc.MeasureDefinition
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.MeasureDefinitionId)
 				.AsNoTrackingWithIdentityResolution().First();
@@ -34,13 +32,13 @@ public class EditController : ControllerBase
 				MeasureTypeName = measureDef.MeasureType!.Name
 			};
 
-			var hierarchies = from h in _context.Hierarchy
+			var hierarchies = from h in _dbc.Hierarchy
 							  where h.HierarchyParentId == values.HierarchyId || h.Id == values.HierarchyId
 							  orderby h.Id
 							  select h;
 
 			foreach (var hierarchy in hierarchies.AsNoTracking()) {
-				var measure = _context.Measure
+				var measure = _dbc.Measure
 							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinitionId == values.MeasureDefinitionId)
 							  .AsNoTrackingWithIdentityResolution().First();
 
@@ -56,29 +54,28 @@ public class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 
 	[HttpPut]
 	public ActionResult<MeasureIDReturnObject> Put(MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
+		if (CreateUserObject(User) is not UserObject _user) {
+			return Unauthorized();
+		}
 
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
-				return Unauthorized();
-			}
-
-			var measureDef = _context.MeasureDefinition
+			var measureDef = _dbc.MeasureDefinition
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.MeasureDefinitionId)
 				.First();
 			var data = new MeasureTypeDataObject {
 				MeasureName = measureDef.Name,
-				MeasureTypeName = _context.MeasureType.Find(measureDef.MeasureTypeId)?.Name
+				MeasureTypeName = _dbc.MeasureType.Find(measureDef.MeasureTypeId)?.Name
 			};
 
-			var hierarchies = from h in _context.Hierarchy
+			var hierarchies = from h in _dbc.Hierarchy
 							  where h.HierarchyParentId == values.HierarchyId || h.Id == values.HierarchyId
 							  orderby h.Id
 							  select h;
@@ -93,7 +90,7 @@ public class EditController : ControllerBase
 					Name = hierarchy.Name
 				});
 
-				var measure = _context.Measure
+				var measure = _dbc.Measure
 					.Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.MeasureDefinitionId)
 					.FirstOrDefault();
 
@@ -101,9 +98,9 @@ public class EditController : ControllerBase
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					UpdateMeasureDataIsProcessed(_context, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
+					UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
 
-					AddAuditTrail(_context,
+					AddAuditTrail(_dbc,
 						Resource.WEB_PAGES,
 						"WEB-03",
 						Resource.MEASURE,
@@ -116,14 +113,14 @@ public class EditController : ControllerBase
 			}
 
 			if (any) {
-				_context.SaveChanges();
+				_dbc.SaveChanges();
 			}
 
 			returnObject.Data.Add(data);
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
 		}
 	}
 }

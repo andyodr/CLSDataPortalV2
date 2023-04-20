@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data.Models;
 
-public class Interval
+public sealed class Interval
 {
 	/// <summary>
 	/// The unique id and primary key for the Interval
