@@ -12,10 +12,10 @@ namespace Deliver.WebApi.Controllers.Filters;
 [Authorize]
 public sealed class IntervalsController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 
-	public IntervalsController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public IntervalsController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}

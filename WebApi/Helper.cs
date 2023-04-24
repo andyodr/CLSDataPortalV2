@@ -195,11 +195,11 @@ public static class Helper
 		return result;
 	}
 
-	internal static bool CanEditValueFromSpecialHierarchy(ConfigurationObject config, int hierarchyId) {
+	internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) {
 		//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
 		bool result = true;
-		if (config.specialHierarhies is not null) {
-			if (config.specialHierarhies.Contains(hierarchyId)) {
+		if (config.SpecialHierarchies is not null) {
+			if (config.SpecialHierarchies.Contains(hierarchyId)) {
 				result = false;
 			}
 		}

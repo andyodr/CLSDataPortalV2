@@ -11,10 +11,10 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [Authorize]
 public sealed class IndexController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 
-	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}
@@ -65,11 +65,10 @@ public sealed class IndexController : ControllerBase
 				result.DataImport.Add(targetData);
 
 				// This is for kris only
-				if (_config.usesCustomer) {
+				if (_config.UsesCustomer) {
                     DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					result.DataImport.Add(customerRegionData);
 				}
-
 			}
 
 			return result;

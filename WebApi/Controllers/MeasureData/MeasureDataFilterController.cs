@@ -14,10 +14,10 @@ namespace Deliver.WebApi.Controllers.MeasureData;
 [Authorize]
 public sealed class FilterController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 
-	public FilterController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public FilterController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}

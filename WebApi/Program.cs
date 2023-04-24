@@ -17,7 +17,7 @@ builder.Services
 		var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 		options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 	})
-	.Configure<ConfigurationObject>(builder.Configuration.GetSection(ConfigurationObject.Section))
+	.Configure<ConfigSettings>(builder.Configuration.GetSection(ConfigSettings.SectionName))
 	.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"))
 	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
 	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

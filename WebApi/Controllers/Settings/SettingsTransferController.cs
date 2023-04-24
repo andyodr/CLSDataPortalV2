@@ -12,11 +12,11 @@ namespace Deliver.WebApi.Controllers.Settings;
 [Authorize(Roles = "SystemAdministrator")]
 public sealed class TransferController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _context;
 	private UserObject _user = null!;
 
-	public TransferController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public TransferController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_context = context;
 	}

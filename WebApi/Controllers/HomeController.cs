@@ -11,10 +11,10 @@ namespace Deliver.WebApi.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private UserObject? _user = new();
 
-	public HomeController(IOptions<ConfigurationObject> config) => _config = config.Value;
+	public HomeController(IOptions<ConfigSettings> config) => _config = config.Value;
 
 	[HttpGet("[action]/{id?}")]
 	public IActionResult Index() {
@@ -26,7 +26,7 @@ public class HomeController : Controller
 		ViewBag.UserName = "Guess";
 		ViewBag.ShowMenu = false.ToString().ToLower();
 		ViewBag.ShowMenuSub = false.ToString().ToLower();
-		ViewBag.TableauLink = _config.tableauLink;
+		ViewBag.TableauLink = _config.TableauLink;
 
 		if (string.IsNullOrWhiteSpace(_user.FirstName)) {
 			ViewBag.UserName = _user.UserName;

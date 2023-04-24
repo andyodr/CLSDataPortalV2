@@ -16,10 +16,10 @@ namespace Deliver.WebApi.Controllers;
 [AllowAnonymous]
 public sealed class AccountController : Controller
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 
-	public AccountController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public AccountController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}
@@ -57,8 +57,8 @@ public sealed class AccountController : Controller
 
 		// Validates against Active Directory
 		if (continueLogin) {
-			if (user!.UserName.Equals(_config.byPassUserName, StringComparison.CurrentCultureIgnoreCase)
-					&& form.Password == _config.byPassUserPassword) {
+			if (user!.UserName.Equals(_config.BypassUserName, StringComparison.CurrentCultureIgnoreCase)
+					&& form.Password == _config.BypassUserPassword) {
 				authenticationType = "bypass";
 			}
 			else {
@@ -110,7 +110,7 @@ public sealed class AccountController : Controller
 				user.Department,
 				user.Role,
 				user.RoleId,
-				TableauLink = _config.tableauLink,
+				TableauLink = _config.TableauLink,
 				Persist = form.Persistent
 			});
 		}

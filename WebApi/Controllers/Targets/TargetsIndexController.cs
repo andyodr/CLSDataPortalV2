@@ -12,10 +12,10 @@ namespace Deliver.WebApi.Controllers.Targets;
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
 public sealed class IndexController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 
-	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}

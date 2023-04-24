@@ -13,9 +13,9 @@ public class LdapAuthentication
 	private readonly string _domain;
 	public string _filterAttribute;
 
-	public LdapAuthentication(ConfigurationObject config) {
-		_path = config.activeDiretoryPath;
-		_domain = config.activeDiretoryDomain;
+	public LdapAuthentication(ConfigSettings config) {
+		_path = config.ActiveDirectoryPath;
+		_domain = config.ActiveDirectoryDomain;
 		_filterAttribute = string.Empty;
 	}
 

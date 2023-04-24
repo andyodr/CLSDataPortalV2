@@ -13,11 +13,11 @@ namespace Deliver.WebApi.Controllers.Settings;
 [Authorize(Roles = "SystemAdministrator")]
 public sealed class IndexController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 	private UserObject _user = null!;
 
-	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}
@@ -69,7 +69,7 @@ public sealed class IndexController : ControllerBase
 
 			result.Users = _dbc.User
 				.Where(u => u.Active == true
-					&& (u.UserName != _config.byPassUserName || _user.UserName == _config.byPassUserName))
+					&& (u.UserName != _config.BypassUserName || _user.UserName == _config.BypassUserName))
 				.Select(u => new UserSettingObject {
 					Id = u.Id,
 					UserName = u.UserName,

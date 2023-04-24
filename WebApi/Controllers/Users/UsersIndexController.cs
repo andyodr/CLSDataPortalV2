@@ -12,10 +12,10 @@ namespace Deliver.WebApi.Controllers.Users;
 [Authorize(Roles = "SystemAdministrator")]
 public sealed class IndexController : ControllerBase
 {
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _context;
 
-	public IndexController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_context = context;
 	}
@@ -49,7 +49,7 @@ public sealed class IndexController : ControllerBase
 					Active = user.Active
 				};
 
-				if (currentUser.UserName == _config.byPassUserName && _user.UserName != _config.byPassUserName) {
+				if (currentUser.UserName == _config.BypassUserName && _user.UserName != _config.BypassUserName) {
 
 				}
 				else {

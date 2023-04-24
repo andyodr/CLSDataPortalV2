@@ -18,13 +18,13 @@ namespace Deliver.WebApi.Controllers.DataImports;
 public sealed class UploadController : ControllerBase
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
-	private readonly ConfigurationObject _config;
+	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 	private readonly DataImportReturnObject result = new() { Data = new(), Error = new() };
 	private int calendarId = -1;
 	private UserObject _user = new();
 
-	public UploadController(IOptions<ConfigurationObject> config, ApplicationDbContext context) {
+	public UploadController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}
@@ -156,7 +156,7 @@ public sealed class UploadController : ControllerBase
 			// --------------------------------------------------------
 			// Process Customer Hierarchy
 			// --------------------------------------------------------
-			else if (dataImport == (int)Helper.DataImports.Customer && _config.usesCustomer) {
+			else if (dataImport == (int)Helper.DataImports.Customer && _config.UsesCustomer) {
 				var listCustomer = new List<SheetDataCustomer>();
 				foreach (var token in (JsonArray)array!) {
 					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
@@ -302,7 +302,7 @@ public sealed class UploadController : ControllerBase
 			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
 				returnObject.DataImport.Add(DataImportHeading(Helper.DataImports.Target));
 
-				if (_config.usesCustomer) {
+				if (_config.UsesCustomer) {
                     DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					returnObject.DataImport.Add(customerRegionData);
 				}
