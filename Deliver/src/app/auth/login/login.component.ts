@@ -77,4 +77,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
     cancel() {
         this.cancelLogin.emit(false)
     }
+
+    clear() {
+        if (!this.model.persistent && !this.model.password) {
+            this.model.userName = ""
+        }
+    }
 }

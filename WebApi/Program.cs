@@ -1,7 +1,6 @@
 using Deliver.WebApi;
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

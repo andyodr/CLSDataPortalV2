@@ -32,7 +32,9 @@ public sealed class IndexController : ControllerBase
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>(),
-				Intervals = new List<IntervalsObject>(),
+				Intervals = _dbc.Interval
+                    .Select(i => new IntervalsObject { Id = i.Id, Name = i.Name })
+                    .ToArray(),
 				IntervalId = _config.DefaultInterval,
 				CalendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
 			};
@@ -40,23 +42,14 @@ public sealed class IndexController : ControllerBase
 			//returnObject.calculationTime.current = DateTime.Now;
 			string sCalculationTime = _dbc.Setting.First().CalculateSchedule ?? string.Empty;
 			result.CalculationTime = CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
-										   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
-										   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
+								   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
+								   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
 			// Find Current Year from previous default interval
 			var calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
-			result.CurrentYear = _dbc.Calendar.Where(c => c.Id == calendarId).First().Year;
+			result.CurrentYear = _dbc.Calendar
+                .First(c => c.Id == calendarId).Year;
 
-			//intervals
-			var intervals = _dbc.Interval;
-			foreach (var interval in intervals) {
-				result.Intervals.Add(new() {
-					Id = interval.Id,
-					Name = interval.Name
-				});
-			}
-
-            //dataImport
             DataImportObject measureData = DataImportHeading(Helper.DataImports.MeasureData);
 			result.DataImport.Add(measureData);
 

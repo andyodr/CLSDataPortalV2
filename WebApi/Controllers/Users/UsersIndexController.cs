@@ -13,11 +13,11 @@ namespace Deliver.WebApi.Controllers.Users;
 public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _context;
+	private readonly ApplicationDbContext _dbc;
 
-	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
+	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext dbc) {
 		_config = config.Value;
-		_context = context;
+		_dbc = dbc;
 	}
 
 	/// <summary>
@@ -27,29 +27,30 @@ public sealed class IndexController : ControllerBase
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
 		UserIndexGetObject result = new() { Data = new List<UserIndexDto>(), Hierarchy = null, Roles = new() };
-		if (CreateUserObject(User) is not UserObject _user) {
+        var user = CreateUserObject(User);
+        if (user == null) {
 			return Unauthorized();
 		}
 
 		try {
-			var userRoles = _context.UserRole.OrderBy(u => u.Id);
+			var userRoles = _dbc.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles.AsNoTracking()) {
 				result.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
-			var users = _context.User.OrderBy(u => u.UserName);
-			foreach (var user in users.Include(u => u.UserRole).AsNoTracking()) {
-				var currentUser = new UserIndexDto {
-					Id = user.Id,
-					UserName = user.UserName,
-					LastName = user.LastName,
-					FirstName = user.FirstName,
-					Department = user.Department,
-					RoleName = user.UserRole!.Name,
-					Active = user.Active
+			var users = _dbc.User.OrderBy(u => u.UserName);
+			foreach (var u in users.Include(u => u.UserRole).AsNoTracking()) {
+                UserIndexDto currentUser = new() {
+					Id = u.Id,
+					UserName = u.UserName,
+					LastName = u.LastName,
+					FirstName = u.FirstName,
+					Department = u.Department,
+					RoleName = u.UserRole!.Name,
+					Active = u.Active
 				};
 
-				if (currentUser.UserName == _config.BypassUserName && _user.UserName != _config.BypassUserName) {
+				if (currentUser.UserName == _config.BypassUserName && user.UserName != _config.BypassUserName) {
 
 				}
 				else {
@@ -60,7 +61,7 @@ public sealed class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(_dbc, e, user.Id));
 		}
 	}
 }
