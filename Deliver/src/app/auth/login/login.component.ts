@@ -13,9 +13,9 @@ import { UserState } from "src/app/_models/user"
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 
-    @Output() cancelLogin = new EventEmitter();
     model: SignIn = { userName: "", password: "", persistent: false }
     progress = false
+    canConnect = false
 
     constructor(
         private api: AccountService,
@@ -33,13 +33,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        if (document.cookie.split(";").some(c => c.trim().startsWith("AuthPresent="))) {
-            setTimeout(() => {
-                this.logger.logInfo("Proceed")
-                this._navSettingsService.showNavBar()
-                this.router.navigate(["measuredata"])
-            }, 500)
-        }
+        this.updateDatabaseStatus()
     }
 
     login() {
@@ -74,13 +68,30 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.api.logout()
     }
 
-    cancel() {
-        this.cancelLogin.emit(false)
-    }
-
     clear() {
         if (!this.model.persistent && !this.model.password) {
             this.model.userName = ""
         }
+    }
+
+    updateDatabaseStatus() {
+        this.api.checkDatabaseConnection().subscribe(result => {
+            this.canConnect = result
+            if (!this.canConnect) {
+                setTimeout(this.updateDatabaseStatus.bind(this), 1000)
+                return
+            }
+
+            if (document.cookie.split(";").some(c => c.trim().startsWith("AuthPresent="))) {
+                setTimeout(() => {
+                    this.logger.logInfo("Proceed")
+                    this._navSettingsService.showNavBar()
+                    this.router.navigate(["measuredata"])
+                }, 500)
+            }
+            else {
+                setTimeout(this.updateDatabaseStatus.bind(this), 30000)
+            }
+        })
     }
 }

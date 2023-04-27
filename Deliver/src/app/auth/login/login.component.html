@@ -32,12 +32,12 @@
         <mat-label>Enter your password</mat-label>
         <input matInput type="password" name="password" [(ngModel)]="model.password" placeholder="Password">
       </mat-form-field>
-      <mat-checkbox type="checkbox" name="persistent" [(ngModel)]="model.persistent" color="primary" (change)="clear()"
-        matTooltip="Not recommended for shared computers" matTooltipClass="tooltips">
-        Remember me
-      </mat-checkbox>
-      <div class="text-right">
-        <button class="login-form-btn" type="submit">
+      <div class="justify-between">
+        <mat-checkbox type="checkbox" name="persistent" [(ngModel)]="model.persistent" color="primary"
+          (change)="clear()" matTooltip="Not recommended for shared computers" matTooltipPosition="after">
+          Remember me
+        </mat-checkbox>
+        <button mat-button color="primary" type="submit" [disabled]="!canConnect">
           Sign In
         </button>
       </div>

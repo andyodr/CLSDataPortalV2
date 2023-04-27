@@ -68,4 +68,8 @@ export class AccountService {
                 }
             })
     }
+
+    checkDatabaseConnection() {
+        return this.http.get<boolean>(environment.baseUrl + "api/CanConnect")
+    }
 }

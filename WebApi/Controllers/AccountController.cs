@@ -110,7 +110,7 @@ public sealed class AccountController : Controller
 				user.Department,
 				user.Role,
 				user.RoleId,
-				TableauLink = _config.TableauLink,
+				_config.TableauLink,
 				Persist = form.Persistent
 			});
 		}
@@ -142,6 +142,16 @@ public sealed class AccountController : Controller
 		await HttpContext.SignOutAsync();
 		Response.Cookies.Delete("AuthPresent");
 		return SignOut();
+	}
+
+	[HttpGet("[action]")]
+	public async Task<IActionResult> CanConnect(CancellationToken token) {
+		try {
+			return Ok(await _dbc.Database.CanConnectAsync(token));
+		}
+		catch (TaskCanceledException) {
+			return StatusCode(499);
+		}
 	}
 
 	private async Task<UserObject?> CreateDetailedUserObject(string userName, CancellationToken token) {

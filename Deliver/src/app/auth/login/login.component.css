@@ -44,7 +44,7 @@ h1 {
 .login-form {
   width: 100%;
   background: white;
-  padding: 1ch 3em 0;
+  padding: 1px 3em 1em;
   text-align: initial;
 }
 
@@ -59,17 +59,9 @@ mat-form-field {
   width: 100%;
 }
 
-.text-right {
-  text-align: right;
-  padding-bottom: 1em;
-}
-
-.login-form-btn {
-  color: #0097A7;
-  background-color: white;
-  border: none;
-  padding: 5px;
-
+.justify-between {
+  display: flex;
+  justify-content: space-between;
 }
 
 .login-form-btn:hover {
