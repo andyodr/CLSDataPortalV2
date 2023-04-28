@@ -78,7 +78,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.api.checkDatabaseConnection().subscribe(result => {
             this.canConnect = result
             if (!this.canConnect) {
-                setTimeout(this.updateDatabaseStatus.bind(this), 1000)
+                setTimeout(this.updateDatabaseStatus.bind(this), 2_000)
                 return
             }
 
@@ -90,7 +90,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 }, 500)
             }
             else {
-                setTimeout(this.updateDatabaseStatus.bind(this), 30000)
+                setTimeout(this.updateDatabaseStatus.bind(this), 60_000)
             }
         })
     }
