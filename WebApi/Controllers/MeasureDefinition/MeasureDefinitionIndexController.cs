@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition;
 [ApiController]
 [Route("api/measureDefinition/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class IndexController : ControllerBase
+public sealed class IndexController : BaseController
 {
-	private readonly ApplicationDbContext _context;
-
-	public IndexController(ApplicationDbContext context) => _context = context;
-
 	[HttpGet("{measureTypeId}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -24,7 +20,7 @@ public sealed class IndexController : ControllerBase
 		try {
 			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new() };
 
-			var mDef = from md in _context.MeasureDefinition
+			var mDef = from md in Dbc.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId
 					   orderby md.FieldNumber ascending, md.Name
 					   select new
@@ -101,7 +97,7 @@ public sealed class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

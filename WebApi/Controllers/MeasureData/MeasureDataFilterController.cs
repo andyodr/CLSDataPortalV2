@@ -3,7 +3,6 @@ using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using System.Globalization;
 using static Deliver.WebApi.Helper;
 
@@ -12,16 +11,8 @@ namespace Deliver.WebApi.Controllers.MeasureData;
 [ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-public sealed class FilterController : ControllerBase
+public sealed class FilterController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public FilterController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
-		_config = config.Value;
-		_dbc = context;
-	}
-
 	[HttpGet]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FilterReturnObject))]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetIntervalsObject>))]
@@ -43,36 +34,36 @@ public sealed class FilterController : ControllerBase
 
 		try {
 			FilterReturnObject filter = new() {
-				Intervals = await _dbc.Interval.OrderBy(i => i.Id)
+				Intervals = await Dbc.Interval.OrderBy(i => i.Id)
 					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
 				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
+					Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)
 				},
-				Years = await _dbc.Calendar
+				Years = await Dbc.Calendar
 					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
 					.OrderByDescending(c => c.Year)
 					.Select(c => new YearsObject { Id = c.Id, Year = c.Year }).ToArrayAsync(token),
 				CurrentCalendarIds = new(),
-				MeasureTypes = await _dbc.MeasureType.OrderBy(m => m.Id)
+				MeasureTypes = await Dbc.MeasureType.OrderBy(m => m.Id)
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArrayAsync(token)
 			};
 
 			// set Previous Calendar Ids
 			try {
-				filter.CurrentCalendarIds.weeklyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Weekly);
-				filter.CurrentCalendarIds.monthlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Monthly);
-				filter.CurrentCalendarIds.quarterlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Quarterly);
-				filter.CurrentCalendarIds.yearlyCalendarId = FindPreviousCalendarId(_dbc.Calendar, (int)Intervals.Yearly);
+				filter.CurrentCalendarIds.weeklyCalendarId = FindPreviousCalendarId(Dbc.Calendar, (int)Intervals.Weekly);
+				filter.CurrentCalendarIds.monthlyCalendarId = FindPreviousCalendarId(Dbc.Calendar, (int)Intervals.Monthly);
+				filter.CurrentCalendarIds.quarterlyCalendarId = FindPreviousCalendarId(Dbc.Calendar, (int)Intervals.Quarterly);
+				filter.CurrentCalendarIds.yearlyCalendarId = FindPreviousCalendarId(Dbc.Calendar, (int)Intervals.Yearly);
 			}
 			catch (Exception e) {
-				filter.Error = ErrorProcessing(_dbc, e, _user.Id);
+				filter.Error = ErrorProcessing(Dbc, e, _user.Id);
 			}
 
 
 			//set filter values
 			// Get Previous Calendar Id
 			if (_user.savedFilters[Pages.MeasureData].calendarId is null) {
-				_user.savedFilters[Pages.MeasureData].calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
+				_user.savedFilters[Pages.MeasureData].calendarId = FindPreviousCalendarId(Dbc.Calendar, Config.DefaultInterval);
 			}
 
 			if (_user.savedFilters[Pages.MeasureData].hierarchyId is null) {
@@ -80,18 +71,18 @@ public sealed class FilterController : ControllerBase
 			}
 
 			if (_user.savedFilters[Pages.MeasureData].intervalId is null) {
-				_user.savedFilters[Pages.MeasureData].intervalId = _config.DefaultInterval;
+				_user.savedFilters[Pages.MeasureData].intervalId = Config.DefaultInterval;
 			}
 
 			if (_user.savedFilters[Pages.MeasureData].measureTypeId is null) {
-				_user.savedFilters[Pages.MeasureData].measureTypeId = _dbc.MeasureType.FirstOrDefault()?.Id;
+				_user.savedFilters[Pages.MeasureData].measureTypeId = Dbc.MeasureType.FirstOrDefault()?.Id;
 			}
 
 			//if( _user.savedFilters[Helper.pages.measureData].year == null )
 			//  _user.savedFilters[Helper.pages.measureData].year =
 			//    _calendarRepository.Find(c => c.IntervalId == (int)Helper.intervals.yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).Year;
 			if (_user.savedFilters[Pages.MeasureData].year is null) {
-				_user.savedFilters[Pages.MeasureData].year = _dbc.Calendar.Find(_user.savedFilters[Pages.MeasureData].calendarId)?.Year;
+				_user.savedFilters[Pages.MeasureData].year = Dbc.Calendar.Find(_user.savedFilters[Pages.MeasureData].calendarId)?.Year;
 			}
 
 			filter.Filter = _user.savedFilters[Pages.MeasureData];
@@ -102,7 +93,7 @@ public sealed class FilterController : ControllerBase
 			return StatusCode(499);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -116,7 +107,7 @@ public sealed class FilterController : ControllerBase
 			_user.savedFilters[Pages.MeasureData].intervalId = body.IntervalId;
 
 			return body.IntervalId switch {
-				(int)Intervals.Weekly => Ok(await _dbc.Calendar.OrderBy(c => c.WeekNumber)
+				(int)Intervals.Weekly => Ok(await Dbc.Calendar.OrderBy(c => c.WeekNumber)
 						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
@@ -126,7 +117,7 @@ public sealed class FilterController : ControllerBase
 							Month = null
 						})
 						.ToArrayAsync(token)),
-				(int)Intervals.Monthly => Ok(await _dbc.Calendar.OrderBy(c => c.Month)
+				(int)Intervals.Monthly => Ok(await Dbc.Calendar.OrderBy(c => c.Month)
 						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
@@ -136,7 +127,7 @@ public sealed class FilterController : ControllerBase
 							Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
 						})
 						.ToArrayAsync(token)),
-				(int)Intervals.Quarterly => Ok(await _dbc.Calendar.OrderBy(c => c.Quarter)
+				(int)Intervals.Quarterly => Ok(await Dbc.Calendar.OrderBy(c => c.Quarter)
 						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
 						.Select(d => new GetIntervalsObject {
 							Id = d.Id,
@@ -151,7 +142,7 @@ public sealed class FilterController : ControllerBase
 			};
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class EditController : ControllerBase
+public sealed class EditController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public EditController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet("{measureDefinitionId:min(1)}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
@@ -30,23 +26,23 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var units = _dbc.Unit.OrderBy(u => u.Id);
+			var units = Dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units.AsNoTracking()) {
 				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
-			var intervals = _dbc.Interval.OrderBy(i => i.Id);
+			var intervals = Dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals.AsNoTracking()) {
 				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
-			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes.AsNoTracking()) {
 				returnObject.MeasureTypes
 					.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
-			foreach (var md in _dbc.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
+			foreach (var md in Dbc.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
 				MeasureDefinitionEdit currentMD = new() {
 					Id = md.Id,
 					MeasureTypeId = md.MeasureTypeId,
@@ -84,7 +80,7 @@ public sealed class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -103,9 +99,9 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var intervals = _dbc.Interval.OrderBy(i => i.Id);
+			var intervals = Dbc.Interval.OrderBy(i => i.Id);
 
-			var units = _dbc.Unit.OrderBy(u => u.Id);
+			var units = Dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
 				result.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
@@ -114,15 +110,15 @@ public sealed class EditController : ControllerBase
 				result.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
-			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
 				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
 
-			var mDef = _dbc.MeasureDefinition.Where(m => m.Id == body.Id).First();
+			var mDef = Dbc.MeasureDefinition.Where(m => m.Id == body.Id).First();
 
 			// Validates name and variable name
-			bool exists = _dbc.MeasureDefinition
+			bool exists = Dbc.MeasureDefinition
 				.Where(m =>
 					m.Id != body.Id &&
 					(m.Name.Trim().ToLower() == body.Name.Trim().ToLower() || m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower())
@@ -198,15 +194,15 @@ public sealed class EditController : ControllerBase
 			mDef.LastUpdatedOn = lastUpdatedOn;
 			mDef.IsProcessed = (byte)IsProcessed.Complete;
 
-			_dbc.SaveChanges();
+			Dbc.SaveChanges();
 			result.Data.Add(body);
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				UpdateMeasureDataIsProcessed(_dbc, mDef.Id, _user.Id);
+				UpdateMeasureDataIsProcessed(Dbc, mDef.Id, _user.Id);
 			}
 
-			AddAuditTrail(_dbc,
+			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-04",
 				Resource.MEASURE_DEFINITION,
@@ -217,28 +213,28 @@ public sealed class EditController : ControllerBase
 
 			// Create Measure Data records for current intervals if they don't exist
 			if (createMeasureData) {
-				CreateMeasureDataRecords(_dbc, body.IntervalId, mDef.Id);
+				CreateMeasureDataRecords(Dbc, body.IntervalId, mDef.Id);
 				if (weekly) {
-					CreateMeasureDataRecords(_dbc, (int)Intervals.Weekly, mDef.Id);
+					CreateMeasureDataRecords(Dbc, (int)Intervals.Weekly, mDef.Id);
 				}
 
 				if (monthly) {
-					CreateMeasureDataRecords(_dbc, (int)Intervals.Monthly, mDef.Id);
+					CreateMeasureDataRecords(Dbc, (int)Intervals.Monthly, mDef.Id);
 				}
 
 				if (quarterly) {
-					CreateMeasureDataRecords(_dbc, (int)Intervals.Quarterly, mDef.Id);
+					CreateMeasureDataRecords(Dbc, (int)Intervals.Quarterly, mDef.Id);
 				}
 
 				if (yearly) {
-					CreateMeasureDataRecords(_dbc, (int)Intervals.Yearly, mDef.Id);
+					CreateMeasureDataRecords(Dbc, (int)Intervals.Yearly, mDef.Id);
 				}
 			}
 
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

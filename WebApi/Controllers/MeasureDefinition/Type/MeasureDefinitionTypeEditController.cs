@@ -8,12 +8,8 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Type;
 [ApiController]
 [Route("/api/measuredefinition/type/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class EditController : ControllerBase
+public sealed class EditController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public EditController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet("{id:min(1)}")]
 	public ActionResult<MeasureType> Get(int id) {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -21,11 +17,11 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var measType = _dbc.MeasureType.Where(m => m.Id == id).Single();
+			var measType = Dbc.MeasureType.Where(m => m.Id == id).Single();
 			return new MeasureType(measType.Id, measType.Name, measType.Description);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -37,23 +33,23 @@ public sealed class EditController : ControllerBase
 
 		try {
 			// Validates name
-			int validateCount = _dbc.MeasureType
+			int validateCount = Dbc.MeasureType
 			  .Where(m => m.Id != body.Id && m.Name.Trim().ToLower() == body.Name.Trim().ToLower())
 			  .Count();
 			if (validateCount > 0) {
 				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
-			var measureType = _dbc.MeasureType.Where(m => m.Id == body.Id).FirstOrDefault();
+			var measureType = Dbc.MeasureType.Where(m => m.Id == body.Id).FirstOrDefault();
 			if (measureType is not null) {
 				var lastUpdatedOn = DateTime.Now;
 
 				measureType.Description = body.Description;
 				measureType.Name = body.Name;
 				measureType.LastUpdatedOn = lastUpdatedOn;
-				_dbc.SaveChanges();
+				Dbc.SaveChanges();
 
-				AddAuditTrail(_dbc,
+				AddAuditTrail(Dbc,
 					Resource.WEB_PAGES,
 					"WEB-08",
 					Resource.MEASURE_TYPE,
@@ -64,11 +60,11 @@ public sealed class EditController : ControllerBase
 			}
 
 			return new MeasureTypeResult(body.Id ?? -1,
-				_dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
+				Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
 			);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

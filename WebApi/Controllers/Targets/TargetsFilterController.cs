@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.Targets;
 [ApiController]
 [Route("api/targets/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class FilterController : ControllerBase
+public sealed class FilterController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public FilterController(ApplicationDbContext context) => _dbc = context;
-
 	/// <summary>
 	/// Get measureType and hierarchy data
 	/// </summary>
@@ -29,23 +25,23 @@ public sealed class FilterController : ControllerBase
 				Intervals = null,
 				MeasureTypes = new List<MeasureType>(),
 				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
+					Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)
 				}
 			};
 
-			result.MeasureTypes = _dbc.MeasureType
+			result.MeasureTypes = Dbc.MeasureType
 				.OrderBy(m => m.Id)
 				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 				.ToArray();
 
-			_user.savedFilters[Pages.Target].measureTypeId ??= _dbc.MeasureType.First().Id;
+			_user.savedFilters[Pages.Target].measureTypeId ??= Dbc.MeasureType.First().Id;
 			_user.savedFilters[Pages.Target].hierarchyId ??= 1;
 			result.Filter = _user.savedFilters[Pages.Target];
 			return result;
 		}
 
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

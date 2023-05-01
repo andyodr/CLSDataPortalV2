@@ -1,7 +1,6 @@
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System.Globalization;
 using static Deliver.WebApi.Helper;
 
@@ -10,16 +9,8 @@ namespace Deliver.WebApi.Controllers.Filters;
 [ApiController]
 [Route("api/filters/[controller]")]
 [Authorize]
-public sealed class IntervalsController : ControllerBase
+public sealed class IntervalsController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public IntervalsController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
-		_config = config.Value;
-		_dbc = context;
-	}
-
 	/// <summary>
 	/// Get interval data from Calendar table for the specified year
 	/// </summary>
@@ -31,7 +22,7 @@ public sealed class IntervalsController : ControllerBase
 		}
 
 		try {
-			var cal = _dbc.Calendar.Where(c => c.Interval.Id == values.IntervalId && c.Year == values.Year);
+			var cal = Dbc.Calendar.Where(c => c.Interval.Id == values.IntervalId && c.Year == values.Year);
 			switch (values.IntervalId) {
 				case (int)Intervals.Weekly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
@@ -67,15 +58,15 @@ public sealed class IntervalsController : ControllerBase
 					break;
 			}
 
-			int intervalId = values.IntervalId ?? _config.DefaultInterval;
-			returnObject.CalendarId = _dbc.Calendar
+			int intervalId = values.IntervalId ?? Config.DefaultInterval;
+			returnObject.CalendarId = Dbc.Calendar
 				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefault()?.Id ?? -1;
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

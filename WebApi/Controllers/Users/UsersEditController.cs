@@ -10,12 +10,8 @@ namespace Deliver.WebApi.Controllers.Users;
 [ApiController]
 [Route("api/users/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class EditController : ControllerBase
+public sealed class EditController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public EditController(ApplicationDbContext context) => _dbc = context;
-
 	/// <summary>
 	/// Get hierarchy and role data, and user data for a subset of users.
 	/// </summary>
@@ -29,20 +25,20 @@ public sealed class EditController : ControllerBase
 
 		try {
 			UserIndexGetObject result = new() { Data = new List<UserIndexDto>(), Hierarchy = new(), Roles = new() };
-			var regions = _dbc.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
+			var regions = Dbc.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
 			result.Hierarchy.Add(new() {
 				Hierarchy = regions.First().Name,
 				Id = regions.First().Id,
-				Sub = GetSubsLevel(_dbc, regions.First().Id),
+				Sub = GetSubsLevel(Dbc, regions.First().Id),
 				Count = 0
 			});
 
-			var userRoles = _dbc.UserRole.OrderBy(u => u.Id);
+			var userRoles = Dbc.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
 				result.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
-			var users = _dbc.User
+			var users = Dbc.User
 				.Where(u => u.Id == id)
 				.OrderBy(u => u.UserName)
 				.Include(u => u.UserRole)
@@ -80,7 +76,7 @@ public sealed class EditController : ControllerBase
 		}
 		catch (Exception e) {
 			int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -94,13 +90,13 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var user = _dbc.User.Find(id);
+			var user = Dbc.User.Find(id);
 			if (user == null) {
 				return ValidationProblem("User ID not found.");
 			}
 
 			if (body.UserName != user.UserName) {
-				if (_dbc.User.Where(u => u.UserName == body.UserName).Any()) {
+				if (Dbc.User.Where(u => u.UserName == body.UserName).Any()) {
 					return ValidationProblem(Resource.USERS_EXIST);
 				}
 			}
@@ -112,11 +108,11 @@ public sealed class EditController : ControllerBase
 			user.Department = body.Department;
 			user.Active = body.Active;
 			user.LastUpdatedOn = lastUpdatedOn;
-			_dbc.Entry(user).Property("UserRoleId").CurrentValue = body.RoleId;
+			Dbc.Entry(user).Property("UserRoleId").CurrentValue = body.RoleId;
 
 			if (body.HierarchiesId.Count > 0) {
 				// UI only shows hierarchyLevel < 5, but we need to add all the child hierarchies as well
-				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH r AS
+				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE HierarchyLevelId < 4 AND Id IN ({string.Join(',', body.HierarchiesId)})
 UNION ALL
@@ -124,25 +120,25 @@ SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.Last
 FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
 WHERE h.HierarchyLevelId > 3)
 SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
-				_dbc.UserHierarchy
+				Dbc.UserHierarchy
 					.Where(h => h.UserId == id && !allSelectedHierarchies.Contains(h.HierarchyId))
 					.ExecuteDelete();
-				var remaining = _dbc.UserHierarchy.Where(h => h.UserId == id).Select(h => h.HierarchyId).ToArray();
+				var remaining = Dbc.UserHierarchy.Where(h => h.UserId == id).Select(h => h.HierarchyId).ToArray();
 				foreach (var hId in allSelectedHierarchies) {
 					if (!remaining.Contains(hId)) {
-						_dbc.UserHierarchy.Add(new() { UserId = id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
+						Dbc.UserHierarchy.Add(new() { UserId = id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
 					}
 				}
 
-				_dbc.SaveChanges();
+				Dbc.SaveChanges();
 			}
 			else {
-				_dbc.UserHierarchy.Where(h => h.UserId == id).ExecuteDelete();
+				Dbc.UserHierarchy.Where(h => h.UserId == id).ExecuteDelete();
 			}
 
 			body.Id = id;
 			UserIndexGetObject result = new() { Data = new UserIndexDto[] { body } };
-			AddAuditTrail(_dbc,
+			AddAuditTrail(Dbc,
 				Resource.SECURITY,
 				"SEC-04",
 				"User Updated",
@@ -154,7 +150,7 @@ SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

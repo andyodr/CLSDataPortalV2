@@ -2,7 +2,6 @@ using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using static Deliver.WebApi.Helper;
 
 namespace Deliver.WebApi.Controllers.Users;
@@ -10,16 +9,8 @@ namespace Deliver.WebApi.Controllers.Users;
 [ApiController]
 [Route("api/users/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : ControllerBase
+public sealed class IndexController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext dbc) {
-		_config = config.Value;
-		_dbc = dbc;
-	}
-
 	/// <summary>
 	/// Get complete listing of authorized users.
 	/// </summary>
@@ -33,12 +24,12 @@ public sealed class IndexController : ControllerBase
 		}
 
 		try {
-			var userRoles = _dbc.UserRole.OrderBy(u => u.Id);
+			var userRoles = Dbc.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles.AsNoTracking()) {
 				result.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
 
-			var users = _dbc.User.OrderBy(u => u.UserName);
+			var users = Dbc.User.OrderBy(u => u.UserName);
 			foreach (var u in users.Include(u => u.UserRole).AsNoTracking()) {
                 UserIndexDto currentUser = new() {
 					Id = u.Id,
@@ -50,7 +41,7 @@ public sealed class IndexController : ControllerBase
 					Active = u.Active
 				};
 
-				if (currentUser.UserName == _config.BypassUserName && user.UserName != _config.BypassUserName) {
+				if (currentUser.UserName == Config.BypassUserName && user.UserName != Config.BypassUserName) {
 
 				}
 				else {
@@ -61,7 +52,7 @@ public sealed class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, user.Id));
 		}
 	}
 }

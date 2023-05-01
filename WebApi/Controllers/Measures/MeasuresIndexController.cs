@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.Measures;
 [ApiController]
 [Route("api/measures/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : ControllerBase
+public sealed class IndexController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public IndexController(ApplicationDbContext context) => _dbc = context;
-
 	/// <summary>
 	/// Gets hierarchy and measuredefinition data
 	/// </summary>
@@ -28,10 +24,10 @@ public sealed class IndexController : ControllerBase
 			_user.savedFilters[Pages.Measure].hierarchyId = hierarchyId;
 			_user.savedFilters[Pages.Measure].measureTypeId = measureTypeId;
 
-			return GetMeasures(_dbc, hierarchyId, measureTypeId);
+			return GetMeasures(Dbc, hierarchyId, measureTypeId);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -90,11 +86,11 @@ public sealed class IndexController : ControllerBase
 			var currentMeasure = new MeasureTypeRegionsObject {
 				Id = dto.MeasureDefinitionId,
 				Hierarchy = new(),
-				Name = _dbc.MeasureDefinition.Find(dto.MeasureDefinitionId)?.Name + "*"
+				Name = Dbc.MeasureDefinition.Find(dto.MeasureDefinitionId)?.Name + "*"
 			};
 
 			foreach (var measureHierarchy in dto.Hierarchy) {
-				var measure = _dbc.Measure.Where(m => m.Id == measureHierarchy.Id).FirstOrDefault();
+				var measure = Dbc.Measure.Where(m => m.Id == measureHierarchy.Id).FirstOrDefault();
 				if (measure is not null) {
 					bool updateMeasureData = measure.Active != measureHierarchy.Active ||
 											 measure.Expression != measureHierarchy.Expression ||
@@ -104,7 +100,7 @@ public sealed class IndexController : ControllerBase
 					measure.Expression = measureHierarchy.Expression;
 					measure.Rollup = measureHierarchy.Rollup;
 					measure.LastUpdatedOn = lastUpdatedOn;
-					_dbc.SaveChanges();
+					Dbc.SaveChanges();
 
 					if (updateMeasureData) {
 						var EnumIsProcessed = IsProcessed.MeasureData;
@@ -112,9 +108,9 @@ public sealed class IndexController : ControllerBase
 							EnumIsProcessed = IsProcessed.Complete;
 						}
 
-						UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
+						UpdateMeasureDataIsProcessed(Dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
-						AddAuditTrail(_dbc,
+						AddAuditTrail(Dbc,
 							Resource.WEB_PAGES,
 							"WEB-03",
 							Resource.MEASURE,
@@ -135,7 +131,7 @@ public sealed class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

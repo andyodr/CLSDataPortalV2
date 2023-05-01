@@ -8,12 +8,8 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 [ApiController]
 [Route("api/measureDefinition/measure/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class AddController : ControllerBase
+public sealed class AddController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public AddController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get() {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
@@ -28,17 +24,17 @@ public sealed class AddController : ControllerBase
 		}
 
 		try {
-			var intervals = _dbc.Interval.OrderBy(i => i.Id);
+			var intervals = Dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals) {
 				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
 			}
 
-			var units = _dbc.Unit.OrderBy(u => u.Id);
+			var units = Dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
 				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
-			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var mt in measureTypes) {
 				returnObject.MeasureTypes.Add(new(mt.Id, mt.Name, mt.Description));
 			}
@@ -46,7 +42,7 @@ public sealed class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -65,7 +61,7 @@ public sealed class AddController : ControllerBase
 			};
 
 			// Validates name and variable name
-			int validateCount = _dbc.MeasureDefinition
+			int validateCount = Dbc.MeasureDefinition
 			  .Where(m =>
 				m.Name.Trim().ToLower() == body.Name.Trim().ToLower() ||
 				m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower()).Count();
@@ -74,17 +70,17 @@ public sealed class AddController : ControllerBase
 				throw new Exception(Resource.VAL_MEASURE_DEF_NAME_EXIST);
 			}
 
-			var intervals = _dbc.Interval.OrderBy(i => i.Id);
+			var intervals = Dbc.Interval.OrderBy(i => i.Id);
 			foreach (var interval in intervals) {
 				result.Intervals.Add(new() { Id = interval.Id, Name = interval.Name });
 			}
 
-			var units = _dbc.Unit.OrderBy(u => u.Id);
+			var units = Dbc.Unit.OrderBy(u => u.Id);
 			foreach (var unit in units) {
 				result.Units.Add(new() { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
 			}
 
-			var measureTypes = _dbc.MeasureType.OrderBy(m => m.Id);
+			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
 			foreach (var measureType in measureTypes) {
 				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
 			}
@@ -140,19 +136,19 @@ public sealed class AddController : ControllerBase
 			currentMD.LastUpdatedOn = lastUpdatedOn;
 			currentMD.IsProcessed = (byte)IsProcessed.Complete;
 
-			var test = _dbc.MeasureDefinition.Add(currentMD);
-			_dbc.SaveChanges();
+			var test = Dbc.MeasureDefinition.Add(currentMD);
+			Dbc.SaveChanges();
 			MeasureDefinitionEdit md = new(body) { Id = currentMD.Id };
 			result.Data.Add(md);
 
 			// Create Measure and Target records
-			string measuresAndTargets = CreateMeasuresAndTargets(_dbc, _user.Id, md);
+			string measuresAndTargets = CreateMeasuresAndTargets(Dbc, _user.Id, md);
 			if (!string.IsNullOrEmpty(measuresAndTargets)) {
 				throw new Exception(measuresAndTargets);
 			}
 
-			_dbc.SaveChanges();
-			AddAuditTrail(_dbc,
+			Dbc.SaveChanges();
+			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-04",
 				Resource.MEASURE_DEFINITION,
@@ -162,28 +158,28 @@ public sealed class AddController : ControllerBase
 			);
 
 			// Create Measure Data records for current intervals
-			CreateMeasureDataRecords(_dbc, body.IntervalId, currentMD.Id);
+			CreateMeasureDataRecords(Dbc, body.IntervalId, currentMD.Id);
 
 			if (weekly) {
-				CreateMeasureDataRecords(_dbc, (int)Intervals.Weekly, currentMD.Id);
+				CreateMeasureDataRecords(Dbc, (int)Intervals.Weekly, currentMD.Id);
 			}
 
 			if (monthly) {
-				CreateMeasureDataRecords(_dbc, (int)Intervals.Monthly, currentMD.Id);
+				CreateMeasureDataRecords(Dbc, (int)Intervals.Monthly, currentMD.Id);
 			}
 
 			if (quarterly) {
-				CreateMeasureDataRecords(_dbc, (int)Intervals.Quarterly, currentMD.Id);
+				CreateMeasureDataRecords(Dbc, (int)Intervals.Quarterly, currentMD.Id);
 			}
 
 			if (yearly) {
-				CreateMeasureDataRecords(_dbc, (int)Intervals.Yearly, currentMD.Id);
+				CreateMeasureDataRecords(Dbc, (int)Intervals.Yearly, currentMD.Id);
 			}
 
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

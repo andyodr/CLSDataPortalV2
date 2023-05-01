@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.Users;
 [ApiController]
 [Route("api/users/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class AddController : ControllerBase
+public sealed class AddController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public AddController(ApplicationDbContext context) => _dbc = context;
-
 	/// <summary>
 	/// Get hierarchy and role data from the database.
 	/// </summary>
@@ -27,15 +23,15 @@ public sealed class AddController : ControllerBase
 		}
 
 		try {
-			var region = _dbc.Hierarchy
+			var region = Dbc.Hierarchy
 				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
 			returnObject.Hierarchy.Add(new() {
 				Hierarchy = region.Name,
 				Id = region.Id,
-				Sub = GetSubsLevel(_dbc, region.Id),
+				Sub = GetSubsLevel(Dbc, region.Id),
 				Count = 0
 			});
-			var userRoles = _dbc.UserRole.OrderBy(u => u.Id);
+			var userRoles = Dbc.UserRole.OrderBy(u => u.Id);
 			foreach (var role in userRoles) {
 				returnObject.Roles.Add(new() { Id = role.Id, Name = role.Name });
 			}
@@ -43,7 +39,7 @@ public sealed class AddController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -59,13 +55,13 @@ public sealed class AddController : ControllerBase
 		}
 
 		try {
-			if (_dbc.User.Where(u => u.UserName == body.UserName).Any()) {
+			if (Dbc.User.Where(u => u.UserName == body.UserName).Any()) {
 				return BadRequest(Resource.USERS_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
 
-			var userEntry = _dbc.User.Add(new() {
+			var userEntry = Dbc.User.Add(new() {
 				UserName = body.UserName,
 				LastName = body.LastName,
 				FirstName = body.FirstName,
@@ -76,11 +72,11 @@ public sealed class AddController : ControllerBase
 
 			userEntry.Property("UserRoleId").CurrentValue = body.RoleId;
 			var user = userEntry.Entity;
-			_dbc.SaveChanges();
+			Dbc.SaveChanges();
 			body.Id = user.Id;
 			if (body.HierarchiesId.Count > 0) {
 				// Add all the child hierarchies first before inserting UserHierarchy
-				var allSelectedHierarchies = _dbc.Hierarchy.FromSqlRaw($@"WITH r AS
+				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($@"WITH r AS
 (SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
 FROM Hierarchy WHERE Id IN ({string.Join(',', body.HierarchiesId)})
 UNION ALL
@@ -89,14 +85,14 @@ FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
 WHERE h.HierarchyLevelId > 3)
 SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 				foreach (var hId in allSelectedHierarchies) {
-					_dbc.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
+					Dbc.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
 				}
 
-				_dbc.SaveChanges();
+				Dbc.SaveChanges();
 			}
 
 			AddAuditTrail(
-			  _dbc, Resource.SECURITY,
+			  Dbc, Resource.SECURITY,
 			   "SEC-03",
 			   "User Added",
 			   @"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
@@ -107,7 +103,7 @@ SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 			return new UserIndexGetObject { Data = new UserIndexDto[] { body } };
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

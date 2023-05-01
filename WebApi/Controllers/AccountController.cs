@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Versioning;
 using System.Security.Claims;
@@ -14,16 +13,8 @@ namespace Deliver.WebApi.Controllers;
 [ApiController]
 [Route("api")]
 [AllowAnonymous]
-public sealed class AccountController : Controller
+public sealed class AccountController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public AccountController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
-		_config = config.Value;
-		_dbc = context;
-	}
-
 	public sealed class RequestDto
 	{
 		[Required]
@@ -57,13 +48,13 @@ public sealed class AccountController : Controller
 
 		// Validates against Active Directory
 		if (continueLogin) {
-			if (user!.UserName.Equals(_config.BypassUserName, StringComparison.CurrentCultureIgnoreCase)
-					&& form.Password == _config.BypassUserPassword) {
+			if (user!.UserName.Equals(Config.BypassUserName, StringComparison.CurrentCultureIgnoreCase)
+					&& form.Password == Config.BypassUserPassword) {
 				authenticationType = "bypass";
 			}
 			else {
 				authenticationType = "windows";
-				var AD = new LdapAuthentication(_config);
+				var AD = new LdapAuthentication(Config);
 				string sADReturn = AD.IsAuthenticated2(form.UserName, form.Password);
 				if (!string.IsNullOrWhiteSpace(sADReturn)) {
 					msgErr = sADReturn;
@@ -93,7 +84,7 @@ public sealed class AccountController : Controller
 			// cookie with same expiration but readable by scripts for purposes of determining signed-in status
 			Response.Cookies.Append("AuthPresent", properties.ExpiresUtc?.ToString("u") ?? "",
 				new CookieOptions { Expires = properties.ExpiresUtc, IsEssential = true });
-			AddAuditTrail(_dbc,
+			AddAuditTrail(Dbc,
 				Resource.SECURITY,
 				"SEC-01",
 				"Login",
@@ -110,7 +101,7 @@ public sealed class AccountController : Controller
 				user.Department,
 				user.Role,
 				user.RoleId,
-				_config.TableauLink,
+				Config.TableauLink,
 				Persist = form.Persistent
 			});
 		}
@@ -126,9 +117,9 @@ public sealed class AccountController : Controller
 	public async Task<IActionResult> GetSignOut() {
 		if (User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string userId) {
 			int claimUserId = int.Parse(userId);
-			var userRepo = _dbc.User.Where(u => u.Id == claimUserId).FirstOrDefault();
+			var userRepo = Dbc.User.Where(u => u.Id == claimUserId).FirstOrDefault();
 			if (userRepo is not null) {
-				AddAuditTrail(_dbc,
+				AddAuditTrail(Dbc,
 					Resource.SECURITY,
 					"SEC-02",
 					"Logout",
@@ -147,7 +138,7 @@ public sealed class AccountController : Controller
 	[HttpGet("[action]")]
 	public async Task<IActionResult> CanConnect(CancellationToken token) {
 		try {
-			return Ok(await _dbc.Database.CanConnectAsync(token));
+			return Ok(await Dbc.Database.CanConnectAsync(token));
 		}
 		catch (TaskCanceledException) {
 			return StatusCode(499);
@@ -155,7 +146,7 @@ public sealed class AccountController : Controller
 	}
 
 	private async Task<UserObject?> CreateDetailedUserObject(string userName, CancellationToken token) {
-		var entity = await _dbc.User
+		var entity = await Dbc.User
 			.Where(u => u.UserName == userName)
 			.Include(u => u.UserRole)
 			.Include(u => u.UserCalendarLocks)

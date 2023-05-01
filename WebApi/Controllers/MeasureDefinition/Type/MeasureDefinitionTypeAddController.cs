@@ -11,12 +11,8 @@ public record MeasureTypeResult(int Id, IList<MeasureType> MeasureTypes);
 [ApiController]
 [Route("api/measureDefinition/type/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class AddController : ControllerBase
+public sealed class AddController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public AddController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpPost]
 	public ActionResult<MeasureTypeResult> Post(MeasureType body) {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -25,21 +21,21 @@ public sealed class AddController : ControllerBase
 
 		try {
 			// Validates name
-			int validateCount = _dbc.MeasureType
+			int validateCount = Dbc.MeasureType
 				.Where(m => m.Name.Trim().ToLower() == body.Name.Trim().ToLower()).Count();
 			if (validateCount > 0) {
 				BadRequest(Resource.VAL_MEASURE_TYPE_EXIST);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var mtype = _dbc.MeasureType.Add(new() {
+			var mtype = Dbc.MeasureType.Add(new() {
 				Name = body.Name,
 				Description = body.Description,
 				LastUpdatedOn = lastUpdatedOn
 			}).Entity;
-			_dbc.SaveChanges();
+			Dbc.SaveChanges();
 
-			AddAuditTrail(_dbc,
+			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-08",
 				Resource.MEASURE_TYPE,
@@ -49,11 +45,11 @@ public sealed class AddController : ControllerBase
 			);
 
 			return new MeasureTypeResult(mtype.Id,
-				_dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
+				Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
 			);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

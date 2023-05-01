@@ -2,7 +2,6 @@ using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using static Deliver.WebApi.Helper;
 
 namespace Deliver.WebApi.Controllers.MeasureData;
@@ -12,16 +11,8 @@ public record VariableName(long Id, string VarName);
 [ApiController]
 [Route("api/measuredata/[controller]")]
 [Authorize]
-public sealed class IndexController : ControllerBase
+public sealed class IndexController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
-		_config = config.Value;
-		_dbc = context;
-	}
-
 	/// <summary>
 	/// Get a MeasureDataIndexListObject
 	/// </summary>
@@ -34,11 +25,11 @@ public sealed class IndexController : ControllerBase
 		}
 
 		try {
-			result.Allow = _dbc.UserHierarchy
+			result.Allow = Dbc.UserHierarchy
 				.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any();
 
 			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-			result.EditValue = CanEditValueFromSpecialHierarchy(_config, dto.HierarchyId);
+			result.EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId);
 
 			result.CalendarId = dto.CalendarId;
 			if (string.IsNullOrEmpty(dto.Day)) {
@@ -46,7 +37,7 @@ public sealed class IndexController : ControllerBase
 			}
 			else {
 				date = Convert.ToDateTime(dto.Day);
-				var cal = _dbc.Calendar
+				var cal = Dbc.Calendar
 					.Where(c => c.StartDate == date)
 					.AsNoTrackingWithIdentityResolution().ToArray();
 				if (cal.Length > 0) {
@@ -54,18 +45,18 @@ public sealed class IndexController : ControllerBase
 				}
 			}
 
-			var calendar = _dbc.Calendar
+			var calendar = Dbc.Calendar
 				.Where(c => c.Id == result.CalendarId)
 				.Include(c => c.Interval)
 				.AsNoTrackingWithIdentityResolution().First();
 
 			result.Locked = false;
 			// From settings page, DO NOT USE = !Active
-			if (_dbc.Setting.AsNoTracking().First().Active == true) {
-				result.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, _dbc);
+			if (Dbc.Setting.AsNoTracking().First().Active == true) {
+				result.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, Dbc);
 			}
 
-			var measures = _dbc.MeasureData
+			var measures = Dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
@@ -89,11 +80,11 @@ public sealed class IndexController : ControllerBase
 					md.Explanation,
 					md.Action,
 					md.Measure.HierarchyId,
-					calculated = IsMeasureCalculated(_dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
+					calculated = IsMeasureCalculated(Dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
 				});
 
 			// Find all measure definition variables.
-			var allVarNames = from m in _dbc.MeasureDefinition.Where(m => m.MeasureType.Id == dto.MeasureTypeId)
+			var allVarNames = from m in Dbc.MeasureDefinition.Where(m => m.MeasureType.Id == dto.MeasureTypeId)
 							  select new { m.Id, m.VariableName };
 
 			foreach (var record in measures.AsNoTrackingWithIdentityResolution()) {
@@ -137,11 +128,11 @@ public sealed class IndexController : ControllerBase
 					if (varNames.Count > 0) {
 						string sExpression = measureDataDto.Expression;
 						foreach (var item in varNames) {
-							var measure = _dbc.Measure
+							var measure = Dbc.Measure
 								.Where(m => m.MeasureDefinitionId == item.Id && m.HierarchyId == dto.HierarchyId)
 								.AsNoTracking().ToArray();
 							if (measure.Length > 0) {
-								var measureData = _dbc.MeasureData
+								var measureData = Dbc.MeasureData
 									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == result.CalendarId)
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
@@ -171,7 +162,7 @@ public sealed class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -186,10 +177,10 @@ public sealed class IndexController : ControllerBase
 		try {
 			//apply precision and validate unit if value != null
 			if (value.MeasureValue is not null) {
-				var precision = from md in _dbc.MeasureData.Where(md => md.Id == value.MeasureDataId)
-								join m in _dbc.Measure
+				var precision = from md in Dbc.MeasureData.Where(md => md.Id == value.MeasureDataId)
+								join m in Dbc.Measure
 								on md.Measure!.Id equals m.Id
-								join mdef in _dbc.MeasureDefinition
+								join mdef in Dbc.MeasureDefinition
 								on m.MeasureDefinition!.Id equals mdef.Id
 								select new { mdef.Precision, mdef.Unit };
 
@@ -203,16 +194,16 @@ public sealed class IndexController : ControllerBase
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var measureData = _dbc.MeasureData.Where(m => m.Id == value.MeasureDataId).First();
+			var measureData = Dbc.MeasureData.Where(m => m.Id == value.MeasureDataId).First();
 			measureData.Value = value.MeasureValue;
 			measureData.Explanation = value.Explanation;
 			measureData.Action = value.Action;
-			_dbc.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
+			Dbc.Entry(measureData).Property("UserId").CurrentValue = _user.Id;
 			measureData.IsProcessed = (byte)IsProcessed.MeasureData;
 			measureData.LastUpdatedOn = lastUpdatedOn;
-			_dbc.SaveChanges();
+			Dbc.SaveChanges();
 
-			AddAuditTrail(_dbc,
+			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-01",
 				Resource.MEASURE_DATA,
@@ -249,13 +240,13 @@ public sealed class IndexController : ControllerBase
 
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
 	private string BuildRangeString(int? calendarID) {
 		int interval = -1;
-		var cal = _dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
+		var cal = Dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
 		if (calendarID is null) {
 			interval = (int)Intervals.Daily;
 		}

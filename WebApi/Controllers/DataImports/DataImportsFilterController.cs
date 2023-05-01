@@ -10,16 +10,12 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public sealed class FilterController : ControllerBase
+public sealed class FilterController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public FilterController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet]
 	public ActionResult<IList<DataImportFilterGetAllObject>> Get(int intervalId, int year) {
 		try {
-			var calendarRecords = _dbc.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
+			var calendarRecords = Dbc.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
 			if (intervalId == (int)Intervals.Weekly) {
 				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
@@ -63,12 +59,12 @@ public sealed class FilterController : ControllerBase
 
 	private int LogError(string errorMessage, Exception? detailedErrorMessage, string? stacktrace) {
 		try {
-			var entity = _dbc.ErrorLog.Add(new() {
+			var entity = Dbc.ErrorLog.Add(new() {
 				ErrorMessage = errorMessage,
 				ErrorMessageDetailed = detailedErrorMessage?.ToString() ?? string.Empty,
 				StackTrace = stacktrace ?? string.Empty
 			}).Entity;
-			_ = _dbc.SaveChanges();
+			_ = Dbc.SaveChanges();
 			return entity.Id;
 		}
 		catch {

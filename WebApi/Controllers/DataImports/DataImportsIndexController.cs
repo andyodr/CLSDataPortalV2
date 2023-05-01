@@ -1,7 +1,6 @@
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using static Deliver.WebApi.Helper;
 
 namespace Deliver.WebApi.Controllers.DataImports;
@@ -9,16 +8,8 @@ namespace Deliver.WebApi.Controllers.DataImports;
 [ApiController]
 [Route("api/dataimports/[controller]")]
 [Authorize]
-public sealed class IndexController : ControllerBase
+public sealed class IndexController : BaseController
 {
-	private readonly ConfigSettings _config;
-	private readonly ApplicationDbContext _dbc;
-
-	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
-		_config = config.Value;
-		_dbc = context;
-	}
-
 	[HttpGet]
 	public ActionResult<DataImportsMainObject> Get() {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -27,27 +18,27 @@ public sealed class IndexController : ControllerBase
 
 		try {
 			var result = new DataImportsMainObject {
-				Years = _dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
+				Years = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>(),
-				Intervals = _dbc.Interval
+				Intervals = Dbc.Interval
                     .Select(i => new IntervalsObject { Id = i.Id, Name = i.Name })
                     .ToArray(),
-				IntervalId = _config.DefaultInterval,
-				CalendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval)
+				IntervalId = Config.DefaultInterval,
+				CalendarId = FindPreviousCalendarId(Dbc.Calendar, Config.DefaultInterval)
 			};
 
 			//returnObject.calculationTime.current = DateTime.Now;
-			string sCalculationTime = _dbc.Setting.First().CalculateSchedule ?? string.Empty;
+			string sCalculationTime = Dbc.Setting.First().CalculateSchedule ?? string.Empty;
 			result.CalculationTime = CalculateScheduleStr(sCalculationTime, "HH", ":") + " Hours, " +
 								   CalculateScheduleStr(sCalculationTime, "MM", ":") + " Minutes, " +
 								   CalculateScheduleStr(sCalculationTime, "SS", ":") + " Seconds";
 
 			// Find Current Year from previous default interval
-			var calendarId = FindPreviousCalendarId(_dbc.Calendar, _config.DefaultInterval);
-			result.CurrentYear = _dbc.Calendar
+			var calendarId = FindPreviousCalendarId(Dbc.Calendar, Config.DefaultInterval);
+			result.CurrentYear = Dbc.Calendar
                 .First(c => c.Id == calendarId).Year;
 
             DataImportObject measureData = DataImportHeading(Helper.DataImports.MeasureData);
@@ -58,7 +49,7 @@ public sealed class IndexController : ControllerBase
 				result.DataImport.Add(targetData);
 
 				// This is for kris only
-				if (_config.UsesCustomer) {
+				if (Config.UsesCustomer) {
                     DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					result.DataImport.Add(customerRegionData);
 				}
@@ -67,7 +58,7 @@ public sealed class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

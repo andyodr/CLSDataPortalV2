@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.Measures;
 [ApiController]
 [Route("api/measures/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class FilterController : ControllerBase
+public sealed class FilterController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public FilterController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet("{measureTypeId?}/{hierarchyId?}")]
 	public ActionResult<FilterReturnObject> GetAll(int? measureTypeId, int? hierarchyId) {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -23,22 +19,22 @@ public sealed class FilterController : ControllerBase
 
 		try {
 			FilterReturnObject result = new() {
-				MeasureTypes = _dbc.MeasureType
+				MeasureTypes = Dbc.MeasureType
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 					.ToArray(),
 				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.IndexController.CreateUserHierarchy(_dbc, _user.Id)
+					Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)
 				}
 			};
 
 			var hId = _user.savedFilters[Pages.Measure].hierarchyId ??= 1;
-			var tId = _user.savedFilters[Pages.Measure].measureTypeId ??= _dbc.MeasureType.First().Id;
+			var tId = _user.savedFilters[Pages.Measure].measureTypeId ??= Dbc.MeasureType.First().Id;
 			result.Filter = _user.savedFilters[Pages.Measure];
-			result.Measures = IndexController.GetMeasures(_dbc, hierarchyId ?? hId, measureTypeId ?? tId);
+			result.Measures = IndexController.GetMeasures(Dbc, hierarchyId ?? hId, measureTypeId ?? tId);
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }

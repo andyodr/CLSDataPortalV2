@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Deliver.WebApi.Data;
 
-public class ConfigSettings
+public sealed class ConfigSettings
 {
 	public const string SectionName = "Config";
 
@@ -16,7 +14,7 @@ public class ConfigSettings
 
 	public List<int> SpecialHierarchies { get; init; } = new();
 
-	public bool usesSpecialHieararhies { get; set; }
+	public bool UsesSpecialHierarchies { get; set; }
 
 	public bool UsesCustomer { get; init; }
 

@@ -9,12 +9,8 @@ namespace Deliver.WebApi.Controllers.Measures;
 [ApiController]
 [Route("api/measures/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class EditController : ControllerBase
+public sealed class EditController : BaseController
 {
-	private readonly ApplicationDbContext _dbc;
-
-	public EditController(ApplicationDbContext context) => _dbc = context;
-
 	[HttpGet]
 	public ActionResult<MeasureIDReturnObject> Get([FromQuery] MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
@@ -23,7 +19,7 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var measureDef = _dbc.MeasureDefinition
+			var measureDef = Dbc.MeasureDefinition
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.MeasureDefinitionId)
 				.AsNoTrackingWithIdentityResolution().First();
@@ -32,13 +28,13 @@ public sealed class EditController : ControllerBase
 				MeasureTypeName = measureDef.MeasureType!.Name
 			};
 
-			var hierarchies = from h in _dbc.Hierarchy
+			var hierarchies = from h in Dbc.Hierarchy
 							  where h.HierarchyParentId == values.HierarchyId || h.Id == values.HierarchyId
 							  orderby h.Id
 							  select h;
 
 			foreach (var hierarchy in hierarchies.AsNoTracking()) {
-				var measure = _dbc.Measure
+				var measure = Dbc.Measure
 							  .Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinitionId == values.MeasureDefinitionId)
 							  .AsNoTrackingWithIdentityResolution().First();
 
@@ -54,7 +50,7 @@ public sealed class EditController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
@@ -66,16 +62,16 @@ public sealed class EditController : ControllerBase
 		}
 
 		try {
-			var measureDef = _dbc.MeasureDefinition
+			var measureDef = Dbc.MeasureDefinition
 				.Include(d => d.MeasureType)
 				.Where(md => md.Id == values.MeasureDefinitionId)
 				.First();
 			var data = new MeasureTypeDataObject {
 				MeasureName = measureDef.Name,
-				MeasureTypeName = _dbc.MeasureType.Find(measureDef.MeasureTypeId)?.Name
+				MeasureTypeName = Dbc.MeasureType.Find(measureDef.MeasureTypeId)?.Name
 			};
 
-			var hierarchies = from h in _dbc.Hierarchy
+			var hierarchies = from h in Dbc.Hierarchy
 							  where h.HierarchyParentId == values.HierarchyId || h.Id == values.HierarchyId
 							  orderby h.Id
 							  select h;
@@ -90,7 +86,7 @@ public sealed class EditController : ControllerBase
 					Name = hierarchy.Name
 				});
 
-				var measure = _dbc.Measure
+				var measure = Dbc.Measure
 					.Where(m => m.HierarchyId == hierarchy.Id && m.MeasureDefinition!.Id == values.MeasureDefinitionId)
 					.FirstOrDefault();
 
@@ -98,9 +94,9 @@ public sealed class EditController : ControllerBase
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					UpdateMeasureDataIsProcessed(_dbc, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
+					UpdateMeasureDataIsProcessed(Dbc, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
 
-					AddAuditTrail(_dbc,
+					AddAuditTrail(Dbc,
 						Resource.WEB_PAGES,
 						"WEB-03",
 						Resource.MEASURE,
@@ -113,14 +109,14 @@ public sealed class EditController : ControllerBase
 			}
 
 			if (any) {
-				_dbc.SaveChanges();
+				Dbc.SaveChanges();
 			}
 
 			returnObject.Data.Add(data);
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 }
