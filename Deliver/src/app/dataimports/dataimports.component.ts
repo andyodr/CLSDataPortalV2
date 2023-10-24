@@ -292,7 +292,7 @@ export class DataImportsComponent implements OnInit {
         switch (Number(this.fIntervalSelected?.id)) {
             case Intervals.Weekly:
                 this.fWeeks = data
-                this.fWeekSelected = data.filter(it => it.id = this.calendarId)[0]
+                this.fWeekSelected = data.filter(it => it.id == this.calendarId)[0]
                 if (this.fWeekSelected == null) {
                     this.fWeekSelected = data[0]
                 }
@@ -301,7 +301,7 @@ export class DataImportsComponent implements OnInit {
                 break
             case Intervals.Monthly:
                 this.fMonths = data
-                this.fMonthSelected = data.filter(it => it.id = this.calendarId)[0]
+                this.fMonthSelected = data.filter(it => it.id == this.calendarId)[0]
                 if (this.fMonthSelected == null) {
                     this.fMonthSelected = data[0]
                 }
@@ -310,7 +310,7 @@ export class DataImportsComponent implements OnInit {
                 break
             case Intervals.Quarterly:
                 this.fQuarters = data
-                this.fQuarterSelected = data.filter(it => it.id = this.calendarId)[0]
+                this.fQuarterSelected = data.filter(it => it.id == this.calendarId)[0]
                 if (this.fQuarterSelected == null) {
                     this.fQuarterSelected = data[0]
                 }

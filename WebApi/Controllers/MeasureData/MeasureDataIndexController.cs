@@ -137,7 +137,7 @@ public sealed class IndexController : BaseController
 									.AsNoTracking().ToArray();
 								if (measureData.Length > 0) {
 									if (measureData.First().Value is not null) {
-										sExpression = sExpression.Replace("Data[\"" + item.VarName + "\"]", measureData.First().Value.ToString());
+										sExpression = sExpression.Replace($@"Data[""{item.VarName}""]", measureData.First().Value.ToString());
 									}
 								}
 							}

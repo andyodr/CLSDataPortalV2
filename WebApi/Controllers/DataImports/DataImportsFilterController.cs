@@ -17,36 +17,30 @@ public sealed class FilterController : BaseController
 		try {
 			var calendarRecords = Dbc.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
-			if (intervalId == (int)Intervals.Weekly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+			return (Intervals)intervalId switch {
+				Intervals.Weekly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					Id = c.Id,
 					Number = c.WeekNumber,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
 					Month = null
-				}).ToArray();
-			}
-			else if (intervalId == (int)Intervals.Quarterly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				}).ToArray(),
+				Intervals.Quarterly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					Id = c.Id,
 					Number = c.Quarter,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
 					Month = null
-				}).ToArray();
-			}
-			else if (intervalId == (int)Intervals.Monthly) {
-				return calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				}).ToArray(),
+				Intervals.Monthly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
 					Id = c.Id,
 					Number = c.Month,
 					StartDate = null,
 					EndDate = null,
 					Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Month ?? 13)
-				}).ToArray();
-			}
-			else {
-				return BadRequest(Resource.DI_FILTER_INVALID_INTERVAL);
-			}
+				}).ToArray(),
+				_ => BadRequest(Resource.DI_FILTER_INVALID_INTERVAL)
+			};
 		}
 		catch (Exception e) {
 			var errorId = LogError(e.Message, e.InnerException, e.StackTrace);

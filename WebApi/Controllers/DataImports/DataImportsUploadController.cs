@@ -18,7 +18,6 @@ public sealed class UploadController : BaseController
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
 	private readonly DataImportReturnObject result = new() { Data = new(), Error = new() };
-	private int calendarId = -1;
 	private UserObject _user = new();
 
 	public sealed class Model
@@ -50,7 +49,6 @@ public sealed class UploadController : BaseController
 
 		_user = user;
 		try {
-			List<Task> TaskList = new();
 			string json = jsonString.ToString();
 			json = Regex.Replace(
 				json,
@@ -66,196 +64,188 @@ public sealed class UploadController : BaseController
 			);
 
 			var jsonObject = JsonNode.Parse(json);
-			int dataImport = int.Parse(jsonObject!["dataImport"]?.ToString() ?? "0");
-
+			var dataImport = (Helper.DataImports)int.Parse(jsonObject!["dataImport"]?.ToString() ?? "0");
 			string sheetName = jsonObject["sheet"]?.ToString() ?? string.Empty;
 			var array = jsonObject["data"];
 
 			// --------------------------------------------------------
 			// Process Target
 			// --------------------------------------------------------
-			if (dataImport == (int)Helper.DataImports.Target) {
-				var listTarget = new List<SheetDataTarget>();
-				foreach (var token in (JsonArray)array!) {
-					var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
-					value.RowNumber = rowNumber++;
-					//value.unitId = _measureDefinitionRepository.Find(md=> md.Id == value.MeasureID).UnitId;
-					var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
-					if (mRecord.Any()) {
-						value.Precision = mRecord.First().Precision;
-						listTarget.Add(value);
-					}
-					else {
-                        result.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
-					}
-				}
-
-				if (result.Error.Count != 0) {
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
-					return result;
-				}
-
-				// Find duplicates
-				var duplicates = from t in listTarget
-								 group t by new { t.HierarchyID, t.MeasureID } into g
-								 where g.Count<SheetDataTarget>() > 1
-								 select g.Key;
-				if (duplicates.Any()) {
-					var duplicateRows = from t in listTarget
-										join d in duplicates
-										on new { a = t.HierarchyID, b = t.MeasureID }
-										equals new { a = d.HierarchyID, b = d.MeasureID }
-										select t.RowNumber;
-
-					foreach (var itemRow in duplicateRows) {
-                        result.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
+			switch (dataImport) {
+				case Helper.DataImports.Target:
+					var listTarget = new List<SheetDataTarget>();
+					foreach (var token in (JsonArray)array!) {
+						var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
+						value.RowNumber = rowNumber++;
+						//value.unitId = _measureDefinitionRepository.Find(md=> md.Id == value.MeasureID).UnitId;
+						var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
+						if (mRecord.Any()) {
+							value.Precision = mRecord.First().Precision;
+							listTarget.Add(value);
+						}
+						else {
+							result.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
+						}
 					}
 
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
-					return result;
-				}
+					if (result.Error.Count != 0) {
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
+						return result;
+					}
 
-				foreach (var row in listTarget) {
-                    ValidateTargetRows(row, _user.Id);
-				}
+					// Find duplicates
+					var duplicates = from t in listTarget
+									 group t by new { t.HierarchyID, t.MeasureID } into g
+									 where g.Count<SheetDataTarget>() > 1
+									 select g.Key;
+					if (duplicates.Any()) {
+						var duplicateRows = from t in listTarget
+											join d in duplicates
+											on new { a = t.HierarchyID, b = t.MeasureID }
+											equals new { a = d.HierarchyID, b = d.MeasureID }
+											select t.RowNumber;
 
-				if (result.Error.Count != 0) {
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
-					return result;
-				}
-				else {
-					TaskList.Clear();
+						foreach (var itemRow in duplicateRows) {
+							result.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
+						}
+
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
+						return result;
+					}
+
 					foreach (var row in listTarget) {
-                        ImportTargetRecords(row, _user.Id);
+						ValidateTargetRows(row, _user.Id);
 					}
 
-                    result.Data = null;
-                    AddAuditTrail(Dbc,
-                        Resource.WEB_PAGES,
-						"WEB-06",
-                        Resource.DATA_IMPORT,
-						@"Target Imported" + " / sheetName=" + sheetName,
-                        DateTime.Now,
-                        _user.Id
-					);
-
-					return result;
-				}
-			}
-			// --------------------------------------------------------
-			// Process Customer Hierarchy
-			// --------------------------------------------------------
-			else if (dataImport == (int)Helper.DataImports.Customer && Config.UsesCustomer) {
-				var listCustomer = new List<SheetDataCustomer>();
-				foreach (var token in (JsonArray)array!) {
-					var value = token.Deserialize<SheetDataCustomer>(webDefaults);
-					if (value == null) { continue; }
-                    ValidateCustomerRows(value, _user.Id);
-					value!.rowNumber = rowNumber++;
-					listCustomer.Add(value);
-				}
-
-				if (result.Error.Count != 0) {
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
-					return result;
-				}
-				else {
-					TaskList.Clear();
-					foreach (var row in listCustomer) {
-                        ImportCustomerRecords(row);
-					}
-
-                    result.Data = null;
-
-                    AddAuditTrail(Dbc,
-                        Resource.WEB_PAGES,
-						"WEB-06",
-                        Resource.DATA_IMPORT,
-						@"Customer Imported" + " / sheetName=" + sheetName,
-                        DateTime.Now,
-                        _user.Id
-					);
-
-					return result;
-				}
-			}
-			// --------------------------------------------------------
-			// Process MeasureData
-			// --------------------------------------------------------
-			else {
-				var calId = jsonObject["calendarId"];
-                calendarId = int.Parse(calId!.ToString());
-				var calendar = Dbc.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
-				var listMeasureData = new List<SheetDataMeasureData>();
-
-				// From settings page, DO NOT USE = !Active
-				if (Dbc.Setting.First().Active == true) {
-					if (IsDataLocked(calendar.Interval.Id, _user.Id, calendar, Dbc)) {
-						throw new Exception(Resource.DI_ERR_USER_DATE);
-					}
-				}
-
-				foreach (var token in (JsonArray)array!) {
-					var value = token.Deserialize<SheetDataMeasureData>(webDefaults);
-					value!.RowNumber = rowNumber++;
-
-					var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
-
-					if (mRecord.Any()) {
-						value.UnitId = mRecord.First().UnitId;
-						value.Precision = mRecord.First().Precision;
-						listMeasureData.Add(value);
+					if (result.Error.Count != 0) {
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
 					}
 					else {
-                        result.Error.Add(new() { Row = value.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+						foreach (var row in listTarget) {
+							ImportTargetRecords(row, _user.Id);
+						}
+
+						result.Data = null;
+						AddAuditTrail(Dbc,
+							Resource.WEB_PAGES,
+							"WEB-06",
+							Resource.DATA_IMPORT,
+							@"Target Imported" + " / sheetName=" + sheetName,
+							DateTime.Now,
+							_user.Id
+						);
 					}
-				}
 
-				if (result.Error.Count != 0) {
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
 					return result;
-				}
+				// --------------------------------------------------------
+				// Process Customer Hierarchy
+				// --------------------------------------------------------
+				case Helper.DataImports.Customer when Config.UsesCustomer:
+					var listCustomer = new List<SheetDataCustomer>();
+					foreach (var token in (JsonArray)array!) {
+						var value = token.Deserialize<SheetDataCustomer>(webDefaults);
+						if (value == null) { continue; }
+						ValidateCustomerRows(value, _user.Id);
+						value!.rowNumber = rowNumber++;
+						listCustomer.Add(value);
+					}
 
-				foreach (var row in listMeasureData) {
-                    ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
-				}
+					if (result.Error.Count != 0) {
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
+					}
+					else {
+						foreach (var row in listCustomer) {
+							ImportCustomerRecords(row);
+						}
 
-				if (result.Error.Count != 0) {
-					var temp = result.Error.OrderBy(e => e.Row);
-                    result.Error = temp.ToList();
+						result.Data = null;
+
+						AddAuditTrail(Dbc,
+							Resource.WEB_PAGES,
+							"WEB-06",
+							Resource.DATA_IMPORT,
+							@"Customer Imported" + " / sheetName=" + sheetName,
+							DateTime.Now,
+							_user.Id
+						);
+					}
+
 					return result;
-				}
-				else {
-					TaskList.Clear();
+				// --------------------------------------------------------
+				// Process MeasureData
+				// --------------------------------------------------------
+				case Helper.DataImports.MeasureData:
+					var calId = jsonObject["calendarId"];
+					var calendarId = int.Parse(calId!.ToString());
+					var calendar = Dbc.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
+					var listMeasureData = new List<SheetDataMeasureData>();
+
+					// From settings page, DO NOT USE = !Active
+					if (Dbc.Setting.First().Active == true) {
+						if (IsDataLocked(calendar.Interval.Id, _user.Id, calendar, Dbc)) {
+							throw new Exception(Resource.DI_ERR_USER_DATE);
+						}
+					}
+
+					foreach (var token in (JsonArray)array!) {
+						var value = token.Deserialize<SheetDataMeasureData>(webDefaults);
+						value!.RowNumber = rowNumber++;
+						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID).ToArray();
+						if (mdef.Any()) {
+							value.UnitId = mdef.First().UnitId;
+							value.Precision = mdef.First().Precision;
+							listMeasureData.Add(value);
+						}
+						else {
+							result.Error.Add(new() { Row = value.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+						}
+					}
+
+					if (result.Error.Count != 0) {
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
+						return result;
+					}
+
 					foreach (var row in listMeasureData) {
-                        ImportMeasureDataRecords(row, _user.Id);
+						ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
 					}
 
-                    result.Data = null;
+					if (result.Error.Count != 0) {
+						var temp = result.Error.OrderBy(e => e.Row);
+						result.Error = temp.ToList();
+					}
+					else {
+						foreach (var row in listMeasureData) {
+							ImportMeasureDataRecords(row, calendarId, _user.Id);
+						}
 
-                    AddAuditTrail(Dbc,
-                        Resource.WEB_PAGES,
-						"WEB-06",
-                        Resource.DATA_IMPORT,
-						@"Measure Data Imported" +
-							" / CalendarId=" + calendar.Id.ToString() +
-							" / Interval=" + Dbc.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
-							" / Year=" + calendar.Year.ToString() +
-							" / Quarter=" + calendar.Quarter.ToString() +
-							" / Month=" + calendar.Month.ToString() +
-							" / Week=" + calendar.WeekNumber.ToString() +
-							" / sheetName=" + sheetName,
-                        DateTime.Now,
-                        _user.Id
-					);
+						result.Data = null;
+
+						AddAuditTrail(Dbc,
+							Resource.WEB_PAGES,
+							"WEB-06",
+							Resource.DATA_IMPORT,
+							@"Measure Data Imported" +
+								" / CalendarId=" + calendar.Id.ToString() +
+								" / Interval=" + Dbc.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
+								" / Year=" + calendar.Year.ToString() +
+								" / Quarter=" + calendar.Quarter.ToString() +
+								" / Month=" + calendar.Month.ToString() +
+								" / Week=" + calendar.WeekNumber.ToString() +
+								" / sheetName=" + sheetName,
+							DateTime.Now,
+							_user.Id
+						);
+					}
 
 					return result;
-				}
+				default:
+					return result;
 			}
 		}
 		catch (Exception e) {
@@ -274,8 +264,7 @@ public sealed class UploadController : BaseController
 
 	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
-			var returnObject = new DataImportsMainObject
-            {
+			var returnObject = new DataImportsMainObject {
 				Years = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				CalculationTime = "00:01:00",
@@ -295,7 +284,7 @@ public sealed class UploadController : BaseController
 				returnObject.DataImport.Add(DataImportHeading(Helper.DataImports.Target));
 
 				if (Config.UsesCustomer) {
-                    DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
+					DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					returnObject.DataImport.Add(customerRegionData);
 				}
 
@@ -398,7 +387,7 @@ public sealed class UploadController : BaseController
 		}
 	}
 
-	private void ImportMeasureDataRecords(SheetDataMeasureData row, int userId) {
+	private void ImportMeasureDataRecords(SheetDataMeasureData row, int calendarId, int userId) {
 		try {
 			double? sheetValue = row.Value switch {
 				double value => Math.Round(value, row.Precision, MidpointRounding.AwayFromZero),

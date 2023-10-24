@@ -91,7 +91,7 @@ public sealed class AddController : BaseController
 			}
 			else {
 				body.Calculated = body.Expression.Trim().Length > 0;
-				body.Expression = body.Expression.Replace(" \"", "\"").Replace("\" ", "\"");
+				body.Expression = body.Expression.Replace(@" """, @"""").Replace(@""" ", @"""");
 			}
 
 			bool daily, weekly, monthly, quarterly, yearly = false;
