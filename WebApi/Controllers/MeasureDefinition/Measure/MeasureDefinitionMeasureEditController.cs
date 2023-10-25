@@ -1,7 +1,6 @@
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using static Deliver.WebApi.Helper;
 
 namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
@@ -14,11 +13,8 @@ public sealed class EditController : BaseController
 	[HttpGet("{measureDefinitionId:min(1)}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureDefinitionId) {
 		var returnObject = new MeasureDefinitionIndexReturnObject {
-			Units = new(),
-			Intervals = new(),
-			MeasureTypes = new(),
 			AggFunctions = AggregationFunctions.List,
-			Data = new()
+			Data = new List<MeasureDefinitionEdit>()
 		};
 
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -26,21 +22,12 @@ public sealed class EditController : BaseController
 		}
 
 		try {
-			var units = Dbc.Unit.OrderBy(u => u.Id);
-			foreach (var unit in units.AsNoTracking()) {
-				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
-			}
-
-			var intervals = Dbc.Interval.OrderBy(i => i.Id);
-			foreach (var interval in intervals.AsNoTracking()) {
-				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
-			}
-
-			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
-			foreach (var measureType in measureTypes.AsNoTracking()) {
-				returnObject.MeasureTypes
-					.Add(new(measureType.Id, measureType.Name, measureType.Description));
-			}
+			returnObject.Units = Dbc.Unit.OrderBy(u => u.Id)
+				.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray();
+			returnObject.Intervals = Dbc.Interval.OrderBy(i => i.Id)
+				.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray();
+			returnObject.MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
+				.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray();
 
 			foreach (var md in Dbc.MeasureDefinition.Where(md => md.Id == measureDefinitionId)) {
 				MeasureDefinitionEdit currentMD = new() {
@@ -87,11 +74,8 @@ public sealed class EditController : BaseController
 	[HttpPut("{id}")]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionEdit body) {
 		var result = new MeasureDefinitionIndexReturnObject {
-			Units = new(),
-			Intervals = new(),
-			MeasureTypes = new(),
 			AggFunctions = AggregationFunctions.List,
-			Data = new()
+			Data = new List<MeasureDefinitionEdit>()
 		};
 
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -100,20 +84,12 @@ public sealed class EditController : BaseController
 
 		try {
 			var intervals = Dbc.Interval.OrderBy(i => i.Id);
-
-			var units = Dbc.Unit.OrderBy(u => u.Id);
-			foreach (var unit in units) {
-				result.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
-			}
-
-			foreach (var interval in intervals) {
-				result.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
-			}
-
-			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
-			foreach (var measureType in measureTypes) {
-				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
-			}
+			result.Units = Dbc.Unit.OrderBy(u => u.Id)
+				.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray();
+			result.Intervals = Dbc.Interval.OrderBy(i => i.Id)
+				.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray();
+			result.MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
+				.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray();
 
 			var mDef = Dbc.MeasureDefinition.Where(m => m.Id == body.Id).First();
 

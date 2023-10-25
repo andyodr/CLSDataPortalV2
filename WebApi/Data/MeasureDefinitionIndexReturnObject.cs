@@ -8,13 +8,13 @@ public sealed class MeasureDefinitionIndexReturnObject
 
 	public FilterSaveObject? Filter { get; set; }
 
-	public List<UnitsObject> Units { get; set; } = null!;
+	public IList<UnitsObject> Units { get; set; } = null!;
 
-	public List<IntervalsObject> Intervals { get; set; } = null!;
+	public IList<IntervalsObject> Intervals { get; set; } = null!;
 
-	public List<MeasureType> MeasureTypes { get; set; } = null!;
+	public IList<MeasureType> MeasureTypes { get; set; } = null!;
 
-	public List<AggregationFunction> AggFunctions { get; set; } = null!;
+	public IList<AggregationFunction> AggFunctions { get; set; } = null!;
 
-	public List<MeasureDefinitionEdit>? Data { get; set; }
+	public IList<MeasureDefinitionEdit>? Data { get; set; }
 }

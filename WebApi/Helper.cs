@@ -207,45 +207,6 @@ public static class Helper
 		return result;
 	}
 
-	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, MeasureDefinitionEdit measureDef) {
-		try {
-			string result = String.Empty;
-			var hierarchyRecords = from record in dbc.Hierarchy
-								   select new { id = record.Id };
-			var dtNow = DateTime.Now;
-			foreach (var id in hierarchyRecords) {
-				//create Measure records
-				_ = dbc.Measure.Add(new() {
-					HierarchyId = id.id,
-					MeasureDefinitionId = measureDef.Id,
-					Active = true,
-					Expression = measureDef.Calculated,
-					Rollup = true,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			var measures = from measure in dbc.Measure
-						   where measure.MeasureDefinitionId == measureDef.Id
-						   select new { id = measure.Id };
-			//make target ids
-			foreach (var measure in measures) {
-				_ = dbc.Target.Add(new() {
-					MeasureId = measure.id,
-					Active = true,
-					UserId = userId,
-					IsProcessed = 2,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			return result;
-		}
-		catch (Exception e) {
-			return e.Message;
-		}
-	}
-
 	public struct DateTimeSpan
 	{
 		private readonly int years;

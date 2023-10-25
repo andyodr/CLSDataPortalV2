@@ -12,34 +12,20 @@ public sealed class AddController : BaseController
 {
 	[HttpGet]
 	public ActionResult<MeasureDefinitionIndexReturnObject> Get() {
-		var returnObject = new MeasureDefinitionIndexReturnObject {
-			Units = new(),
-			Intervals = new(),
-			AggFunctions = AggregationFunctions.List,
-			MeasureTypes = new()
-		};
-
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var intervals = Dbc.Interval.OrderBy(i => i.Id);
-			foreach (var interval in intervals) {
-				returnObject.Intervals.Add(new IntervalsObject { Id = interval.Id, Name = interval.Name });
-			}
-
-			var units = Dbc.Unit.OrderBy(u => u.Id);
-			foreach (var unit in units) {
-				returnObject.Units.Add(new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
-			}
-
-			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
-			foreach (var mt in measureTypes) {
-				returnObject.MeasureTypes.Add(new(mt.Id, mt.Name, mt.Description));
-			}
-
-			return returnObject;
+			return new MeasureDefinitionIndexReturnObject {
+				Units = Dbc.Unit.OrderBy(u => u.Id)
+					.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray(),
+				Intervals = Dbc.Interval.OrderBy(i => i.Id)
+					.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray(),
+				AggFunctions = AggregationFunctions.List,
+				MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
+					.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray()
+			};
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
@@ -53,37 +39,24 @@ public sealed class AddController : BaseController
 		}
 
 		try {
-			var result = new MeasureDefinitionIndexReturnObject {
-				Units = new List<UnitsObject>(),
-				Intervals = new(),
-				MeasureTypes = new(),
-				Data = new()
-			};
+			var result = new MeasureDefinitionIndexReturnObject { Data = new List<MeasureDefinitionEdit>() };
 
 			// Validates name and variable name
-			int validateCount = Dbc.MeasureDefinition
+			int invalidCount = Dbc.MeasureDefinition
 			  .Where(m =>
 				m.Name.Trim().ToLower() == body.Name.Trim().ToLower() ||
 				m.VariableName.Trim().ToLower() == body.VarName.Trim().ToLower()).Count();
 
-			if (validateCount > 0) {
+			if (invalidCount > 0) {
 				throw new Exception(Resource.VAL_MEASURE_DEF_NAME_EXIST);
 			}
 
-			var intervals = Dbc.Interval.OrderBy(i => i.Id);
-			foreach (var interval in intervals) {
-				result.Intervals.Add(new() { Id = interval.Id, Name = interval.Name });
-			}
-
-			var units = Dbc.Unit.OrderBy(u => u.Id);
-			foreach (var unit in units) {
-				result.Units.Add(new() { Id = unit.Id, Name = unit.Name, ShortName = unit.Short });
-			}
-
-			var measureTypes = Dbc.MeasureType.OrderBy(m => m.Id);
-			foreach (var measureType in measureTypes) {
-				result.MeasureTypes.Add(new(measureType.Id, measureType.Name, measureType.Description));
-			}
+			result.Intervals = Dbc.Interval.OrderBy(i => i.Id)
+				.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray();
+			result.Units = Dbc.Unit.OrderBy(u => u.Id)
+				.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray();
+			result.MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
+				.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray();
 
 			// Get Values from Page
 			if (body.Expression is null) {
@@ -147,7 +120,6 @@ public sealed class AddController : BaseController
 				throw new Exception(measuresAndTargets);
 			}
 
-			Dbc.SaveChanges();
 			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-04",
@@ -180,6 +152,47 @@ public sealed class AddController : BaseController
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+		}
+	}
+
+	internal static string CreateMeasuresAndTargets(ApplicationDbContext dbc, int userId, MeasureDefinitionEdit measureDef) {
+		try {
+			string result = string.Empty;
+			var hierarchyRecords = from record in dbc.Hierarchy
+								   select new { id = record.Id };
+			var dtNow = DateTime.Now;
+			foreach (var id in hierarchyRecords) {
+				//create Measure records
+				_ = dbc.Measure.Add(new() {
+					HierarchyId = id.id,
+					MeasureDefinitionId = measureDef.Id,
+					Active = true,
+					Expression = measureDef.Calculated,
+					Rollup = true,
+					LastUpdatedOn = dtNow
+				});
+			}
+
+			dbc.SaveChanges();
+			var measures = from measure in dbc.Measure
+						   where measure.MeasureDefinitionId == measureDef.Id
+						   select new { id = measure.Id };
+			//make target ids
+			foreach (var measure in measures) {
+				_ = dbc.Target.Add(new() {
+					MeasureId = measure.id,
+					Active = true,
+					UserId = userId,
+					IsProcessed = 2,
+					LastUpdatedOn = dtNow
+				});
+			}
+
+			dbc.SaveChanges();
+			return result;
+		}
+		catch (Exception e) {
+			return e.Message;
 		}
 	}
 }

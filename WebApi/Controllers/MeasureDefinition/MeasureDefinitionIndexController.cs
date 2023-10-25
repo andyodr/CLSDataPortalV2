@@ -18,7 +18,7 @@ public sealed class IndexController : BaseController
 		}
 
 		try {
-			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new() };
+			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new List<MeasureDefinitionEdit>() };
 
 			var mDef = from md in Dbc.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId
