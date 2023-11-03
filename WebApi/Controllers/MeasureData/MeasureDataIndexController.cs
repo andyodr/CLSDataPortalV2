@@ -246,33 +246,34 @@ public sealed class IndexController : BaseController
 
 	private string BuildRangeString(int? calendarID) {
 		int interval = -1;
-		var cal = Dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
+		var c = Dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
+		Data.Models.Calendar? calendar = null;
 		if (calendarID is null) {
 			interval = (int)Intervals.Daily;
 		}
 		else {
-			interval = cal.Where(c => c.Id == calendarID).Include(c => c.Interval).First().Interval.Id;
+			calendar = c.First();
+			interval = calendar.IntervalId;
 		}
 
 		if (interval == (int)Intervals.Daily) {
-			var date = cal.First().StartDate ?? new DateTime(0);
+			var date = calendar?.StartDate ?? new DateTime(0);
 			return date.ToString("MMM-dd-yyyy");
 		}
-		else if (interval == (int)Intervals.Weekly || interval == (int)Intervals.Quarterly) {
-			var date = cal.First().StartDate ?? new DateTime(0);
-			var date2 = cal.First().EndDate ?? new DateTime(0);
-			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";
-
+		else if (interval == (int)Intervals.Weekly) {
+			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			return $"[{calendar.WeekNumber}: {date1}, {date2} ]";
 		}
-		else if (interval == (int)Intervals.Monthly) {
-			var date = cal.First().StartDate ?? new DateTime(0);
-			var date2 = cal.First().EndDate ?? new DateTime(0);
-			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";
+		else if (interval == (int)Intervals.Quarterly) {
+			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			return $"[{calendar.Quarter}: {date1}, {date2} ]";
 		}
-		else if (interval == (int)Intervals.Yearly) {
-			var date = cal.First().StartDate ?? new DateTime(0);
-			var date2 = cal.First().EndDate ?? new DateTime(0);
-			return "[ " + date.ToString("MMM-dd-yyyy") + ", " + date2.ToString("MMM-dd-yyyy") + " ]";
+		else if (interval == (int)Intervals.Monthly || interval == (int)Intervals.Yearly) {
+			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+			return $"[ {date1}, {date2} ]";
 		}
 		else {
 			throw new Exception(Resource.VAL_INVALID_INTERVAL_ID);
