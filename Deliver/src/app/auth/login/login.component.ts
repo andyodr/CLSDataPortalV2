@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 next: user => {
                     try {
                         const userState = user as UserState
-                        userState.filter = { measureTypeId: 0, hierarchyId: 0 }
+                        userState.filter = { measureTypeId: 0, hierarchyId: 0, year: new Date().getFullYear() }
                         const stored = localStorage.getItem("userState")
                         if (stored) {
                             const parsed = JSON.parse(stored) as UserState

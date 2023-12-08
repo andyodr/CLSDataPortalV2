@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files. The `start` npm command is a lifecycle event. Other package.json scripts like 'build' or 'ng' need to be run using `npm run <user defined>`
 
 ## Code scaffolding
 
@@ -21,6 +21,13 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 ## Running end-to-end tests
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+
+## Deployment to OPCITSNAW01QB.jnj.com
+
+- `croc send dist\Deliver`
+- Run `C:\Users\admin_TFisher6\go\bin\croc.exe` in the D:\Staging folder.
+- Run `ROBOCOPY D:\Staging\Deliver\ C:\inetpub\Deliver /E`
+- Restart web site in IIS Admin
 
 ## Further help
 

@@ -1,7 +1,3 @@
-// :host {
-//   display: flex;
-//   height: 100%;
-
 :host {
   height: 100%;
   overflow-y: hidden;
@@ -29,13 +25,6 @@ app-sidebar~* {
   padding: 20px;
 }
 
-//   > app-sidebar + div {
-//     padding: 20px;
-//     flex: 1 auto;
-//   }
-// }
-
-
 mat-drawer form {
   display: flex;
   flex-direction: column;
@@ -46,10 +35,6 @@ mat-drawer form * {
   flex: 1;
 }
 
-// mat-drawer form {
-//   padding: 2em;
-// }
-
 mat-drawer header {
   background: linear-gradient(hsl(var(--mat-primary-600)), hsl(var(--mat-primary-500)) 33%, hsl(var(--mat-primary-500)));
   padding: 15px 20px;
@@ -58,12 +43,6 @@ mat-drawer header {
   gap: 1em;
   min-width: 33em;
 }
-
-// mat-drawer header h2 {
-//   color: white;
-//   display: flex;
-//   margin: auto 2em;
-// }
 
 mat-drawer header h2 {
   color: white;
@@ -106,19 +85,6 @@ span.filter {
   margin: 9px;
   padding: 4px 11px;
 }
-
-// .dataRange {
-//   display: flex;
-//   justify-content: flex-end;
-//   margin-top: 10px;
-
-//   h5 {
-//     font-size: 14px;
-//     font-weight: normal;
-//     margin: 0;
-//     padding-left: 15px;
-//   }
-// }
 
 .panel-header {
   background-color: hsl(var(--mat-primary-50));
@@ -255,7 +221,6 @@ tr.table-row:not(.expanded-row):active {
 footer {
   padding: 15px;
 }
-
 
 .bgred {
   background-color: #f44336; /* red */
