@@ -108,14 +108,18 @@ public sealed class EditController : BaseController
 
 			if (body.HierarchiesId.Count > 0) {
 				// UI only shows hierarchyLevel < 5, but we need to add all the child hierarchies as well
-				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($@"WITH r AS
-(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE HierarchyLevelId < 4 AND Id IN ({string.Join(',', body.HierarchiesId)})
-UNION ALL
-SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
-FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
-WHERE h.HierarchyLevelId > 3)
-SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection
+				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($"""
+					WITH r AS
+						(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+						FROM Hierarchy WHERE HierarchyLevelId < 5 AND Id IN ({string.Join(',', body.HierarchiesId)})
+						UNION ALL
+						SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
+						FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
+						WHERE h.HierarchyLevelId > 4)
+					SELECT DISTINCT * FROM r
+					""").AsEnumerable().Select(h => h.Id).ToArray();
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection
 				Dbc.UserHierarchy
 					.Where(h => h.UserId == id && !allSelectedHierarchies.Contains(h.HierarchyId))
 					.ExecuteDelete();

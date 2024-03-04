@@ -59,7 +59,7 @@ public sealed class IndexController : BaseController
 				HierarchyParentId = dto.ParentId,
 				HierarchyLevelId = dto.LevelId,
 				Active = dto.Active,
-				IsProcessed = 2,
+				IsProcessed = (byte)IsProcessed.Complete,
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			_ = Dbc.SaveChanges();

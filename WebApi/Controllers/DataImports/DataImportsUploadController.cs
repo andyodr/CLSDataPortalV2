@@ -396,7 +396,7 @@ public sealed class UploadController : BaseController
 
 			_ = Dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
 				&& md.Measure.MeasureDefinitionId == row.MeasureID && md.CalendarId == calendarId)
-				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, 1)
+				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.MeasureData)
 					.SetProperty(md => md.UserId, userId)
 					.SetProperty(md => md.LastUpdatedOn, DateTime.Now)
 					.SetProperty(md => md.Value, md => sheetValue ?? md.Value)
@@ -458,7 +458,7 @@ public sealed class UploadController : BaseController
 				if (q1?.Value is null) {
 					_ = Dbc.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 						&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Active == true)
-						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, 2)
+						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, (byte)IsProcessed.Complete)
 							.SetProperty(t => t.Value, row.Target)
 							.SetProperty(t => t.YellowValue, row.Yellow.RoundNullable(row.Precision))
 							.SetProperty(t => t.UserId, userId));
@@ -466,7 +466,7 @@ public sealed class UploadController : BaseController
 				else {
 					_ = Dbc.Target.Where(t => t.Measure!.HierarchyId == row.HierarchyID
 						&& t.Measure.MeasureDefinitionId == row.MeasureID && t.Active == true)
-						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, 2)
+						.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, (byte)IsProcessed.Complete)
 							.SetProperty(t => t.Active, false)
 							.SetProperty(t => t.LastUpdatedOn, DateTime.Now));
 					_ = Dbc.Target.Add(new() {

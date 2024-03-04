@@ -23,12 +23,11 @@ public sealed class AddController : BaseController
 		}
 
 		try {
-			var region = Dbc.Hierarchy
-				.Where(h => h.HierarchyLevel!.Id < 3).OrderBy(r => r.Id).AsNoTrackingWithIdentityResolution().First();
+			var hierarchy = Dbc.Hierarchy.Where(h => h.HierarchyParentId == null).AsNoTrackingWithIdentityResolution().First();
 			returnObject.Hierarchy.Add(new() {
-				Hierarchy = region.Name,
-				Id = region.Id,
-				Sub = GetSubsLevel(Dbc, region.Id),
+				Hierarchy = hierarchy.Name,
+				Id = hierarchy.Id,
+				Sub = GetSubsLevel(Dbc, hierarchy.Id),
 				Count = 0
 			});
 			var userRoles = Dbc.UserRole.OrderBy(u => u.Id);
@@ -75,14 +74,18 @@ public sealed class AddController : BaseController
 			body.Id = user.Id;
 			if (body.HierarchiesId.Count > 0) {
 				// Add all the child hierarchies first before inserting UserHierarchy
-				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($@"WITH r AS
-(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE Id IN ({string.Join(',', body.HierarchiesId)})
-UNION ALL
-SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
-FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
-WHERE h.HierarchyLevelId > 3)
-SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection
+				var allSelectedHierarchies = Dbc.Hierarchy.FromSqlRaw($"""
+					WITH r AS
+						(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+						FROM Hierarchy WHERE Id IN ({string.Join(',', body.HierarchiesId)})
+						UNION ALL
+						SELECT h.Id, h.HierarchyLevelId, h.HierarchyParentId, h.[Name], h.Active, h.LastUpdatedOn, h.IsProcessed
+						FROM Hierarchy h JOIN r ON h.HierarchyParentId = r.Id
+						WHERE h.HierarchyLevelId > 4)
+					SELECT DISTINCT * FROM r
+					""").AsEnumerable().Select(h => h.Id).ToArray();
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection
 				foreach (var hId in allSelectedHierarchies) {
 					Dbc.UserHierarchy.Add(new() { UserId = user.Id, HierarchyId = hId, LastUpdatedOn = lastUpdatedOn });
 				}
@@ -99,10 +102,24 @@ SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 			   _user.Id
 			);
 
-			return new UserIndexGetObject { Data = new UserIndexDto[] { body } };
+			return new UserIndexGetObject { Data = [body] };
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
+	}
+
+	internal static ICollection<RegionFilterObject> GetSubsLevel(ApplicationDbContext dbc, int id) {
+		var children = dbc.Hierarchy
+			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 5)
+			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
+			.AsNoTrackingWithIdentityResolution()
+			.ToArray();
+		foreach (var rfo in children) {
+			rfo.Sub = GetSubsLevel(dbc, rfo.Id);
+			rfo.Count = rfo.Sub.Count;
+		}
+
+		return children;
 	}
 }

@@ -183,7 +183,7 @@ public sealed class AddController : BaseController
 					MeasureId = measure.id,
 					Active = true,
 					UserId = userId,
-					IsProcessed = 2,
+					IsProcessed = (byte)IsProcessed.Complete,
 					LastUpdatedOn = dtNow
 				});
 			}

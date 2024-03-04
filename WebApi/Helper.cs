@@ -71,20 +71,6 @@ public static class Helper
 		};
 	}
 
-	internal static ICollection<RegionFilterObject> GetSubsLevel(ApplicationDbContext dbc, int id) {
-		var children = dbc.Hierarchy
-			.Where(h => h.HierarchyParentId == id && h.HierarchyLevelId < 4)
-			.Select(h => new RegionFilterObject { Hierarchy = h.Name, Id = h.Id })
-			.AsNoTrackingWithIdentityResolution()
-			.ToArray();
-		foreach (var rfo in children) {
-			rfo.Sub = GetSubsLevel(dbc, rfo.Id);
-			rfo.Count = rfo.Sub.Count;
-		}
-
-		return children;
-	}
-
 	internal static bool IsMeasureCalculated(ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
 		// Expression calculated overrides calculated from MeasureDefinition if true only
 		if (isCalculatedExpression) {
