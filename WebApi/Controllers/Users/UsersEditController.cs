@@ -12,11 +12,7 @@ namespace Deliver.WebApi.Controllers.Users;
 [Authorize(Roles = "SystemAdministrator")]
 public sealed class EditController : BaseController
 {
-	/// <summary>
-	/// Get hierarchy and role data, and user data for a subset of users.
-	/// </summary>
-	/// <param name="id"></param>
-	/// <returns></returns>
+	/// <returns>User information including roles and hierarchy assignments</returns>
 	[HttpGet("{id:min(1)}")]
 	public ActionResult<UserIndexGetObject> Get(int id) {
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -24,12 +20,12 @@ public sealed class EditController : BaseController
 		}
 
 		try {
-			UserIndexGetObject result = new() { Data = new List<UserIndexDto>(), Hierarchy = new(), Roles = new() };
-			var regions = Dbc.Hierarchy.Where(h => h.HierarchyLevel!.Id == 1).ToArray();
+			UserIndexGetObject result = new() { Data = [], Hierarchy = [], Roles = [] };
+			var root = Dbc.Hierarchy.Where(h => h.HierarchyParentId == null).First();
 			result.Hierarchy.Add(new() {
-				Hierarchy = regions.First().Name,
-				Id = regions.First().Id,
-				Sub = GetSubsLevel(Dbc, regions.First().Id),
+				Hierarchy = root.Name,
+				Id = root.Id,
+				Sub = AddController.GetSubsLevel(Dbc, root.Id),
 				Count = 0
 			});
 
@@ -137,7 +133,7 @@ SELECT DISTINCT * FROM r").AsEnumerable().Select(h => h.Id).ToArray();
 			}
 
 			body.Id = id;
-			UserIndexGetObject result = new() { Data = new UserIndexDto[] { body } };
+			UserIndexGetObject result = new() { Data = [body] };
 			AddAuditTrail(Dbc,
 				Resource.SECURITY,
 				"SEC-04",

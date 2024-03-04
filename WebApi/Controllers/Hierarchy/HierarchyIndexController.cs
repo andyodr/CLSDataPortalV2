@@ -18,7 +18,7 @@ public sealed class IndexController : BaseController
 		}
 
 		try {
-			var result = new RegionMetricsFilterObject {
+			RegionMetricsFilterObject result = new() {
 				Data = Dbc.Hierarchy
 					.Select(h => new RegionsDataViewModel {
 						Id = h.Id,
@@ -26,15 +26,14 @@ public sealed class IndexController : BaseController
 						LevelId = h.HierarchyLevelId,
 						Level = h.HierarchyLevel!.Name,
 						Active = h.Active ?? false,
-						Remove = !Dbc.Measure.Where(m => m.HierarchyId == h.Id && m.MeasureData.Any()).Any(),
+						Remove = !Dbc.Measure.Where(m => m.HierarchyId == h.Id && m.MeasureData.Count != 0).Any(),
 						ParentId = h.HierarchyParentId,
 						ParentName = h.Parent == null ? "" : h.Parent.Name
 					})
 					.ToArray(),
-				Hierarchy = new RegionFilterObject[] { CreateHierarchy(Dbc) },
-				Levels = Dbc.HierarchyLevel.OrderBy(l => l.Id)
-					.Select(l => new LevelObject { Id = l.Id, Name = l.Name })
-					.ToArray() };
+				Hierarchy = [CreateHierarchy(Dbc)],
+				Levels = [.. Dbc.HierarchyLevel.OrderBy(l => l.Id).Select(l => new LevelObject { Id = l.Id, Name = l.Name })]
+			};
 
 			return result;
 		}
@@ -48,7 +47,7 @@ public sealed class IndexController : BaseController
 	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd dto) {
 		var result = new RegionMetricsFilterObject {
 			Data = new List<RegionsDataViewModel>(),
-			Hierarchy = new RegionFilterObject[] { CreateHierarchy(Dbc) }
+			Hierarchy = [CreateHierarchy(Dbc)]
 		};
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
@@ -266,21 +265,23 @@ public sealed class IndexController : BaseController
 		}
 	}
 
-	class RegionParentChildPair
+	class HierarchyNode
 	{
 		public RegionFilterObject? dto;
-		public RegionParentChildPair? parent;
+		public HierarchyNode? parent;
 	}
 
 	private static RegionFilterObject CreateHierarchy(ApplicationDbContext dbc) {
 		// recursive CTE query
-		var hierarchies = dbc.Hierarchy.FromSql($@"WITH r AS
-(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE HierarchyParentId IS NULL
-UNION ALL
-SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id)
-SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r")
+		var hierarchies = dbc.Hierarchy.FromSql($"""
+			WITH r AS
+				(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+				FROM Hierarchy WHERE HierarchyParentId IS NULL
+				UNION ALL
+				SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
+				FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id)
+			SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r
+			""")
 			.AsEnumerable()
 			.Select(entity => new {
 				entity,
@@ -290,19 +291,19 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 		var root = hierarchies[0].dto;
 
 		// doubly-linked list constructing the parent/child hierarchy in hierarchies[]
-		var pairs = Enumerable.Range(0, hierarchies.Length).Select(i => new RegionParentChildPair()).ToArray();
+		var nodes = Enumerable.Range(0, hierarchies.Length).Select(i => new HierarchyNode()).ToArray();
 		for (var i = 0; i < hierarchies.Length; i++) {
-			var pair = pairs[i];
-			pair.dto = hierarchies[i].dto;
-			pair.dto!.Sub = new List<RegionFilterObject>();
-			for (var j = 0; j < pairs.Length; j++) {
-				if (hierarchies[j].entity.HierarchyParentId == pair.dto!.Id) {
-					pair.dto!.Sub.Add(hierarchies[j].dto);
-					if (pairs[j] is null) {
-						pairs[j] = new RegionParentChildPair { parent = pair };
+			var node = nodes[i];
+			node.dto = hierarchies[i].dto;
+			node.dto!.Sub = [];
+			for (var j = 0; j < nodes.Length; j++) {
+				if (hierarchies[j].entity.HierarchyParentId == node.dto!.Id) {
+					node.dto!.Sub.Add(hierarchies[j].dto);
+					if (nodes[j] is null) {
+						nodes[j] = new HierarchyNode { parent = node };
 					}
 					else {
-						pairs[j].parent = pair;
+						nodes[j].parent = node;
 					}
 				}
 			}
@@ -311,24 +312,22 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 		return root;
 	}
 
-	/// <summary>
-	/// Return a hierarchy containing the hierarchies associated with <paramref name="userId"/>,
-	/// plus all their ancestor hierarchies even if not associated with <paramref name="userId"/>.
-	/// </summary>
-	/// <param name="dbc"></param>
-	/// <param name="userId"></param>
-	/// <returns></returns>
+	/// <returns>
+	/// Rooted hierarchy containing the hierarchies associated with <paramref name="userId"/>
+	/// </returns>
 	[NonAction]
 	public static RegionFilterObject CreateUserHierarchy(ApplicationDbContext dbc, int userId) {
 		// recursive CTE query
-		var hierarchies = dbc.Hierarchy.FromSql($@"WITH r AS
-(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-FROM Hierarchy WHERE HierarchyParentId IS NULL
-UNION ALL
-SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id
-WHERE ch.Active = 1)
-SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r")
+		var hierarchies = dbc.Hierarchy.FromSql($"""
+			WITH cte AS
+				(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+				FROM Hierarchy WHERE HierarchyParentId IS NULL
+				UNION ALL
+				SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
+				FROM Hierarchy ch JOIN cte ON ch.HierarchyParentId = cte.Id
+				WHERE ch.Active = 1)
+			SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM cte
+			""")
 			.AsEnumerable()
 			.Select(entity => new {
 				entity,
@@ -338,25 +337,25 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 		var root = hierarchies[0].dto;
 
 		// create doubly-linked list representing the parent/child hierarchy
-		var pairs = Enumerable.Range(0, hierarchies.Length).Select(i => new RegionParentChildPair()).ToArray();
+		var nodes = Enumerable.Range(0, hierarchies.Length).Select(i => new HierarchyNode()).ToArray();
 		for (var i = 0; i < hierarchies.Length; i++) {
-			var pair = pairs[i];
-			pair.dto = hierarchies[i].dto;
-			pair.dto!.Sub = new List<RegionFilterObject>();
-			for (var j = 0; j < pairs.Length; j++) {
-				if (hierarchies[j].entity.HierarchyParentId == pair.dto!.Id) {
-					pair.dto!.Sub.Add(hierarchies[j].dto);
-					if (pairs[j] is null) {
-						pairs[j] = new RegionParentChildPair { parent = pair };
+			var node = nodes[i];
+			node.dto = hierarchies[i].dto;
+			node.dto!.Sub = [];
+			for (var j = 0; j < nodes.Length; j++) {
+				if (hierarchies[j].entity.HierarchyParentId == node.dto!.Id) {
+					node.dto!.Sub.Add(hierarchies[j].dto);
+					if (nodes[j] is null) {
+						nodes[j] = new HierarchyNode { parent = node };
 					}
 					else {
-						pairs[j].parent = pair;
+						nodes[j].parent = node;
 					}
 				}
 			}
 		}
 
-		// must query UserHierarchy separately since CTEs are not EF-composable
+		// CTEs are not EF-composable so this is why we need two separate queries to build the hierarchy
 		var userHierarchy = dbc.UserHierarchy
 			.Where(u => u.UserId == userId)
 			.Select(u => u.HierarchyId)
@@ -364,7 +363,7 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 
 		// find pairs matching the user id
 		var matched = new HashSet<RegionFilterObject>();
-		foreach (var pair in pairs) {
+		foreach (var pair in nodes) {
 			if (pair.dto!.Sub.Count == 0 && Array.Exists(userHierarchy, i => i == pair.dto.Id)
 				|| Array.Exists(userHierarchy, i => i == pair.parent?.dto!.Id)) {
 				var found = pair;
@@ -377,7 +376,7 @@ SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, I
 
 		// prune children of non-matching nodes
 		foreach (var node in matched) {
-			node.Sub = node.Sub.Where(h => matched.Contains(h)).ToArray();
+			node.Sub = node.Sub.Where(matched.Contains).ToArray();
 		}
 
 		return root;

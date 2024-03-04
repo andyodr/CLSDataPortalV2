@@ -47,7 +47,6 @@ public sealed class AddController : BaseController
 	/// Create a new user in the User table and return its userId.
 	/// </summary>
 	/// <param name="body"></param>
-	/// <returns></returns>
 	[HttpPost]
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto body) {
 		if (CreateUserObject(User) is not UserObject _user) {

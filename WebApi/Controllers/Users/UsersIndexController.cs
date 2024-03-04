@@ -11,13 +11,10 @@ namespace Deliver.WebApi.Controllers.Users;
 [Authorize(Roles = "SystemAdministrator")]
 public sealed class IndexController : BaseController
 {
-	/// <summary>
-	/// Get complete listing of authorized users.
-	/// </summary>
-	/// <returns></returns>
+	/// <returns>Complete list of authorized users</returns>
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
-		UserIndexGetObject result = new() { Data = new List<UserIndexDto>(), Hierarchy = null, Roles = new() };
+		UserIndexGetObject result = new() { Data = [], Hierarchy = null, Roles = [] };
         var user = CreateUserObject(User);
         if (user == null) {
 			return Unauthorized();

@@ -262,15 +262,16 @@ public sealed class IndexController : BaseController
 	}
 
 	private List<int> GetAllChildren(int hierarchyId) {
-		return Dbc.Hierarchy.FromSql($@"WITH r AS
-			(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
-			FROM Hierarchy WHERE HierarchyParentId = {hierarchyId}
-			UNION ALL
-			SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
-			FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id
-			WHERE ch.Active = 1)
+		return Dbc.Hierarchy.FromSql($"""
+			WITH r AS
+				(SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed
+				FROM Hierarchy WHERE HierarchyParentId = {hierarchyId}
+				UNION ALL
+				SELECT ch.Id, ch.HierarchyLevelId, ch.HierarchyParentId, ch.[Name], ch.Active, ch.LastUpdatedOn, ch.IsProcessed
+				FROM Hierarchy ch JOIN r ON ch.HierarchyParentId = r.Id
+				WHERE ch.Active = 1)
 			SELECT Id, HierarchyLevelId, HierarchyParentId, [Name], Active, LastUpdatedOn, IsProcessed FROM r
-			").AsEnumerable().Select(h => h.Id).ToList();
+			""").AsEnumerable().Select(h => h.Id).ToList();
 	}
 
 	private void UpdateCurrentTargets(long newTargetId, TargetConfirmInterval confirmIntervals, long measureId, int userId, DateTime lastUpdatedOn) {

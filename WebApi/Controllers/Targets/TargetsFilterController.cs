@@ -23,10 +23,8 @@ public sealed class FilterController : BaseController
 		try {
 			var result = new FilterReturnObject {
 				Intervals = null,
-				MeasureTypes = new List<MeasureType>(),
-				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)
-				}
+				MeasureTypes = [],
+				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)]
 			};
 
 			result.MeasureTypes = Dbc.MeasureType
