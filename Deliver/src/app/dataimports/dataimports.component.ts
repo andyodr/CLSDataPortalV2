@@ -9,8 +9,6 @@ import { TableComponent, JsonValue } from "../lib/table/table.component"
 import { AppDialog } from "../app-dialog.component"
 import { MultipleSheetsDialog } from "./multiplesheets-dialog.component"
 import { WorkBook, read, utils } from 'xlsx'
-import { ProgressBarMode } from "@angular/material/progress-bar"
-import { ToggleService } from "../_services/toggle.service"
 import { ErrorModel } from "../_models/error"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureDataService } from "../_services/measure-data.service"
