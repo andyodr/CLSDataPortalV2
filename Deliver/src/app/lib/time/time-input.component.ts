@@ -1,13 +1,17 @@
-import { Component, ElementRef, Inject,
-    Input, OnDestroy, Optional, Self, ViewChild } from "@angular/core"
+import {
+    Component, ElementRef, Inject,
+    Input, OnDestroy, Optional, Self, ViewChild
+} from "@angular/core"
 import { FocusMonitor } from "@angular/cdk/a11y"
 import { BooleanInput, coerceBooleanProperty, coerceNumberProperty } from "@angular/cdk/coercion"
-import { AbstractControl, ControlValueAccessor, FormBuilder,
-    FormGroup, NgControl, ValidationErrors, Validators } from "@angular/forms"
+import {
+    AbstractControl, AbstractControlOptions, ControlValueAccessor, FormBuilder,
+    FormGroup, NgControl, ValidationErrors, Validators
+} from "@angular/forms"
 import { MAT_FORM_FIELD, MatFormField, MatFormFieldControl } from "@angular/material/form-field"
 import { Subject } from "rxjs"
 
-/** Data structure for holding telephone number. */
+/** Data structure for holding hours/minutes/seconds */
 export class TimeSpan {
     constructor(public hours: number, public minutes: number, public seconds: number) { }
 }
@@ -121,7 +125,7 @@ export class TimeInputComponent implements MatFormFieldControl<TimeSpan>, Contro
             minutes: [null, [Validators.maxLength(2)]],
             seconds: [null, [Validators.maxLength(2)]]
         }, {
-            validators: [(form: FormGroup): ValidationErrors | null => {
+            validators: [(form: AbstractControl): ValidationErrors | null => {
                 const hours: number = coerceNumberProperty(form.get("hours")?.value)
                 const minutes: number = coerceNumberProperty(form.get("minutes")?.value)
                 const seconds: number = coerceNumberProperty(form.get("seconds")?.value)

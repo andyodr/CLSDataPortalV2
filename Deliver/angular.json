@@ -76,10 +76,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "CLSDataPortal2:build:production"
+              "buildTarget": "CLSDataPortal2:build:production"
             },
             "development": {
-              "browserTarget": "CLSDataPortal2:build:development"
+              "buildTarget": "CLSDataPortal2:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -90,7 +90,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "CLSDataPortal2:build"
+            "buildTarget": "CLSDataPortal2:build"
           }
         },
         "test": {
