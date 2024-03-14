@@ -35,7 +35,6 @@ import { MeasureDefinitionComponent } from "./measuredefinition/measuredefinitio
 import { MeasureDefinitionEditComponent } from "./measuredefinition/measuredefinition-edit.component"
 import { MeasuresComponent } from './measures/measures.component'
 import { MultipleSheetsDialog } from './dataimports/multiplesheets-dialog.component';
-import { NavbarComponent } from "./nav/topbar.component"
 import { NavigateBackDirective } from "./_services/nav.service"
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { RegionTreeComponent } from "./lib/region-tree/region-tree.component"
@@ -47,6 +46,7 @@ import { TableComponent } from "./lib/table/table.component"
 import { TargetsComponent } from './targets/targets.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { TimeInputComponent } from "./lib/time/time-input.component"
+import { TopbarComponent } from "./nav/topbar.component"
 import { UploadDirective } from "./dataimports/upload.directive"
 import { UserAddComponent } from "./users/useradd.component"
 import { UserEditComponent } from "./users/useredit.component"
@@ -65,7 +65,6 @@ import { UserListComponent } from "./users/userlist.component";
         MeasureDefinitionEditComponent,
         MeasuresComponent,
         MultipleSheetsDialog,
-        NavbarComponent,
         NavigateBackDirective,
         NotFoundComponent,
         RegionHierarchyComponent,
@@ -77,6 +76,7 @@ import { UserListComponent } from "./users/userlist.component";
         TargetsComponent,
         TestErrorComponent,
         TimeInputComponent,
+        TopbarComponent,
         UploadDirective,
         UserAddComponent,
         UserEditComponent,
