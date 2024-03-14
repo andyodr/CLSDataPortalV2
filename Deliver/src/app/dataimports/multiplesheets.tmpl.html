@@ -8,9 +8,11 @@
     </p>
     <div layout layout-sm="column">
       <mat-radio-group [(ngModel)]="sheetSel" class="md-primary">
-        <mat-radio-button *ngFor="let sheet of data" [value]="sheet.name" class="disBlock">
-          {{ sheet.name }}
-        </mat-radio-button>
+        @for (sheet of data; track sheet) {
+          <mat-radio-button [value]="sheet.name" class="disBlock">
+            {{ sheet.name }}
+          </mat-radio-button>
+        }
       </mat-radio-group>
     </div>
   </div>
@@ -20,7 +22,7 @@
     <span class="glyphicon glyphicon-remove"></span> Cancel
   </button>
   <button mat-raised-button class="btn-w-xs md-accent btn-save marT0 marB0 marR15" aria-label="Continue"
-          [disabled]="!sheetSel" [mat-dialog-close]="sheetSel">
+    [disabled]="!sheetSel" [mat-dialog-close]="sheetSel">
     <span class="glyphicon glyphicon-ok"></span> Continue
   </button>
 </mat-dialog-actions>

@@ -1,5 +1,7 @@
-<div class="topbar mat-elevation-z6" *ngIf="_navSettingsService.enableNavBar">
-  <div *ngIf="opened" class="nav-logo-expanded">
+@if (_navSettingsService.enableNavBar) {
+<div class="topbar mat-elevation-z6">
+  @if (opened) {
+  <div class="nav-logo-expanded">
     <div>
       <svg id="svg17847" version="1.1" viewBox="0 0 1000 181.354" height="181.354" width="1000"
         inkscape:version="0.91 r13725" sodipodi:docname="Johnson_and_Johnson_Logo.svg"
@@ -29,22 +31,32 @@
       Vision
     </div>
   </div>
-  <div *ngIf="!opened" class="nav-logo-collapsed">
+  }
+  @if (!opened) {
+  <div class="nav-logo-collapsed">
     <img src="../assets/images/JnJ_Logo_sm.png" width="35" height="29" alt="J&J Logo Collapsed" class="logo">
   </div>
+  }
   <div class="nav-toggle">
     <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
   </div>
   <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true"
       aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
-  <div class="dropdown" *ngIf="(api.currentUser$ | async) as user">
+  @if ((api.currentUser$ | async); as user) {
+  <div class="dropdown">
     <button mat-button [matMenuTriggerFor]="menu">
       Greetings {{user.firstName || user.userName}}
     </button>
     <mat-menu #menu="matMenu">
-      <a *ngIf="user.roleId > 2" mat-menu-item [routerLink]="['users']">User Management</a>
-      <a *ngIf="user.roleId > 2" mat-menu-item [routerLink]="['settings']">Settings</a>
+      @if (user.roleId > 2) {
+      <a mat-menu-item [routerLink]="['users']">User Management</a>
+      }
+      @if (user.roleId > 2) {
+      <a mat-menu-item [routerLink]="['settings']">Settings</a>
+      }
       <a mat-menu-item (click)="logout()">Logout</a>
     </mat-menu>
   </div>
+  }
 </div>
+}

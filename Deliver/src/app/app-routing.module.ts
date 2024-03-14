@@ -53,7 +53,6 @@ const routes: Routes = [
     { path: 'server-error', component: ServerErrorComponent },
     { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
-//{ path: 'measuredata', loadChildren: () => import('./measure-data/measure-data.module').then(m => m.MeasureDataModule) },
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],

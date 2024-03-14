@@ -5,19 +5,31 @@ import { Component, Input } from '@angular/core';
     template: `
 <div class="panel panel-default ng-hide noBorder marB0">
   <div class="panel-body padB0 marB0 noBorder">
-    <ngb-alert type="danger" (closed)="closeError()" *ngIf="showContentPage">    
-      <p>{{error.heading}}</p>
-      <p *ngIf="error.id != null">{{error.id}}</p>
-      <p *ngIf="error.status != null">{{error.status}}</p>
-      <p>{{error.message}}</p>    
-    </ngb-alert>
-    
-    <ngb-alert type="danger" *ngIf="!showContentPage">    
-      <p *ngIf="error.id != null">{{error.id}}</p>
-      <p *ngIf="error.status != null">{{error.status}}</p>
-      <p>{{error.message}}</p>    
-    </ngb-alert>
-  </div>      
+    @if (showContentPage) {
+      <ngb-alert type="danger" (closed)="closeError()">
+        <p>{{error.heading}}</p>
+        @if (error.id != null) {
+          <p>{{error.id}}</p>
+        }
+        @if (error.status != null) {
+          <p>{{error.status}}</p>
+        }
+        <p>{{error.message}}</p>
+      </ngb-alert>
+    }
+
+    @if (!showContentPage) {
+      <ngb-alert type="danger">
+        @if (error.id != null) {
+          <p>{{error.id}}</p>
+        }
+        @if (error.status != null) {
+          <p>{{error.status}}</p>
+        }
+        <p>{{error.message}}</p>
+      </ngb-alert>
+    }
+  </div>
 </div>`
 })
 export class ErrorsComponent {

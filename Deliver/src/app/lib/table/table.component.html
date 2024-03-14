@@ -2,16 +2,22 @@
   <thead class="cf">
     <tr>
       <th class="numeric"><div class="th"> <span>Row</span></div></th>
-      <th class="numeric" *ngFor="let colName of colNames">
-        <div class="th"><span>{{colName}}</span></div>
-      </th>
+      @for (colName of colNames; track colName) {
+        <th class="numeric">
+          <div class="th"><span>{{colName}}</span></div>
+        </th>
+      }
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let row of currentPageData; index as i; trackBy: indexTracking" class="itgTableTr">
-      <td><span>{{i + 1}}</span></td>
-      <td *ngFor="let colName of colNames; trackBy: indexTracking">{{row[colName]}}</td>
-    </tr>
+    @for (row of currentPageData; track indexTracking(i, row); let i = $index) {
+      <tr class="itgTableTr">
+        <td><span>{{i + 1}}</span></td>
+        @for (colName of colNames; track indexTracking($index, colName)) {
+          <td>{{row[colName]}}</td>
+        }
+      </tr>
+    }
   </tbody>
 </table>
 <footer class="table-footer">

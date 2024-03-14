@@ -1,39 +1,63 @@
 <div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar mat-elevation-z6">
-  <header class="sidebar-title" *ngIf="opened">DELIVER Data Portal</header>
+  @if (opened) {
+    <header class="sidebar-title">DELIVER Data Portal</header>
+  }
   <ul>
     <li matRipple>
       <a class="fa fa-calendar" routerLink="/measuredata">
-        <span *ngIf="opened">Measure Data</span>
+        @if (opened) {
+          <span>Measure Data</span>
+        }
       </a>
     </li>
-    <li matRipple *ngIf="roleId > 1">
-      <a class="fa fa-pencil" routerLink="/targets">
-        <span *ngIf="opened">Targets</span>
-      </a>
-    </li>
-    <li matRipple *ngIf="roleId > 2">
-      <a class="fa fa-list" routerLink="/measures">
-        <span *ngIf="opened">Measures</span>
-      </a>
-    </li>
-    <li matRipple *ngIf="roleId > 1">
-      <a class="fa fa-file" routerLink="/measuredefinition">
-        <span *ngIf="opened">Measure Definition</span>
-      </a>
-    </li>
-    <li matRipple *ngIf="roleId > 2">
-      <a class="fa fa-map" routerLink="/hierarchy">
-        <span *ngIf="opened">Hierarchy</span>
-      </a>
-    </li>
+    @if (roleId > 1) {
+      <li matRipple>
+        <a class="fa fa-pencil" routerLink="/targets">
+          @if (opened) {
+            <span>Targets</span>
+          }
+        </a>
+      </li>
+    }
+    @if (roleId > 2) {
+      <li matRipple>
+        <a class="fa fa-list" routerLink="/measures">
+          @if (opened) {
+            <span>Measures</span>
+          }
+        </a>
+      </li>
+    }
+    @if (roleId > 1) {
+      <li matRipple>
+        <a class="fa fa-file" routerLink="/measuredefinition">
+          @if (opened) {
+            <span>Measure Definition</span>
+          }
+        </a>
+      </li>
+    }
+    @if (roleId > 2) {
+      <li matRipple>
+        <a class="fa fa-map" routerLink="/hierarchy">
+          @if (opened) {
+            <span>Hierarchy</span>
+          }
+        </a>
+      </li>
+    }
     <li matRipple>
       <a class="fa fa-upload" routerLink="/dataimports">
-        <span *ngIf="opened">Data Imports</span>
+        @if (opened) {
+          <span>Data Imports</span>
+        }
       </a>
     </li>
     <li>
-      <a class="fa fa-link" (click)="tableau()"><span *ngIf="opened" matRipple>Tableau</span>
-      </a>
-    </li>
-  </ul>
+      <a class="fa fa-link" (click)="tableau()">@if (opened) {
+        <span matRipple>Tableau</span>
+      }
+    </a>
+  </li>
+</ul>
 </div>

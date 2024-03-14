@@ -4,29 +4,33 @@
   <main class="panel panel-default panel-body mat-elevation-z4">
     <!-- Error Section-->
     <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
-    <div class="panel panel-default ng-hide noBorder marB0" *ngIf="showError">
-      <div class="panel-body padB0 marB0 noBorder">
-        <ngb-alert type="danger" (closed)="closeError()">
-          <p>{{errorMsg.heading}}</p>
-          <section class="table-flip-scroll table-dynamic overflowAuto">
-            <table class="table table-bordered table-striped cf no-margin">
-              <thead class="cf">
-                <tr>
-                  <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                  <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                  <td class="alert-danger">{{errorRows.row}}</td>
-                  <td class="alert-danger">{{errorRows.message}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-        </ngb-alert>
+    @if (showError) {
+      <div class="panel panel-default ng-hide noBorder marB0">
+        <div class="panel-body padB0 marB0 noBorder">
+          <ngb-alert type="danger" (closed)="closeError()">
+            <p>{{errorMsg.heading}}</p>
+            <section class="table-flip-scroll table-dynamic overflowAuto">
+              <table class="table table-bordered table-striped cf no-margin">
+                <thead class="cf">
+                  <tr>
+                    <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                    <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (errorRows of errorMsg.errorRows; track errorRows) {
+                    <tr class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </section>
+          </ngb-alert>
+        </div>
       </div>
-    </div>
+    }
     <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showError">
       <div class="panel-body padB0 marB0 noBorder">
         <ngb-alert type="danger" (closed)="closeError()">
@@ -40,10 +44,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                  <td class="alert-danger">{{errorRows.row}}</td>
-                  <td class="alert-danger">{{errorRows.message}}</td>
-                </tr>
+                @for (errorRows of errorMsg.errorRows; track errorRows) {
+                  <tr class="itgTableTr">
+                    <td class="alert-danger">{{errorRows.row}}</td>
+                    <td class="alert-danger">{{errorRows.message}}</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </section>
@@ -54,9 +60,11 @@
       <mat-form-field appearance="fill">
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
-        <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyFilter($event)">
-          <mat-icon>close</mat-icon>
-        </button>
+        @if (input.value) {
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyFilter($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
       </mat-form-field>
       <a mat-raised-button color="accent" aria-label="Add" [routerLink]="['add']">
         <mat-icon>person_add</mat-icon> Add

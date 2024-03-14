@@ -16,9 +16,11 @@
       <mat-form-field appearance="fill">
         <mat-label>Year</mat-label>
         <mat-select [(ngModel)]="yearSelected" aria-label="Year" (selectionChange)="intervalChange(yearSelected)">
-          <mat-option *ngFor="let year of years" [value]="year">
-            {{year}}
-          </mat-option>
+          @for (year of years; track year) {
+            <mat-option [value]="year">
+              {{year}}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
@@ -61,7 +63,7 @@
             <th mat-header-cell *matHeaderCellDef>Lock</th>
             <td mat-cell *matCellDef="let row">
               <mat-checkbox name="locked" [(ngModel)]="row.locked" color="primary"
-                [disabled]="disabledAll"></mat-checkbox>
+              [disabled]="disabledAll"></mat-checkbox>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="locksColumns"></tr>
@@ -76,10 +78,12 @@
           <mat-form-field appearance="fill">
             <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
-            <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
-              (click)="input.value=''; applyFilter($event)">
-              <mat-icon>close</mat-icon>
-            </button>
+            @if (input.value) {
+              <button matSuffix mat-icon-button aria-label="Clear"
+                (click)="input.value=''; applyFilter($event)">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
           </mat-form-field>
         </div>
         <table mat-table [dataSource]="users" [trackBy]="identity" matSort>

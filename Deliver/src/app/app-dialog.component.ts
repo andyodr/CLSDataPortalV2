@@ -9,9 +9,15 @@ import { DomSanitizer } from "@angular/platform-browser"
 <h2 mat-dialog-title>{{data.msg}}</h2>
 <mat-dialog-content class="mat-typography" [innerHtml]="data.htmlContent"></mat-dialog-content>
 <mat-dialog-actions>
-<button *ngIf="data.alert" mat-raised-button mat-dialog-close>Close</button>
-<button *ngIf="!data.alert" mat-raised-button mat-dialog-close>Cancel</button>
-<button *ngIf="!data.alert" mat-raised-button [mat-dialog-close]="true">OK</button>
+  @if (data.alert) {
+    <button mat-raised-button mat-dialog-close>Close</button>
+  }
+  @if (!data.alert) {
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+  }
+  @if (!data.alert) {
+    <button mat-raised-button [mat-dialog-close]="true">OK</button>
+  }
 </mat-dialog-actions>`
 })
 export class AppDialog {

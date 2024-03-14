@@ -15,57 +15,75 @@
         <mat-label>Intervals</mat-label>
         <mat-select name="fIntervalSelected" [(ngModel)]="model.fIntervalSelected" (selectionChange)="intervalChange()"
           aria-label="Intervals">
-          <mat-option *ngFor="let interval of select.intervals; trackBy: identity" [value]="interval">
-            {{interval.name}}
-          </mat-option>
+          @for (interval of select.intervals; track identity($index, interval)) {
+            <mat-option [value]="interval">
+              {{interval.name}}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="fill" [hidden]="model.fIntervalSelected?.id == Intervals.Daily">
         <mat-label>Year</mat-label>
         <mat-select name="fYearSelected" [(ngModel)]="model.fYearSelected" (selectionChange)="intervalChange()"
           aria-label="Year">
-          <mat-option *ngFor="let year of select.years; trackBy: identity" [value]="year">
-            {{year.year}}
-          </mat-option>
+          @for (year of select.years; track identity($index, year)) {
+            <mat-option [value]="year">
+              {{year.year}}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Weekly">
-        <mat-label>Week</mat-label>
-        <mat-select name="fWeekSelected" [(ngModel)]="model.fWeekSelected" aria-label="Week">
-          <mat-option *ngFor="let week of select.weeks; trackBy: identity" [value]="week">
-            {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Monthly">
-        <mat-label>Month</mat-label>
-        <mat-select name="fMonthSelected" [(ngModel)]="model.fMonthSelected" aria-label="Month">
-          <mat-option *ngFor="let month of select.months; trackBy: identity" [value]="month">
-            {{month.month}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="model.fIntervalSelected?.id == Intervals.Quarterly">
-        <mat-label>Quarter</mat-label>
-        <mat-select name="fQuarterSelected" [(ngModel)]="model.fQuarterSelected" aria-label="Quarter">
-          <mat-option *ngFor="let quarter of select.quarters; trackBy: identity" [value]="quarter">
-            Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate |
-            date:'mediumDate'}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      @if (model.fIntervalSelected?.id == Intervals.Weekly) {
+        <mat-form-field appearance="fill">
+          <mat-label>Week</mat-label>
+          <mat-select name="fWeekSelected" [(ngModel)]="model.fWeekSelected" aria-label="Week">
+            @for (week of select.weeks; track identity($index, week)) {
+              <mat-option [value]="week">
+                {{week.number}}: {{week.startDate | date:'mediumDate'}} to {{week.endDate | date:'mediumDate'}}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @if (model.fIntervalSelected?.id == Intervals.Monthly) {
+        <mat-form-field appearance="fill">
+          <mat-label>Month</mat-label>
+          <mat-select name="fMonthSelected" [(ngModel)]="model.fMonthSelected" aria-label="Month">
+            @for (month of select.months; track identity($index, month)) {
+              <mat-option [value]="month">
+                {{month.month}}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @if (model.fIntervalSelected?.id == Intervals.Quarterly) {
+        <mat-form-field appearance="fill">
+          <mat-label>Quarter</mat-label>
+          <mat-select name="fQuarterSelected" [(ngModel)]="model.fQuarterSelected" aria-label="Quarter">
+            @for (quarter of select.quarters; track identity($index, quarter)) {
+              <mat-option [value]="quarter">
+                Q{{quarter.number}}: {{quarter.startDate | date:'mediumDate'}} to {{quarter.endDate |
+                date:'mediumDate'}}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
       <mat-form-field appearance="fill">
         <mat-label>Measure Type</mat-label>
         <mat-select name="fMeasureTypeSelected" [(ngModel)]="model.fMeasureTypeSelected" [disabled]="disabledAll">
-          <mat-option *ngFor="let measureType of select.measureTypes" [value]="measureType">
-            {{measureType.name}}
-          </mat-option>
+          @for (measureType of select.measureTypes; track measureType) {
+            <mat-option [value]="measureType">
+              {{measureType.name}}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <h4>Region Hierarchy:</h4>
       <h5>{{ regions.ancestorPath.at(-1) }}</h5>
       <app-region-tree #regions [hierarchy]="select.hierarchy"
-        [(selectedRegions)]="model.selectedRegion"></app-region-tree>
+      [(selectedRegions)]="model.selectedRegion"></app-region-tree>
     </form>
   </mat-drawer>
   <mat-drawer-content>
@@ -76,33 +94,37 @@
         <!-- Error Section -->
         <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
         [closeError]="closeError"></app-errors>
-        <div class="panel panel-default" *ngIf="showError">
-          <div class="panel-body">
-            <ngb-alert type="danger" (closed)="closeError()">
-              <p>{{errorMsg.heading}}</p>
-              <section class="table-flip-scroll table-dynamic overflowAuto">
-                <table class="table table-bordered table-striped cf no-margin">
-                  <thead class="cf">
-                    <tr>
-                      <th class="numeric">
-                        <div class="th"> <span>Row</span></div>
-                      </th>
-                      <th class="numeric">
-                        <div class="th"> <span>Error Message</span></div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                      <td class="alert-danger">{{errorRows.row}}</td>
-                      <td class="alert-danger">{{errorRows.message}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </section>
-            </ngb-alert>
+        @if (showError) {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <ngb-alert type="danger" (closed)="closeError()">
+                <p>{{errorMsg.heading}}</p>
+                <section class="table-flip-scroll table-dynamic overflowAuto">
+                  <table class="table table-bordered table-striped cf no-margin">
+                    <thead class="cf">
+                      <tr>
+                        <th class="numeric">
+                          <div class="th"> <span>Row</span></div>
+                        </th>
+                        <th class="numeric">
+                          <div class="th"> <span>Error Message</span></div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (errorRows of errorMsg.errorRows; track errorRows) {
+                        <tr class="itgTableTr">
+                          <td class="alert-danger">{{errorRows.row}}</td>
+                          <td class="alert-danger">{{errorRows.message}}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </section>
+              </ngb-alert>
+            </div>
           </div>
-        </div>
+        }
         <div class="panel panel-default" [hidden]="!showError">
           <div class="panel-body padB0 marB0 noBorder">
             <ngb-alert type="danger" (closed)="closeError()">
@@ -120,10 +142,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let errorRows of errorMsg.errorRows" class="itgTableTr">
-                      <td class="alert-danger">{{errorRows.row}}</td>
-                      <td class="alert-danger">{{errorRows.message}}</td>
-                    </tr>
+                    @for (errorRows of errorMsg.errorRows; track errorRows) {
+                      <tr class="itgTableTr">
+                        <td class="alert-danger">{{errorRows.row}}</td>
+                        <td class="alert-danger">{{errorRows.message}}</td>
+                      </tr>
+                    }
                   </tbody>
                 </table>
               </section>
@@ -135,16 +159,20 @@
           <mat-icon>filter_list</mat-icon> Filter
         </button>
         <!-- Table Upper Section -->
-        <span class="filter" *ngFor="let filter of filterSelected">{{filter}}</span>
+        @for (filter of filterSelected; track filter) {
+          <span class="filter">{{filter}}</span>
+        }
         <div class="panel-header">
           <div>
             <mat-form-field appearance="fill">
               <mat-label>Table Filter</mat-label>
               <input matInput (keyup)="applyTableFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
-              <button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
-                (click)="input.value=''; applyTableFilter($event)">
-                <mat-icon>close</mat-icon>
-            </button>
+              @if (input.value) {
+                <button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="input.value=''; applyTableFilter($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
             </mat-form-field>
             <div class="dataRange">
               <h5>{{ this.dataRange }}</h5>
@@ -154,9 +182,11 @@
             <mat-label>Select</mat-label>
             <mat-select [(ngModel)]="model.selCalSelected" [disabled]="disabledAll || btnDisabled"
               (selectionChange)="onSelCalChange()">
-              <mat-option *ngFor="let calculated of selCalculated" [value]="calculated.id">
-                {{calculated.name }}
-              </mat-option>
+              @for (calculated of selCalculated; track calculated) {
+                <mat-option [value]="calculated.id">
+                  {{calculated.name }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
           <button mat-raised-button color="primary" aria-label="Refresh" [disabled]="disabledAll" (click)="refresh()" matTooltip="Refresh Table">
@@ -170,31 +200,36 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Measure Definition </th>
             <td mat-cell *matCellDef="let element"> {{element.name}} </td>
             <!-- <td mat-cell *matCellDef="let element">
-              <mat-icon>{{ element.calculated === true ? "block" : "" }}</mat-icon>
-              {{ element.name }} 
-            </td> -->
-          </ng-container>
-          <ng-container matColumnDef="calculated">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>
-            <td mat-cell *matCellDef="let element"> <mat-icon>{{ element.calculated === true ? "check": "" }}</mat-icon></td>
-          </ng-container>
-          <ng-container matColumnDef="value">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
-            <td mat-cell *matCellDef="let element">
-              <ng-container *ngIf="!element.target && !isEditMode"> <div>{{element.value}}</div></ng-container>
-              <ng-container *ngIf="element.value && element.target">
+            <mat-icon>{{ element.calculated === true ? "block" : "" }}</mat-icon>
+            {{ element.name }}
+          </td> -->
+        </ng-container>
+        <ng-container matColumnDef="calculated">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>
+          <td mat-cell *matCellDef="let element"> <mat-icon>{{ element.calculated === true ? "check": "" }}</mat-icon></td>
+        </ng-container>
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
+          <td mat-cell *matCellDef="let element">
+            @if (!element.target && !isEditMode) {
+              <div>{{element.value}}</div>
+            }
+            @if (element.value && element.target) {
                 <div [ngClass]="{
                   bggreen: element.value >= element.target,
                   bgorange: element.value < element.target && element.value >= element.yellow,
                   bgred: element.value < element.yellow}">
                   {{element.value}}
                 </div>
-              </ng-container>
-              <ng-container *ngIf="!element.calculated && isEditMode && element == selectedRow">
+              
+}
+              @if (!element.calculated && isEditMode && element == selectedRow) {
+
                 <mat-form-field>
                   <input matInput type="number" [(ngModel)]="model.value" [disabled]="disabledAll || btnDisabled">
                 </mat-form-field>
-              </ng-container>
+              
+}
             </td>
           </ng-container>
           <ng-container matColumnDef="units">
@@ -205,25 +240,33 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Explanation </th>
             <td mat-cell *matCellDef="let element">
               <!-- <ng-container *ngIf="!isEditMode || element == !selectedRow">{{element.explanation}}</ng-container> -->
-              <ng-container *ngIf="!isEditMode">{{element.explanation}}</ng-container>
-              <ng-container *ngIf="isEditMode && element == selectedRow">
+              @if (!isEditMode) {
+{{element.explanation}}
+}
+              @if (isEditMode && element == selectedRow) {
+
                 <mat-form-field>
                   <textarea matInput type="string" [(ngModel)]="model.explanation" [disabled]="disabledAll"></textarea>
                 </mat-form-field>
-              </ng-container>
+              
+}
             </td>
           </ng-container>
           <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Action </th>
             <td mat-cell *matCellDef="let element">
               <!-- <ng-container *ngIf="!isEditMode || element == !selectedRow">{{element.action}}</ng-container> -->
-              <ng-container *ngIf="!isEditMode">{{element.action}}</ng-container>
-              <ng-container *ngIf="isEditMode && element == selectedRow">
+              @if (!isEditMode) {
+{{element.action}}
+}
+              @if (isEditMode && element == selectedRow) {
+
                 <mat-form-field>
                   <textarea matInput type="string" [(ngModel)]="model.action" [disabled]="disabledAll"></textarea>
                   <!-- <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea> -->
                 </mat-form-field>
-              </ng-container>
+              
+}
             </td>
           </ng-container>
           <ng-container matColumnDef="updated">
@@ -233,15 +276,21 @@
           <ng-container matColumnDef="rowactions">
             <th mat-header-cell  *matHeaderCellDef> Element Actions </th>
             <td mat-cell *matCellDef="let element" >
-              <button mat-icon-button color="primary" (click)="onEdit(element)" *ngIf="!isEditMode || element != selectedRow" matTooltip="Edit">
+              @if (!isEditMode || element != selectedRow) {
+<button mat-icon-button color="primary" (click)="onEdit(element)" matTooltip="Edit">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="primary" (click)="onSave(element)" *ngIf="isEditMode && element == selectedRow" matTooltip="Save">
+}
+              @if (isEditMode && element == selectedRow) {
+<button mat-icon-button color="primary" (click)="onSave(element)" matTooltip="Save">
                 <mat-icon>save_alt</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="onCancel()" *ngIf="isEditMode && element == selectedRow" matTooltip="Cancel">
+}
+              @if (isEditMode && element == selectedRow) {
+<button mat-icon-button color="warn" (click)="onCancel()" matTooltip="Cancel">
                 <mat-icon>cancel</mat-icon>
               </button>
+}
             </td>
           </ng-container>
           <ng-container matColumnDef="expandedDetail">
@@ -270,15 +319,15 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"
             [class.expanded-row]="expandDetail.query(row)" (click)="expandDetail.toggle(row)"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
-          </tr>
-        </table>
-        <footer>
-          <span> Showing {{dataSource.filteredData.length}} entries </span>
-        </footer>
-      </main>
-    </div>
-  </mat-drawer-content>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
+        </tr>
+      </table>
+      <footer>
+        <span> Showing {{dataSource.filteredData.length}} entries </span>
+      </footer>
+    </main>
+  </div>
+</mat-drawer-content>
 </mat-drawer-container>
