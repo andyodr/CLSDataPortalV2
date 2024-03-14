@@ -30,7 +30,6 @@ import { DataImportsComponent } from './dataimports/dataimports.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { ErrorsComponent } from './errors/errors.component';
 import { FilterPipe } from "./lib/filter.pipe"
-import { HomeComponent } from './home/home.component';
 import { MeasureDataComponent } from "./measure-data/measure-data.component"
 import { MeasureDefinitionComponent } from "./measuredefinition/measuredefinition.component"
 import { MeasureDefinitionEditComponent } from "./measuredefinition/measuredefinition-edit.component"
@@ -61,7 +60,6 @@ import { UserListComponent } from "./users/userlist.component";
         DataImportsComponent,
         ErrorsComponent,
         FilterPipe,
-        HomeComponent,
         MeasureDataComponent,
         MeasureDefinitionComponent,
         MeasureDefinitionEditComponent,

@@ -7,7 +7,6 @@ import { DataImportsComponent } from './dataimports/dataimports.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
-import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './_guards/auth.guard';
 import { CalendarSettingsComponent as CalendarSettingsComponent } from "./calendar/settings.component"
 import { UserListComponent } from "./users/userlist.component"
@@ -34,9 +33,7 @@ const routes: Routes = [
     {
         path: '',
         runGuardsAndResolvers: 'always',
-        canActivate: [AuthGuard], children: [
-            { path: 'home', component: HomeComponent },
-        ]
+        canActivate: [AuthGuard], children: []
     },
     { path: 'targets', title: `${ title }Targets`, component: TargetsComponent },
     { path: 'measures', title: `${ title }Measures`, component: MeasuresComponent },
