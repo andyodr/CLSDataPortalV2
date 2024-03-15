@@ -68,7 +68,11 @@ table {
   cursor: pointer;
 }
 
-.mat-row:hover .mat-cell {
+tr.mat-mdc-row:hover {
+  background-color: hsl(var(--mat-primary-50));
+}
+
+tr.mat-mdc-row:active {
   background-color: hsl(var(--mat-primary-100));
 }
 

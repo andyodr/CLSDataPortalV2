@@ -144,7 +144,7 @@ export class MeasureDataComponent implements OnInit {
                     this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
                     this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
                     this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
-                    this.model.fYearSelected = dtoFilter.years?.find(n => n.year == (savedSettings?.year ?? new Date().getFullYear()))
+                    //this.model.fYearSelected = dtoFilter.years?.find(n => n.year == (savedSettings?.year ?? new Date().getFullYear()))
                     this.intervalChange(true)
                 }
             })

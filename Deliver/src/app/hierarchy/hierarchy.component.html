@@ -140,8 +140,8 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row (click)="edit(row.id); drawer.open()" *matRowDef="let row; columns: displayedColumns;"></tr>
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell empty-table" colspan="6">No data matching the filter {{input.value}}</td>
+            <tr *matNoDataRow>
+              <td colspan="6">No data matching the filter {{input.value}}</td>
             </tr>
           </table>
           <footer>

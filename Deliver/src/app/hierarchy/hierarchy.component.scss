@@ -85,6 +85,14 @@ table {
   border: 1px solid hsl(var(--mat-primary-100));
 }
 
+tr.mat-mdc-row:hover {
+  background-color: hsl(var(--mat-primary-50));
+}
+
+tr.mat-mdc-row:active {
+  background-color: hsl(var(--mat-primary-100));
+}
+
 .mat-column-id {
   width: 4em;
 }
@@ -105,19 +113,11 @@ table {
   width: 4em;
 }
 
-.mat-row .mat-cell {
-  cursor: pointer;
-}
-
-.mat-row:hover .mat-cell {
-  background: hsl(var(--mat-primary-100));
-}
-
-.mat-row .empty-table {
+.mat-mdc-no-data-row td {
   cursor: initial;
 }
 
-.mat-row:hover .empty-table {
+.mat-mdc-no-data-row:hover td {
   background-color: initial;
 }
 
