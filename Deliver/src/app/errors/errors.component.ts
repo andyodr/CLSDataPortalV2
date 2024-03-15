@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 
 @Component({
-  selector: 'app-errors',
+    selector: "app-errors",
     template: `
 <div class="panel panel-default ng-hide noBorder marB0">
   <div class="panel-body padB0 marB0 noBorder">
@@ -30,7 +31,9 @@ import { Component, Input } from '@angular/core';
       </ngb-alert>
     }
   </div>
-</div>`
+</div>`,
+    standalone: true,
+    imports: [NgbAlert]
 })
 export class ErrorsComponent {
     @Input() error!: { id: any, status: any, message: any, heading: any }

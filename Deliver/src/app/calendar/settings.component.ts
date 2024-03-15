@@ -1,15 +1,28 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core"
-import { MatSort } from "@angular/material/sort"
-import { MatTableDataSource } from "@angular/material/table"
-import { TimeSpan } from "../lib/time/time-input.component"
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
+import { TimeSpan, TimeInputComponent } from "../lib/time/time-input.component"
 import { LoggerService } from "../_services/logger.service"
 import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_services/settings.service"
 import { finalize } from "rxjs"
+import { DatePipe } from "@angular/common"
+import { MatInputModule } from "@angular/material/input"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatOptionModule } from "@angular/material/core"
+import { FormsModule } from "@angular/forms"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { SidebarComponent } from "../nav/sidebar.component"
 
 @Component({
     selector: "app-settings",
     templateUrl: "./settings.component.html",
-    styleUrls: ["./settings.component.scss"]
+    styleUrls: ["./settings.component.scss"],
+    standalone: true,
+    imports: [SidebarComponent, MatProgressBarModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule, FormsModule, MatOptionModule, MatCheckboxModule, TimeInputComponent, MatTableModule, MatInputModule, MatSortModule, DatePipe]
 })
 export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     disabledAll = false

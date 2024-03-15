@@ -8,7 +8,8 @@ export type JsonValue = string | number | boolean | null
     selector: "app-table",
     templateUrl: "./table.component.html",
     styleUrls: ["./table.component.css"],
-    providers: [FilterPipe]
+    providers: [FilterPipe],
+    standalone: true
 })
 export class TableComponent {
     @Input() searchKeywords = ""

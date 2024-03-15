@@ -4,11 +4,24 @@ import { RegionFilter } from "../_services/hierarchy.service"
 import { UserRole } from "../_models/user"
 import { LoggerService } from "../_services/logger.service"
 import { UserService } from "../_services/user.service"
+import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { NavigateBackDirective } from "../_services/nav.service"
+import { MatButtonModule } from "@angular/material/button"
+import { SidebarComponent } from "../nav/sidebar.component"
 
 @Component({
     selector: "app-useredit",
     templateUrl: "./useredit.component.html",
-    styleUrls: ["./useredit.component.scss"]
+    styleUrls: ["./useredit.component.scss"],
+    standalone: true,
+    imports: [SidebarComponent, MatButtonModule, NavigateBackDirective, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, RegionTreeComponent]
 })
 export class UserEditComponent implements OnInit {
     title = "Edit User"

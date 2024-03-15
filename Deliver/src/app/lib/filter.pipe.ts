@@ -1,7 +1,10 @@
 import { Injectable, Pipe, PipeTransform } from "@angular/core"
 
 @Injectable({ providedIn: "root" })
-@Pipe({ name: "filter" })
+@Pipe({
+    name: "filter",
+    standalone: true
+})
 export class FilterPipe implements PipeTransform {
     transform(items: any[], searchText: string) {
         if (!items) {

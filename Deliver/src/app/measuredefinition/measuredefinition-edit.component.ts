@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core"
-import { MatCheckboxChange } from "@angular/material/checkbox"
-import { MatSelectChange } from "@angular/material/select"
+import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox"
+import { MatSelectChange, MatSelectModule } from "@angular/material/select"
 import { ActivatedRoute, Router } from "@angular/router"
 import { Observable } from "rxjs"
 import { Intervals } from "../lib/app-constants"
@@ -9,11 +9,21 @@ import {
     IntervalDto, MeasureDefinition, MeasureDefinitionEditDto, MeasureDefinitionService,
     MeasureType, Units
 } from "../_services/measure-definition.service"
+import { MatOptionModule } from "@angular/material/core"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { NavigateBackDirective } from "../_services/nav.service"
+import { MatButtonModule } from "@angular/material/button"
+import { SidebarComponent } from "../nav/sidebar.component"
 
 @Component({
     selector: "app-measuredefinition-edit",
     templateUrl: "./measuredefinition-edit.component.html",
-    styleUrls: ["./measuredefinition-edit.component.scss"]
+    styleUrls: ["./measuredefinition-edit.component.scss"],
+    standalone: true,
+    imports: [SidebarComponent, MatButtonModule, NavigateBackDirective, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule]
 })
 export class MeasureDefinitionEditComponent implements OnInit {
     title = "Add Measure Definition"

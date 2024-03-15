@@ -5,11 +5,20 @@ import { AccountService, SignIn } from "../../_services/account.service"
 import { LoggerService } from "../../_services/logger.service"
 import { finalize } from "rxjs"
 import { UserState } from "src/app/_models/user"
+import { MatButtonModule } from "@angular/material/button"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 @Component({
     selector: "app-login",
     templateUrl: "./login.component.html",
-    styleUrls: ["./login.component.css"]
+    styleUrls: ["./login.component.css"],
+    standalone: true,
+    imports: [MatProgressBarModule, FormsModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatTooltipModule, MatButtonModule]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 

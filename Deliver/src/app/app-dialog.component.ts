@@ -1,6 +1,7 @@
 import { Component, Inject, SecurityContext } from "@angular/core";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
 import { DomSanitizer } from "@angular/platform-browser"
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
     selector: "app-dialog",
@@ -18,7 +19,9 @@ import { DomSanitizer } from "@angular/platform-browser"
   @if (!data.alert) {
     <button mat-raised-button [mat-dialog-close]="true">OK</button>
   }
-</mat-dialog-actions>`
+</mat-dialog-actions>`,
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule]
 })
 export class AppDialog {
     constructor(

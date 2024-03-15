@@ -1,13 +1,18 @@
 import { SelectionModel } from "@angular/cdk/collections"
 import { FlatTreeControl } from "@angular/cdk/tree"
 import { Component, EventEmitter, Input, Output } from "@angular/core"
-import { MatTreeFlatDataSource, MatTreeFlattener } from "@angular/material/tree"
+import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from "@angular/material/tree"
 import { RegionFilter, RegionFlatNode } from "src/app/_services/hierarchy.service"
+import { MatIconModule } from "@angular/material/icon"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatButtonModule } from "@angular/material/button"
 
 @Component({
     selector: "app-region-tree",
     templateUrl: "./region-tree.component.html",
-    styleUrls: ["./region-tree.component.scss"]
+    styleUrls: ["./region-tree.component.scss"],
+    standalone: true,
+    imports: [MatTreeModule, MatButtonModule, MatCheckboxModule, MatIconModule]
 })
 export class RegionTreeComponent {
     @Input()

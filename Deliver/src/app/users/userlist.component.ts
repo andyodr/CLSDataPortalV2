@@ -1,17 +1,26 @@
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core"
-import { MatSort } from "@angular/material/sort"
-import { MatTableDataSource } from "@angular/material/table"
-import { Router } from "@angular/router"
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
+import { Router, RouterLink } from "@angular/router"
 import { Subscription } from "rxjs"
 import { User, UserData } from "../_models/user"
 import { UserService } from "../_services/user.service"
-import { MSG_DATA_NO_FOUND, MSG_ERROR_PROCESSING, processError } from "../lib/app-constants"
+import { processError } from "../lib/app-constants"
 import { NavigationService } from "../_services/nav.service"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
 
 @Component({
     selector: "app-user-list",
     templateUrl: "./userlist.component.html",
-    styleUrls: ["./userlist.component.scss"]
+    styleUrls: ["./userlist.component.scss"],
+    standalone: true,
+    imports: [SidebarComponent, ErrorsComponent, NgbAlert, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, RouterLink, MatTableModule, MatSortModule]
 })
 export class UserListComponent implements OnInit, OnDestroy {
     title = "Users"

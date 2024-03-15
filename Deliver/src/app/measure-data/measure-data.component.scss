@@ -121,8 +121,10 @@ table {
   width: 4em;
 }
 
-.mat-column-calculated {
+.mat-mdc-header-cell.mat-column-calculated {
+  padding: 0;
   width: 1em;
+  text-align: center;
   max-width: 4em;
 }
 

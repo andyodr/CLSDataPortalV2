@@ -1,4 +1,4 @@
-import { formatDate } from "@angular/common"
+import { formatDate, DatePipe } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
@@ -14,6 +14,18 @@ import { LoggerService } from "../_services/logger.service"
 import { MeasureDataService } from "../_services/measure-data.service"
 import { IntervalDto } from "../_services/measure-definition.service"
 import { FiltersIntervalsData } from "../_models/measureData"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { UploadDirective } from "./upload.directive"
+import { MatInputModule } from "@angular/material/input"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatOptionModule } from "@angular/material/core"
+import { FormsModule } from "@angular/forms"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { SidebarComponent } from "../nav/sidebar.component"
 
 type DataOut = {
     dataImport: number
@@ -50,7 +62,9 @@ type UploadsBody = {
 @Component({
     selector: "app-dataimports",
     templateUrl: "./dataimports.component.html",
-    styleUrls: ["./dataimports.component.scss"]
+    styleUrls: ["./dataimports.component.scss"],
+    standalone: true,
+    imports: [SidebarComponent, MatProgressBarModule, MatFormFieldModule, MatSelectModule, FormsModule, MatOptionModule, MatButtonModule, MatIconModule, MatInputModule, UploadDirective, ErrorsComponent, NgbAlert, TableComponent, DatePipe]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"

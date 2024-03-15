@@ -1,16 +1,32 @@
 import { Component, OnInit, ViewChild } from "@angular/core"
-import { MatSort } from "@angular/material/sort"
-import { MatTableDataSource } from "@angular/material/table"
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { Subscription, finalize } from "rxjs"
 import { processError } from "../lib/app-constants"
 import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { HierarchyService } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
+import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatSidenavModule } from "@angular/material/sidenav"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 @Component({
     selector: "app-hierarchy",
     templateUrl: "./hierarchy.component.html",
-    styleUrls: ["./hierarchy.component.scss"]
+    styleUrls: ["./hierarchy.component.scss"],
+    standalone: true,
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatTableModule, MatSortModule]
 })
 export class RegionHierarchyComponent implements OnInit {
     title = "Region Hierarchy"

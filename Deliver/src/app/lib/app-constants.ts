@@ -1,7 +1,5 @@
 export const LINE1 = "<br />"
 export const LINE2 = "<br />" + LINE1
-export const MSG_ERROR_PROCESSING = "Error processing the data"
-export const MSG_DATA_NO_FOUND = "Data not found"
 
 export const MESSAGES = {
     clear: "Clearing values...",

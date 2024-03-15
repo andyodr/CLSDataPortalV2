@@ -1,17 +1,29 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
 import { AppDialog } from '../app-dialog.component';
 import { RegionFilter } from "../_services/hierarchy.service"
 import { MeasureType, TargetApiResponse, TargetFilterResponseDto, TargetDto, ConfirmIntervals, TargetApiParams, TargetFilter } from '../_models/target';
-import { LoggerService } from '../_services/logger.service';;
+import { LoggerService } from "../_services/logger.service"
 import { TargetService } from '../_services/target.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { HttpParams } from '@angular/common/http';
 import { AccountService } from "../_services/account.service"
+import { MatInputModule } from "@angular/material/input"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatSidenavModule } from "@angular/material/sidenav"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 @Component({
     selector: 'app-targets',
@@ -22,7 +34,10 @@ import { AccountService } from "../_services/account.service"
             state("false", style({ height: "0px", minHeight: "0" })),
             state("true", style({ height: "*" })),
             transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
-        ])]
+        ])
+    ],
+    standalone: true,
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule]
 })
 export class TargetsComponent implements OnInit {
 

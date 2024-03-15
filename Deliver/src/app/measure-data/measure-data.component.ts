@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Intervals, MSG_ERROR_PROCESSING } from '../lib/app-constants';
+import { Intervals } from "../lib/app-constants"
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
+import { MatSort, MatSortModule } from "@angular/material/sort"
 import { finalize } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
@@ -14,6 +14,20 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatDialog } from '@angular/material/dialog';
 import { AppDialog } from '../app-dialog.component';
 import { AccountService } from '../_services/account.service';
+import { NgClass, DatePipe } from "@angular/common"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatInputModule } from "@angular/material/input"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatSidenavModule } from "@angular/material/sidenav"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 @Component({
     selector: 'app-measure-data',
@@ -24,7 +38,10 @@ import { AccountService } from '../_services/account.service';
             state("false", style({ height: "0px", minHeight: "0" })),
             state("true", style({ height: "*" })),
             transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
-        ])]
+        ])
+    ],
+    standalone: true,
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
 })
 export class MeasureDataComponent implements OnInit {
 
@@ -144,7 +161,7 @@ export class MeasureDataComponent implements OnInit {
                     this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
                     this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
                     this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
-                    //this.model.fYearSelected = dtoFilter.years?.find(n => n.year == (savedSettings?.year ?? new Date().getFullYear()))
+                    this.model.fYearSelected = dtoFilter.years?.find(n => n.year == (savedSettings?.year ?? new Date().getFullYear()))
                     this.intervalChange(true)
                 }
             })

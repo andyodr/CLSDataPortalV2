@@ -1,6 +1,9 @@
 import { Directive, Output, EventEmitter, HostBinding, HostListener } from "@angular/core"
 
-@Directive({ selector: "[fileUpload]" })
+@Directive({
+    selector: "[fileUpload]",
+    standalone: true
+})
 export class UploadDirective {
     @Output() onFileDropped: EventEmitter<FileList> = new EventEmitter()
     @HostBinding("style.background-color") public background = "#fff"

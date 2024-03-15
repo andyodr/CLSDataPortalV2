@@ -1,11 +1,25 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnInit, ViewChild } from "@angular/core"
-import { MatSort } from "@angular/material/sort"
-import { MatTableDataSource } from "@angular/material/table"
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
 import { AccountService } from "../_services/account.service"
 import { LoggerService } from "../_services/logger.service"
 import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
+import { RouterLink } from "@angular/router"
+import { MatMenuModule } from "@angular/material/menu"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
+import { MatInputModule } from "@angular/material/input"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatSidenavModule } from "@angular/material/sidenav"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 @Component({
     selector: "app-measuredefinition",
@@ -16,7 +30,10 @@ import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, Measure
             state("false", style({ height: "0px", minHeight: "0" })),
             state("true", style({ height: "*" })),
             transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
-        ])]
+        ])
+    ],
+    standalone: true,
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, MatInputModule, SidebarComponent, ErrorsComponent, NgbAlert, MatMenuModule, RouterLink, MatTableModule, MatSortModule]
 })
 export class MeasureDefinitionComponent implements OnInit {
     title = "Measure Definition"

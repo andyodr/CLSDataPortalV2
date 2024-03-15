@@ -1,7 +1,7 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnInit, ViewChild } from "@angular/core"
-import { MatSort } from "@angular/material/sort"
-import { MatTable, MatTableDataSource } from "@angular/material/table"
+import { MatSort, MatSortModule } from "@angular/material/sort"
+import { MatTable, MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
 import { processError } from "../lib/app-constants"
 import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
@@ -13,6 +13,20 @@ import {
     MeasureApiResponse, MeasureFilter,
     MeasureService, RegionActiveCalculatedDto
 } from "../_services/measure.service"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatInputModule } from "@angular/material/input"
+import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
+import { ErrorsComponent } from "../errors/errors.component"
+import { SidebarComponent } from "../nav/sidebar.component"
+import { MatOptionModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { FormsModule } from "@angular/forms"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatSidenavModule } from "@angular/material/sidenav"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
 
 interface MeasuresTableRow {
     id: number
@@ -40,7 +54,10 @@ class ToggleQuery {
             state("false", style({ height: "0px", minHeight: "0" })),
             state("true", style({ height: "*" })),
             transition("true <=> false", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"))
-        ])]
+        ])
+    ],
+    standalone: true,
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule, MatCheckboxModule, MatTooltipModule]
 })
 export class MeasuresComponent implements OnInit {
     title = "Measures"

@@ -25,7 +25,10 @@ export class NavigationService {
     }
 }
 
-@Directive({ selector: "[navigateBack]" })
+@Directive({
+    selector: "[navigateBack]",
+    standalone: true
+})
 export class NavigateBackDirective {
     constructor(private navigation: NavigationService) { }
 

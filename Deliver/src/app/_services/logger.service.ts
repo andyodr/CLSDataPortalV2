@@ -1,12 +1,15 @@
 import { Component, Inject, Injectable } from "@angular/core"
 import { MatSnackBar, MatSnackBarConfig, MAT_SNACK_BAR_DATA } from "@angular/material/snack-bar"
+import { MatIconModule } from "@angular/material/icon"
 
 type PanelClass = "snackbar-info" | "snackbar-warning" | "snackbar-success" | "snackbar-error"
 
 @Component({
     template: `<div style="display: flex; align-items: middle;" >
     <mat-icon>{{icon}}</mat-icon>
-    <span style="margin: 3px 6px 0px;">{{message}}</span></div>`
+    <span style="margin: 3px 6px 0px;">{{message}}</span></div>`,
+    standalone: true,
+    imports: [MatIconModule]
 })
 export class SbComponent {
     constructor(@Inject(MAT_SNACK_BAR_DATA) public sbData: any) { }

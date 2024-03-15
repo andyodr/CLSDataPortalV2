@@ -11,19 +11,19 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { MatTooltipModule } from "@angular/material/tooltip"
 
 @NgModule({
-  declarations: [LoginComponent],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressBarModule,
-    MatTooltipModule,
-    AuthRoutingModule
-  ],
-  exports: [LoginComponent]
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressBarModule,
+        MatTooltipModule,
+        AuthRoutingModule,
+        LoginComponent
+    ],
+    exports: [LoginComponent]
 })
 
 export class AuthModule { }
