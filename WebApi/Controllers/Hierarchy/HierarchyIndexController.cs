@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +30,7 @@ public sealed class IndexController : BaseController
 						Remove = !Dbc.Measure.Where(m => m.HierarchyId == h.Id && m.MeasureData.Count != 0).Any(),
 						ParentId = h.HierarchyParentId,
 						ParentName = h.Parent == null ? "" : h.Parent.Name
-					})
-					.ToArray(),
+					}).ToArray().OrderByHierarchy(),
 				Hierarchy = [CreateHierarchy(Dbc)],
 				Levels = [.. Dbc.HierarchyLevel.OrderBy(l => l.Id).Select(l => new LevelObject { Id = l.Id, Name = l.Name })]
 			};
@@ -46,7 +46,7 @@ public sealed class IndexController : BaseController
 	[HttpPost]
 	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd dto) {
 		var result = new RegionMetricsFilterObject {
-			Data = new List<RegionsDataViewModel>(),
+			Data = [],
 			Hierarchy = [CreateHierarchy(Dbc)]
 		};
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -172,7 +172,7 @@ public sealed class IndexController : BaseController
 
 		try {
 			var result = new RegionMetricsFilterObject {
-				Data = new List<RegionsDataViewModel>(),
+				Data = [],
 				Hierarchy = new RegionFilterObject[] { CreateHierarchy(Dbc) }
 			};
 			string hierarchyName = string.Empty;

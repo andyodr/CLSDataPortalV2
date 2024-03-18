@@ -1,5 +1,6 @@
 using Deliver.WebApi.Data;
 using Deliver.WebApi.Data.Models;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ namespace Deliver.WebApi.Controllers.DataImports;
 public sealed class UploadController : BaseController
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
-	private readonly DataImportReturnObject result = new() { Data = new(), Error = new() };
+	private readonly DataImportReturnObject result = new() { Data = new(), Error = [] };
 	private UserObject _user = new();
 
 	public sealed class Model
@@ -90,7 +91,7 @@ public sealed class UploadController : BaseController
 
 					if (result.Error.Count != 0) {
 						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. temp];
 						return result;
 					}
 
@@ -111,7 +112,7 @@ public sealed class UploadController : BaseController
 						}
 
 						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. temp];
 						return result;
 					}
 
@@ -155,7 +156,7 @@ public sealed class UploadController : BaseController
 
 					if (result.Error.Count != 0) {
 						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. temp];
 					}
 					else {
 						foreach (var row in listCustomer) {
@@ -207,7 +208,7 @@ public sealed class UploadController : BaseController
 
 					if (result.Error.Count != 0) {
 						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. temp];
 						return result;
 					}
 
@@ -217,7 +218,7 @@ public sealed class UploadController : BaseController
 
 					if (result.Error.Count != 0) {
 						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. temp];
 					}
 					else {
 						foreach (var row in listMeasureData) {

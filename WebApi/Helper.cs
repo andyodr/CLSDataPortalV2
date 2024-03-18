@@ -495,11 +495,4 @@ public static class Helper
 			return false;
 		}
 	}
-
-	public static double? RoundNullable(this double? value, int digits) {
-		return value switch {
-			double v => Math.Round(v, digits, MidpointRounding.AwayFromZero),
-			null => null
-		};
-	}
 }
