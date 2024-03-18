@@ -66,7 +66,6 @@ export class RegionHierarchyComponent implements OnInit {
                     this.hierarchyLevels = response.levels
                     this.hierarchy = response.hierarchy
                     this.dataSource.sort = this.sort
-                    // processLocalError here
                 },
                 error: (err: any) => {
                     this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)

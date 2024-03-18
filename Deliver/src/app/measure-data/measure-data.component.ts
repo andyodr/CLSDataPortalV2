@@ -142,26 +142,26 @@ export class MeasureDataComponent implements OnInit {
         this.measureDataSvc.getFilters()
             .pipe(finalize(() => this.progress = false))
             .subscribe({
-                next: dtoFilter => {
-                    this.filters = dtoFilter
+                next: filter => {
+                    this.filters = filter
                     this.select = {
-                        intervals: dtoFilter.intervals ?? [],
-                        years: dtoFilter.years ?? [],
+                        intervals: filter.intervals ?? [],
+                        years: filter.years ?? [],
                         weeks: [],
                         months: [],
                         quarters: [],
-                        measureTypes: dtoFilter.measureTypes,
-                        hierarchy: dtoFilter.hierarchy ?? []
+                        measureTypes: filter.measureTypes,
+                        hierarchy: filter.hierarchy ?? []
                     }
 
-                    let { intervalId, measureTypeId, hierarchyId } = dtoFilter.filter
-                    const savedSettings = this.acctSvc.getCurrentUser()?.filter
-                    measureTypeId = savedSettings?.measureTypeId || measureTypeId
-                    hierarchyId = savedSettings?.hierarchyId || hierarchyId
-                    this.model.fMeasureTypeSelected = measureTypeId ? dtoFilter.measureTypes.find(m => m.id === measureTypeId) : dtoFilter.measureTypes.at(0)
+                    let { intervalId, measureTypeId, hierarchyId } = filter.filter
+                    const saved = this.acctSvc.getCurrentUser()?.filter
+                    measureTypeId = saved?.measureTypeId || measureTypeId
+                    hierarchyId = saved?.hierarchyId || hierarchyId
+                    this.model.fMeasureTypeSelected = filter.measureTypes.find(m => m.id === saved?.measureTypeId ?? measureTypeId)
                     this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
-                    this.model.fIntervalSelected = dtoFilter.intervals?.find(n => n.id === intervalId)
-                    this.model.fYearSelected = dtoFilter.years?.find(n => n.year == (savedSettings?.year ?? new Date().getFullYear()))
+                    this.model.fIntervalSelected = filter.intervals?.find(n => n.id === saved?.intervalId ?? intervalId)
+                    this.model.fYearSelected = filter.years?.find(n => n.year == (saved?.year ?? new Date().getFullYear()))
                     this.intervalChange(true)
                 }
             })
@@ -191,9 +191,9 @@ export class MeasureDataComponent implements OnInit {
     }
 
     /** Initialize Week/Month/Quarter select menus in Filter drawer after Interval or Year changes **/
-    intervalChange(loadTable = false) {
+    intervalChange(ngOnInit = false) {
         const { fIntervalSelected, fYearSelected } = this.model
-        if (fIntervalSelected?.id == Intervals.Yearly || fYearSelected == null || fIntervalSelected == null) return
+        if (fYearSelected == null || fIntervalSelected == null) return
         let params = new HttpParams()
             .set("intervalId", fIntervalSelected.id)
             .set("year", (fYearSelected.year).toString())
@@ -203,25 +203,32 @@ export class MeasureDataComponent implements OnInit {
                 if (intervalId != fIntervalSelected.id || !calendarId) {
                     calendarId = dto.calendarId
                 }
+
+                const saved = this.acctSvc.getCurrentUser()?.filter
                 switch (fIntervalSelected.id) {
                     case Intervals.Weekly:
                         this.select.weeks = dto.data
                         const { weeks } = this.select
-                        this.model.fWeekSelected = weeks.find(w => w.id === calendarId)
+                        this.model.fWeekSelected = weeks.find(w => w.number === saved?.week) ??
+                            weeks.find(w => w.id === calendarId)
                         break
                     case Intervals.Monthly:
                         this.select.months = dto.data
                         const { months } = this.select
-                        this.model.fMonthSelected = months.find(w => w.id === calendarId)
+                        this.model.fMonthSelected = months.find(m => m.month === saved?.month) ??
+                            months.find(m => m.id === calendarId)
                         break
                     case Intervals.Quarterly:
                         this.select.quarters = dto.data
                         const { quarters } = this.select
-                        this.model.fQuarterSelected = quarters.find(w => w.id === calendarId)
+                        //this.model.fQuarterSelected = quarters.find(w => w.id === calendarId)
+                        this.model.fQuarterSelected = quarters.find(q => q.number === saved?.quarter) ??
+                            quarters.find(q => q.id === calendarId)
                         break
                 }
-                if (loadTable) {
-                    this.loadTable()
+
+                if (ngOnInit) {
+                    this.loadTable(false)
                 }
             }
         })
@@ -230,7 +237,7 @@ export class MeasureDataComponent implements OnInit {
     // -----------------------------------------------------------------------------
     // Load Table Data
     // -----------------------------------------------------------------------------
-    loadTable(): void {
+    loadTable(saveSettings = true): void {
         const { fMeasureTypeSelected, fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
         this.filterSelected[0] = fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = fMeasureTypeSelected?.name ?? "?"
@@ -254,15 +261,24 @@ export class MeasureDataComponent implements OnInit {
                 if (!fYearSelected) return
                 params.calendarId = fYearSelected.id
                 break
+            default:
+                return
         }
 
         if (!fMeasureTypeSelected) return
         params.measureTypeId = fMeasureTypeSelected.id
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
-        this.acctSvc.saveSettings({
-            measureTypeId: fMeasureTypeSelected.id,
-            hierarchyId: this.model.selectedRegion
-        })
+        if (saveSettings) {
+            this.acctSvc.saveSettings({
+                intervalId: fIntervalSelected.id,
+                measureTypeId: fMeasureTypeSelected.id,
+                hierarchyId: this.model.selectedRegion,
+                ...(this.model.fYearSelected && { year: this.model.fYearSelected.year }),
+                ...(this.model.fWeekSelected && { week: this.model.fWeekSelected.number }),
+                ...(this.model.fMonthSelected && { month: this.model.fMonthSelected.month }),
+                ...(this.model.fQuarterSelected && { quarter: this.model.fQuarterSelected.number })
+            })
+        }
 
         params.hierarchyId = this.model.selectedRegion
         this.getMeasureDataList(params)
@@ -286,38 +302,38 @@ export class MeasureDataComponent implements OnInit {
 
         // Call Server - GET Measure Data List
         this.measureDataSvc.getMeasureDataList(params)
-        .pipe(finalize(() => this.progress = false))
-        .subscribe({
-            next: measureDataResponse => {
-                this.measureDataResponse = measureDataResponse
-                this.measureDataList = measureDataResponse.data
-                this.dataSource.data = measureDataResponse.data
-                // if (this.dataSource) {
-                //     this.dataSource.sort = this.sort;
-                //   }
-                //this.dataSource.sort = this.sort
-                console.log("MeasureDataResponse on getMeasureDataList: ", this.measureDataResponse)
-                console.log("Datasource on getMeasureDataList: ", this.dataSource)
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: measureDataResponse => {
+                    this.measureDataResponse = measureDataResponse
+                    this.measureDataList = measureDataResponse.data
+                    this.dataSource.data = measureDataResponse.data
+                    // if (this.dataSource) {
+                    //     this.dataSource.sort = this.sort;
+                    //   }
+                    //this.dataSource.sort = this.sort
+                    console.log("MeasureDataResponse on getMeasureDataList: ", this.measureDataResponse)
+                    console.log("Datasource on getMeasureDataList: ", this.dataSource)
 
-                this.calendarId = measureDataResponse.calendarId;
-                this.hierarchyId = parameters?.hierarchyId;
-                this.measureTypeId = parameters?.measureTypeId;
+                    this.calendarId = measureDataResponse.calendarId;
+                    this.hierarchyId = parameters?.hierarchyId;
+                    this.measureTypeId = parameters?.measureTypeId;
 
-                this.dataRange = measureDataResponse.range;
-                this.allow = measureDataResponse.allow;
-                this.locked = measureDataResponse.locked;
-                this.editValue = measureDataResponse.editValue;
-                this.showActionButtons = this.allow && !this.locked;
-                this.disabledAll = false;
-                this.logger.logInfo("Measure Data List Loaded")
-            },
-            error: err => {
-                this.logger.logError(err.message)
-                this.errorMsg = err
-                this.showError = true
-                this.processLocalError(this.title, err.statusText, null, err.status, null);
-            }
-        })
+                    this.dataRange = measureDataResponse.range;
+                    this.allow = measureDataResponse.allow;
+                    this.locked = measureDataResponse.locked;
+                    this.editValue = measureDataResponse.editValue;
+                    this.showActionButtons = this.allow && !this.locked;
+                    this.disabledAll = false;
+                    this.logger.logInfo("Measure Data List Loaded")
+                },
+                error: err => {
+                    this.logger.logError(err.message)
+                    this.errorMsg = err
+                    this.showError = true
+                    this.processLocalError(this.title, err.statusText, null, err.status, null);
+                }
+            })
     }
 
     applyTableFilter(event: Event) {
@@ -398,7 +414,7 @@ export class MeasureDataComponent implements OnInit {
             "measureValue": measureDataValue,
             "explanation": measureDataExplanation,
             "action": measureDataAction
-           }
+        }
 
         if (measureDataRow.value == body.measureValue && measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
             this.logger.logInfo("There are no changes for " + measureDataRow.name)
@@ -416,21 +432,21 @@ export class MeasureDataComponent implements OnInit {
 
         // Call Server - PUT Measure Data
         this.measureDataSvc.updateMeasureData(body)
-        .pipe(finalize(() => this.progress = false))
-        .subscribe({
-            next: measureDataResponse => {
-                this.logger.logInfo("Measure Data Updated")
-                console.log("measureData on updateMeasureData", measureDataResponse);
-                this.disabledAll = false;
-                this.loadTable();
-            },
-            error: err => {
-                this.logger.logError(err.message)
-                this.errorMsg = err
-                this.showError = true
-                this.processLocalError(this.title, err.statusText, null, err.status, null);
-            }
-        })
+            .pipe(finalize(() => this.progress = false))
+            .subscribe({
+                next: measureDataResponse => {
+                    this.logger.logInfo("Measure Data Updated")
+                    console.log("measureData on updateMeasureData", measureDataResponse);
+                    this.disabledAll = false;
+                    this.loadTable();
+                },
+                error: err => {
+                    this.logger.logError(err.message)
+                    this.errorMsg = err
+                    this.showError = true
+                    this.processLocalError(this.title, err.statusText, null, err.status, null);
+                }
+            })
         this.model.explanation = "";
         this.model.action = "";
         this.model.value = undefined;

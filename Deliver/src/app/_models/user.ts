@@ -19,7 +19,7 @@ export interface AuthenticatedUser extends User {
 }
 
 export interface UserState extends AuthenticatedUser {
-    filter: { measureTypeId: number, hierarchyId: number, year: number }
+    filter: { intervalId?: number, measureTypeId: number, hierarchyId: number, year: number, week?: number, month?: string, quarter?: number }
 }
 
 export interface RolesAndRegions {
