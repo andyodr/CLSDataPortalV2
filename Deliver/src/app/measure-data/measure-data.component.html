@@ -167,8 +167,7 @@
           <div>
             <mat-form-field appearance="fill">
               <mat-label>Table Filter</mat-label>
-              <input matInput (keyup)="applyTableFilter($event)" placeholder="Search..." [disabled]="disabledAll"
-                #input>
+              <input matInput (keyup)="applyTableFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
               @if (input.value) {
               <button matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyTableFilter($event)">
                 <mat-icon>close</mat-icon>
@@ -201,10 +200,6 @@
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Measure Definition </th>
             <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-            <!-- <td mat-cell *matCellDef="let element">
-            <mat-icon>{{ element.calculated === true ? "block" : "" }}</mat-icon>
-            {{ element.name }}
-          </td> -->
           </ng-container>
           <ng-container matColumnDef="calculated">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>

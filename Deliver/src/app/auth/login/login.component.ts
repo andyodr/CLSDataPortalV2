@@ -1,9 +1,10 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, Output } from "@angular/core"
+import { Component, OnInit, AfterViewInit, DestroyRef, inject } from "@angular/core"
 import { Router } from "@angular/router"
 import { NavSettingsService } from "src/app/_services/nav-settings.service"
 import { AccountService, SignIn } from "../../_services/account.service"
 import { LoggerService } from "../../_services/logger.service"
 import { finalize } from "rxjs"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { UserState } from "src/app/_models/user"
 import { MatButtonModule } from "@angular/material/button"
 import { MatTooltipModule } from "@angular/material/tooltip"
@@ -25,6 +26,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     model: SignIn = { userName: "", password: "", persistent: false }
     progress = false
     canConnect = false
+    destroyRef = inject(DestroyRef)
 
     constructor(
         private api: AccountService,
@@ -48,7 +50,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     login() {
         this.progress = true
         this.api.login(this.model)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: user => {
                     try {

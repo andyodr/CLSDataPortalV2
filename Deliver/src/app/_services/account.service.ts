@@ -15,7 +15,7 @@ export type SignIn = {
     providedIn: "root"
 })
 export class AccountService {
-    private currentUserSource = new BehaviorSubject<UserState | null>(null)
+    private readonly currentUserSource = new BehaviorSubject<UserState | null>(null)
     currentUser$ = this.currentUserSource.asObservable()
 
     constructor(private http: HttpClient, private router: Router) { }

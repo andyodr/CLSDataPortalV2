@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Intervals } from "../lib/app-constants"
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { MatSort, MatSortModule } from "@angular/material/sort"
-import { finalize } from 'rxjs';
+import { finalize } from "rxjs"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { HttpParams } from '@angular/common/http';
 import { LoggerService } from '../_services/logger.service';
 import { RegionFilter } from '../_services/hierarchy.service';
@@ -41,7 +42,9 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
         ])
     ],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule,
+        MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
+        ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
 })
 export class MeasureDataComponent implements OnInit {
 
@@ -134,13 +137,14 @@ export class MeasureDataComponent implements OnInit {
     //Error handling within the component
     errorMsg: any = ""
     showError: boolean = false;
+    destroyRef = inject(DestroyRef)
 
     constructor(private measureDataSvc: MeasureDataService, private acctSvc: AccountService, private logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.progress = true
         this.measureDataSvc.getFilters()
-            .pipe(finalize(() => this.progress = false))
+            .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.progress = false))
             .subscribe({
                 next: filter => {
                     this.filters = filter
@@ -197,8 +201,9 @@ export class MeasureDataComponent implements OnInit {
         let params = new HttpParams()
             .set("intervalId", fIntervalSelected.id)
             .set("year", (fYearSelected.year).toString())
-        this.measureDataSvc.getFiltersIntervals(params).subscribe({
-            next: dto => {
+        this.measureDataSvc.getFiltersIntervals(params)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({ next: dto => {
                 let { intervalId, calendarId } = this.filters.filter
                 if (intervalId != fIntervalSelected.id || !calendarId) {
                     calendarId = dto.calendarId
@@ -302,7 +307,7 @@ export class MeasureDataComponent implements OnInit {
 
         // Call Server - GET Measure Data List
         this.measureDataSvc.getMeasureDataList(params)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: measureDataResponse => {
                     this.measureDataResponse = measureDataResponse
@@ -432,7 +437,7 @@ export class MeasureDataComponent implements OnInit {
 
         // Call Server - PUT Measure Data
         this.measureDataSvc.updateMeasureData(body)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: measureDataResponse => {
                     this.logger.logInfo("Measure Data Updated")

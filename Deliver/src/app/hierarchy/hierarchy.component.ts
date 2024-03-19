@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from "@angular/core"
+import { Component, DestroyRef, OnInit, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
-import { Subscription, finalize } from "rxjs"
+import { finalize } from "rxjs"
 import { processError } from "../lib/app-constants"
 import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { HierarchyService } from "../_services/hierarchy.service"
@@ -20,6 +20,7 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 
 @Component({
     selector: "app-hierarchy",
@@ -33,7 +34,7 @@ export class RegionHierarchyComponent implements OnInit {
     dataSource = new MatTableDataSource<Hierarchy>()
     displayedColumns = ["id", "name", "parentName", "level"]
     @ViewChild(MatSort) sort!: MatSort
-    private subscription = new Subscription()
+    destroyRef = inject(DestroyRef)
     disabledAll = false
     errorMsg: any = ""
     showError = false
@@ -52,14 +53,10 @@ export class RegionHierarchyComponent implements OnInit {
 
     constructor(private api: HierarchyService, public logger: LoggerService) { }
 
-    ngOnDestroy(): void {
-        this.subscription.unsubscribe()
-    }
-
     ngOnInit(): void {
         this.progress = true
-        this.subscription = this.api.getHierarchy()
-            .pipe(finalize(() => this.progress = false))
+        this.api.getHierarchy()
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: response => {
                     this.dataSource = new MatTableDataSource(response.data)
@@ -107,7 +104,7 @@ export class RegionHierarchyComponent implements OnInit {
         }
 
         this.progress = true
-        op.pipe(finalize(() => this.progress = false))
+        op.pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: _ => {
                     this.logger.logSuccess("Save completed")

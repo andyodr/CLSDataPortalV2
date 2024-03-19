@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, OnInit, ViewChild } from "@angular/core"
+import { Component, DestroyRef, OnInit, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -20,6 +20,7 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 
 @Component({
     selector: "app-measuredefinition",
@@ -57,6 +58,7 @@ export class MeasureDefinitionComponent implements OnInit {
     }
 
     measureTypeInput!: MeasureType
+    destroyRef = inject(DestroyRef)
 
     constructor(private api: MeasureDefinitionService, private acctSvc: AccountService, public logger: LoggerService) { }
 
@@ -64,7 +66,7 @@ export class MeasureDefinitionComponent implements OnInit {
         const measureTypeId = this.acctSvc.getCurrentUser()?.filter.measureTypeId
         this.progress = true
         this.api.getMeasureDefinitionFilter()
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: filters => {
                     this.filters = filters
@@ -82,7 +84,7 @@ export class MeasureDefinitionComponent implements OnInit {
         this.acctSvc.saveSettings({ measureTypeId: this.selectedMeasureType.id })
         this.progress = true
         this.api.getMeasureDefinition(this.selectedMeasureType.id)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: dto => {
                     this.dataSource.data = dto.data
@@ -94,7 +96,7 @@ export class MeasureDefinitionComponent implements OnInit {
         this.progress = true
         var obsv = this.measureTypeInput.id ? this.api.updateMeasureType(this.measureTypeInput)
             : this.api.addMeasureType(this.measureTypeInput)
-        obsv.pipe(finalize(() => this.progress = false))
+        obsv.pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: result => {
                     this.measureTypes = result.measureTypes

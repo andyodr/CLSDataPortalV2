@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core"
+import { AfterViewInit, Component, DestroyRef, OnInit, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { TimeSpan, TimeInputComponent } from "../lib/time/time-input.component"
 import { LoggerService } from "../_services/logger.service"
 import { CalendarSettingsService, CalendarLock, UserSettingDto } from "../_services/settings.service"
 import { finalize } from "rxjs"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { DatePipe } from "@angular/common"
 import { MatInputModule } from "@angular/material/input"
 import { MatCheckboxModule } from "@angular/material/checkbox"
@@ -37,6 +38,8 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     users = new MatTableDataSource<UserSettingDto>()
     @ViewChild(MatSort) sort!: MatSort
     usersColumns = ["userName", ...[...Array(12).keys()].map(i => "lo" + (1 + i))]
+    destroyRef = inject(DestroyRef)
+
     constructor(private api: CalendarSettingsService, private logger: LoggerService) { }
 
     ngOnInit(): void {
@@ -54,7 +57,7 @@ export class CalendarSettingsComponent implements OnInit, AfterViewInit {
     intervalChange(year?: number) {
         this.progress = true
         this.api.getSettings(year)
-        .pipe(finalize(() => this.progress = false))
+        .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
         .subscribe({
             next: dto => {
                 this.years = dto.years ?? []

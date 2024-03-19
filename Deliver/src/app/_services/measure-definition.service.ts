@@ -80,7 +80,7 @@ export type MeasureDefinitionEditDto = {
 })
 export class MeasureDefinitionService {
 
-    private baseUrl = environment.baseUrl + "api/measuredefinition";
+    private baseUrl = environment.baseUrl + "api/measuredefinition"
 
     constructor(private http: HttpClient) { }
 

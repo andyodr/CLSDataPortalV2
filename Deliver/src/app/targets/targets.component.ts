@@ -1,9 +1,10 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { AppDialog } from '../app-dialog.component';
 import { RegionFilter } from "../_services/hierarchy.service"
 import { MeasureType, TargetApiResponse, TargetFilterResponseDto, TargetDto, ConfirmIntervals, TargetApiParams, TargetFilter } from '../_models/target';
@@ -139,14 +140,15 @@ export class TargetsComponent implements OnInit {
 
     //Error handling within the component
     errorMsg: any = ""
-    showError: boolean = false;
+    showError: boolean = false
+    destroyRef = inject(DestroyRef)
 
     constructor(private targetSvc: TargetService, public acctSvc: AccountService, public logger: LoggerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.progress = true
         this.targetSvc.getTargetFilter()
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: dtofilter => {
                     this.filters = dtofilter;
@@ -221,7 +223,7 @@ export class TargetsComponent implements OnInit {
 
         // Call Server - GET Target List
         this.targetSvc.getTargetList(params)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: targetResponse => {
                     this.targetResponse = targetResponse;
@@ -358,7 +360,7 @@ export class TargetsComponent implements OnInit {
 
          // Call Server - PUT Target
         this.targetSvc.updateTarget(body)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: targetResponse => {
                     this.logger.logInfo("Measure Data Updated")

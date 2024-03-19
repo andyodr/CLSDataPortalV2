@@ -1,6 +1,6 @@
 import { formatDate, DatePipe } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
-import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from "@angular/core"
+import { Component, DestroyRef, Inject, LOCALE_ID, OnInit, ViewChild, inject } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../lib/app-constants"
 import { environment } from "../../environments/environment"
@@ -26,6 +26,7 @@ import { MatSelectModule } from "@angular/material/select"
 import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { SidebarComponent } from "../nav/sidebar.component"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 
 type DataOut = {
     dataImport: number
@@ -114,7 +115,8 @@ export class DataImportsComponent implements OnInit {
     hideTable = true
 
     //toggle
-    toggle: any = true;
+    toggle: any = true
+    destroyRef = inject(DestroyRef)
 
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
@@ -131,6 +133,7 @@ export class DataImportsComponent implements OnInit {
         // Call Server
         this.setProgress(true)
         this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: dto => {
                     if (dto.error == null) {
@@ -154,6 +157,7 @@ export class DataImportsComponent implements OnInit {
                     else {
                         this.processLocalError(this.title, dto.error.message, dto.error.id, null, dto.error.authError)
                     }
+
                     this.disAll(false)
                 },
                 error: (err: HttpErrorResponse) => {
@@ -368,6 +372,7 @@ export class DataImportsComponent implements OnInit {
             .set("year", this.fYearSelected.year)
             .set("isDataImport", true)
         this.api.getFiltersIntervals(params)
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: body => {
                     if (body.data) {
@@ -569,6 +574,7 @@ export class DataImportsComponent implements OnInit {
         // Call Server
         this.setProgress(true)
         this.http.post<UploadsBody>(environment.baseUrl + "api/dataimports/upload", body)
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: body => {
                     if (body.error == null) {
