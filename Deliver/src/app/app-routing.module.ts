@@ -8,13 +8,7 @@ import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { AuthGuard } from './_guards/auth.guard';
-import { CalendarSettingsComponent as CalendarSettingsComponent } from "./calendar/settings.component"
-import { UserListComponent } from "./users/userlist.component"
-import { UserAddComponent } from "./users/useradd.component"
-import { UserEditComponent } from "./users/useredit.component"
-import { RegionHierarchyComponent } from "./hierarchy/hierarchy.component"
 import { TargetsComponent } from './targets/targets.component';
-import { MeasuresComponent } from './measures/measures.component';
 
 const title = "DELIVER - "
 
@@ -23,20 +17,34 @@ const routes: Routes = [
     { path: 'measuredata', title: `${ title }Measure Data`, component: MeasureDataComponent },
     {
         path: "users", children: [
-            { path: "add", title: `${ title }Add User`, component: UserAddComponent },
-            { path: "", title: `${ title }Users`, component: UserListComponent },
-            { path: ":id", title: `${ title }Edit User`, component: UserEditComponent }
+            { path: "add", title: `${ title }Add User`,
+            loadComponent: () => import("./users/useradd.component").then(m => m.UserAddComponent) },
+            { path: "", title: `${ title }Users`,
+            loadComponent: () => import("./users/userlist.component").then(m => m.UserListComponent) },
+            { path: ":id", title: `${ title }Edit User`,
+            loadComponent: () => import("./users/useredit.component").then(m => m.UserEditComponent) }
         ]
     },
-    { path: "settings", title: `${ title }Settings`, component: CalendarSettingsComponent },
-    { path: "hierarchy", title: `${ title }Region Hierarchy`, component: RegionHierarchyComponent },
+    {
+        path: "settings",
+        title: `${ title }Settings`,
+        loadComponent: () => import("./calendar/settings.component").then(m => m.CalendarSettingsComponent)
+    },
+    {
+        path: "hierarchy",
+        title: `${ title }Region Hierarchy`,
+        loadComponent: () => import("./hierarchy/hierarchy.component").then(m => m.RegionHierarchyComponent) },
     {
         path: '',
         runGuardsAndResolvers: 'always',
         canActivate: [AuthGuard], children: []
     },
     { path: 'targets', title: `${ title }Targets`, component: TargetsComponent },
-    { path: 'measures', title: `${ title }Measures`, component: MeasuresComponent },
+    {
+        path: 'measures',
+        title: `${ title }Measures`,
+        loadComponent: () => import("./measures/measures.component").then(m => m.MeasuresComponent)
+    },
     {
         path: "measuredefinition", children: [
             { path: "", title: `${ title }Measure Definitions`, component: MeasureDefinitionComponent },

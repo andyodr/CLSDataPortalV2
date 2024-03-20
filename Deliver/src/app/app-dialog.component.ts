@@ -1,7 +1,7 @@
-import { Component, Inject, SecurityContext } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
+import { Component, Inject, SecurityContext } from "@angular/core"
+import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog"
 import { DomSanitizer } from "@angular/platform-browser"
-import { MatButtonModule } from "@angular/material/button";
+import { MatButtonModule } from "@angular/material/button"
 
 @Component({
     selector: "app-dialog",
