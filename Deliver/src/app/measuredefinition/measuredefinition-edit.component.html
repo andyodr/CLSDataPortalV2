@@ -14,97 +14,97 @@
     </div>
     <form #mdForm>
       <div class="form-grid">
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field class="span-3" appearance="fill">
           <mat-label>Measure Definition Name</mat-label>
           <input matInput name="mdName" [(ngModel)]="md.name" required="true" placeholder="Ex. Cycle Count Performance"
             [disabled]="disabledAll">
-          </mat-form-field>
-          <mat-form-field class="span-2" appearance="fill">
-            <mat-label>Variable Name</mat-label>
-            <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS"
-              [disabled]="disabledAll">
-            </mat-form-field>
-            <mat-form-field class="span-2" appearance="fill">
-              <mat-label>Measure Type</mat-label>
-              <mat-select name="measureType" [(ngModel)]="md.measureType" required="true" [disabled]="disabledAll">
-                @for (mt of measureTypes; track mt) {
-                  <mat-option [value]="mt">
-                    {{mt.name}}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="span-all" appearance="fill">
-              <mat-label>Description</mat-label>
-              <textarea matInput name="description" [(ngModel)]="md.description"
-                placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="fill">
+          <mat-label>Variable Name</mat-label>
+          <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS"
+            [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="fill">
+          <mat-label>Measure Type</mat-label>
+          <mat-select name="measureType" [(ngModel)]="md.measureType" required="true" [disabled]="disabledAll">
+            @for (mt of measureTypes; track mt) {
+            <mat-option [value]="mt">
+              {{mt.name}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="span-all" appearance="fill">
+          <mat-label>Description</mat-label>
+          <textarea matInput name="description" [(ngModel)]="md.description"
+            placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
               </textarea>
-            </mat-form-field>
-            <mat-form-field appearance="fill">
-              <mat-label>Precision</mat-label>
-              <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true"
-                [disabled]="disabledAll">
-              </mat-form-field>
-              <mat-form-field class="span-2" appearance="fill">
-                <mat-label>Units</mat-label>
-                <mat-select name="unit" [(ngModel)]="md.unit" [disabled]="disabledAll">
-                  @for (unit of units; track unit) {
-                    <mat-option [value]="unit">
-                      {{unit.name}}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>Field Number</mat-label>
-                <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true"
-                  [disabled]="disabledAll">
-                </mat-form-field>
-                <aside class="accent-6">Specifies the sort order</aside>
-                <mat-form-field class="span-all" appearance="fill">
-                  <mat-label>Expression</mat-label>
-                  <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
-                  [disabled]="disabledAll"></textarea>
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Priority</mat-label>
-                  <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true"
-                    [disabled]="disabledAll">
-                  </mat-form-field>
-                  <aside class="accent-6">Unknown purpose</aside>
-                  <mat-form-field class="span-2" appearance="fill">
-                    <mat-label>Report Interval</mat-label>
-                    <mat-select name="intervals" [(ngModel)]="md.interval" (selectionChange)="intervalChanged($event)"
-                      [disabled]="disabledAll" #rint>
-                      @for (interval of intervals; track interval) {
-                        <mat-option [value]="interval">
-                          {{interval.name}}
-                        </mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  <div class="span-all">Aggregation Intervals</div>
-                  <div class="span-4 flex">
-                    <mat-checkbox name="weekly" [(ngModel)]="md.weekly" color="primary" (change)="cbChanged($event)"
-                    [disabled]="rint.value == null || rint.value.id >= Intervals.Weekly">Weekly</mat-checkbox>
-                    <mat-checkbox name="monthly" [(ngModel)]="md.monthly" color="primary" (change)="cbChanged($event)"
-                    [disabled]="rint.value == null || rint.value.id >= Intervals.Monthly">Monthly</mat-checkbox>
-                    <mat-checkbox name="quarterly" [(ngModel)]="md.quarterly" color="primary" (change)="cbChanged($event)"
-                    [disabled]="rint.value == null || rint.value.id >= Intervals.Quarterly">Quarterly</mat-checkbox>
-                    <mat-checkbox name="yearly" [(ngModel)]="md.yearly" color="primary" (change)="cbChanged($event)"
-                    [disabled]="rint.value == null || rint.value.id >= Intervals.Yearly">Yearly</mat-checkbox>
-                  </div>
-                  <mat-form-field class="span-2" appearance="fill">
-                    <mat-label>Aggregation Function</mat-label>
-                    <mat-select name="units" [(ngModel)]="md.aggFunction" required="true" [disabled]="disabledAll">
-                      @for (fn of aggFunctions; track fn) {
-                        <mat-option [value]="fn">
-                          {{fn.name}}
-                        </mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </form>
-            </main>
-          </div>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Precision</mat-label>
+          <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true"
+            [disabled]="disabledAll">
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="fill">
+          <mat-label>Units</mat-label>
+          <mat-select name="unit" [(ngModel)]="md.unit" [disabled]="disabledAll">
+            @for (unit of units; track unit) {
+            <mat-option [value]="unit">
+              {{unit.name}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Field Number</mat-label>
+          <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true"
+            [disabled]="disabledAll">
+        </mat-form-field>
+        <aside class="accent-6">Specifies the sort order</aside>
+        <mat-form-field class="span-all" appearance="fill">
+          <mat-label>Expression</mat-label>
+          <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
+            [disabled]="disabledAll"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Priority</mat-label>
+          <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true"
+            [disabled]="disabledAll">
+        </mat-form-field>
+        <aside class="accent-6">Unknown purpose</aside>
+        <mat-form-field class="span-2" appearance="fill">
+          <mat-label>Report Interval</mat-label>
+          <mat-select name="intervals" [(ngModel)]="md.interval" (selectionChange)="intervalChanged($event)"
+            [disabled]="disabledAll" #rint>
+            @for (interval of intervals; track interval) {
+            <mat-option [value]="interval">
+              {{interval.name}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="span-all">Aggregation Intervals</div>
+        <div class="span-4 flex">
+          <mat-checkbox name="weekly" [(ngModel)]="md.weekly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Weekly">Weekly</mat-checkbox>
+          <mat-checkbox name="monthly" [(ngModel)]="md.monthly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Monthly">Monthly</mat-checkbox>
+          <mat-checkbox name="quarterly" [(ngModel)]="md.quarterly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Quarterly">Quarterly</mat-checkbox>
+          <mat-checkbox name="yearly" [(ngModel)]="md.yearly" color="primary" (change)="cbChanged($event)"
+            [disabled]="rint.value == null || rint.value.id >= Intervals.Yearly">Yearly</mat-checkbox>
+        </div>
+        <mat-form-field class="span-2" appearance="fill">
+          <mat-label>Aggregation Function</mat-label>
+          <mat-select name="units" [(ngModel)]="md.aggFunction" required="true" [disabled]="disabledAll">
+            @for (fn of aggFunctions; track fn) {
+            <mat-option [value]="fn">
+              {{fn.name}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
+  </main>
+</div>

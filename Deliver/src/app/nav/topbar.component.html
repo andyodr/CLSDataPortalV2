@@ -44,7 +44,7 @@
       aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
   @if ((api.currentUser$ | async); as user) {
   <div class="dropdown">
-    <button mat-button [matMenuTriggerFor]="menu">
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="menu">
       Greetings {{user.firstName || user.userName}}
     </button>
     <mat-menu #menu="matMenu">
