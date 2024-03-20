@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public sealed class IndexController : BaseController
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		MeasureDataIndexListObject result = new() { Data = new List<MeasureDataReturnObject>() };
+		MeasureDataIndexListObject result = new() { Data = [] };
 		DateTime? date = new();
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
@@ -28,9 +29,7 @@ public sealed class IndexController : BaseController
 			result.Allow = Dbc.UserHierarchy
 				.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any();
 
-			//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
 			result.EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId);
-
 			result.CalendarId = dto.CalendarId;
 			if (string.IsNullOrEmpty(dto.Day)) {
 				date = null;
@@ -47,13 +46,12 @@ public sealed class IndexController : BaseController
 
 			var calendar = Dbc.Calendar
 				.Where(c => c.Id == result.CalendarId)
-				.Include(c => c.Interval)
 				.AsNoTrackingWithIdentityResolution().First();
 
 			result.Locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (Dbc.Setting.AsNoTracking().First().Active == true) {
-				result.Locked = IsDataLocked(calendar.Interval.Id, _user.Id, calendar, Dbc);
+				result.Locked = Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar);
 			}
 
 			var measures = Dbc.MeasureData
@@ -80,7 +78,7 @@ public sealed class IndexController : BaseController
 					md.Explanation,
 					md.Action,
 					md.Measure.HierarchyId,
-					calculated = IsMeasureCalculated(Dbc, md.Measure.Expression ?? false, dto.HierarchyId, calendar.Interval.Id, md.Measure.MeasureDefinition.Id, null)
+					calculated = Dbc.IsMeasureCalculated(md.Measure.Expression ?? false, dto.HierarchyId, calendar.IntervalId, md.Measure.MeasureDefinition.Id, null)
 				});
 
 			// Find all measure definition variables.
@@ -153,7 +151,7 @@ public sealed class IndexController : BaseController
 			result.Range = BuildRangeString(dto.CalendarId);
 			if (dto.CalendarId != _user.savedFilters[Pages.MeasureData].calendarId) {
 				_user.savedFilters[Pages.MeasureData].calendarId = dto.CalendarId;
-				_user.savedFilters[Pages.MeasureData].intervalId = calendar.Interval.Id;
+				_user.savedFilters[Pages.MeasureData].intervalId = calendar.IntervalId;
 				_user.savedFilters[Pages.MeasureData].year = calendar.Year;
 			}
 			_user.savedFilters[Pages.MeasureData].hierarchyId = dto.HierarchyId;
@@ -279,4 +277,10 @@ public sealed class IndexController : BaseController
 			throw new Exception(Resource.VAL_INVALID_INTERVAL_ID);
 		}
 	}
+
+/// <summary>
+/// This is for a special case where some level 2 hierarchies can not be edited since they are a sum value
+/// </summary>
+    internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) =>
+        !(config.SpecialHierarchies is List<int> hierarchies && hierarchies.Contains(hierarchyId));
 }

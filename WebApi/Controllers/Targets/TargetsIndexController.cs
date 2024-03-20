@@ -279,7 +279,7 @@ public sealed class IndexController : BaseController
 		if (confirmIntervals is not null) {
 			// Find current calendar Ids from confirmIntervals.
 			if (confirmIntervals.Weekly ?? false) {
-				int cWeekly = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cWeekly = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Weekly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = Dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cWeekly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
@@ -290,7 +290,7 @@ public sealed class IndexController : BaseController
 			}
 
 			if (confirmIntervals.Monthly ?? false) {
-				int cMonthly = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cMonthly = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Monthly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = Dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cMonthly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
@@ -301,7 +301,7 @@ public sealed class IndexController : BaseController
 			}
 
 			if (confirmIntervals.Quarterly ?? false) {
-				int cQuarterly = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cQuarterly = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Quarterly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = Dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cQuarterly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;
@@ -312,7 +312,7 @@ public sealed class IndexController : BaseController
 			}
 
 			if (confirmIntervals.Yearly ?? false) {
-				int cYearly = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
+				int cYearly = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly && c.StartDate <= DateTime.Today && c.EndDate >= DateTime.Today).First().Id;
 				var measureData = Dbc.MeasureData.Where(m => m.Measure!.Id == measureId && m.CalendarId == cYearly);
 				foreach (var item in measureData) {
 					item.TargetId = newTargetId;

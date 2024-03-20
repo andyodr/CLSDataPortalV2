@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -94,7 +95,7 @@ public sealed class EditController : BaseController
 					measure.Owner = values.Owner;
 					measure.LastUpdatedOn = lastUpdatedOn;
 					any = true;
-					UpdateMeasureDataIsProcessed(Dbc, measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
+					Dbc.UpdateMeasureDataIsProcessed(measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
 
 					AddAuditTrail(Dbc,
 						Resource.WEB_PAGES,

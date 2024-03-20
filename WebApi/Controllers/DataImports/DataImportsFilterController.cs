@@ -15,7 +15,7 @@ public sealed class FilterController : BaseController
 	[HttpGet]
 	public ActionResult<IList<DataImportFilterGetAllObject>> Get(int intervalId, int year) {
 		try {
-			var calendarRecords = Dbc.Calendar.Where(c => c.Interval.Id == intervalId && c.Year == year)
+			var calendarRecords = Dbc.Calendar.Where(c => c.IntervalId == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
 			return (Intervals)intervalId switch {
 				Intervals.Weekly => calendarRecords.Select(c => new DataImportFilterGetAllObject {

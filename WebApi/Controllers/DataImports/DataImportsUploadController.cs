@@ -67,7 +67,7 @@ public sealed class UploadController : BaseController
 			var jsonObject = JsonNode.Parse(json);
 			var dataImport = (Helper.DataImports)int.Parse(jsonObject!["dataImport"]?.ToString() ?? "0");
 			string sheetName = jsonObject["sheet"]?.ToString() ?? string.Empty;
-			var array = jsonObject["data"];
+			var array = jsonObject["data"] as JsonArray;
 
 			// --------------------------------------------------------
 			// Process Target
@@ -75,17 +75,17 @@ public sealed class UploadController : BaseController
 			switch (dataImport) {
 				case Helper.DataImports.Target:
 					var listTarget = new List<SheetDataTarget>();
-					foreach (var token in (JsonArray)array!) {
-						var value = token.Deserialize<SheetDataTarget>(webDefaults)!;
-						value.RowNumber = rowNumber++;
+					foreach (var token in array!) {
+						var targetData = token.Deserialize<SheetDataTarget>(webDefaults)!;
+						targetData.RowNumber = rowNumber++;
 						//value.unitId = _measureDefinitionRepository.Find(md=> md.Id == value.MeasureID).UnitId;
-						var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID);
+						var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == targetData.MeasureID);
 						if (mRecord.Any()) {
-							value.Precision = mRecord.First().Precision;
-							listTarget.Add(value);
+							targetData.Precision = mRecord.First().Precision;
+							listTarget.Add(targetData);
 						}
 						else {
-							result.Error.Add(new DataImportErrorReturnObject { Row = value.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
+							result.Error.Add(new DataImportErrorReturnObject { Row = targetData.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 						}
 					}
 
@@ -146,12 +146,12 @@ public sealed class UploadController : BaseController
 				// --------------------------------------------------------
 				case Helper.DataImports.Customer when Config.UsesCustomer:
 					var listCustomer = new List<SheetDataCustomer>();
-					foreach (var token in (JsonArray)array!) {
-						var value = token.Deserialize<SheetDataCustomer>(webDefaults);
-						if (value == null) { continue; }
-						ValidateCustomerRows(value, _user.Id);
-						value!.rowNumber = rowNumber++;
-						listCustomer.Add(value);
+					foreach (var token in array!) {
+						var customerData = token.Deserialize<SheetDataCustomer>(webDefaults);
+						if (customerData == null) { continue; }
+						ValidateCustomerRows(customerData, _user.Id);
+						customerData!.rowNumber = rowNumber++;
+						listCustomer.Add(customerData);
 					}
 
 					if (result.Error.Count != 0) {
@@ -180,29 +180,29 @@ public sealed class UploadController : BaseController
 				// Process MeasureData
 				// --------------------------------------------------------
 				case Helper.DataImports.MeasureData:
-					var calId = jsonObject["calendarId"];
-					var calendarId = int.Parse(calId!.ToString());
-					var calendar = Dbc.Calendar.Include(c => c.Interval).Where(c => c.Id == calendarId).First();
-					var listMeasureData = new List<SheetDataMeasureData>();
+					JsonNode? calId = jsonObject["calendarId"];
+					int calendarId = int.Parse(calId!.ToString());
+					Calendar? calendar = Dbc.Calendar.Where(c => c.Id == calendarId).First();
+					List<SheetDataMeasureData> listMeasureData = [];
 
 					// From settings page, DO NOT USE = !Active
 					if (Dbc.Setting.First().Active == true) {
-						if (IsDataLocked(calendar.Interval.Id, _user.Id, calendar, Dbc)) {
+						if (Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar)) {
 							throw new Exception(Resource.DI_ERR_USER_DATE);
 						}
 					}
 
-					foreach (var token in (JsonArray)array!) {
-						var value = token.Deserialize<SheetDataMeasureData>(webDefaults);
-						value!.RowNumber = rowNumber++;
-						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == value.MeasureID).ToArray();
-						if (mdef.Any()) {
-							value.UnitId = mdef.First().UnitId;
-							value.Precision = mdef.First().Precision;
-							listMeasureData.Add(value);
+					foreach (var token in array!) {
+						var measureData = token.Deserialize<SheetDataMeasureData>(webDefaults);
+						measureData!.RowNumber = rowNumber++;
+						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == measureData.MeasureID).FirstOrDefault();
+						if (mdef is Data.Models.MeasureDefinition md) {
+							measureData.UnitId = md.UnitId;
+							measureData.Precision = md.Precision;
+							listMeasureData.Add(measureData);
 						}
 						else {
-							result.Error.Add(new() { Row = value.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+							result.Error.Add(new() { Row = measureData.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 						}
 					}
 
@@ -213,7 +213,7 @@ public sealed class UploadController : BaseController
 					}
 
 					foreach (var row in listMeasureData) {
-						ValidateMeasureDataRows(row, calendar.Interval.Id, calendar.Id, _user.Id);
+						ValidateMeasureData(row, calendar.IntervalId, calendar.Id, _user.Id);
 					}
 
 					if (result.Error.Count != 0) {
@@ -233,7 +233,7 @@ public sealed class UploadController : BaseController
 							Resource.DATA_IMPORT,
 							@"Measure Data Imported" +
 								" / CalendarId=" + calendar.Id.ToString() +
-								" / Interval=" + Dbc.Interval.Where(i => i.Id == calendar.Interval.Id).First().Name +
+								" / Interval=" + Dbc.Interval.Where(i => i.Id == calendar.IntervalId).First().Name +
 								" / Year=" + calendar.Year.ToString() +
 								" / Quarter=" + calendar.Quarter.ToString() +
 								" / Month=" + calendar.Month.ToString() +
@@ -266,7 +266,7 @@ public sealed class UploadController : BaseController
 	private DataImportsMainObject? DataReturn(UserObject user) {
 		try {
 			var returnObject = new DataImportsMainObject {
-				Years = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
+				Years = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				CalculationTime = "00:01:00",
 				DataImport = new List<DataImportObject>() { DataImportHeading(Helper.DataImports.MeasureData) },
@@ -311,7 +311,7 @@ public sealed class UploadController : BaseController
 		//  }
 		//}
 		var hierarchy = Dbc.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
-		if (!hierarchy.Any()) {
+		if (hierarchy.Length == 0) {
 			result.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_EXIST });
 			return false;
 		}
@@ -330,7 +330,7 @@ public sealed class UploadController : BaseController
 	// --------------------------------------------------------
 	// MeasureData
 	// --------------------------------------------------------
-	private void ValidateMeasureDataRows(SheetDataMeasureData row, int intervalId, int calendarId, int userId) {
+	private void ValidateMeasureData(SheetDataMeasureData row, int intervalId, int calendarId, int userId) {
 		//check for null values
 		if (row.MeasureID is null) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_MEASURE_NULL });
@@ -358,16 +358,11 @@ public sealed class UploadController : BaseController
 		}
 
 		//check Measure
-		var measures = Dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
+		if (Dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
 			&& m.MeasureDefinitionId == row.MeasureID)
 			.Include(m => m.MeasureDefinition)
 			.AsNoTrackingWithIdentityResolution()
-			.ToArray();
-		if (measures.Length == 0) {
-			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
-		}
-
-		foreach (var m in measures) {
+			.FirstOrDefault() is Measure m) {
 			MeasureCalculatedObject measureCalculated = new() {
 				ReportIntervalId = m.MeasureDefinition!.ReportIntervalId,
 				Calculated = m.MeasureDefinition.Calculated ?? false,
@@ -379,12 +374,16 @@ public sealed class UploadController : BaseController
 			};
 			var bMdExpression = m.Expression ?? false;
 			var hId = m.HierarchyId;
-			if (IsMeasureCalculated(Dbc, bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
+			if (row.Value is not null &&
+				Dbc.IsMeasureCalculated(bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
 				result.Error.Add(new() {
 					Row = row.RowNumber,
 					Message = Resource.DI_ERR_CALCULATED
 				});
 			}
+		}
+		else {
+			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 		}
 	}
 
@@ -432,7 +431,7 @@ public sealed class UploadController : BaseController
 			.Select(t => t.Measure!.MeasureDefinition!.UnitId)
 			.Distinct()
 			.ToArray();
-		if (units.Any()) {
+		if (units.Length != 0) {
 			foreach (var unit in units) {
 				if (row.Target != null && unit == 1 && (row.Target < 0 || row.Target > 1)) {
 					result.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_TARGET_UNIT });

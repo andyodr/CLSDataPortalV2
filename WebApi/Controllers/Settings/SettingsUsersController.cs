@@ -38,7 +38,7 @@ public sealed class UsersController : ControllerBase
 		try {
 			var result = new SettingsGetReturnObject { Year = dto.Year, Users = new() { dto.User } };
 			var calendarRecords = _dbc.Calendar
-				.Where(c => c.Year == dto.Year && c.Interval.Id == (int)Intervals.Monthly)
+				.Where(c => c.Year == dto.Year && c.IntervalId == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);
 
 			var lastUpdatedOn = DateTime.Now;

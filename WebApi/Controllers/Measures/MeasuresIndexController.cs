@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -108,7 +109,7 @@ public sealed class IndexController : BaseController
 							EnumIsProcessed = IsProcessed.Complete;
 						}
 
-						UpdateMeasureDataIsProcessed(Dbc, measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
+						Dbc.UpdateMeasureDataIsProcessed(measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
 						AddAuditTrail(Dbc,
 							Resource.WEB_PAGES,

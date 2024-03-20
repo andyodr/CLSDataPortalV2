@@ -18,7 +18,7 @@ public sealed class IndexController : BaseController
 
 		try {
 			var result = new DataImportsMainObject {
-				Years = Dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Yearly)
+				Years = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",

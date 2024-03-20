@@ -12,7 +12,7 @@ public sealed class ConfigSettings
 
 	public string BypassUserPassword { get; init; } = null!;
 
-	public List<int> SpecialHierarchies { get; init; } = new();
+	public List<int> SpecialHierarchies { get; init; } = [];
 
 	public bool UsesSpecialHierarchies { get; set; }
 

@@ -19,8 +19,6 @@ public static class Helper
 
 	public enum IsProcessed { No, MeasureData, Complete }
 
-	public static int hierarchyGlobalId { get; set; } = 1;
-
 	internal static int FindPreviousCalendarId(DbSet<Calendar> calendarRepo, int intervalId) {
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
@@ -69,65 +67,6 @@ public static class Helper
 			Message = errorMessage,
 			AuthError = authError
 		};
-	}
-
-	internal static bool IsMeasureCalculated(ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
-		// Expression calculated overrides calculated from MeasureDefinition if true only
-		if (isCalculatedExpression) {
-			return true;
-		}
-
-		// If children are a rollup
-		if (dbc.Measure.Where(m => m.MeasureDefinitionId == measureDefId
-				&& m.Hierarchy!.HierarchyParentId == hId && m.Active == true && m.Rollup == true).Any()) {
-			return true;
-		}
-
-		if (measureCalculated is null) {
-			var measureDef = dbc.MeasureDefinition.Where(m => m.Id == measureDefId).FirstOrDefault();
-			measureCalculated = new() {
-				ReportIntervalId = measureDef?.ReportIntervalId ?? 0,
-				Calculated = measureDef?.Calculated ?? false,
-				AggDaily = measureDef?.AggDaily ?? false,
-				AggWeekly = measureDef?.AggWeekly ?? false,
-				AggMonthly = measureDef?.AggMonthly ?? false,
-				AggQuarterly = measureDef?.AggQuarterly ?? false,
-				AggYearly = measureDef?.AggYearly ?? false
-			};
-		}
-
-		// If Measure.Expression = 0, then check MeasureDefinition
-		if (measureCalculated.Calculated) {
-			return isCalculatedExpression; // This is false
-		}
-		else {
-			if (measureCalculated.ReportIntervalId == intervalId) {
-				return false;
-			}
-
-			bool bReturn = false;
-			// Checks aggregations from MeasureDefinition
-			switch (intervalId) {
-				case (int)Intervals.Daily:
-					bReturn = measureCalculated.AggDaily;
-					break;
-				case (int)Intervals.Weekly:
-					bReturn = measureCalculated.AggWeekly;
-					break;
-				case (int)Intervals.Monthly:
-					bReturn = measureCalculated.AggMonthly;
-					break;
-				case (int)Intervals.Quarterly:
-					bReturn = measureCalculated.AggQuarterly;
-					break;
-				case (int)Intervals.Yearly:
-					bReturn = measureCalculated.AggYearly;
-					break;
-				default:
-					break;
-			}
-			return bReturn;
-		}
 	}
 
 	internal static DataImportObject DataImportHeading(DataImports dataImport) {
@@ -181,39 +120,17 @@ public static class Helper
 		return result;
 	}
 
-	internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) {
-		//this is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-		bool result = true;
-		if (config.SpecialHierarchies is not null) {
-			if (config.SpecialHierarchies.Contains(hierarchyId)) {
-				result = false;
-			}
-		}
+	public readonly struct DateTimeSpan(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds)
+    {
+		private readonly int years = years;
+		private readonly int months = months;
+		private readonly int days = days;
+		private readonly int hours = hours;
+		private readonly int minutes = minutes;
+		private readonly int seconds = seconds;
+		private readonly int milliseconds = milliseconds;
 
-		return result;
-	}
-
-	public struct DateTimeSpan
-	{
-		private readonly int years;
-		private readonly int months;
-		private readonly int days;
-		private readonly int hours;
-		private readonly int minutes;
-		private readonly int seconds;
-		private readonly int milliseconds;
-
-		public DateTimeSpan(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds) {
-			this.years = years;
-			this.months = months;
-			this.days = days;
-			this.hours = hours;
-			this.minutes = minutes;
-			this.seconds = seconds;
-			this.milliseconds = milliseconds;
-		}
-
-		public int Years { get { return years; } }
+        public int Years { get { return years; } }
 		public int Months { get { return months; } }
 		public int Days { get { return days; } }
 		public int Hours { get { return hours; } }
@@ -338,80 +255,6 @@ public static class Helper
 		return user.Id > 0 ? user : null;
 	}
 
-	internal static bool IsDataLocked(int calendarId, int userId, Calendar calendar, ApplicationDbContext dbc) {
-		// --------------------------------- Lock Override ----------------------------
-		bool isLocked = false;
-		bool isLockedOverride = false;
-
-		if (calendar.Interval.Id == (int)Intervals.Monthly) {
-			if (calendar.Locked == true) {
-				isLocked = true;
-				var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == calendarId);
-				foreach (var itemUserCal in userCal) {
-					if (itemUserCal.LockOverride ?? false) {
-						isLockedOverride = true;
-						break;
-					}
-				}
-			}
-		}
-
-		// This is a fix because Settings page does not have calendarLock by other intervals yet. Only monthly.
-		if (calendar.Interval.Id == (int)Intervals.Weekly) {
-			var cal = dbc.Calendar.Where(
-			  c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
-					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
-					foreach (var itemUserCal in userCal) {
-						if (itemUserCal.LockOverride ?? false) {
-							isLockedOverride = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (calendar.Interval.Id == (int)Intervals.Quarterly) {
-			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
-					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
-					foreach (var itemUserCal in userCal) {
-						if (itemUserCal.LockOverride ?? false) {
-							isLockedOverride = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (calendar.Interval.Id == (int)Intervals.Yearly) {
-			var cal = dbc.Calendar.Where(c => c.Interval.Id == (int)Intervals.Monthly && c.Year == calendar.Year);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
-					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
-					foreach (var itemUserCal in userCal) {
-						if (itemUserCal.LockOverride ?? false) {
-							isLockedOverride = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		if (isLocked && !isLockedOverride)
-			isLocked = true;
-		else
-			isLocked = false;
-
-		return isLocked;
-	}
-
 	internal static int? CalculateScheduleInt(string? value, string pattern1, string pattern2) {
 		if (value is null) { return null; }
 		int? iReturn = 0;
@@ -452,35 +295,6 @@ public static class Helper
 		}
 		catch (Exception) {
 			return sReturn;
-		}
-	}
-
-	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureDefId, int userId) {
-		var lastUpdatedOn = DateTime.Now;
-		try {
-			_ = dbc.MeasureData
-				.Where(md => md.Measure!.MeasureDefinition!.Id == measureDefId)
-				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.MeasureData)
-					.SetProperty(md => md.UserId, userId)
-					.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
-			return true;
-		}
-		catch {
-			return false;
-		}
-	}
-
-	internal static bool UpdateMeasureDataIsProcessed(ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, IsProcessed isProcessed) {
-		try {
-			_ = dbc.MeasureData
-					.Where(md => md.Measure!.Id == measureId)
-					.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)isProcessed)
-						.SetProperty(md => md.UserId, userId)
-						.SetProperty(md => md.LastUpdatedOn, lastUpdatedOn));
-			return true;
-		}
-		catch {
-			return false;
 		}
 	}
 

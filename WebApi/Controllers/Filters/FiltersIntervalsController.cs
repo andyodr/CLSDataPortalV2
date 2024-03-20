@@ -22,7 +22,7 @@ public sealed class IntervalsController : BaseController
 		}
 
 		try {
-			var cal = Dbc.Calendar.Where(c => c.Interval.Id == values.IntervalId && c.Year == values.Year);
+			var cal = Dbc.Calendar.Where(c => c.IntervalId == values.IntervalId && c.Year == values.Year);
 			switch (values.IntervalId) {
 				case (int)Intervals.Weekly:
 					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
@@ -60,7 +60,7 @@ public sealed class IntervalsController : BaseController
 
 			int intervalId = values.IntervalId ?? Config.DefaultInterval;
 			returnObject.CalendarId = Dbc.Calendar
-				.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today)
+				.Where(c => c.IntervalId == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefault()?.Id ?? -1;
 			return returnObject;

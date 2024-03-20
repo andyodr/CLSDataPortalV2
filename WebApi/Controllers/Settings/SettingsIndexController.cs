@@ -33,14 +33,14 @@ public sealed class IndexController : ControllerBase
 			}
 
 			var result = new SettingsGetReturnObject { Locked = new(), Years = new() };
-			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.Interval.Id == (int)Intervals.Monthly);
+			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.IntervalId == (int)Intervals.Monthly);
 			var settings = _dbc.Setting;
 			if (!settings.Any()) {
 				return BadRequest(Resource.SETTINGS_NO_RECORDS);
 			}
 
 			var years = _dbc.Calendar
-						.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.Year >= DateTime.Today.Year - 3)
+						.Where(c => c.IntervalId == (int)Intervals.Yearly && c.Year >= DateTime.Today.Year - 3)
 						.OrderByDescending(y => y.Year);
 
 			foreach (var yyear in years) {
@@ -99,10 +99,10 @@ public sealed class IndexController : ControllerBase
 			var lastUpdatedOn = DateTime.Now;
 			var returnObject = new SettingsGetReturnObject { Locked = new(), Years = new() };
 			var calendarRecords = _dbc.Calendar
-				.Where(c => c.Year == value.Year && c.Interval.Id == (int)Intervals.Monthly)
+				.Where(c => c.Year == value.Year && c.IntervalId == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);
 			var years = _dbc.Calendar
-				.Where(c => c.Interval.Id == (int)Intervals.Yearly && c.Year >= DateTime.Now.Year - 3)
+				.Where(c => c.IntervalId == (int)Intervals.Yearly && c.Year >= DateTime.Now.Year - 3)
 				.OrderBy(c => c.Month);
 			foreach (var record in calendarRecords.Where(c => c.Month != null)) {
 				record.Locked = value.Locked?.ElementAt((int)record.Month! - 1)?.Locked ?? false;

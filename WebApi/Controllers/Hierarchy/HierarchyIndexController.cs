@@ -124,7 +124,7 @@ public sealed class IndexController : BaseController
 			updateHierarchy.HierarchyParentId = dto.ParentId;
 			updateHierarchy.LastUpdatedOn = updatedOn;
 			updateHierarchy.HierarchyLevelId = dto.LevelId;
-			if (updateHierarchy.HierarchyLevelId == hierarchyGlobalId) {
+			if (updateHierarchy.HierarchyLevelId == 1) {
 				updateHierarchy.HierarchyParentId = null;
 			}
 

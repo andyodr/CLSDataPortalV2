@@ -38,7 +38,7 @@ public sealed class FilterController : BaseController
 					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
 				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)],
 				Years = await Dbc.Calendar
-					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.Interval.Id == (int)Intervals.Yearly)
+					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.IntervalId == (int)Intervals.Yearly)
 					.OrderByDescending(c => c.Year)
 					.Select(c => new YearsObject { Id = c.Id, Year = c.Year }).ToArrayAsync(token),
 				CurrentCalendarIds = new(),
@@ -106,7 +106,7 @@ public sealed class FilterController : BaseController
 
 			return body.IntervalId switch {
 				(int)Intervals.Weekly => Ok(await Dbc.Calendar.OrderBy(c => c.WeekNumber)
-						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
+						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
 							Number = c.WeekNumber,
@@ -116,7 +116,7 @@ public sealed class FilterController : BaseController
 						})
 						.ToArrayAsync(token)),
 				(int)Intervals.Monthly => Ok(await Dbc.Calendar.OrderBy(c => c.Month)
-						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
+						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
 						.Select(c => new GetIntervalsObject {
 							Id = c.Id,
 							Number = c.WeekNumber,
@@ -126,7 +126,7 @@ public sealed class FilterController : BaseController
 						})
 						.ToArrayAsync(token)),
 				(int)Intervals.Quarterly => Ok(await Dbc.Calendar.OrderBy(c => c.Quarter)
-						.Where(c => c.Interval.Id == body.IntervalId && c.Year == body.Year)
+						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
 						.Select(d => new GetIntervalsObject {
 							Id = d.Id,
 							Number = d.WeekNumber,

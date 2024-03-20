@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Deliver.WebApi.Helper;
@@ -75,7 +76,7 @@ public sealed class EditController : BaseController
 	public ActionResult<MeasureDefinitionIndexReturnObject> Put(int id, MeasureDefinitionEdit body) {
 		var result = new MeasureDefinitionIndexReturnObject {
 			AggFunctions = AggregationFunctions.List,
-			Data = new List<MeasureDefinitionEdit>()
+			Data = []
 		};
 
 		if (CreateUserObject(User) is not UserObject _user) {
@@ -175,7 +176,7 @@ public sealed class EditController : BaseController
 
 			// Update IsProcessed to 1 for Measure Data records
 			if (updateMeasureData) {
-				UpdateMeasureDataIsProcessed(Dbc, mDef.Id, _user.Id);
+				Dbc.UpdateMeasureDataIsProcessed(mDef.Id, _user.Id);
 			}
 
 			AddAuditTrail(Dbc,
