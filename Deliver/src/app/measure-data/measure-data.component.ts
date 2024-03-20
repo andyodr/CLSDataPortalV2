@@ -242,7 +242,7 @@ export class MeasureDataComponent implements OnInit {
     // -----------------------------------------------------------------------------
     // Load Table Data
     // -----------------------------------------------------------------------------
-    loadTable(saveSettings = true): void {
+    loadTable(saveFilters = true): void {
         const { fMeasureTypeSelected, fIntervalSelected, fWeekSelected, fMonthSelected, fQuarterSelected, fYearSelected } = this.model
         this.filterSelected[0] = fIntervalSelected?.name ?? "?"
         this.filterSelected[1] = fMeasureTypeSelected?.name ?? "?"
@@ -273,7 +273,7 @@ export class MeasureDataComponent implements OnInit {
         if (!fMeasureTypeSelected) return
         params.measureTypeId = fMeasureTypeSelected.id
         if (!this.model.selectedRegion || Array.isArray(this.model.selectedRegion)) return
-        if (saveSettings) {
+        if (saveFilters) {
             this.acctSvc.saveSettings({
                 intervalId: fIntervalSelected.id,
                 measureTypeId: fMeasureTypeSelected.id,
@@ -369,7 +369,7 @@ export class MeasureDataComponent implements OnInit {
     // Buttons
     // -----------------------------------------------------------------------------
     refresh() {
-        if (this.filterSelected) this.loadTable();
+        if (this.filterSelected) this.loadTable(false)
     }
 
     onEdit(measureDataRow: MeasureDataDto) {
@@ -392,8 +392,6 @@ export class MeasureDataComponent implements OnInit {
     }
 
     onSave(measureDataRow: MeasureDataDto) {
-
-        //if (!this.allow || this.locked) return;
 
         this.isEditMode = false
         this.selectedRow = { ...measureDataRow };
@@ -443,7 +441,7 @@ export class MeasureDataComponent implements OnInit {
                     this.logger.logInfo("Measure Data Updated")
                     console.log("measureData on updateMeasureData", measureDataResponse);
                     this.disabledAll = false;
-                    this.loadTable();
+                    this.loadTable(false)
                 },
                 error: err => {
                     this.logger.logError(err.message)
@@ -464,7 +462,7 @@ export class MeasureDataComponent implements OnInit {
         this.model.explanation = "";
         this.model.action = "";
         this.model.value = undefined;
-        this.loadTable();
+        this.loadTable(false)
     }
 
     // -----------------------------------------------------------------------------

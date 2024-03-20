@@ -27,6 +27,8 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
+import { finalize } from "rxjs"
+import { AccountService } from "../_services/account.service"
 
 type DataOut = {
     dataImport: number
@@ -65,7 +67,9 @@ type UploadsBody = {
     templateUrl: "./dataimports.component.html",
     styleUrls: ["./dataimports.component.scss"],
     standalone: true,
-    imports: [SidebarComponent, MatProgressBarModule, MatFormFieldModule, MatSelectModule, FormsModule, MatOptionModule, MatButtonModule, MatIconModule, MatInputModule, UploadDirective, ErrorsComponent, NgbAlert, TableComponent, DatePipe]
+    imports: [SidebarComponent, MatProgressBarModule, MatFormFieldModule, MatSelectModule, FormsModule,
+        MatOptionModule, MatButtonModule, MatIconModule, MatInputModule, UploadDirective, ErrorsComponent,
+        NgbAlert, TableComponent, DatePipe]
 })
 export class DataImportsComponent implements OnInit {
     title = "Data Imports"
@@ -121,6 +125,7 @@ export class DataImportsComponent implements OnInit {
     constructor(public dialog: MatDialog,
         public filterPipe: FilterPipe,
         private http: HttpClient,
+        private acctSvc: AccountService,
         private api: MeasureDataService,
         private logger: LoggerService,
         @Inject(LOCALE_ID) private locale: string) { }
@@ -133,7 +138,7 @@ export class DataImportsComponent implements OnInit {
         // Call Server
         this.setProgress(true)
         this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .pipe(finalize(() => this.setProgress(false)), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: dto => {
                     if (dto.error == null) {
@@ -152,7 +157,6 @@ export class DataImportsComponent implements OnInit {
 
                         this.onSelImportChange()
                         this.disImportSel = this.selImport.length == 1
-                        this.setProgress(false)
                     }
                     else {
                         this.processLocalError(this.title, dto.error.message, dto.error.id, null, dto.error.authError)
@@ -170,7 +174,7 @@ export class DataImportsComponent implements OnInit {
         this.progress = enable
     }
 
-    closeError() {  // called by uib-alert
+    closeError() {
         this.errorMsg = ""
         this.showError = false
     }
@@ -283,86 +287,88 @@ export class DataImportsComponent implements OnInit {
 
     // Intervals Filter
     filtersInit() {
-        // Intervals
-        this.fIntervalSelected = this.fIntervals.filter(it => it.id == this.intervalId)[0]
-
-        // Years
-        //vm.fYearSelected = vm.fYears[0];
-        if (this.currentYear == null) {
-            this.fYearSelected = this.fYears[0]
-        }
-        else {
-            this.fYearSelected = this.fYears.filter(it => it.year == this.currentYear)[0]
-        }
-
-        this.intervalChange()
+        const saved = this.acctSvc.getCurrentUser()?.filter
+        this.fIntervalSelected = this.fIntervals.find(n => n.id === saved?.intervalId ?? this.intervalId)
+        this.fYearSelected = this.fYears.find(n => n.year == (saved?.year ?? this.currentYear ?? new Date().getFullYear()))
+        this.intervalChange(false)
     }
 
-    intervalChange() {
-        if (this.fIntervalSelected?.id != Intervals.Yearly) {
+    intervalChange(saveSettings = true) {
+        if (this.fIntervalSelected?.id == Intervals.Yearly) {
+            if (saveSettings) {
+                this.saveFilters()
+            }
+        }
+        else {
             this.getFilter()
         }
     }
 
-    loadInterval(data: FiltersIntervalsData[]) {
+    loadInterval(fIntervals: FiltersIntervalsData[]) {
+        const saved = this.acctSvc.getCurrentUser()?.filter
         switch (Number(this.fIntervalSelected?.id)) {
             case Intervals.Weekly:
-                this.fWeeks = data
-                this.fWeekSelected = data.filter(it => it.id == this.calendarId)[0]
-                if (this.fWeekSelected == null) {
-                    this.fWeekSelected = data[0]
-                }
+                this.fWeeks = fIntervals
+                this.fWeekSelected = fIntervals.find(w => w.number === saved?.week) ??
+                    fIntervals.find(w => w.id == this.calendarId) ?? fIntervals[0]
 
                 this.weekChange()
                 break
             case Intervals.Monthly:
-                this.fMonths = data
-                this.fMonthSelected = data.filter(it => it.id == this.calendarId)[0]
-                if (this.fMonthSelected == null) {
-                    this.fMonthSelected = data[0]
-                }
+                this.fMonths = fIntervals
+                this.fMonthSelected = fIntervals.find(m => m.month === saved?.month) ??
+                    fIntervals.find(it => it.id == this.calendarId) ?? fIntervals[0]
 
                 this.monthChange()
                 break
             case Intervals.Quarterly:
-                this.fQuarters = data
-                this.fQuarterSelected = data.filter(it => it.id == this.calendarId)[0]
-                if (this.fQuarterSelected == null) {
-                    this.fQuarterSelected = data[0]
-                }
+                this.fQuarters = fIntervals
+                this.fQuarterSelected = fIntervals.find(q => q.number === saved?.quarter) ??
+                    fIntervals.find(it => it.id == this.calendarId) ?? fIntervals[0]
 
                 this.quarterChange()
                 break
             case Intervals.Yearly:
+                this.saveFilters()
                 break
         }
     }
 
     weekChange() {
-        if (this.fWeekSelected.locked) {
-            var msg = "Week " + this.fWeekSelected.number
-            this.disLocked(msg)
+        if (this.fWeekSelected?.locked) {
+            this.disLocked("Week " + this.fWeekSelected.number)
         } else {
             this.clearLocked()
+            this.saveFilters()
         }
     }
 
     monthChange() {
         if (this.fMonthSelected.locked) {
-            var msg = this.fMonthSelected.month ?? "Unknown"
-            this.disLocked(msg)
+            this.disLocked(this.fMonthSelected.month ?? "Unknown")
         } else {
             this.clearLocked()
+            this.saveFilters()
         }
     }
 
     quarterChange() {
         if (this.fQuarterSelected.locked) {
-            var msg = "Quarter " + this.fQuarterSelected.number
-            this.disLocked(msg)
+            this.disLocked("Quarter " + this.fQuarterSelected.number)
         } else {
             this.clearLocked()
+            this.saveFilters()
         }
+    }
+
+    saveFilters() {
+        this.acctSvc.saveSettings({
+            ...(this.fIntervalSelected && { intervalId: this.fIntervalSelected.id }),
+            ...(this.fYearSelected && { year: this.fYearSelected.year }),
+            ...(this.fWeekSelected && { week: this.fWeekSelected.number }),
+            ...(this.fMonthSelected && { month: this.fMonthSelected.month }),
+            ...(this.fQuarterSelected && { quarter: this.fQuarterSelected.number })
+        })
     }
 
     getFilter() {
@@ -401,6 +407,7 @@ export class DataImportsComponent implements OnInit {
             message: MESSAGES.fileSize + size,
             alert: true
         }
+
         this.dialog.open(AppDialog, { data: dialogOptions })
             .afterClosed().subscribe(_ => this.clear())
         return false
@@ -467,7 +474,7 @@ export class DataImportsComponent implements OnInit {
         let ws = wb.Sheets[sheetName]
         this.colNames = utils.sheet_to_json(ws, { header: 1 })[0] as string[]  // ['Region ID', 'MetricID', 'value']
         this.jsonObj = utils.sheet_to_json(ws) as { [hdr: string]: JsonValue }[]
-        var colNamesTrim = []
+        let colNamesTrim = []
 
         // Validates for empty or undefined column names
         for (let name of this.colNames) {
@@ -479,7 +486,7 @@ export class DataImportsComponent implements OnInit {
         }
 
         // Validates non matching and required column names
-        var dataImport = this.selImport.filter(it => it.id == this.selImportSelected?.id)
+        let dataImport = this.selImport.filter(it => it.id == this.selImportSelected?.id)
         if (dataImport.length > 0) {
             // Validates non matching column names
             for (let name of this.colNames) {
