@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Data.Models;
 using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +20,21 @@ public sealed class IndexController : BaseController
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
-		MeasureDataIndexListObject result = new() { Data = [] };
-		DateTime? date = new();
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			result.Allow = Dbc.UserHierarchy
-				.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any();
-
-			result.EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId);
-			result.CalendarId = dto.CalendarId;
+			MeasureDataIndexListObject result = new() {
+				Data = [],
+				CalendarId = dto.CalendarId,
+				Range = BuildRangeString(dto.CalendarId),
+				Locked = false,
+				Allow = Dbc.UserHierarchy
+					.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any(),
+				EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId)
+			};
+			DateTime? date = new();
 			if (string.IsNullOrEmpty(dto.Day)) {
 				date = null;
 			}
@@ -48,7 +52,6 @@ public sealed class IndexController : BaseController
 				.Where(c => c.Id == result.CalendarId)
 				.AsNoTrackingWithIdentityResolution().First();
 
-			result.Locked = false;
 			// From settings page, DO NOT USE = !Active
 			if (Dbc.Setting.AsNoTracking().First().Active == true) {
 				result.Locked = Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar);
@@ -81,74 +84,47 @@ public sealed class IndexController : BaseController
 					calculated = Dbc.IsMeasureCalculated(md.Measure.Expression ?? false, dto.HierarchyId, calendar.IntervalId, md.Measure.MeasureDefinition.Id, null)
 				});
 
-			// Find all measure definition variables.
-			var allVarNames = from m in Dbc.MeasureDefinition.Where(m => m.MeasureType.Id == dto.MeasureTypeId)
-							  select new { m.Id, m.VariableName };
-
-			foreach (var record in measures.AsNoTrackingWithIdentityResolution()) {
+			foreach (var m in measures.AsNoTrackingWithIdentityResolution()) {
 				var measureDataDto = new MeasureDataReturnObject {
-					Id = record.Id,
-					Name = record.Name,
-					Explanation = record.Explanation,
-					Description = record.Description,
-					Action = record.Action,
-					UnitId = record.Unit.Id,
-					Units = record.Unit.Short,
-					Target = record.target,
-					Yellow = record.YellowValue,
-					Value = record.Value,
-					Calculated = record.calculated,
-					Expression = record.Expression,
+					Id = m.Id,
+					Name = m.Name,
+					Description = m.Description,
+					Explanation = m.Explanation,
+					Action = m.Action,
+					UnitId = m.Unit.Id,
+					Units = m.Unit.Short,
+					Target = m.target is double target ? Math.Round(target, m.Precision, MidpointRounding.AwayFromZero) : null,
+					Yellow = m.YellowValue is double yellow ? Math.Round(yellow, m.Precision, MidpointRounding.AwayFromZero) : null,
+					Value = m.Value is double value ? Math.Round(value, m.Precision, MidpointRounding.AwayFromZero) : null,
+					Calculated = m.calculated,
+					Expression = m.Expression,
 					Evaluated = String.Empty,
-					Updated = LastUpdatedOnObj(record.lastUpdatedOn, record.User?.UserName ?? Resource.SYSTEM)
+					Updated = LastUpdatedOnObj(m.lastUpdatedOn, m.User?.UserName ?? Resource.SYSTEM)
 				};
 
-				if (record.target is not null) {
-					measureDataDto.Target = Math.Round((double)record.target, record.Precision, MidpointRounding.AwayFromZero);
-				}
-
-				if (record.YellowValue is not null) {
-					measureDataDto.Yellow = Math.Round((double)record.YellowValue, record.Precision, MidpointRounding.AwayFromZero);
-				}
-
-				if (record.Value is not null) {
-					measureDataDto.Value = Math.Round((double)record.Value, record.Precision, MidpointRounding.AwayFromZero);
-				}
-
 				if (measureDataDto.Calculated && !string.IsNullOrEmpty(measureDataDto.Expression)) {
-					var varNames = new List<VariableName>();
-					foreach (var item in allVarNames) {
-						if (measureDataDto.Expression.Contains(item.VariableName)) {
-							varNames.Add(new VariableName(item.Id, item.VariableName));
-						}
-					}
+					// Find expression variables/values
+					var vNames = Dbc.MeasureData
+						.Where(d => d.CalendarId == result.CalendarId
+							&& d.Measure!.HierarchyId == dto.HierarchyId
+							&& d.Measure!.Active == true
+							&& d.Measure!.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
+							&& measureDataDto.Expression.Contains(d.Measure!.MeasureDefinition!.VariableName))
+						.Select(d => new { d.Measure!.MeasureDefinitionId, d.Measure.MeasureDefinition!.VariableName, d.Value });
 					// Search measure data values from variables
-					if (varNames.Count > 0) {
-						string sExpression = measureDataDto.Expression;
-						foreach (var item in varNames) {
-							var measure = Dbc.Measure
-								.Where(m => m.MeasureDefinitionId == item.Id && m.HierarchyId == dto.HierarchyId)
-								.AsNoTracking().ToArray();
-							if (measure.Length > 0) {
-								var measureData = Dbc.MeasureData
-									.Where(md => md.Measure!.Id == measure.First().Id && md.CalendarId == result.CalendarId)
-									.AsNoTracking().ToArray();
-								if (measureData.Length > 0) {
-									if (measureData.First().Value is not null) {
-										sExpression = sExpression.Replace($@"Data[""{item.VarName}""]", measureData.First().Value.ToString());
-									}
-								}
-							}
+					string sExpression = measureDataDto.Expression;
+					foreach (var name in vNames) {
+						if (name.Value is double v) {
+							sExpression = sExpression.Replace($@"Data[""{name.VariableName}""]", v.ToString());
 						}
-
-						measureDataDto.Evaluated = sExpression;
 					}
+
+					measureDataDto.Evaluated = sExpression;
 				}
 
 				result.Data.Add(measureDataDto);
 			}
 
-			result.Range = BuildRangeString(dto.CalendarId);
 			if (dto.CalendarId != _user.savedFilters[Pages.MeasureData].calendarId) {
 				_user.savedFilters[Pages.MeasureData].calendarId = dto.CalendarId;
 				_user.savedFilters[Pages.MeasureData].intervalId = calendar.IntervalId;
@@ -223,64 +199,30 @@ public sealed class IndexController : BaseController
 			);
 			result.Data = measureDataList;
 			return result;
-
-			//var measureData = _measureDataRepository.All().Where(m => m.Id == value.measureDataId);
-			//foreach (var metricData in measureData)
-			//{
-			//  metricData.Value = value.measureValue;
-			//  metricData.Explanation = value.explanation;
-			//  metricData.Action = value.action;
-			//  metricData.UserId = _user.userId;
-			//  metricData.LastUpdatedOn = DateTime.Now;
-			//}
-			//_measureDataRepository.SaveChanges();
-			//return Get(value);
-
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
 		}
 	}
 
-	private string BuildRangeString(int? calendarID) {
-		int interval = -1;
-		var c = Dbc.Calendar.AsNoTracking().Where(c => c.Id == calendarID);
-		Data.Models.Calendar? calendar = null;
-		if (calendarID is null) {
-			interval = (int)Intervals.Daily;
-		}
-		else {
-			calendar = c.First();
-			interval = calendar.IntervalId;
-		}
+	/// <returns>Interval range string for display above the table</returns>
+	private string BuildRangeString(int? calendarId) {
+		Calendar calendar = Dbc.Calendar.Where(c => c.Id == calendarId).AsNoTracking()
+			.FirstOrDefault() ?? new() { IntervalId = (int)Intervals.Daily };
 
-		if (interval == (int)Intervals.Daily) {
-			var date = calendar?.StartDate ?? new DateTime(0);
-			return date.ToString("MMM-dd-yyyy");
-		}
-		else if (interval == (int)Intervals.Weekly) {
-			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			return $"[{calendar.WeekNumber}: {date1}, {date2} ]";
-		}
-		else if (interval == (int)Intervals.Quarterly) {
-			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			return $"[{calendar.Quarter}: {date1}, {date2} ]";
-		}
-		else if (interval == (int)Intervals.Monthly || interval == (int)Intervals.Yearly) {
-			var date1 = (calendar!.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
-			return $"[ {date1}, {date2} ]";
-		}
-		else {
-			throw new Exception(Resource.VAL_INVALID_INTERVAL_ID);
-		}
-	}
+		var date1 = (calendar.StartDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+		var date2 = (calendar.EndDate ?? new DateTime(0)).ToString("MMM-dd-yyyy");
+		return (Intervals)calendar.IntervalId switch {
+			Intervals.Weekly => $"[{calendar.WeekNumber}: {date1}, {date2} ]",
+			Intervals.Quarterly => $"[Q{calendar.Quarter}: {date1}, {date2} ]",
+			Intervals.Monthly or Intervals.Yearly => $"[ {date1}, {date2} ]",
+			_ => date1
+		};
+    }
 
-/// <summary>
-/// This is for a special case where some level 2 hierarchies can not be edited since they are a sum value
-/// </summary>
+	/// <summary>
+	/// This is for a special case where some level 2 hierarchies can not be edited since they are a sum value
+	/// </summary>
     internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) =>
         !(config.SpecialHierarchies is List<int> hierarchies && hierarchies.Contains(hierarchyId));
 }

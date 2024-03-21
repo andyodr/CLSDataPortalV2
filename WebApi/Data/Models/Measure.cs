@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Deliver.WebApi.Data.Models;
 
 public sealed class Measure
@@ -14,7 +12,7 @@ public sealed class Measure
 
 	public MeasureDefinition? MeasureDefinition { get; set; }
 
-	public List<Target>? Targets { get; } = new();
+	public List<Target>? Targets { get; } = [];
 
 	public ICollection<MeasureData> MeasureData { get; } = new HashSet<MeasureData>();
 
