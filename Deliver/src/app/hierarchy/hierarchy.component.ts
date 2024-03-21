@@ -91,15 +91,20 @@ export class RegionHierarchyComponent implements OnInit {
 
     save() {
         const { id, name, active, level: levelId, selectedParent: parentId } = this.model
-        if (typeof parentId !== "number" || id === parentId) {
-            this.logger.logWarning(`The parentId: ${ parentId } is not valid here`)
-            return
-        }
-
         if (this.drawerTitle === "Add") {
+            if (typeof parentId !== "number" || id === parentId) {
+                this.logger.logWarning(`The parentId: ${ parentId } is not valid here`)
+                return
+            }
+
             var op = this.api.addHierarchy({ levelId, name, parentId, active })
         }
         else {
+            if (typeof parentId !== "number" && parentId !== null || id === parentId) {
+                this.logger.logWarning(`The parentId: ${ parentId } is not valid here`)
+                return
+            }
+
             var op = this.api.updateHierarchy({ id, levelId, name, parentId, active })
         }
 

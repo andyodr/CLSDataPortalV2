@@ -16,7 +16,7 @@ export type RegionFilter = {
 export interface HierarchyAdd {
     levelId: number
     name: string
-    parentId: number
+    parentId: number | null
     active?: boolean
     remove?: boolean
 }

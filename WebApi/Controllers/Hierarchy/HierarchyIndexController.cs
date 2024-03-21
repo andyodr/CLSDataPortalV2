@@ -173,7 +173,7 @@ public sealed class IndexController : BaseController
 		try {
 			var result = new RegionMetricsFilterObject {
 				Data = [],
-				Hierarchy = new RegionFilterObject[] { CreateHierarchy(Dbc) }
+				Hierarchy = [CreateHierarchy(Dbc)]
 			};
 			string hierarchyName = string.Empty;
 			var exists = (from measure in Dbc.Measure

@@ -7,21 +7,26 @@ namespace Deliver.WebApi.Extensions;
 
 public static class Extensions
 {
-	public static IList<RegionsDataViewModel> OrderByHierarchy(this IList<RegionsDataViewModel> v, RegionsDataViewModel root = null!)
+	public static IList<RegionsDataViewModel> OrderByHierarchy(this IEnumerable<RegionsDataViewModel> regions, RegionsDataViewModel parent = null!)
 	{
-		List<RegionsDataViewModel> dest = [];
-		if (root is null) {
-			root = v.First(h => h.ParentId is null);
-			dest = [root];
+		List<RegionsDataViewModel> result = [];
+		if (parent is null) {
+			parent = regions.First(h => h.ParentId is null);
+			result = [parent];
 		}
 
-		var children = v.Where(h => h.ParentId == root?.Id).OrderByDescending(h => h.Active).ThenBy(h => h.Id);
+		var children = regions.Where(h => h.ParentId == parent?.Id).OrderByDescending(h => h.Active).ThenBy(h => h.Id);
 		foreach (var node in children) {
-			dest.Add(node);
-			dest.AddRange(v.OrderByHierarchy(node));
+			result.Add(node);
+			result.AddRange(regions.OrderByHierarchy(node));
 		}
 
-		return dest;
+		// Add anything left in regions that is not in result
+		if (result.Count > 0 && ReferenceEquals(parent, result[0])) {
+			result.AddRange(regions.ExceptBy(result.Select(region => region.Id), region => region.Id));
+		}
+
+		return result;
 	}
 
 	public static double? RoundNullable(this double? value, int digits) {
