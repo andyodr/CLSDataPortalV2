@@ -78,6 +78,7 @@ public sealed class IndexController : BaseController
 					md.Measure.MeasureDefinition.Description,
 					md.Measure.MeasureDefinition.Expression,
 					md.Measure.MeasureDefinition.Unit,
+					md.Measure.MeasureDefinition.VariableName,
 					md.Explanation,
 					md.Action,
 					md.Measure.HierarchyId,
@@ -85,7 +86,7 @@ public sealed class IndexController : BaseController
 				});
 
 			foreach (var m in measures.AsNoTrackingWithIdentityResolution()) {
-				var measureDataDto = new MeasureDataReturnObject {
+				MeasureDataReturnObject measureDataDto = new() {
 					Id = m.Id,
 					Name = m.Name,
 					Description = m.Description,
@@ -97,6 +98,7 @@ public sealed class IndexController : BaseController
 					Yellow = m.YellowValue is double yellow ? Math.Round(yellow, m.Precision, MidpointRounding.AwayFromZero) : null,
 					Value = m.Value is double value ? Math.Round(value, m.Precision, MidpointRounding.AwayFromZero) : null,
 					Calculated = m.calculated,
+					VariableName = m.VariableName,
 					Expression = m.Expression,
 					Evaluated = String.Empty,
 					Updated = LastUpdatedOnObj(m.lastUpdatedOn, m.User?.UserName ?? Resource.SYSTEM)

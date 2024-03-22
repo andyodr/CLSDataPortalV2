@@ -15,7 +15,6 @@ export interface MeasureDataApiResponse {
 
 export interface MeasureDataDto {
     id: number;
-    //id: string;
     name: string;
     value: number;
     explanation?: any;
@@ -96,7 +95,7 @@ export type FiltersIntervalsData = {
     month?: string
     locked?: boolean
   }
-  
+
   export type FiltersIntervalsDto = {
     calendarId: number
     data: FiltersIntervalsData[]
