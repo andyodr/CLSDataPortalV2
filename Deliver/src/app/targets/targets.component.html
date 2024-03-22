@@ -186,7 +186,7 @@
         </ng-container>
         <ng-container matColumnDef="expandedDetail">
           <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
-            <div class="expandable-detail" [@detailExpand]="expandDetail.query(element).toString()">
+            <div class="expand-detail" [@detailExpand]="expandDetail.query(element).toString()">
               <div class="detail-items-1">
                 <b>ID</b><span>{{element.id}}</span>
                 <b>Units</b><span>{{element.units}}</span>

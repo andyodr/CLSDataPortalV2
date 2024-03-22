@@ -178,7 +178,7 @@
               </ng-container>
               <ng-container matColumnDef="expandedDetail">
                 <td mat-cell *matCellDef="let mdef" [attr.colspan]="displayedColumns.length">
-                  <div class="expandable-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
+                  <div class="expand-detail" [@detailExpand]="expandDetail.query(mdef).toString()">
                     <!--<p>{{mdef.description}}</p>-->
                     <div class="detail-items-1">
                       <b>ID</b><span>{{mdef.id}}</span>

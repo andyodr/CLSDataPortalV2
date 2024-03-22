@@ -135,7 +135,7 @@
           }
           <ng-container matColumnDef="expandedDetail">
             <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
-              <div class="expandable-detail" [@detailExpand]="expand.query(row).toString()">
+              <div class="expand-detail" [@detailExpand]="expand.query(row).toString()">
                 <button mat-raised-button (click)="save(row)" color="accent" aria-label="Save">
                   <mat-icon>save_alt</mat-icon> Save
                 </button>

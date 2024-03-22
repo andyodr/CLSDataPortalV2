@@ -88,7 +88,7 @@ export class MeasureDataComponent implements OnInit {
     //measureDataRow: MeasureDataDto | undefined
     selectedRow: MeasureDataDto | undefined
     dataSource = new MatTableDataSource<MeasureDataDto>()
-    displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated", "rowactions"]
+    displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated"]
     @ViewChild(MatSort) sort!: MatSort
     selectedMeasureType: MeasureType = { id: 0, name: "" }
     isEditMode = false
@@ -373,26 +373,22 @@ export class MeasureDataComponent implements OnInit {
     }
 
     onEdit(measureDataRow: MeasureDataDto) {
-
-        //if (!this.allow || this.locked) return;
-        this.isEditMode = true;
-        this.selectedRow = measureDataRow;
-        // this.selectedRow = { ...measureDataRow };
-        // this.model.explanation = measureDataRow.explanation;
-        // this.model.action = measureDataRow.action;
+        this.isEditMode = true
+        this.selectedRow = measureDataRow
         if (!measureDataRow.calculated) {
-            this.model.value = measureDataRow.value;
+            this.model.value = measureDataRow.value
         }
+
         if (measureDataRow.explanation) {
-            this.model.explanation = measureDataRow.explanation;
+            this.model.explanation = measureDataRow.explanation
         }
+
         if (measureDataRow.action) {
-            this.model.action = measureDataRow.action;
+            this.model.action = measureDataRow.action
         }
     }
 
     onSave(measureDataRow: MeasureDataDto) {
-
         this.isEditMode = false
         this.selectedRow = { ...measureDataRow };
 
@@ -453,16 +449,14 @@ export class MeasureDataComponent implements OnInit {
         this.model.explanation = "";
         this.model.action = "";
         this.model.value = undefined;
-        //this.loadTable();
     }
 
     onCancel() {
-        this.isEditMode = false;
-        this.disabledAll = false;
-        this.model.explanation = "";
-        this.model.action = "";
-        this.model.value = undefined;
-        this.loadTable(false)
+        this.isEditMode = false
+        this.disabledAll = false
+        this.model.explanation = ""
+        this.model.action = ""
+        this.model.value = undefined
     }
 
     // -----------------------------------------------------------------------------
@@ -484,79 +478,13 @@ export class MeasureDataComponent implements OnInit {
         return title + message  // TODO: finish
     }
 
-    // -----------------------------------------------------------------------------
-    // Styles - Not in Use - Handled on Template
-    // -----------------------------------------------------------------------------
-    getBgColor2(element: MeasureDataDto): string {
-        if (!element.value || (!element.target && !element.yellow)) {
-            return "";
-        }
-
-        if (!element.target) {
-            return element.value >= element.yellow ? "bggreen" : "bgred";
-        }
-
-        if (!element.yellow) {
-            return element.value >= element.target ? "bggreen" : "bgred";
-        }
-
-        if (element.target >= element.yellow) {
-            if (element.value >= element.yellow) {
-                return "bgorange";
-            }
-            if (element.value >= element.target) {
-                return "bggreen";
-            }
-        }
-
-        if (element.target < element.yellow) {
-            if (element.value <= element.yellow) {
-                return "bgorange";
-            }
-            if (element.value <= element.target) {
-                return "bggreen";
-            }
-        }
-
-        return "bgred";
-    }
-
-    // -----------------------------------------------------------------------------
-    // Utils
-    // -----------------------------------------------------------------------------
-
     identity(index: number, item: any) {
         return item.id
-    }
-
-    isBoolShow(str: string | boolean): boolean {
-        return ((str === "true") || (str === true));
-    }
-
-    itgIsEmpty(value: any): boolean {
-        if (!this.itgIsNull(value)) {
-            const str = value.toString().trim();
-            return str.length === 0;
-        }
-        return true;
     }
 
     itgIsNull(value: any): boolean {
         return value === undefined || value === null || value !== value;
     }
-
-    itgStrNullToEmpty(str: string): string {
-        let ret = str;
-        if (str === null || str === "null") {
-            ret = "";
-        }
-        return ret;
-    }
-
-    itgIsNumeric(data: any): boolean {
-        return !isNaN(parseFloat(data)) && isFinite(data);
-    }
-
 }
 
 
