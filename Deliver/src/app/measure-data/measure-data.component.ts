@@ -162,9 +162,9 @@ export class MeasureDataComponent implements OnInit {
                     const saved = this.acctSvc.getCurrentUser()?.filter
                     measureTypeId = saved?.measureTypeId || measureTypeId
                     hierarchyId = saved?.hierarchyId || hierarchyId
-                    this.model.fMeasureTypeSelected = filter.measureTypes.find(m => m.id === saved?.measureTypeId ?? measureTypeId)
+                    this.model.fMeasureTypeSelected = filter.measureTypes.find(m => m.id === (saved?.measureTypeId ?? measureTypeId))
                     this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
-                    this.model.fIntervalSelected = filter.intervals?.find(n => n.id === saved?.intervalId ?? intervalId)
+                    this.model.fIntervalSelected = filter.intervals?.find(n => n.id === (saved?.intervalId ?? intervalId))
                     this.model.fYearSelected = filter.years?.find(n => n.year == (saved?.year ?? new Date().getFullYear()))
                     this.intervalChange(true)
                 }

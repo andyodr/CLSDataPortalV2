@@ -288,7 +288,7 @@ export class DataImportsComponent implements OnInit {
     // Intervals Filter
     filtersInit() {
         const saved = this.acctSvc.getCurrentUser()?.filter
-        this.fIntervalSelected = this.fIntervals.find(n => n.id === saved?.intervalId ?? this.intervalId)
+        this.fIntervalSelected = this.fIntervals.find(n => n.id === (saved?.intervalId ?? this.intervalId))
         this.fYearSelected = this.fYears.find(n => n.year == (saved?.year ?? this.currentYear ?? new Date().getFullYear()))
         this.intervalChange(false)
     }
