@@ -28,7 +28,6 @@ public sealed class UsersController : ControllerBase
 	/// Update UserCalendarLock table
 	/// </summary>
 	/// <param name="dto"></param>
-	/// <returns></returns>
 	[HttpPut]
 	public ActionResult<SettingsGetReturnObject> Put(Model dto) {
 		if (CreateUserObject(User) is not UserObject _user) {

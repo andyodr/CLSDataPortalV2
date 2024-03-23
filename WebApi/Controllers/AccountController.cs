@@ -112,7 +112,6 @@ public sealed class AccountController : BaseController
 	/// <summary>
 	/// Sign out of the application, removing the authentication cookie.
 	/// </summary>
-	/// <returns></returns>
 	[HttpGet("SignOut")]
 	public async Task<IActionResult> GetSignOut() {
 		if (User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string userId) {
