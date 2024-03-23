@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "CLSDataPortal2": {
+    "Deliver": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/Deliver",
+            "outputPath": "dist/Deliver/browser",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -75,10 +75,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "CLSDataPortal2:build:production"
+              "buildTarget": "Deliver:build:production"
             },
             "development": {
-              "buildTarget": "CLSDataPortal2:build:development"
+              "buildTarget": "Deliver:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "CLSDataPortal2:build"
+            "buildTarget": "Deliver:build"
           }
         },
         "test": {
@@ -110,6 +110,67 @@
             ],
             "scripts": []
           }
+        },
+        "server": {
+          "builder": "@angular-devkit/build-angular:server",
+          "options": {
+            "outputPath": "dist/Deliver/server",
+            "main": "server.ts",
+            "tsConfig": "tsconfig.server.json",
+            "inlineStyleLanguage": "scss"
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "media",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false,
+              "vendorChunk": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-ssr": {
+          "builder": "@angular-devkit/build-angular:ssr-dev-server",
+          "configurations": {
+            "development": {
+              "browserTarget": "Deliver:build:development",
+              "serverTarget": "Deliver:server:development"
+            },
+            "production": {
+              "browserTarget": "Deliver:build:production",
+              "serverTarget": "Deliver:server:production"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "prerender": {
+          "builder": "@angular-devkit/build-angular:prerender",
+          "options": {
+            "routes": [
+              "/"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "Deliver:build:production",
+              "serverTarget": "Deliver:server:production"
+            },
+            "development": {
+              "browserTarget": "Deliver:build:development",
+              "serverTarget": "Deliver:server:development"
+            }
+          },
+          "defaultConfiguration": "production"
         }
       }
     }
