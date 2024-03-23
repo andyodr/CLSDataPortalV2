@@ -1,6 +1,6 @@
 import { formatDate, DatePipe } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
-import { Component, DestroyRef, Inject, LOCALE_ID, OnInit, ViewChild, inject } from "@angular/core"
+import { Component, DestroyRef, Inject, LOCALE_ID, ViewChild, inject } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../lib/app-constants"
 import { environment } from "../../environments/environment"
@@ -71,7 +71,7 @@ type UploadsBody = {
         MatOptionModule, MatButtonModule, MatIconModule, MatInputModule, UploadDirective, ErrorsComponent,
         NgbAlert, TableComponent, DatePipe]
 })
-export class DataImportsComponent implements OnInit {
+export class DataImportsComponent {
     title = "Data Imports"
     @ViewChild(TableComponent)
     private table!: TableComponent
@@ -118,19 +118,16 @@ export class DataImportsComponent implements OnInit {
     showError = false
     hideTable = true
 
-    //toggle
     toggle: any = true
     destroyRef = inject(DestroyRef)
 
     constructor(public dialog: MatDialog,
-        public filterPipe: FilterPipe,
-        private http: HttpClient,
-        private acctSvc: AccountService,
-        private api: MeasureDataService,
-        private logger: LoggerService,
-        @Inject(LOCALE_ID) private locale: string) { }
-
-    ngOnInit(): void {
+            public filterPipe: FilterPipe,
+            private http: HttpClient,
+            private acctSvc: AccountService,
+            private api: MeasureDataService,
+            private logger: LoggerService,
+            @Inject(LOCALE_ID) private locale: string) {
         this.disAll(false)
         this.showError = false
         this.disAll()
@@ -138,12 +135,11 @@ export class DataImportsComponent implements OnInit {
         // Call Server
         this.setProgress(true)
         this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
-            .pipe(finalize(() => this.setProgress(false)), takeUntilDestroyed(this.destroyRef))
+            .pipe(finalize(() => this.setProgress(false)), takeUntilDestroyed())
             .subscribe({
                 next: dto => {
                     if (dto.error == null) {
                         this.calculationTime = dto.calculationTime
-
                         this.fIntervals = dto.intervals  // 2: "Weekly", 3: "Monthly", 4: "Quarterly", 5: "Yearly"
                         this.fYears = dto.years
 
@@ -151,10 +147,8 @@ export class DataImportsComponent implements OnInit {
                         this.intervalId = dto.intervalId ?? 0
                         this.calendarId = dto.calendarId ?? 0
                         this.currentYear = dto.currentYear ?? 2000
-
                         this.selImport = dto.dataImport
                         this.selImportSelected = this.selImport[0]
-
                         this.onSelImportChange()
                         this.disImportSel = this.selImport.length == 1
                     }

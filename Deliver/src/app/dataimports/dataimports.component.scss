@@ -52,7 +52,7 @@ button {
   gap: 18px;
 
   > :first-child {
-    width: 17rem;
+    width: 20rem;
   }
 
   > :last-child {
@@ -65,6 +65,10 @@ button {
       flex-direction: column;
     }
   }
+}
+
+.section-1 .mat-mdc-form-field {
+  width: 90%;
 }
 
 .button-row {

@@ -14,8 +14,7 @@ export class UserService {
 
     // Get Users from API
     getUsers() {
-        //return this.http.get<User[]>(environment.baseUrl + 'api/users/index');
-        return this.http.get<User[]>(this.baseUrl + '/index')
+        return this.http.get<UserData>(this.baseUrl + '/index')
     }
 
     getUserData(id: number) {

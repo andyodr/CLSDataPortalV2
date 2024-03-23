@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core"
+import { Component, ViewChild, AfterViewInit } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { Router, RouterLink } from "@angular/router"
-import { Subscription } from "rxjs"
 import { User, UserData } from "../_models/user"
 import { UserService } from "../_services/user.service"
 import { processError } from "../lib/app-constants"
@@ -14,6 +13,7 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 
 @Component({
     selector: "app-user-list",
@@ -22,35 +22,32 @@ import { SidebarComponent } from "../nav/sidebar.component"
     standalone: true,
     imports: [SidebarComponent, ErrorsComponent, NgbAlert, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, RouterLink, MatTableModule, MatSortModule]
 })
-export class UserListComponent implements OnInit, OnDestroy {
+export class UserListComponent implements AfterViewInit {
     title = "Users"
-    dataSource = new MatTableDataSource<User>()
+    dataSource = new MatTableDataSource<User>([])
     displayedColumns = ["userName", "lastName", "firstName", "department", "roleName"]
     @ViewChild(MatSort) sort!: MatSort
-    private userSubscription = new Subscription()
     toggle: any = true
     disabledAll = false
     errorMsg: any = ""
     showError = false
     showContentPage = true
 
-    constructor(private api: UserService, public router: Router, private _: NavigationService) { }
-
-    ngOnDestroy(): void {
-        this.userSubscription.unsubscribe()
-    }
-
-    ngOnInit(): void {
-        this.userSubscription = this.api.getUsers().subscribe({
-            next: (response: any) => {
-                this.dataSource = new MatTableDataSource((response as UserData).data)
-                this.dataSource.sort = this.sort
-                // processLocalError here
+    constructor(private api: UserService, public router: Router, private _: NavigationService) {
+        this.api.getUsers()
+            .pipe(takeUntilDestroyed())
+            .subscribe({
+            next: (response: UserData) => {
+                this.dataSource.data = response.data
             },
             error: (err: any) => {
                 this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
             }
         })
+    }
+
+    ngAfterViewInit(): void {
+        this.dataSource.sort = this.sort
     }
 
     applyFilter(event: Event) {

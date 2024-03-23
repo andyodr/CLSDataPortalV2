@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core"
+import { Component } from "@angular/core"
 import { ToggleService } from "../_services/toggle.service"
 import { AccountService } from "../_services/account.service"
 import { RouterLink } from "@angular/router"
@@ -12,13 +12,11 @@ import { NgClass } from "@angular/common"
     standalone: true,
     imports: [NgClass, MatRippleModule, RouterLink]
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
     opened = true
     roleId = 0
 
-    constructor(public api: AccountService, private toggleService: ToggleService) { }
-
-    ngOnInit(): void {
+    constructor(public api: AccountService, private toggleService: ToggleService) {
         this.api.currentUser$.subscribe(u => this.roleId = u?.roleId ?? 0)
         this.toggleService.toggle$.subscribe(toggle => this.opened = toggle)
     }

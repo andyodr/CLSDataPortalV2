@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject } from "@angular/core"
+import { AfterViewInit, Component, DestroyRef, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -29,7 +29,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
     standalone: true,
     imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatTableModule, MatSortModule]
 })
-export class RegionHierarchyComponent implements OnInit {
+export class RegionHierarchyComponent implements AfterViewInit {
     title = "Region Hierarchy"
     dataSource = new MatTableDataSource<Hierarchy>()
     displayedColumns = ["id", "name", "parentName", "level"]
@@ -51,18 +51,23 @@ export class RegionHierarchyComponent implements OnInit {
         selectedParent: null as number | number[] | null
     }
 
-    constructor(private api: HierarchyService, public logger: LoggerService) { }
+    constructor(private api: HierarchyService, public logger: LoggerService) {
+        this.getHierarchy()
+    }
 
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
+        this.dataSource.sort = this.sort
+    }
+
+    getHierarchy(): void {
         this.progress = true
         this.api.getHierarchy()
             .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: response => {
-                    this.dataSource = new MatTableDataSource(response.data)
+                    this.dataSource.data = response.data
                     this.hierarchyLevels = response.levels
                     this.hierarchy = response.hierarchy
-                    this.dataSource.sort = this.sort
                 },
                 error: (err: any) => {
                     this.processLocalError(this.title, err.error.message, err.error.id, null, err.error.authError)
@@ -113,7 +118,7 @@ export class RegionHierarchyComponent implements OnInit {
             .subscribe({
                 next: _ => {
                     this.logger.logSuccess("Save completed")
-                    this.ngOnInit()
+                    this.getHierarchy()
                 }
             })
     }

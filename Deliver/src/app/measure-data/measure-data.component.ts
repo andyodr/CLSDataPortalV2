@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, ViewChild, inject } from '@angular/core';
 import { Intervals } from "../lib/app-constants"
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
@@ -46,7 +46,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
         MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
         ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
 })
-export class MeasureDataComponent implements OnInit {
+export class MeasureDataComponent {
 
     title = 'Measure Data';
     measureDataResponse: MeasureDataApiResponse | undefined;
@@ -139,12 +139,10 @@ export class MeasureDataComponent implements OnInit {
     showError: boolean = false;
     destroyRef = inject(DestroyRef)
 
-    constructor(private measureDataSvc: MeasureDataService, private acctSvc: AccountService, private logger: LoggerService, private dialog: MatDialog) { }
-
-    ngOnInit(): void {
+    constructor(private measureDataSvc: MeasureDataService, private acctSvc: AccountService, private logger: LoggerService, private dialog: MatDialog) {
         this.progress = true
         this.measureDataSvc.getFilters()
-            .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.progress = false))
+            .pipe(takeUntilDestroyed(), finalize(() => this.progress = false))
             .subscribe({
                 next: filter => {
                     this.filters = filter
@@ -163,7 +161,7 @@ export class MeasureDataComponent implements OnInit {
                     measureTypeId = saved?.measureTypeId || measureTypeId
                     hierarchyId = saved?.hierarchyId || hierarchyId
                     this.model.fMeasureTypeSelected = filter.measureTypes.find(m => m.id === (saved?.measureTypeId ?? measureTypeId))
-                    this.model.selectedRegion = hierarchyId ?? this.select.hierarchy[0].id
+                    this.model.selectedRegion = hierarchyId ?? this.select.hierarchy.at(0)?.id
                     this.model.fIntervalSelected = filter.intervals?.find(n => n.id === (saved?.intervalId ?? intervalId))
                     this.model.fYearSelected = filter.years?.find(n => n.year == (saved?.year ?? new Date().getFullYear()))
                     this.intervalChange(true)
@@ -313,13 +311,6 @@ export class MeasureDataComponent implements OnInit {
                     this.measureDataResponse = measureDataResponse
                     this.measureDataList = measureDataResponse.data
                     this.dataSource.data = measureDataResponse.data
-                    // if (this.dataSource) {
-                    //     this.dataSource.sort = this.sort;
-                    //   }
-                    //this.dataSource.sort = this.sort
-                    console.log("MeasureDataResponse on getMeasureDataList: ", this.measureDataResponse)
-                    console.log("Datasource on getMeasureDataList: ", this.dataSource)
-
                     this.calendarId = measureDataResponse.calendarId;
                     this.hierarchyId = parameters?.hierarchyId;
                     this.measureTypeId = parameters?.measureTypeId;
