@@ -38,10 +38,11 @@
   </div>
   }
   <div class="nav-toggle">
-    <i class="fa fa-bars fa-2x" (click)="toggle()"></i>
+    <i (click)="toggle()"><mat-icon class="align-bottom" fontIcon="menu_open" /></i>
   </div>
-  <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf"><mat-icon aria-hidden="true"
-      aria-label="Example home icon" fontIcon="home">help</mat-icon></a>
+  <a class="help-button" href="../assets/docs/CLS_Data_Portal_User_Guide.pdf">
+    <mat-icon class="material-icons-outlined" aria-hidden="true" aria-label="help icon" fontIcon="info"/>
+  </a>
   @if ((api.currentUser$ | async); as user) {
   <div class="dropdown">
     <button mat-flat-button color="primary" [matMenuTriggerFor]="menu">

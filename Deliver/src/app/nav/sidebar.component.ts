@@ -4,13 +4,14 @@ import { AccountService } from "../_services/account.service"
 import { RouterLink } from "@angular/router"
 import { MatRippleModule } from "@angular/material/core"
 import { NgClass } from "@angular/common"
+import { MatIconModule } from "@angular/material/icon"
 
 @Component({
     selector: "app-sidebar",
     templateUrl: "./sidebar.component.html",
     styleUrls: ["./sidebar.component.scss"],
     standalone: true,
-    imports: [NgClass, MatRippleModule, RouterLink]
+    imports: [NgClass, MatRippleModule, MatIconModule, RouterLink]
 })
 export class SidebarComponent {
     opened = true
