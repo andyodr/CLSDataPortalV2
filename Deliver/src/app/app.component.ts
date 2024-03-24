@@ -16,8 +16,7 @@ import { TopbarComponent } from "./nav/topbar.component"
 export class AppComponent implements OnInit {
 	toggle: any = true;
 
-	constructor(private api: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) {
-	 }
+	constructor(private api: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) { }
 
 	ngOnInit(): void {
 		this.setCurrentUser();

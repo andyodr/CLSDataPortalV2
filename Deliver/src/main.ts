@@ -20,12 +20,13 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatDialogModule } from "@angular/material/dialog"
 import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatButtonModule } from "@angular/material/button"
-import { AppRoutingModule } from "./app/app-routing.module"
+import { AppRoutingModule, routes } from "./app/app-routing.module"
 import { FormsModule, ReactiveFormsModule } from "@angular/forms"
-import { BrowserModule, bootstrapApplication, provideClientHydration } from "@angular/platform-browser"
+import { BrowserModule, bootstrapApplication } from "@angular/platform-browser"
 import { provideAnimations } from "@angular/platform-browser/animations"
 import { ErrorInterceptor } from "./app/_interceptors/error.interceptor"
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from "@angular/common/http"
+import { provideRouter } from "@angular/router"
 
 if (environment.production) {
   enableProdMode()
@@ -33,12 +34,13 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, FormsModule, AppRoutingModule, MatButtonModule, MatCheckboxModule,
+        importProvidersFrom(BrowserModule, FormsModule, MatButtonModule, MatCheckboxModule,
             MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatProgressBarModule,
             MatRadioModule, MatRippleModule, MatSelectModule, MatSidenavModule, MatSnackBarModule, MatSortModule,
             MatTableModule, MatTooltipModule, MatTreeModule, NgbModule, ReactiveFormsModule, BsDropdownModule.forRoot()),
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
         provideAnimations(),
-        provideHttpClient(withInterceptorsFromDi()), provideClientHydration()
+        provideHttpClient(withInterceptorsFromDi()),
+        provideRouter(routes)
     ]
 }).catch(err => console.error(err))

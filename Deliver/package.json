@@ -7,11 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "prestart": "node aspnetcore-https",
-    "dev:ssr": "ng run Deliver:serve-ssr",
-    "serve:ssr": "node dist/Deliver/server/main.js",
-    "build:ssr": "ng build && ng run Deliver:server",
-    "prerender": "ng run Deliver:prerender"
+    "prestart": "node aspnetcore-https"
   },
   "private": true,
   "dependencies": {

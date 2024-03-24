@@ -12,7 +12,7 @@ import { TargetsComponent } from './targets/targets.component';
 
 const title = "DELIVER - "
 
-const routes: Routes = [
+export const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
     { path: 'measuredata', title: `${ title }Measure Data`, component: MeasureDataComponent },
     {
