@@ -8,7 +8,7 @@
         <dt>Last Calculated:</dt>
         <dd>{{lastCalculatedOn | date:'yyyy-MMM-dd h:mm:ss a'}}</dd>
       </dl>
-      <button mat-raised-button color="accent" aria-label="Add" (click)="transfer()">
+      <button mat-raised-button color="accent" aria-label="Add" (click)="transfer()" class="min-w-24">
         <mat-icon>swap_horiz</mat-icon> Transfer <!--other possible icons: sync_alt, swap_horiz, multiple_stop-->
       </button>
     </header>
@@ -23,7 +23,7 @@
           }
         </mat-select>
       </mat-form-field>
-      <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
+      <button mat-raised-button color="primary" aria-label="Save" (click)="save()" class="min-w-24">
         <mat-icon>save_alt</mat-icon> Save
       </button>
     </div>

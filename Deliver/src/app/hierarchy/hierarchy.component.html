@@ -3,10 +3,10 @@
   <mat-drawer #drawer position="end">
     <header>
       <h2>{{drawerTitle}} Hierarchy</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drawer.close()">
+      <button mat-raised-button aria-label="Cancel" (click)="drawer.close()" class="min-w-24">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Save" (click)="save(); drawer.close()">
+      <button mat-raised-button aria-label="Save" (click)="save(); drawer.close()" class="min-w-24">
         <mat-icon>save_alt</mat-icon> Save
       </button>
     </header>
@@ -112,7 +112,7 @@
                 </button>
               }
             </mat-form-field>
-            <button mat-raised-button color="accent" aria-label="Add" (click)="add(); drawer.open()">
+            <button mat-raised-button color="accent" aria-label="Add" (click)="add(); drawer.open()" class="min-w-24">
               <mat-icon>add_location</mat-icon> Add
             </button>
           </div>

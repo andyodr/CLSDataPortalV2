@@ -13,10 +13,6 @@ app-sidebar ~ * {
   grid-column: 2;
 }
 
-button {
-  font-size: larger
-}
-
 .form-inline .form-group {
   margin-bottom: 0;
   vertical-align: middle;
@@ -84,13 +80,4 @@ button {
   line-height: 1;
   color: #bbb;
   text-align: center;
-}
-
-.interval-icon {
-  position: relative;
-  top: 6px;
-}
-
-.icon-prefix {
-  margin-right: 6px;
 }

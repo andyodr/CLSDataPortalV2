@@ -3,10 +3,10 @@
   <mat-drawer #drwr>
     <header>
       <h2>Filter</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()" class="min-w-24">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()" class="min-w-24">
         <mat-icon>save_alt</mat-icon> Apply
       </button>
     </header>
@@ -94,7 +94,7 @@
             </ngb-alert>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="drwr.open()">
+        <button mat-raised-button color="primary" (click)="drwr.open()" class="min-w-24">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
         @for (filter of filtersDisplay; track filter) {
@@ -111,19 +111,6 @@
               </button>
             }
           </mat-form-field>
-          <!-- <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
-          <mat-icon>edit</mat-icon> Edit Type
-        </button>
-        <mat-menu #eMenu="matMenu">
-          <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
-        </mat-menu>
-        <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
-          <mat-icon>add</mat-icon> Add
-        </button>
-        <mat-menu #aMenu="matMenu">
-          <button mat-menu-item (click)="doAddType(); drwr.open()">Measure Type</button>
-          <a mat-menu-item [routerLink]="['add']">Measure Definition</a>
-        </mat-menu> -->
         <button mat-raised-button color="primary" aria-label="Apply Children" (click)="applyToChildrenAction()" [disabled]="true">
           <mat-icon>check_circle</mat-icon> Apply to Children
         </button>

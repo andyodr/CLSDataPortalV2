@@ -71,10 +71,6 @@ mat-drawer form h5 {
   padding: 15px;
 }
 
-.mat-raised-button {
-  min-width: 8em;
-}
-
 .panel>button {
   margin: 6px 11px 10px 0px;
 }
@@ -202,14 +198,6 @@ tr.table-row:not(.expanded-row):active {
   grid-template: auto auto / auto auto;
 }
 
-.w-28 {
-  width: 7rem;
-}
-
-.m-2 {
-  margin: .5rem;
-}
-
 .self-center {
   align-self: center;
   justify-self: center;
@@ -219,10 +207,6 @@ tr.table-row:not(.expanded-row):active {
   height: 3rem;
   width: 3rem;
   font-size: 3rem;
-}
-
-.pb-6 {
-  padding-bottom: 1.5rem;
 }
 
 .detail-item {

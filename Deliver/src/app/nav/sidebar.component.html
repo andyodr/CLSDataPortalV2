@@ -5,7 +5,7 @@
   <ul>
     <li matRipple>
       <a routerLink="/measuredata">
-        <mat-icon class="align-bottom" fontIcon="event_note" />
+        <mat-icon fontIcon="event_note" />
         @if (opened) {
         <span>Measure Data</span>
         }
@@ -14,7 +14,7 @@
     @if (roleId > 1) {
     <li matRipple>
       <a routerLink="/targets">
-        <mat-icon class="align-bottom" fontIcon="track_changes" />
+        <mat-icon fontIcon="track_changes" />
         @if (opened) {
         <span>Targets</span>
         }
@@ -24,7 +24,7 @@
     @if (roleId > 2) {
     <li matRipple>
       <a routerLink="/measures">
-        <mat-icon class="align-bottom" fontIcon="checklist" />
+        <mat-icon fontIcon="checklist" />
         @if (opened) {
         <span>Measures</span>
         }
@@ -34,7 +34,7 @@
     @if (roleId > 1) {
     <li matRipple>
       <a routerLink="/measuredefinition">
-        <mat-icon class="align-bottom" fontIcon="description" />
+        <mat-icon fontIcon="description" />
         @if (opened) {
         <span>Measure Definition</span>
         }
@@ -44,7 +44,7 @@
     @if (roleId > 2) {
     <li matRipple>
       <a routerLink="/hierarchy">
-        <mat-icon class="align-bottom" fontIcon="map" />
+        <mat-icon fontIcon="map" />
         @if (opened) {
         <span>Hierarchy</span>
         }
@@ -53,7 +53,7 @@
     }
     <li matRipple>
       <a routerLink="/dataimports">
-        <mat-icon class="align-bottom" fontIcon="publish" />
+        <mat-icon fontIcon="publish" />
         @if (opened) {
         <span>Data Imports</span>
         }
@@ -61,7 +61,7 @@
     </li>
     <li>
       <a (click)="tableau()">
-        <mat-icon class="align-bottom" fontIcon="link" />
+        <mat-icon fontIcon="link" />
         @if (opened) {
         <span matRipple>Tableau</span>
         }

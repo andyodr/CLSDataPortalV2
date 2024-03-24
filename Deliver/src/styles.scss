@@ -246,3 +246,35 @@ th .mat-sort-header-content {
 .align-bottom {
   vertical-align: bottom;
 }
+
+mat-icon {
+  vertical-align: bottom;
+}
+
+.min-w-24,
+a.min-w-24,
+button.min-w-24 {
+  min-width: 6rem; /* 96 px */
+}
+
+.min-w-32,
+a.min-w-32,
+button.min-w-32 {
+  min-width: 8rem; /* 128 px */
+}
+
+.p-2 {
+  padding: 0.5rem; /* 8px */
+}
+
+.pb-6 {
+  padding-bottom: 1.5rem;
+}
+
+.w-28 {
+  width: 7rem;
+}
+
+.m-2 {
+  margin: .5rem;
+}

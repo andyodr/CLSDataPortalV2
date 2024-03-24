@@ -5,10 +5,10 @@
     <a mat-fab color="primary" navigateBack="measuredefinition"><mat-icon>arrow_back</mat-icon></a>
     <div class="panel-header">
       <div class="mr-auto"> ID: {{md.id}}</div>
-      <button mat-raised-button color="primary" aria-label="Save" (click)="save()">
+      <button mat-raised-button color="primary" aria-label="Save" (click)="save()" class="min-w-32">
         <mat-icon>save_alt</mat-icon> Save
       </button>
-      <button mat-raised-button color="primary" aria-label="Refresh" (click)="refresh() || mdForm.reset()">
+      <button mat-raised-button color="primary" aria-label="Refresh" (click)="refresh() || mdForm.reset()" class="min-w-32">
         <mat-icon>refresh</mat-icon> Refresh
       </button>
     </div>

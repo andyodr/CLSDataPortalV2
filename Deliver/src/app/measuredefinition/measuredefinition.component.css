@@ -48,10 +48,6 @@ mat-drawer header h2 {
   padding: 15px;
 }
 
-.mat-raised-button {
-  min-width: 8em;
-}
-
 div.panel>button {
   margin: 6px 11px 10px 0px;
 }

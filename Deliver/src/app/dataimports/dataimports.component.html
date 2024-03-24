@@ -35,9 +35,9 @@
         <div class="section-1">
           <!-- Intervals Selection -->
           <div [hidden]="!showIntervals">
-            <div class="panel panel-default">
-              <mat-icon class="interval-icon">apps</mat-icon> Select Interval
-              <div class="panel-body">
+            <div class="panel panel-default p-2">
+              <mat-icon fontIcon="apps"/> Select Interval
+              <div class="p-2">
                 <!-- Intervals -->
                 <div layout layout-sm="column">
                   <mat-form-field appearance="fill">
@@ -123,11 +123,11 @@
               <form class="pad0 mar0">
                 <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
                 <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">
-                  <mat-icon class="icon-prefix">file_open</mat-icon> Select File
+                  <mat-icon fontIcon="file_open"/> Select File
                 </button>
               </form>
               <button mat-raised-button color="warn" aria-label="Clear" [disabled]="disClear" (click)="clearClick()">
-                <mat-icon class="icon-prefix">refresh</mat-icon> Clear
+                <mat-icon fontIcon="refresh"/> Clear
               </button>
             </div>
             <form [hidden]="!fileName && !sheetName">

@@ -3,10 +3,10 @@
   <mat-drawer #drwr>
     <header>
       <h2>Filter</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()" class="min-w-24">
         <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()" class="min-w-24">
         <mat-icon>save_alt</mat-icon> Apply
       </button>
     </header>
@@ -94,7 +94,7 @@
             </ngb-alert>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="drwr.open()">
+        <button mat-raised-button color="primary" (click)="drwr.open()" class="min-w-24">
           <mat-icon>filter_list</mat-icon> Filter
         </button>
         @for (filter of filtersSelected; track filter) {
@@ -136,7 +136,7 @@
           <ng-container matColumnDef="expandedDetail">
             <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
               <div class="expand-detail" [@detailExpand]="expand.query(row).toString()">
-                <button mat-raised-button (click)="save(row)" color="accent" aria-label="Save">
+                <button mat-raised-button (click)="save(row)" color="accent" aria-label="Save" class="min-w-32">
                   <mat-icon>save_alt</mat-icon> Save
                 </button>
               </div>

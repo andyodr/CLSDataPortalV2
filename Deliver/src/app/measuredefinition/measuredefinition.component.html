@@ -3,16 +3,16 @@
   <mat-drawer [position]="drawer.position" #drwr>
     <header>
       <h2>{{drawer.title}}</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()" class="min-w-24">
         <mat-icon>close</mat-icon> Cancel
       </button>
       @if (drawer.filter) {
-        <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+        <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()" class="min-w-24">
           <mat-icon>save_alt</mat-icon> Apply
         </button>
       }
       @if (!drawer.filter) {
-        <button mat-raised-button aria-label="Save" (click)="save(); drwr.close()">
+        <button mat-raised-button aria-label="Save" (click)="save(); drwr.close()" class="min-w-24">
           <mat-icon>save_alt</mat-icon> Save
         </button>
       }
@@ -112,7 +112,7 @@
                 </ngb-alert>
               </div>
             </div>
-            <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
+            <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()" class="min-w-24">
               <mat-icon>filter_list</mat-icon> Filter
             </button>
             @for (filter of filtersSelected; track filter) {
@@ -129,13 +129,13 @@
                   </button>
                 }
               </mat-form-field>
-              <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu">
+              <button mat-raised-button color="primary" aria-label="Edit Type" [matMenuTriggerFor]="eMenu" class="min-w-32">
                 <mat-icon>edit</mat-icon> Edit Type
               </button>
               <mat-menu #eMenu="matMenu">
                 <button mat-menu-item (click)="doEditType(); drwr.open()">{{selectedMeasureType.name}}</button>
               </mat-menu>
-              <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu">
+              <button mat-raised-button color="accent" aria-label="Add" [matMenuTriggerFor]="aMenu" class="min-w-24">
                 <mat-icon>add</mat-icon> Add
               </button>
               <mat-menu #aMenu="matMenu">

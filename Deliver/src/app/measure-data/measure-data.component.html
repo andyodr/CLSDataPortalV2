@@ -4,10 +4,10 @@
   <mat-drawer #drwr>
     <header>
       <h2>Filter</h2>
-      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()">
+      <button mat-raised-button aria-label="Cancel" (click)="drwr.close()" class="min-w-24">
         <mat-icon fontIcon="close"/> Cancel
       </button>
-      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()">
+      <button mat-raised-button aria-label="Apply" (click)="loadTable(); drwr.close()" class="min-w-24">
         <mat-icon fontIcon="save_alt"/> Apply
       </button>
     </header>
@@ -157,7 +157,7 @@
           </div>
         </div>
         <!-- Filter -->
-        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()">
+        <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()" class="min-w-24">
           <mat-icon fontIcon="filter_list"/> Filter
         </button>
         <!-- Table Upper Section -->
@@ -192,7 +192,7 @@
             </mat-select>
           </mat-form-field>
           <button mat-raised-button color="primary" aria-label="Refresh" [disabled]="disabledAll" (click)="refresh()"
-            matTooltip="Refresh Table">
+            matTooltip="Refresh Table" class="min-w-24">
             <mat-icon fontIcon="refresh"/>
             Refresh
           </button>
