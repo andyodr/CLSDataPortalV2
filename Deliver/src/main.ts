@@ -1,7 +1,6 @@
 import { enableProdMode, importProvidersFrom } from "@angular/core"
 import { environment } from "./environments/environment"
 import { AppComponent } from "./app/app.component"
-import { BsDropdownModule } from "ngx-bootstrap/dropdown"
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap"
 import { MatTreeModule } from "@angular/material/tree"
 import { MatTooltipModule } from "@angular/material/tooltip"
@@ -37,7 +36,7 @@ bootstrapApplication(AppComponent, {
         importProvidersFrom(BrowserModule, FormsModule, MatButtonModule, MatCheckboxModule,
             MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatProgressBarModule,
             MatRadioModule, MatRippleModule, MatSelectModule, MatSidenavModule, MatSnackBarModule, MatSortModule,
-            MatTableModule, MatTooltipModule, MatTreeModule, NgbModule, ReactiveFormsModule, BsDropdownModule.forRoot()),
+            MatTableModule, MatTooltipModule, MatTreeModule, NgbModule, ReactiveFormsModule),
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
         provideAnimations(),
         provideHttpClient(withInterceptorsFromDi()),
