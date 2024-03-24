@@ -15,7 +15,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatDialog } from '@angular/material/dialog';
 import { AppDialog } from '../app-dialog.component';
 import { AccountService } from '../_services/account.service';
-import { NgClass, DatePipe } from "@angular/common"
+import { NgClass, DatePipe, DecimalPipe, PercentPipe } from "@angular/common"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatInputModule } from "@angular/material/input"
 import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
@@ -42,8 +42,8 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
         ])
     ],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule,
-        MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
+    imports: [DecimalPipe, PercentPipe, MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule,
+        FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
         ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
 })
 export class MeasureDataComponent {

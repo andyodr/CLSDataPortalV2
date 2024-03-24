@@ -218,10 +218,14 @@
                   bggreen: measure.value >= measure.target,
                   bgorange: measure.value < measure.target && measure.value >= measure.yellow,
                   bgred: measure.value < measure.yellow}">
-                {{measure.value}}
+                  @if (measure.units == "%") {
+                  {{ measure.value | percent: "1.0-4" }}
+                  } @else {
+                  {{ measure.value | number }}
+                  }
               </div>
               } @else {
-              <div>{{measure.value}}</div>
+              <div>{{ measure.value | number }}</div>
               }
             </td>
           </ng-container>
@@ -256,7 +260,7 @@
                     <b>/</b>
                     <span style="padding: 0 1ch;" class="bgorange">{{row.yellow}}</span>
                   </span>
-                  <b>Value: </b><span>{{row.value}}</span>
+                  <b>Value: </b><span>{{ row.value | number }}</span>
                   <b>ID: </b><span>{{row.id}}</span>
                   <b>Evaluated: </b><span>{{row.evaluated}}</span>
                 </div>
@@ -286,13 +290,13 @@
                 <mat-form-field>
                   <mat-label>Explanation</mat-label>
                   <textarea matInput type="string" [(ngModel)]="model.explanation" [disabled]="disabledAll"
-                    placeholder="Ex. Meteor destroyed city. Widespread civil unrest. Superman unavailable for comment."></textarea>
+                    placeholder="Ex. Flight delays due to June 26 blizzard weather event."></textarea>
                   <mat-hint>Conditions which led to this result</mat-hint>
                 </mat-form-field>
                 <mat-form-field>
                   <mat-label>Action</mat-label>
                   <textarea matInput type="string" [(ngModel)]="model.action" [disabled]="disabledAll"
-                    placeholder="Ex. Prioritize well-being, strive for quality, innovate, lead, embrace responsibility."></textarea>
+                    placeholder="Ex. Issue addressed with carrier. Improvements expected in July."></textarea>
                   <mat-hint>Current actions being taken</mat-hint>
                 </mat-form-field>
                 <div class="detail-item-buttons pb-6">

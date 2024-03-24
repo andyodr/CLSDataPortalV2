@@ -17,13 +17,15 @@ import { MatIconModule } from "@angular/material/icon"
 import { NavigateBackDirective } from "../_services/nav.service"
 import { MatButtonModule } from "@angular/material/button"
 import { SidebarComponent } from "../nav/sidebar.component"
+import { MatTooltipModule } from "@angular/material/tooltip"
 
 @Component({
     selector: "app-measuredefinition-edit",
     templateUrl: "./measuredefinition-edit.component.html",
     styleUrls: ["./measuredefinition-edit.component.scss"],
     standalone: true,
-    imports: [SidebarComponent, MatButtonModule, NavigateBackDirective, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule]
+    imports: [SidebarComponent, MatButtonModule, NavigateBackDirective, MatIconModule, FormsModule,
+        MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatTooltipModule]
 })
 export class MeasureDefinitionEditComponent implements OnInit {
     title = "Add Measure Definition"

@@ -14,17 +14,17 @@
     </div>
     <form #mdForm>
       <div class="form-grid">
-        <mat-form-field class="span-3" appearance="fill">
+        <mat-form-field appearance="fill" class="span-3">
           <mat-label>Measure Definition Name</mat-label>
           <input matInput name="mdName" [(ngModel)]="md.name" required="true" placeholder="Ex. Cycle Count Performance"
             [disabled]="disabledAll">
         </mat-form-field>
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field appearance="fill" class="span-2">
           <mat-label>Variable Name</mat-label>
           <input matInput name="varName" [(ngModel)]="md.varName" required="true" placeholder="Ex. EEMCS"
             [disabled]="disabledAll">
         </mat-form-field>
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field appearance="fill" class="span-2">
           <mat-label>Measure Type</mat-label>
           <mat-select name="measureType" [(ngModel)]="md.measureType" required="true" [disabled]="disabledAll">
             @for (mt of measureTypes; track mt) {
@@ -34,18 +34,18 @@
             }
           </mat-select>
         </mat-form-field>
-        <mat-form-field class="span-all" appearance="fill">
+        <mat-form-field appearance="fill" class="span-all">
           <mat-label>Description</mat-label>
           <textarea matInput name="description" [(ngModel)]="md.description"
             placeholder="Ex. Actioni contrariam semper et aequalem esse reactionem." [disabled]="disabledAll">
               </textarea>
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" matTooltip="Decimal places rounded to">
           <mat-label>Precision</mat-label>
-          <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true"
-            [disabled]="disabledAll">
+          <input matInput name="precision" type="number" [(ngModel)]="md.precision" required="true" [disabled]="disabledAll">
+          <mat-hint>Decimals</mat-hint>
         </mat-form-field>
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field appearance="fill" class="span-2">
           <mat-label>Units</mat-label>
           <mat-select name="unit" [(ngModel)]="md.unit" [disabled]="disabledAll">
             @for (unit of units; track unit) {
@@ -55,24 +55,22 @@
             }
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" class="span-2" matTooltip="Should be used for sorting but not currently doing anything">
           <mat-label>Field Number</mat-label>
-          <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true"
-            [disabled]="disabledAll">
+          <input matInput name="fieldNumber" type="number" [(ngModel)]="md.fieldNumber" required="true" [disabled]="disabledAll">
+          <mat-hint>Unused</mat-hint>
         </mat-form-field>
-        <aside class="accent-6">Specifies the sort order</aside>
-        <mat-form-field class="span-all" appearance="fill">
+        <mat-form-field appearance="fill" class="span-all">
           <mat-label>Expression</mat-label>
           <textarea matInput name="expression" [(ngModel)]="md.expression" placeholder="Ex. E=MC²"
             [disabled]="disabledAll"></textarea>
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" class="span-2" matTooltip="Measures are calculated in ascending order">
           <mat-label>Priority</mat-label>
-          <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true"
-            [disabled]="disabledAll">
+          <input matInput name="priority" type="number" [(ngModel)]="md.priority" required="true" [disabled]="disabledAll">
+          <mat-hint>Calculation order</mat-hint>
         </mat-form-field>
-        <aside class="accent-6">Unknown purpose</aside>
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field appearance="fill" class="span-2">
           <mat-label>Report Interval</mat-label>
           <mat-select name="intervals" [(ngModel)]="md.interval" (selectionChange)="intervalChanged($event)"
             [disabled]="disabledAll" #rint>
@@ -94,7 +92,7 @@
           <mat-checkbox name="yearly" [(ngModel)]="md.yearly" color="primary" (change)="cbChanged($event)"
             [disabled]="rint.value == null || rint.value.id >= Intervals.Yearly">Yearly</mat-checkbox>
         </div>
-        <mat-form-field class="span-2" appearance="fill">
+        <mat-form-field appearance="fill" class="span-2">
           <mat-label>Aggregation Function</mat-label>
           <mat-select name="units" [(ngModel)]="md.aggFunction" required="true" [disabled]="disabledAll">
             @for (fn of aggFunctions; track fn) {
