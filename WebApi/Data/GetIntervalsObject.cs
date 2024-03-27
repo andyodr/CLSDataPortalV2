@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace Deliver.WebApi.Data;
 
 public sealed class GetIntervalsObject
 {
-	public ErrorModel Error { get; set; } = new();
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+	public ErrorModel? Error { get; set; }
 
 	public int Id { get; set; }
 
@@ -12,5 +15,6 @@ public sealed class GetIntervalsObject
 
 	public string? EndDate { get; set; }
 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public string? Month { get; set; }
 }

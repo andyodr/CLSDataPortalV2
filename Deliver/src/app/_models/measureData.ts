@@ -99,4 +99,5 @@ export type FiltersIntervalsData = {
   export type FiltersIntervalsDto = {
     calendarId: number
     data: FiltersIntervalsData[]
+    measureTypes: MeasureType[]
   }

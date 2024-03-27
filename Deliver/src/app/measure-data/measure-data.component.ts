@@ -85,7 +85,6 @@ export class MeasureDataComponent {
 
     //Table Properties
     measureDataList: MeasureDataDto[] = [];
-    //measureDataRow: MeasureDataDto | undefined
     selectedRow: MeasureDataDto | undefined
     dataSource = new MatTableDataSource<MeasureDataDto>()
     displayedColumns = ["name", "calculated", "value", "units", "explanation", "action", "updated"]
@@ -104,8 +103,6 @@ export class MeasureDataComponent {
     allow = false;
     editValue = false;
     showActionButtons = true;
-    //editBgColor = true;
-    //filteredPage = null;
     locked: boolean | undefined
     calendarId!: number;
     day!: string;
@@ -230,7 +227,9 @@ export class MeasureDataComponent {
                         break
                 }
 
-                if (ngOnInit) {
+                this.select.measureTypes = dto.measureTypes
+                this.model.fMeasureTypeSelected = dto.measureTypes.find(m => m.id === (saved?.measureTypeId))
+            if (ngOnInit) {
                     this.loadTable(false)
                 }
             }

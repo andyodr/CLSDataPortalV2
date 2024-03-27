@@ -1,3 +1,4 @@
+using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ public sealed class IntervalsController : BaseController
 	/// </summary>
 	[HttpGet]
 	public ActionResult<IntervalListObject> Get([FromQuery] MeasureDataFilterReceiveObject values) {
-		var returnObject = new IntervalListObject();
+		IntervalListObject result = new () { Data = [], MeasureTypes = [] };
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
@@ -25,7 +26,7 @@ public sealed class IntervalsController : BaseController
 			var cal = Dbc.Calendar.Where(c => c.IntervalId == values.IntervalId && c.Year == values.Year);
 			switch (values.IntervalId) {
 				case (int)Intervals.Weekly:
-					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
+					result.Data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
 						Id = d.Id,
 						Number = d.WeekNumber,
 						StartDate = d.StartDate.ToString(),
@@ -34,16 +35,16 @@ public sealed class IntervalsController : BaseController
 					}));
 					break;
 				case (int)Intervals.Monthly:
-					returnObject.data.AddRange(cal.OrderBy(c => c.Month).Select(d => new GetIntervalsObject {
+					result.Data.AddRange(cal.OrderBy(c => c.Month).Select(d => new GetIntervalsObject {
 						Id = d.Id,
-						Number = d.WeekNumber,
+						Number = d.Quarter,
 						StartDate = d.StartDate.ToString(),
 						EndDate = d.EndDate.ToString(),
 						Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(d.Month))
 					}));
 					break;
 				case (int)Intervals.Quarterly:
-					returnObject.data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
+					result.Data.AddRange(cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
 						Id = d.Id,
 						Number = d.Quarter,
 						StartDate = d.StartDate.ToString(),
@@ -52,18 +53,23 @@ public sealed class IntervalsController : BaseController
 					}));
 					break;
 				default:
-					var intervalObject = new GetIntervalsObject();
-					intervalObject.Error.Message = Resource.VAL_VALID_INTERVAL_ID;
-					returnObject.data.Add(intervalObject);
+                    result.Data.Add(new() { Error = new() { Message = Resource.VAL_VALID_INTERVAL_ID } });
 					break;
 			}
 
 			int intervalId = values.IntervalId ?? Config.DefaultInterval;
-			returnObject.CalendarId = Dbc.Calendar
+			result.CalendarId = Dbc.Calendar
 				.Where(c => c.IntervalId == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefault()?.Id ?? -1;
-			return returnObject;
+			result.MeasureTypes.AddRange(Dbc.MeasureData
+				.Where(d => d.Calendar!.IntervalId == values.IntervalId && d.Calendar.Year == values.Year
+					&& d.Measure!.Active == true && d.Measure.Hierarchy!.Active == true)
+				.Select(d => new MeasureType(d.Measure!.MeasureDefinition!.MeasureType.Id,
+					d.Measure.MeasureDefinition.MeasureType.Name,
+					d.Measure.MeasureDefinition.MeasureType.Description))
+				.Distinct());
+			return result;
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));

@@ -45,8 +45,8 @@ public sealed class AddController : BaseController
 			);
 
 			return new MeasureTypeResult(mtype.Id,
-				Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
-			);
+                [.. Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description))]
+            );
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
