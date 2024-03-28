@@ -262,7 +262,7 @@
                   </span>
                   <b>Value: </b><span>{{ row.value | number }}</span>
                   <b>ID: </b><span>{{row.id}}</span>
-                  <b>Evaluated: </b><span>{{row.evaluated}}</span>
+                  <b>{{row.evaluated ? "Evaluated: " : ""}}</b><span>{{row.evaluated}}</span>
                 </div>
                 <div class="table-2-2 detail-item">
                   <b>Description: </b><span>{{row.description}}</span>
@@ -274,7 +274,7 @@
                     <mat-icon fontIcon="edit"/> Edit
                   </button>
                 </div>
-                <div class="detail-grid-stretch"><b>{{row.expression ? 'Expression: ' : ''}}</b>
+                <div class="detail-grid-stretch"><b class="pr-4">{{row.expression ? 'Expression: ' : ''}}</b>
                   {{row.expression}}
                 </div>
               </div>

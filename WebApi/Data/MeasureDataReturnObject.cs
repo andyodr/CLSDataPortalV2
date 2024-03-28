@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Deliver.WebApi.Data;
 
 public sealed class MeasureDataReturnObject
@@ -7,10 +9,13 @@ public sealed class MeasureDataReturnObject
 	public string Name { get; set; } = null!;
 	public string? Description { get; set; }
 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public double? Value { get; set; }
 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public string? Explanation { get; set; }
 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public string? Action { get; set; }
 
 	public double? Target { get; set; }
@@ -30,9 +35,8 @@ public sealed class MeasureDataReturnObject
 
 	public string? Expression { get; set; }
 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public string Evaluated { get; set; } = null!;
-
-
 
 	public UpdatedObject Updated { get; set; } = null!;
 }

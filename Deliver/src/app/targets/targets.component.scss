@@ -163,24 +163,41 @@ tr.table-row:not(.expanded-row):active {
   column-gap: 2em;
 }
 
-.detail-items-1 {
-  grid-row: 1;
-  width: max-content;
+.expand-edit {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 2em;
+}
+
+.table-2-2 {
   display: grid;
   grid-template: auto auto / auto auto;
+}
+
+.self-center {
+  align-self: center;
+  justify-self: center;
+}
+
+.icon-5xl{
+  height: 3rem;
+  width: 3rem;
+  font-size: 3rem;
+}
+
+.detail-item {
+  grid-row: 1;
   column-gap: 1em;
   line-height: 1.5;
 }
 
-.detail-items-2 {
-  grid-row: 1;
-  display: grid;
-  grid-template: auto auto / auto auto;
-  column-gap: 1em;
-  line-height: 1.5;
+.detail-item-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.detail-items-3 {
+.detail-grid-stretch {
   grid-column: 1 / -1;
   width: auto;
   line-height: 1.5;

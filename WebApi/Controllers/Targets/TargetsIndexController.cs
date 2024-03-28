@@ -16,52 +16,50 @@ public sealed class IndexController : BaseController
 	/// </summary>
 	[HttpGet]
 	public ActionResult<MeasureDataIndexListObject> Get(int hierarchyId, int measureTypeId) {
-		var result = new MeasureDataIndexListObject { Data = new List<MeasureDataReturnObject>() };
+		var result = new MeasureDataIndexListObject { Data = [] };
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var defs = from mdef in Dbc.MeasureDefinition
-					   where mdef.MeasureTypeId == measureTypeId
-					   orderby mdef.FieldNumber, mdef.Name
-					   select mdef;
-
-			var targets = from m in Dbc.Measure
+			var targets = from df in Dbc.MeasureDefinition
+						  from m in df.Measures!
 						  from t in m.Targets!
-						  where t.Active == true && m.Hierarchy!.Id == hierarchyId
+						  where t.Active == true && m.HierarchyId == hierarchyId && df.MeasureTypeId == measureTypeId
+						  orderby df.FieldNumber, df.Name
 						  select t;
 
-			foreach (var def in defs.Include(d => d.Unit).AsNoTrackingWithIdentityResolution()) {
-				foreach (var t in targets.Include(t => t.Measure).Include(t => t.User).AsNoTrackingWithIdentityResolution()) {
-					if (def.Id == t.Measure!.MeasureDefinitionId) {
-						var mdr = new MeasureDataReturnObject {
-							Id = t.Measure.Id,
-							Name = def.Name,
-							Target = t.Value,
-							Yellow = t.YellowValue,
-							TargetCount = t.Measure.Targets!.Count,
-							Expression = def.Expression,
-							Description = def.Description,
-							Units = def.Unit.Short,
-							TargetId = t.Id,
-							Updated = t.UserId switch {
-								null => LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
-								_ => LastUpdatedOnObj(t.LastUpdatedOn, t.User?.UserName)
-							}
-						};
-
-						if (t.Value is double v) {
-							mdr.Target = Math.Round(v, def.Precision, MidpointRounding.AwayFromZero);
-						}
-
-						if (t.YellowValue is double y) {
-							mdr.Yellow = Math.Round(y, def.Precision, MidpointRounding.AwayFromZero);
-						}
-
-						result.Data.Add(mdr);
+			foreach (var t in targets
+					.Include(t => t.User)
+					.Include(t => t.Measure)
+					.ThenInclude(m => m!.MeasureDefinition)
+					.ThenInclude(df => df!.Unit).AsNoTrackingWithIdentityResolution()) {
+				MeasureDataReturnObject mdr = new() {
+					Id = t.MeasureId,
+					Name = t.Measure!.MeasureDefinition!.Name,
+					Target = t.Value,
+					Yellow = t.YellowValue,
+					TargetCount = t.Measure.Targets!.Count,
+					Expression = t.Measure.MeasureDefinition.Expression,
+					Description = t.Measure.MeasureDefinition.Description,
+					Units = t.Measure.MeasureDefinition.Unit.Short,
+					Calculated = (t.Measure.Expression ?? false) || (t.Measure.Active ?? false) && (t.Measure.Rollup ?? false),
+					TargetId = t.Id,
+					Updated = t.UserId switch {
+						null => LastUpdatedOnObj(t.LastUpdatedOn, Resource.SYSTEM),
+						_ => LastUpdatedOnObj(t.LastUpdatedOn, t.User?.UserName)
 					}
+				};
+
+				if (t.Value is double v) {
+					mdr.Target = Math.Round(v, t.Measure.MeasureDefinition.Precision, MidpointRounding.AwayFromZero);
 				}
+
+				if (t.YellowValue is double y) {
+					mdr.Yellow = Math.Round(y, t.Measure.MeasureDefinition.Precision, MidpointRounding.AwayFromZero);
+				}
+
+				result.Data.Add(mdr);
 			}
 
 			result.Confirmed = Config.UsesSpecialHierarchies;
@@ -86,9 +84,9 @@ public sealed class IndexController : BaseController
 
 		try {
 			var lastUpdatedOn = DateTime.Now;
-			int targetCount = Dbc.Target.Where(t => t.Measure!.Id == body.MeasureId).Count();
+			int targetCount = Dbc.Target.Where(t => t.MeasureId == body.MeasureId).Count();
 			var target = Dbc.Target
-				.Where(t => t.Measure!.Id == body.MeasureId && t.Active == true)
+				.Where(t => t.MeasureId == body.MeasureId && t.Active == true)
 				.Include(t => t.Measure)
 				.ThenInclude(m => m!.MeasureDefinition)
 				.First();
@@ -152,13 +150,13 @@ public sealed class IndexController : BaseController
 			}
 
 			Dbc.SaveChanges();
-			return new MeasureDataIndexListObject { Data = new MeasureDataReturnObject[] { new() {
+			return new MeasureDataIndexListObject { Data = [new() {
 				Target = body.Target,
 				Yellow = body.Yellow,
 				TargetId = returnTargetId,
 				TargetCount = Dbc.Target.Where(t => t.Measure!.Id == body.MeasureId).Count(),
 				Updated = LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
-			}}};
+			}]};
 		}
 		catch (Exception e) {
 			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));

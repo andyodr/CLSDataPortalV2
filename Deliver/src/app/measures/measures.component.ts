@@ -27,6 +27,7 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 
 interface MeasuresTableRow {
     id: number
@@ -59,7 +60,7 @@ class ToggleQuery {
     standalone: true,
     imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule, MatCheckboxModule, MatTooltipModule]
 })
-export class MeasuresComponent implements OnInit {
+export class MeasuresComponent {
     title = "Measures"
     measureResponse: MeasureApiResponse | undefined;
     filters!: MeasureFilter
@@ -85,15 +86,13 @@ export class MeasuresComponent implements OnInit {
     selectedRegion = null as number | number[] | null
     @ViewChild(RegionTreeComponent) tree!: RegionTreeComponent
 
-    constructor(private api: MeasureService, private acctSvc: AccountService, public logger: LoggerService) { }
-
-    ngOnInit(): void {
+    constructor(private api: MeasureService, private acctSvc: AccountService, public logger: LoggerService) {
         const userSettings = this.acctSvc.getCurrentUser()?.filter
         const measureTypeId = userSettings?.measureTypeId
         const hierarchyId = userSettings?.hierarchyId
         this.progress = true
         this.api.getMeasureFilter(measureTypeId, hierarchyId)
-            .pipe(finalize(() => this.progress = false))
+            .pipe(takeUntilDestroyed(), finalize(() => this.progress = false))
             .subscribe({
                 next: dto => {
                     this.filters = dto

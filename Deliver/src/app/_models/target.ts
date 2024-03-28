@@ -1,41 +1,41 @@
-import { RegionFilter } from "../_services/hierarchy.service";
-import { ErrorModel } from "./error";
+import { RegionFilter } from "../_services/hierarchy.service"
+import { ErrorModel } from "./error"
 
 export interface TargetApiResponse {
-  range?: string;
-  calendarId?: number;
-  allow: boolean;
-  editValue: boolean;
-  locked: boolean;
-  confirmed: boolean;
-  filter: TargetFilter;
-  data: TargetDto[];
-  error?: ErrorModel;
+  range?: string
+  calendarId?: number
+  allow: boolean
+  editValue: boolean
+  locked: boolean
+  confirmed: boolean
+  filter: TargetFilter
+  data: TargetDto[]
+  error?: ErrorModel
 }
 
 export interface TargetDto {
-  id: number;
-  name: string;
-  value: number;
-  explanation: string;
-  action: string;
-  target: number;
-  targetCount: number;
-  targetId: number;
-  unitId: string;
-  units: string;
-  yellow: number;
-  expression: string;
-  evaluated: string;
-  calculated: boolean;
-  description: string;
-  updated: Updated;
+  id: number
+  name: string
+  value: number
+  explanation: string
+  action: string
+  target: number
+  targetCount: number
+  targetId: number
+  unitId: string
+  units: string
+  yellow: number
+  expression: string
+  evaluated: string
+  calculated: boolean
+  description: string
+  updated: Updated
 }
 
 export interface Updated {
-  by: string;
-  longDt: string;
-  shortDt: string;
+  by: string
+  longDt: string
+  shortDt: string
 }
 
 export type TargetFilter = {
@@ -73,8 +73,8 @@ export interface TargetPutDto {
   hierarchyId: number
   measureId?: number
   measureTypeId: number
-  target: number
-  yellow: number
+  target?: number
+  yellow?: number
   applyToChildren: boolean
   isCurrentUpdate: boolean
   confirmIntervals?: ConfirmIntervals
@@ -113,7 +113,7 @@ export interface TargetApiParams{
   calendarId?: number;
   year?: number;
   measureTypeId: number;
-  hierarchyId: number; 
+  hierarchyId: number;
 }
 
 export interface ConfirmIntervals {
@@ -123,10 +123,3 @@ export interface ConfirmIntervals {
   quarterly: boolean
   yearly: boolean
 }
-
-
-
-
-
- 
-  

@@ -57,15 +57,14 @@ public sealed class IndexController : BaseController
 				result.Locked = Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar);
 			}
 
-			var measures = Dbc.MeasureData
+			var measureData = Dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
 					&& m.CalendarId == result.CalendarId)
 				.Include(md => md.Target)
 				.Include(md => md.User)
-				.Include(md => md.Measure)
-				.ThenInclude(m => m!.MeasureDefinition)
+				.Include(md => md.Measure).ThenInclude(m => m!.MeasureDefinition)
 				.Select(md => new {
 					lastUpdatedOn = md.LastUpdatedOn,
 					md.User,
@@ -85,23 +84,23 @@ public sealed class IndexController : BaseController
 					calculated = Dbc.IsMeasureCalculated(md.Measure.Expression ?? false, dto.HierarchyId, calendar.IntervalId, md.Measure.MeasureDefinition.Id, null)
 				});
 
-			foreach (var m in measures.AsNoTrackingWithIdentityResolution()) {
+			foreach (var md in measureData.AsNoTrackingWithIdentityResolution()) {
 				MeasureDataReturnObject measureDataDto = new() {
-					Id = m.Id,
-					Name = m.Name,
-					Description = m.Description,
-					Explanation = m.Explanation,
-					Action = m.Action,
-					UnitId = m.Unit.Id,
-					Units = m.Unit.Short,
-					Target = m.target is double target ? Math.Round(target, m.Precision, MidpointRounding.AwayFromZero) : null,
-					Yellow = m.YellowValue is double yellow ? Math.Round(yellow, m.Precision, MidpointRounding.AwayFromZero) : null,
-					Value = m.Value is double value ? Math.Round(value, m.Precision, MidpointRounding.AwayFromZero) : null,
-					Calculated = m.calculated,
-					VariableName = m.VariableName,
-					Expression = m.Expression,
+					Id = md.Id,
+					Name = md.Name,
+					Description = md.Description,
+					Explanation = md.Explanation,
+					Action = md.Action,
+					UnitId = md.Unit.Id,
+					Units = md.Unit.Short,
+					Target = md.target is double target ? Math.Round(target, md.Precision, MidpointRounding.AwayFromZero) : null,
+					Yellow = md.YellowValue is double yellow ? Math.Round(yellow, md.Precision, MidpointRounding.AwayFromZero) : null,
+					Value = md.Value is double value ? Math.Round(value, md.Precision, MidpointRounding.AwayFromZero) : null,
+					Calculated = md.calculated,
+					VariableName = md.VariableName,
+					Expression = md.Expression,
 					Evaluated = String.Empty,
-					Updated = LastUpdatedOnObj(m.lastUpdatedOn, m.User?.UserName ?? Resource.SYSTEM)
+					Updated = LastUpdatedOnObj(md.lastUpdatedOn, md.User?.UserName ?? Resource.SYSTEM)
 				};
 
 				if (measureDataDto.Calculated && !string.IsNullOrEmpty(measureDataDto.Expression)) {
@@ -145,7 +144,6 @@ public sealed class IndexController : BaseController
 	[HttpPut]
 	public ActionResult<MeasureDataIndexListObject> Put(MeasureDataReceiveObject value) {
 		MeasureDataIndexListObject result = new();
-		List<MeasureDataReturnObject> measureDataList = new();
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
@@ -191,15 +189,12 @@ public sealed class IndexController : BaseController
 				_user.Id
 			);
 
-			measureDataList.Add(
-			  new MeasureDataReturnObject {
+			result.Data = [new() {
 				  Value = value.MeasureValue,
 				  Explanation = value.Explanation,
 				  Action = value.Action,
 				  Updated = LastUpdatedOnObj(DateTime.Now, _user.UserName)
-			  }
-			);
-			result.Data = measureDataList;
+			  }];
 			return result;
 		}
 		catch (Exception e) {

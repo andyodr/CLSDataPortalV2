@@ -57,16 +57,15 @@ public sealed class IndexController : BaseController
 					FieldNumber = md.fieldNumber,
 					UnitId = md.Unit.Id,
 					Units = md.Unit.Short,
-					Calculated = md.Calculated
+					Calculated = md.Calculated,
+					Interval = md.ReportInterval.Name,
+					IntervalId = md.ReportInterval.Id,
+					Daily = md.daily,
+					Weekly = md.weekly,
+					Monthly = md.monthly,
+					Quarterly = md.quarterly,
+					Yearly = md.yearly
 				};
-
-				currentMD.Interval = md.ReportInterval.Name;
-				currentMD.IntervalId = md.ReportInterval.Id;
-				currentMD.Daily = md.daily;
-				currentMD.Weekly = md.weekly;
-				currentMD.Monthly = md.monthly;
-				currentMD.Quarterly = md.quarterly;
-				currentMD.Yearly = md.yearly;
 				switch ((Intervals)md.ReportInterval.Id) {
 					case Intervals.Daily:
 						currentMD.Daily = false;

@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ViewChild, inject } from "@angular/core"
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
@@ -7,7 +7,7 @@ import { finalize } from "rxjs"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { AppDialog } from '../app-dialog.component';
 import { RegionFilter } from "../_services/hierarchy.service"
-import { MeasureType, TargetApiResponse, TargetFilterResponseDto, TargetDto, ConfirmIntervals, TargetApiParams, TargetFilter } from '../_models/target';
+import { MeasureType, TargetApiResponse, TargetDto, ConfirmIntervals, TargetFilter, Updated } from "../_models/target"
 import { LoggerService } from "../_services/logger.service"
 import { TargetService } from '../_services/target.service';
 import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
@@ -25,6 +25,23 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { DecimalPipe, PercentPipe } from "@angular/common"
+
+interface TargetData {
+    measureId: number
+    name: string
+    explanation: string
+    target: number
+    targetCount: number
+    targetId: number
+    unitId: string
+    units: string
+    yellow: number
+    expression: string
+    calculated: boolean
+    description: string
+    updated: Updated
+  }
 
 @Component({
     selector: 'app-targets',
@@ -38,9 +55,9 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
         ])
     ],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule]
+    imports: [DecimalPipe, PercentPipe, MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule]
 })
-export class TargetsComponent implements OnInit {
+export class TargetsComponent implements AfterViewInit {
 
     title = "Targets"
     targetResponse: TargetApiResponse | undefined;
@@ -52,7 +69,6 @@ export class TargetsComponent implements OnInit {
         position: "start" as "start" | "end"
     }
     filters!: TargetFilter
-    //filters!: TargetFilterResponseDto
     filtersSelected: string[] = []
     hierarchy: RegionFilter[] = []
     selectedRegion = null as number | number[] | null
@@ -66,20 +82,16 @@ export class TargetsComponent implements OnInit {
 
     filtersDisplay: string[] | undefined;
 
-    //hierarchy: RegionFilter[] = []
     hierarchyLevels!: { name: string, id: number }[]
     yearList!: { name: string, id: number }[]
     measureTypeList!: { name: string, id: number }[]
-    //measureTypes: MeasureType[] = []
-    //selectedMeasureType: MeasureType | undefined //= { id: 0, name: "" }
-    // selectedMeasureType?: MeasureType
     selectedHierarchy = null as number | number[] | null
 
     //Table Properties
     targetList: TargetDto[] = [];
-    selectedRow: TargetDto | undefined
-    dataSource = new MatTableDataSource<TargetDto>()
-    displayedColumns = ["name", "target", "yellow", "updated", "actions"]
+    selectedRow: TargetData | undefined
+    dataSource = new MatTableDataSource<TargetData>()
+    displayedColumns = ["name", "target", "yellow", "updated"]
     expand = new ToggleQuery()
     @ViewChild(MatSort) sort!: MatSort
     editingMeasureType!: any
@@ -97,8 +109,6 @@ export class TargetsComponent implements OnInit {
     allow = false;
     editValue = false;
     showActionButtons = true;
-    // editValue: boolean | undefined;
-    // showActionButtons: boolean | undefined;
     locked: boolean | undefined
     calendarId!: number;
     hierarchyId!: number;
@@ -108,9 +118,8 @@ export class TargetsComponent implements OnInit {
     targetRow: TargetDto | undefined
 
     measureId: number | null = null
-    skTargets = "";
-    confirmed = false;
-
+    skTargets = ""
+    confirmed = false
 
     target: number | null = null //or this.model.target
     yellow: number = 0 //or this.model.yellow
@@ -127,15 +136,11 @@ export class TargetsComponent implements OnInit {
         confirmIntervals: null,
         targetId: null,
         targetCount: null
-    };
+    }
 
-    //Model
     model = {
-        value: 0,
-        target: 0, //or this.target
-        yellow: 0, //or this.target
-        measureType: 0,
-        selectedRegion: null as number | number[] | null,
+        target: undefined as number | undefined,
+        yellow: undefined as number | undefined
     }
 
     //Error handling within the component
@@ -143,20 +148,17 @@ export class TargetsComponent implements OnInit {
     showError: boolean = false
     destroyRef = inject(DestroyRef)
 
-    constructor(private targetSvc: TargetService, public acctSvc: AccountService, public logger: LoggerService, private dialog: MatDialog) { }
-
-    ngOnInit(): void {
+    constructor(private targetSvc: TargetService, public acctSvc: AccountService, public logger: LoggerService, private dialog: MatDialog) {
         this.progress = true
         this.targetSvc.getTargetFilter()
-            .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
+            .pipe(finalize(() => this.progress = false), takeUntilDestroyed())
             .subscribe({
                 next: dtofilter => {
-                    this.filters = dtofilter;
+                    this.filters = dtofilter
                     this.measureTypes = dtofilter.measureTypes
                     this.hierarchy = dtofilter.hierarchy
                     this.selectedRegion = dtofilter.filter.hierarchyId ?? dtofilter.hierarchy.at(0)?.id ?? 1
 
-                    //const { hierarchyId, measureTypeId } = dtofilter.filter
                     const userSettings = this.acctSvc.getCurrentUser()?.filter
                     let hierarchyId = userSettings?.hierarchyId
                     hierarchyId ||= dtofilter.filter.hierarchyId || dtofilter.hierarchy.at(0)?.id || 1
@@ -182,17 +184,10 @@ export class TargetsComponent implements OnInit {
         };
     }
 
-    // -----------------------------------------------------------------------------
-    // Load Table Data
-    // -----------------------------------------------------------------------------
     loadTable(): void {
         if (!this.selectedMeasureType || typeof this.selectedHierarchy !== "number") return
 
-        //this.filtersSelected = [ this.selectedMeasureType.name, this.tree.ancestorPath.join(" | ") ]
-
-        const params = { measureTypeId: 0, hierarchyId: 0 }
-        params.measureTypeId = this.selectedMeasureType.id
-        params.hierarchyId = this.selectedHierarchy
+        const params = { measureTypeId: this.selectedMeasureType.id, hierarchyId: this.selectedHierarchy }
         this.acctSvc.saveSettings({
             measureTypeId: this.selectedMeasureType.id,
             hierarchyId: this.selectedHierarchy
@@ -226,22 +221,19 @@ export class TargetsComponent implements OnInit {
             .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: targetResponse => {
-                    this.targetResponse = targetResponse;
-                    this.targetList = targetResponse.data;
-                    this.dataSource.data = targetResponse.data;
-                    //this.dataSource.sort = this.sort;
-                    console.log("Datasource on getTargetList: ", this.dataSource)
+                    this.targetResponse = targetResponse
+                    this.targetList = targetResponse.data
+                    this.dataSource.data = targetResponse.data.map(o => ({ ...o, measureId: o.id }))
+                    this.hierarchyId = parameters!.hierarchyId
+                    this.measureTypeId = parameters!.measureTypeId
 
-                    this.hierarchyId = parameters!.hierarchyId;
-                    this.measureTypeId = parameters!.measureTypeId;
-
-                    this.allow = targetResponse.allow;
+                    this.allow = targetResponse.allow
                     this.confirmed = targetResponse.confirmed
 
-                    this.locked = targetResponse.locked;
-                    this.editValue = targetResponse.editValue;
-                    this.showActionButtons = this.allow && !this.locked;
-                    this.disabledAll = false;
+                    this.locked = targetResponse.locked
+                    this.editValue = targetResponse.editValue
+                    this.showActionButtons = this.allow && !this.locked
+                    this.disabledAll = false
                     this.logger.logInfo("Target List Loaded")
                 },
                 error: err => {
@@ -271,9 +263,6 @@ export class TargetsComponent implements OnInit {
         };
     }
 
-    // -----------------------------------------------------------------------------
-    // Utils
-    // -----------------------------------------------------------------------------
     identity(index: number, item: any) {
         return item.id
     }
@@ -282,76 +271,46 @@ export class TargetsComponent implements OnInit {
     // Buttons
     // -----------------------------------------------------------------------------
 
-    onEdit(targetRow: TargetDto) {
-
-        // if (!this.allow || this.locked) {
-        //     return;
-        // }
-        this.isEditMode = true;
-        this.selectedRow = targetRow;
-        // this.selectedRow = { ...targetRow };
-        // this.model.target = targetRow.target;
-        // this.model.yellow = targetRow.yellow;
+    onEdit(targetRow: TargetData) {
+        this.isEditMode = true
+        this.selectedRow = targetRow
+        if (targetRow.target != null && targetRow.yellow != null) {
+            this.model.target = targetRow.target
+            this.model.yellow = targetRow.yellow
+        }
     }
 
-    onSave(targetRow: TargetDto) {
-
-        // if (!this.allow || this.locked) {
-        //     return;
-        // }
-
+    onSave(targetRow: TargetData) {
         this.isEditMode = false
-        this.selectedRow = { ...targetRow };
-        // this.selectedRow = targetRow;
-
-        this.showError = false;
-        this.disabledAll = true;
-        //console.log("onSave TargetRow: ", targetRow);
-
-        const hierarchyId = this.hierarchyId;
-        const measureId = targetRow.id;
-        const measureTypeId = this.measureTypeId;
-        const target = this.model.value;
-        const yellow = this.model.yellow;
-        const applyToChildren = true;
-        const isCurrentUpdate = true;
-        const confirmIntervals = {
-            daily: true,
-            weekly: true,
-            monthly: true,
-            quarterly: true,
-            yearly: true
-        }
-        this.dataConfirmedReset();
-
-        // Check if values are null and convert it to a default value if necessary
-        const fixedHierarchyId = hierarchyId === null ? 0 : hierarchyId;
-        const fixedmeasureTypeId = measureTypeId === null ? 0 : measureTypeId;
+        this.selectedRow = { ...targetRow }
+        this.showError = false
+        this.disabledAll = true
+        this.dataConfirmedReset()
 
         const body = {
-            "hierarchyId": fixedHierarchyId,
-            "measureId": measureId,
-            "measureTypeId": fixedmeasureTypeId,
-            "target": this.model.value,
-            "yellow": this.yellow,
-            "applyToChildren": false,
-            "isCurrentUpdate": false,
-            "confirmIntervals": {
-                "daily": true,
-                "weekly": true,
-                "monthly": true,
-                "quarterly": true,
-                "yearly": true
+            hierarchyId: this.hierarchyId ?? 0,
+            measureId: targetRow.measureId,
+            measureTypeId: this.measureTypeId ?? 0,
+            target: this.model.target,
+            yellow: this.model.yellow,
+            applyToChildren: false,
+            isCurrentUpdate: false,
+            confirmIntervals: {
+                daily: true,
+                weekly: true,
+                monthly: true,
+                quarterly: true,
+                yearly: true
             }
         }
 
         if (targetRow.target == body.target && targetRow.yellow == body.yellow) {
-            this.logger.logInfo("There are no changes for " + targetRow.name + ". Unable to Save.")
+            this.logger.logInfo(`There are no changes for {targetRow.name}. Unable to Save.`)
             const dialogRef = this.dialog.open(AppDialog, {
                 width: '450px',
                 data: {
-                    title: 'Alert',
-                    msg: 'There are no changes for ' + targetRow.name + '. Unable to Save.'
+                    title: "Alert",
+                    msg: "There are no changes for {targetRow.name}. Unable to Save."
                 }
             });
         }
@@ -363,30 +322,31 @@ export class TargetsComponent implements OnInit {
             .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: targetResponse => {
-                    this.logger.logInfo("Measure Data Updated")
-                    console.log("targetResponse on updateTarget", targetResponse);
-                    this.disabledAll = false;
-                    this.loadTable();
+                    this.logger.logInfo("Targets Updated")
+                    this.disabledAll = false
+                    this.loadTable()
                 },
                 error: err => {
                     this.logger.logError(err.message)
                     this.errorMsg = err
                     this.showError = true
-                    this.processLocalError(this.title, err.statusText, null, err.status, null);
+                    this.processLocalError(this.title, err.statusText, null, err.status, null)
                 }
             })
-
-        // this.model.target = null;
-        // this.model.yellow = "";
-        //this.loadTable()
     }
 
-    onCancel(targetRow: TargetDto) {
+    isSaveDisabled() {
+        if (!this.selectedRow) return false
+        let { target: t, yellow: y } = this.selectedRow
+        let disabled = this.model.target == t && this.model.yellow == y
+        return disabled
+    }
+
+    onCancel() {
         this.isEditMode = false
-        this.disabledAll = false;
-        // this.model.target = null;
-        // this.model.yellow = "";
-        this.loadTable();
+        this.disabledAll = false
+        this.model.target = undefined
+        this.model.yellow = undefined
     }
 
     applyToChildrenAction(): void {
@@ -447,7 +407,6 @@ export class TargetsComponent implements OnInit {
     }
 
     applyToChildrenSave(): void {
-
         const targetDtoApplyChildrenSave = {
             hierarchyId: this.hierarchyId ?? undefined,
             measureTypeId: this.measureTypeId ?? undefined,
@@ -461,11 +420,7 @@ export class TargetsComponent implements OnInit {
 
         const hierarchyId = this.hierarchyId;
         const measureId = this.measureId ?? undefined
-        const measureTypeId = this.measureTypeId;
-        const target = this.model.value;
-        const yellow = this.model.yellow;
-        const applyToChildren = true;
-        const isCurrentUpdate = true;
+        const measureTypeId = this.measureTypeId
         const confirmIntervals = {
             daily: true,
             weekly: true,
@@ -485,7 +440,7 @@ export class TargetsComponent implements OnInit {
             "hierarchyId": fixedHierarchyId,
             "measureId": fixedMeasureId,
             "measureTypeId": fixedmeasureTypeId,
-            "target": this.model.value,
+            "target": this.model.target,
             "yellow": this.model.yellow,
             "applyToChildren": true,
             "isCurrentUpdate": this.dataConfirmed.isCurrentUpdate,

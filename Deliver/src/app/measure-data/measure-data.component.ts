@@ -380,29 +380,25 @@ export class MeasureDataComponent {
 
     onSave(measureDataRow: MeasureDataDto) {
         this.isEditMode = false
-        this.selectedRow = { ...measureDataRow };
+        this.selectedRow = { ...measureDataRow }
 
-        this.showError = false;
-        this.disabledAll = true;
-        //console.log("onSave MeasureDataRow: ", measureDataRow);
+        this.showError = false
+        this.disabledAll = true
 
-        const measureDataId = measureDataRow.id;
-        let measureDataValue = measureDataRow.value;
+        let measureDataValue = measureDataRow.value
         if (!measureDataRow.calculated) {
-            measureDataValue = this.model.value as number;
+            measureDataValue = this.model.value as number
         }
-        const measureDataExplanation = this.model.explanation;
-        const measureDataAction = this.model.action;
 
         const body = {
-            "calendarId": this.calendarId,
-            "day": this.day,
-            "hierarchyId": this.hierarchyId,
-            "measureTypeId": this.measureTypeId,
-            "measureDataId": measureDataId,
-            "measureValue": measureDataValue,
-            "explanation": measureDataExplanation,
-            "action": measureDataAction
+            calendarId: this.calendarId,
+            day: this.day,
+            hierarchyId: this.hierarchyId,
+            measureTypeId: this.measureTypeId,
+            measureDataId: measureDataRow.id,
+            measureValue: measureDataValue,
+            explanation: this.model.explanation,
+            action: this.model.action
         }
 
         if (measureDataRow.value == body.measureValue && measureDataRow.explanation == body.explanation && measureDataRow.action == body.action) {
@@ -412,12 +408,11 @@ export class MeasureDataComponent {
                 data: {
                     title: 'Alert',
                     msg: 'There are no changes for ' + measureDataRow.name
-                    //msg: 'There are no changes for ' + measureDataRow.name + '. Unable to Save.'
                 }
             });
         }
 
-        this.progress = true;
+        this.progress = true
 
         // Call Server - PUT Measure Data
         this.measureDataSvc.updateMeasureData(body)
