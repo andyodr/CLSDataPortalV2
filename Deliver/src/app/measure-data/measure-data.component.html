@@ -289,13 +289,13 @@
                 </mat-form-field>
                 <mat-form-field>
                   <mat-label>Explanation</mat-label>
-                  <textarea matInput type="string" [(ngModel)]="model.explanation" [disabled]="disabledAll"
+                  <textarea matInput rows="3" [(ngModel)]="model.explanation" [disabled]="disabledAll"
                     placeholder="Ex. Flight delays due to June 26 blizzard weather event."></textarea>
                   <mat-hint>Conditions which led to this result</mat-hint>
                 </mat-form-field>
                 <mat-form-field>
                   <mat-label>Action</mat-label>
-                  <textarea matInput type="string" [(ngModel)]="model.action" [disabled]="disabledAll"
+                  <textarea matInput rows="3" [(ngModel)]="model.action" [disabled]="disabledAll"
                     placeholder="Ex. Issue addressed with carrier. Improvements expected in July."></textarea>
                   <mat-hint>Current actions being taken</mat-hint>
                 </mat-form-field>
