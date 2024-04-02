@@ -44,56 +44,52 @@ public sealed class IndexController : BaseController
 	}
 
 	[HttpPost]
-	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd dto) {
-		var result = new RegionMetricsFilterObject {
-			Data = [],
-			Hierarchy = [CreateHierarchy(Dbc)]
-		};
+	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd body) {
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var updatedHierarchy = Dbc.Hierarchy.Add(new() {
-				Name = dto.Name,
-				HierarchyParentId = dto.ParentId,
-				HierarchyLevelId = dto.LevelId,
-				Active = dto.Active,
+			var newHierarchy = Dbc.Hierarchy.Add(new() {
+				Name = body.Name,
+				HierarchyParentId = body.ParentId,
+				HierarchyLevelId = body.LevelId,
+				Active = body.Active,
 				IsProcessed = (byte)IsProcessed.Complete,
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			_ = Dbc.SaveChanges();
-			RegionsDataViewModel newHierarchy = new() {
-				Id = updatedHierarchy.Id,
-				Name = updatedHierarchy.Name,
-				LevelId = updatedHierarchy.HierarchyLevelId,
-				Level = Dbc.HierarchyLevel.Where(h => h.Id == updatedHierarchy.HierarchyLevelId).First().Name,
-				ParentId = updatedHierarchy.HierarchyParentId,
-				Active = updatedHierarchy.Active ?? false
+			RegionsDataViewModel dto = new() {
+				Id = newHierarchy.Id,
+				Name = newHierarchy.Name,
+				LevelId = newHierarchy.HierarchyLevelId,
+				Level = Dbc.HierarchyLevel.Where(h => h.Id == newHierarchy.HierarchyLevelId).First().Name,
+				ParentId = newHierarchy.HierarchyParentId,
+				Active = newHierarchy.Active ?? false
 			};
 
-			var parent = Dbc.Hierarchy.Where(h => h.Id == updatedHierarchy.HierarchyParentId).FirstOrDefault();
-			newHierarchy.ParentId = parent?.Id;
-			newHierarchy.ParentName = parent?.Name ?? string.Empty;
+			var parent = Dbc.Hierarchy.Where(h => h.Id == newHierarchy.HierarchyParentId).FirstOrDefault();
+			dto.ParentId = parent?.Id;
+			dto.ParentName = parent?.Name ?? string.Empty;
 
-			string creationResult = CreateMeasuresAndTargets(_user.Id, newHierarchy.Id);
-			if (!string.IsNullOrEmpty(creationResult)) {
-				throw new Exception(creationResult);
-			}
+			CreateMeasuresAndTargets(_user.Id, dto.Id);
 
-			Dbc.SaveChanges();
+			_ = Dbc.SaveChanges();
 			var exists = (from measure in Dbc.Measure
 						  from md in measure.MeasureData
-						  where measure.HierarchyId == newHierarchy.Id
+						  where measure.HierarchyId == dto.Id
 						  select md.Id).Any();
-			newHierarchy.Remove = !exists;
-			result.Data.Add(newHierarchy);
+			dto.Remove = !exists;
+			RegionMetricsFilterObject result = new() {
+				Data = [dto],
+				Hierarchy = [CreateHierarchy(Dbc)]
+			};
 
 			AddAuditTrail(Dbc,
 				Resource.WEB_PAGES,
 				"WEB-05",
 				Resource.HIERARCHY,
-				@"Added / ID=" + newHierarchy.Id.ToString(),
+				@"Added / ID=" + dto.Id.ToString(),
 				DateTime.Now,
 				_user.Id
 			);
@@ -107,31 +103,27 @@ public sealed class IndexController : BaseController
 
 	[HttpPut]
 	public ActionResult<RegionMetricsFilterObject> Put(RegionsDataViewModel dto) {
-		var result = new RegionMetricsFilterObject { Data = new List<RegionsDataViewModel>() };
+		var result = new RegionMetricsFilterObject { Data = [] };
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
 
 		try {
-			DateTime updatedOn = DateTime.Now;
 			var updateHierarchy = Dbc.Hierarchy.Find(dto.Id);
 			if (updateHierarchy is null) {
 				return result;
 			}
 
+			DateTime updatedOn = DateTime.Now;
 			updateHierarchy.Name = dto.Name;
 			updateHierarchy.Active = dto.Active;
 			updateHierarchy.HierarchyParentId = dto.ParentId;
 			updateHierarchy.LastUpdatedOn = updatedOn;
 			updateHierarchy.HierarchyLevelId = dto.LevelId;
-			if (updateHierarchy.HierarchyLevelId == 1) {
-				updateHierarchy.HierarchyParentId = null;
-			}
-
 			updateHierarchy.IsProcessed = (byte)IsProcessed.Complete;
 			Dbc.SaveChanges();
 
-			var newHierarchy = new RegionsDataViewModel {
+			RegionsDataViewModel newHierarchy = new() {
 				Id = updateHierarchy.Id,
 				Name = updateHierarchy.Name,
 				LevelId = updateHierarchy.HierarchyLevelId,
@@ -231,38 +223,23 @@ public sealed class IndexController : BaseController
 		}
 	}
 
-	private string CreateMeasuresAndTargets(int userId, int hierarchyId) {
-		try {
-			string result = string.Empty;
-			var dtNow = DateTime.Now;
-			foreach (var measureDef in Dbc.MeasureDefinition.Select(md => new { md.Id, md.Calculated })) {
-				//create Measure records
-				_ = Dbc.Measure.Add(new() {
-					HierarchyId = hierarchyId,
-					MeasureDefinitionId = measureDef.Id,
-					Active = true,
-					Expression = measureDef.Calculated,
-					Rollup = true,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			//make target ids
-			foreach (var measure in Dbc.Measure.Where(m => m.HierarchyId == hierarchyId)) {
-				_ = Dbc.Target.Add(new() {
-					Measure = measure,
-					Active = true,
-					UserId = userId,
-					IsProcessed = (byte)IsProcessed.Complete,
-					LastUpdatedOn = dtNow
-				});
-			}
-
-			return result;
-		}
-		catch (Exception e) {
-			return e.Message;
-		}
+	private void CreateMeasuresAndTargets(int userId, int hierarchyId) {
+		var dtNow = DateTime.Now;
+		//create Measure records
+		Dbc.AddRange(Dbc.MeasureDefinition.Select(df => new Data.Models.Target() {
+			Active = true,
+			UserId = userId,
+			IsProcessed = (byte)IsProcessed.Complete,
+			Measure = new() {
+				HierarchyId = hierarchyId,
+				MeasureDefinitionId = df.Id,
+				Active = true,
+				Expression = df.Calculated,
+				Rollup = true,
+				LastUpdatedOn = dtNow
+			},
+			LastUpdatedOn = dtNow
+		}));
 	}
 
 	class HierarchyNode

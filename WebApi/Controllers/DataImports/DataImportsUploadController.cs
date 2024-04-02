@@ -69,29 +69,24 @@ public sealed class UploadController : BaseController
 			string sheetName = jsonObject["sheet"]?.ToString() ?? string.Empty;
 			var array = jsonObject["data"] as JsonArray;
 
-			// --------------------------------------------------------
-			// Process Target
-			// --------------------------------------------------------
 			switch (dataImport) {
 				case Helper.DataImports.Target:
 					var listTarget = new List<SheetDataTarget>();
 					foreach (var token in array!) {
 						var targetData = token.Deserialize<SheetDataTarget>(webDefaults)!;
 						targetData.RowNumber = rowNumber++;
-						//value.unitId = _measureDefinitionRepository.Find(md=> md.Id == value.MeasureID).UnitId;
 						var mRecord = Dbc.MeasureDefinition.Where(md => md.Id == targetData.MeasureID);
 						if (mRecord.Any()) {
 							targetData.Precision = mRecord.First().Precision;
 							listTarget.Add(targetData);
 						}
 						else {
-							result.Error.Add(new DataImportErrorReturnObject { Row = targetData.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
+							result.Error.Add(new() { Row = targetData.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 						}
 					}
 
 					if (result.Error.Count != 0) {
-						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = [.. temp];
+						result.Error = [.. result.Error.OrderBy(e => e.Row)];
 						return result;
 					}
 
@@ -111,8 +106,7 @@ public sealed class UploadController : BaseController
 							result.Error.Add(new() { Row = itemRow, Message = Resource.DI_ERR_TARGET_REPEATED });
 						}
 
-						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = [.. temp];
+						result.Error = [.. result.Error.OrderBy(e => e.Row)];
 						return result;
 					}
 
@@ -121,8 +115,7 @@ public sealed class UploadController : BaseController
 					}
 
 					if (result.Error.Count != 0) {
-						var temp = result.Error.OrderBy(e => e.Row);
-						result.Error = temp.ToList();
+						result.Error = [.. result.Error.OrderBy(e => e.Row)];
 					}
 					else {
 						foreach (var row in listTarget) {
@@ -141,9 +134,6 @@ public sealed class UploadController : BaseController
 					}
 
 					return result;
-				// --------------------------------------------------------
-				// Process Customer Hierarchy
-				// --------------------------------------------------------
 				case Helper.DataImports.Customer when Config.UsesCustomer:
 					var listCustomer = new List<SheetDataCustomer>();
 					foreach (var token in array!) {
@@ -176,9 +166,6 @@ public sealed class UploadController : BaseController
 					}
 
 					return result;
-				// --------------------------------------------------------
-				// Process MeasureData
-				// --------------------------------------------------------
 				case Helper.DataImports.MeasureData:
 					JsonNode? calId = jsonObject["calendarId"];
 					int calendarId = int.Parse(calId!.ToString());
