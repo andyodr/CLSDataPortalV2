@@ -4,5 +4,5 @@ public sealed class DataImportReturnObject
 {
 	public DataImportsMainObject? Data { get; set; }
 
-	public List<DataImportErrorReturnObject> Error { get; set; } = null!;
+	public List<ImportErrorResult> Error { get; set; } = null!;
 }

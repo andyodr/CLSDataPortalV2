@@ -586,7 +586,7 @@ export class DataImportsComponent {
                             this.processUploadError(body.error)
                         }
                         else {
-                            this.logger.logSuccess(`✔️ ${ MESSAGES.uploadSuccess }`)
+                            this.logger.logSuccess(MESSAGES.uploadSuccess)
                             this.setProgress(false)
                             this.clearClick()
                         }

@@ -184,4 +184,55 @@ public static class Extensions
 			return false;
 		}
 	}
+
+	public static ImportErrorResult? ImportTarget(this ApplicationDbContext dbc, SheetDataTarget target, int userId, DateTime? time = null) {
+		var measure = dbc.Measure.Where(m => m.HierarchyId == target.HierarchyID
+				&& m.MeasureDefinitionId == target.MeasureID)
+			.Include(m => m.Targets!.Where(t => t.Active))
+			.Select(m => new { m.Id, m.Targets })
+			.First();
+		try {
+			double? yellowValue = target.Yellow.RoundNullable(target.Precision);
+			var now = time ?? DateTime.Now;
+			if (measure.Targets is not null && measure.Targets.Count > 0 && measure.Targets.First().Value is null) {
+				_ = dbc.Target.Where(t => t.Measure!.HierarchyId == target.HierarchyID
+					&& t.Measure.MeasureDefinitionId == target.MeasureID
+					&& (t.Value != target.Target || t.YellowValue != yellowValue))
+					.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, (byte)IsProcessed.Complete)
+						.SetProperty(t => t.Value, target.Target)
+						.SetProperty(t => t.YellowValue, yellowValue)
+						.SetProperty(t => t.UserId, userId)
+						.SetProperty(t => t.LastUpdatedOn, now));
+			}
+			else {
+				if (measure.Targets?.First() is Target t
+						&& (t.Value != target.Target || t.YellowValue != target.Yellow)) {
+					t.IsProcessed = (byte)IsProcessed.Complete;
+					t.Active = false;
+					t.LastUpdatedOn = now;
+				}
+
+				var measuredata = dbc.MeasureData.Where(md => md.Measure!.Id == measure.Id
+						&& now >= md.Calendar!.StartDate && now <= md.Calendar.EndDate
+						&& (md.Target!.Value != target.Target || md.Target.YellowValue != yellowValue));
+				foreach (var md in measuredata) {
+					md.Target = new() {
+						MeasureId = measure.Id,
+						Value = target.Target,
+						YellowValue = yellowValue,
+						Active = true,
+						UserId = userId,
+						IsProcessed = (byte)IsProcessed.Complete
+					};
+					md.LastUpdatedOn = now;
+				}
+				_ = dbc.SaveChanges();
+			}
+		}
+		catch {
+			return new() { Row = target.RowNumber, Message = Resource.DI_ERR_UPLOADING };
+		}
+
+		return null;
+	}
 }
