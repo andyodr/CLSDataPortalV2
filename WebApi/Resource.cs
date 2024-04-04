@@ -54,7 +54,7 @@ public class Resource
 	public const string DI_ERR_CALENDAR_NULL = "CalendarId cannot be NULL.";
 	public const string DI_ERR_CALENDAR_NO_EXIST = "CalendarId does not exist.";
 	public const string DI_ERR_CALCULATED = "There cannot be a value for this row since this record is calculated.";
-	public const string DI_ERR_NO_MEASURE = "There is no Measure Record for these ID's.";
+	public const string DI_ERR_NO_MEASURE = "There is no Measure record for these ID's.";
 	public const string DI_ERR_NO_MEASURE_DATA = "There is no MeasureData Record. Please contact Administrator.";
 	public const string DI_ERR_TARGET_REPEATED = "There are repeated Targets with the same Hierarchy and Measure.";
 
