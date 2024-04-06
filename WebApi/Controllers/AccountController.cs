@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -84,9 +85,7 @@ public sealed class AccountController : BaseController
 			// cookie with same expiration but readable by scripts for purposes of determining signed-in status
 			Response.Cookies.Append("AuthPresent", properties.ExpiresUtc?.ToString("u") ?? "",
 				new CookieOptions { Expires = properties.ExpiresUtc, IsEssential = true });
-			AddAuditTrail(Dbc,
-				Resource.SECURITY,
-				"SEC-01",
+			Dbc.AddAuditTrail(Resource.SECURITY, "SEC-01",
 				"Login",
 				@"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
 				DateTime.Now,
@@ -118,7 +117,7 @@ public sealed class AccountController : BaseController
 			int claimUserId = int.Parse(userId);
 			var userRepo = Dbc.User.Where(u => u.Id == claimUserId).FirstOrDefault();
 			if (userRepo is not null) {
-				AddAuditTrail(Dbc,
+				Dbc.AddAuditTrail(
 					Resource.SECURITY,
 					"SEC-02",
 					"Logout",

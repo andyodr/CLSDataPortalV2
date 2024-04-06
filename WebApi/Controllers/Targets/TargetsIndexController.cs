@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -84,77 +85,37 @@ public sealed class IndexController : BaseController
 
 		try {
 			var lastUpdatedOn = DateTime.Now;
-			int targetCount = Dbc.Target.Where(t => t.MeasureId == body.MeasureId).Count();
-			var target = Dbc.Target
-				.Where(t => t.MeasureId == body.MeasureId && t.Active == true)
-				.Include(t => t.Measure)
-				.ThenInclude(m => m!.MeasureDefinition)
-				.First();
+			var m = Dbc.Measure.Where(m => m.Id == body.MeasureId)
+				.Select(m => new {
+					m.MeasureDefinitionId,
+					m.MeasureDefinition!.Precision,
+					m.HierarchyId
+				}).Single();
 
-			double? targetValue = null, targetYellow = null;
-			var measureDef = target.Measure!.MeasureDefinition;
-			if (body.Target is not null) {
-				if (measureDef!.UnitId == 1 && (body.Target < 0d || body.Target > 1d)) {
-					return BadRequest(Resource.VAL_VALUE_UNIT);
-				}
+			ImportTarget importTarget = new() {
+				HierarchyId = m.HierarchyId,
+				MeasureDefinitionId = m.MeasureDefinitionId,
+				Target = body.Target,
+				Yellow = body.Yellow,
+				Precision = m.Precision
+			};
+			if (Dbc.ValidateTargetImport(importTarget, _user.Id) is ImportErrorResult err) {
+				return BadRequest(err.Message);
+			};
+			var errs = Dbc.ImportTarget(importTarget, _user.Id, lastUpdatedOn);
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-02",
+				Resource.TARGET,
+				$"Updated / ID={body.MeasureId} / Value={body.Target} / Yellow={body.Yellow}",
+				lastUpdatedOn,
+				_user.Id
+			);
 
-				targetValue = Math.Round((double)body.Target, measureDef.Precision, MidpointRounding.AwayFromZero);
-			}
-
-			if (body.Yellow is not null) {
-				if (measureDef!.UnitId == 1 && (body.Yellow < 0d || body.Yellow > 1d)) {
-					return BadRequest(Resource.VAL_VALUE_UNIT);
-				}
-
-				targetYellow = Math.Round((double)body.Yellow, measureDef.Precision, MidpointRounding.AwayFromZero);
-			}
-
-			// Set current target to inactive if there are multiple targets
-			long returnTargetId = target.Id;
-
-			target.IsProcessed = (byte)IsProcessed.Complete;
-			target.LastUpdatedOn = lastUpdatedOn;
-			target.Active = targetCount == 1 && target.Value is null && target.YellowValue is null;
-
-			// Create new target and save if there are multiple targets for the same measure
-			if ((targetCount > 1 || !target.Active) && body.MeasureId is not null) {
-				// Create new target and save
-				var newTarget = Dbc.Target.Add(new() {
-					Active = true,
-					Value = targetValue,
-					YellowValue = targetYellow,
-					MeasureId = body.MeasureId ?? 0L,
-					LastUpdatedOn = lastUpdatedOn,
-					UserId = _user.Id,
-					IsProcessed = (byte)IsProcessed.Complete
-				}).Entity;
-
-				Dbc.SaveChanges();
-				returnTargetId = newTarget.Id;
-
-				// Update Target Id for all Measure Data records for current intervals
-				if (body.IsCurrentUpdate ?? false) {
-					UpdateCurrentTargets(newTarget.Id, body.ConfirmIntervals, body.MeasureId ?? 0L, _user.Id, lastUpdatedOn);
-				}
-
-				AddAuditTrail(Dbc,
-					Resource.WEB_PAGES,
-					"WEB-02",
-					Resource.TARGET,
-					@"Updated / ID=" + newTarget.Id.ToString() +
-							" / Value=" + newTarget.Value.ToString() +
-							" / Yellow=" + newTarget.YellowValue.ToString(),
-					lastUpdatedOn,
-					_user.Id
-				);
-			}
-
-			Dbc.SaveChanges();
+			var target = Dbc.Target.Where(t => t.MeasureId == body.MeasureId && t.Active == true).First();
 			return new MeasureDataIndexListObject { Data = [new() {
 				Target = body.Target,
 				Yellow = body.Yellow,
-				TargetId = returnTargetId,
-				TargetCount = Dbc.Target.Where(t => t.Measure!.Id == body.MeasureId).Count(),
+				TargetId = target.Id,
+				TargetCount = Dbc.Target.Where(t => t.MeasureId == body.MeasureId).Count(),
 				Updated = LastUpdatedOnObj(lastUpdatedOn, _user.UserName)
 			}]};
 		}
@@ -238,9 +199,7 @@ public sealed class IndexController : BaseController
 						}
 
 						_ = Dbc.SaveChanges();
-						AddAuditTrail(
-						  Dbc, Resource.WEB_PAGES,
-						   "WEB-02",
+						Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-02",
 						   Resource.TARGET,
 						   @"Apply to Children / ID=" + newTarget.Id.ToString() +
 								   " / Value=" + newTarget.Value.ToString() +

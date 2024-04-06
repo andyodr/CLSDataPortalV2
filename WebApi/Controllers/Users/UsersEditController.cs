@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -138,9 +139,7 @@ public sealed class EditController : BaseController
 
 			body.Id = id;
 			UserIndexGetObject result = new() { Data = [body] };
-			AddAuditTrail(Dbc,
-				Resource.SECURITY,
-				"SEC-04",
+			Dbc.AddAuditTrail(Resource.SECURITY, "SEC-04",
 				"User Updated",
 				@"ID=" + id.ToString() + " / Username=" + user.UserName,
 				lastUpdatedOn,

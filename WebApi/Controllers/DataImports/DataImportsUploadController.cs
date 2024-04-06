@@ -29,9 +29,9 @@ public sealed class UploadController : BaseController
 		[Required]
 		public string Sheet { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IList<SheetDataTarget>> Data { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<ImportTarget>> Data { get; set; } = null!;
 
-		public IReadOnlyDictionary<string, IList<SheetDataTarget>> Targets { get; set; } = null!;
+		public IReadOnlyDictionary<string, IList<ImportTarget>> Targets { get; set; } = null!;
 
 		public IReadOnlyDictionary<string, IList<SheetDataCustomer>> Customers { get; set; } = null!;
 
@@ -53,14 +53,20 @@ public sealed class UploadController : BaseController
 			string json = jsonString.ToString();
 			json = Regex.Replace(
 				json,
-				Regex.Escape("hierarchy id"),
-				"hierarchyid".Replace("$", "$$"),
+				Regex.Escape("Hierarchy ID"),
+				"hierarchyId".Replace("$", "$$"),
 				RegexOptions.IgnoreCase
 			);
 			json = Regex.Replace(
 				json,
-				Regex.Escape("measure id"),
-				"measureid".Replace("$", "$$"),
+				Regex.Escape("Measure ID"),
+				"measureId".Replace("$", "$$"),
+				RegexOptions.IgnoreCase
+			);
+			json = Regex.Replace(
+				json,
+				Regex.Escape("measureId"),
+				"measureDefinitionId".Replace("$", "$$"),
 				RegexOptions.IgnoreCase
 			);
 
@@ -71,11 +77,11 @@ public sealed class UploadController : BaseController
 
 			switch (dataImport) {
 				case Helper.DataImports.Target:
-					List<SheetDataTarget> impTargets = [];
+					List<ImportTarget> impTargets = [];
 					foreach (var token in array!) {
-						var targetData = token.Deserialize<SheetDataTarget>(webDefaults)!;
+						var targetData = token.Deserialize<ImportTarget>(webDefaults)!;
 						targetData.RowNumber = rowNumber++;
-						var df = Dbc.MeasureDefinition.Where(md => md.Id == targetData.MeasureID).FirstOrDefault();
+						var df = Dbc.MeasureDefinition.Where(md => md.Id == targetData.MeasureDefinitionId).FirstOrDefault();
 						if (df is not null) {
 							targetData.Precision = df.Precision;
 							impTargets.Add(targetData);
@@ -92,14 +98,14 @@ public sealed class UploadController : BaseController
 
 					// Find duplicates
 					var duplicates = from t in impTargets
-									 group t by new { t.HierarchyID, t.MeasureID } into g
-									 where g.Count<SheetDataTarget>() > 1
+									 group t by new { t.HierarchyId, t.MeasureDefinitionId } into g
+									 where g.Count() > 1
 									 select g.Key;
 					if (duplicates.Any()) {
 						var duplicateRows = from t in impTargets
 											join d in duplicates
-											on new { a = t.HierarchyID, b = t.MeasureID }
-											equals new { a = d.HierarchyID, b = d.MeasureID }
+											on new { a = t.HierarchyId, b = t.MeasureDefinitionId }
+											equals new { a = d.HierarchyId, b = d.MeasureDefinitionId }
 											select t.RowNumber;
 
 						foreach (var itemRow in duplicateRows) {
@@ -111,7 +117,7 @@ public sealed class UploadController : BaseController
 					}
 
 					foreach (var target in impTargets) {
-						if (ValidateTargetRows(target, _user.Id) is ImportErrorResult err) {
+						if (Dbc.ValidateTargetImport(target, _user.Id) is ImportErrorResult err) {
 							result.Error.Add(err);
 						};
 					}
@@ -127,9 +133,7 @@ public sealed class UploadController : BaseController
 						}
 
 						result.Data = null;
-						AddAuditTrail(Dbc,
-							Resource.WEB_PAGES,
-							"WEB-06",
+						Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-06",
 							Resource.DATA_IMPORT,
 							@"Target Imported" + " / sheetName=" + sheetName,
 							DateTime.Now,
@@ -159,9 +163,7 @@ public sealed class UploadController : BaseController
 
 						result.Data = null;
 
-						AddAuditTrail(Dbc,
-							Resource.WEB_PAGES,
-							"WEB-06",
+						Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-06",
 							Resource.DATA_IMPORT,
 							@"Customer Imported" + " / sheetName=" + sheetName,
 							DateTime.Now,
@@ -186,7 +188,7 @@ public sealed class UploadController : BaseController
 					foreach (var token in array!) {
 						var measureData = token.Deserialize<SheetDataMeasureData>(webDefaults);
 						measureData!.RowNumber = rowNumber++;
-						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == measureData.MeasureID).FirstOrDefault();
+						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == measureData.MeasureDefinitionId).FirstOrDefault();
 						if (mdef is Data.Models.MeasureDefinition md) {
 							measureData.UnitId = md.UnitId;
 							measureData.Precision = md.Precision;
@@ -218,9 +220,7 @@ public sealed class UploadController : BaseController
 
 						result.Data = null;
 
-						AddAuditTrail(Dbc,
-							Resource.WEB_PAGES,
-							"WEB-06",
+						Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-06",
 							Resource.DATA_IMPORT,
 							@"Measure Data Imported" +
 								" / CalendarId=" + calendar.Id.ToString() +
@@ -289,44 +289,29 @@ public sealed class UploadController : BaseController
 		}
 	}
 
-	private ImportErrorResult? IsHierarchyValidated(int rowNumber, int hierarchyId, double? value, int userId) {
-		var hierarchy = Dbc.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
-		if (hierarchy.Length == 0) {
-			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_EXIST };
-		}
-		else if (!hierarchy.Any(x => x)) {
-			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACTIVE };
-		}
-		else if (!Dbc.UserHierarchy.Where(u => u.UserId == userId && u.HierarchyId == hierarchyId).Any()) {
-			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACCESS };
-		}
-
-		return default;
-	}
-
 	// --------------------------------------------------------
 	// MeasureData
 	// --------------------------------------------------------
 	private void ValidateMeasureData(SheetDataMeasureData row, int intervalId, int calendarId, int userId) {
 		//check for null values
-		if (row.MeasureID is null) {
+		if (row.MeasureDefinitionId is null) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_MEASURE_NULL });
 			return;
 		}
 
-		if (row.HierarchyID is null) {
+		if (row.HierarchyId is null) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL });
 			return;
 		}
 
 		//check userHierarchy
-		if (IsHierarchyValidated(row.RowNumber, row.HierarchyID ?? -1, row.Value, userId) is ImportErrorResult err) {
+		if (Dbc.IsHierarchyValidated(row.RowNumber, row.HierarchyId ?? -1, row.Value, userId) is ImportErrorResult err) {
 			result.Error.Add(err);
 		};
 
 		//check measureData
-		if (!Dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
-				&& md.Measure.MeasureDefinitionId == row.MeasureID
+		if (!Dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyId
+				&& md.Measure.MeasureDefinitionId == row.MeasureDefinitionId
 				&& md.CalendarId == calendarId).Any()) {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE_DATA });
 		}
@@ -337,8 +322,8 @@ public sealed class UploadController : BaseController
 		}
 
 		//check Measure
-		if (Dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyID
-			&& m.MeasureDefinitionId == row.MeasureID)
+		if (Dbc.Measure.Where(m => m.Active == true && m.HierarchyId == row.HierarchyId
+			&& m.MeasureDefinitionId == row.MeasureDefinitionId)
 			.Include(m => m.MeasureDefinition)
 			.AsNoTrackingWithIdentityResolution()
 			.FirstOrDefault() is Measure m) {
@@ -354,7 +339,7 @@ public sealed class UploadController : BaseController
 			var bMdExpression = m.Expression ?? false;
 			var hId = m.HierarchyId;
 			if (row.Value is not null &&
-				Dbc.IsMeasureCalculated(bMdExpression, hId, intervalId, row.MeasureID ?? -1, measureCalculated)) {
+				Dbc.IsMeasureCalculated(bMdExpression, hId, intervalId, row.MeasureDefinitionId ?? -1, measureCalculated)) {
 				result.Error.Add(new() {
 					Row = row.RowNumber,
 					Message = Resource.DI_ERR_CALCULATED
@@ -373,8 +358,8 @@ public sealed class UploadController : BaseController
 				_ => null
 			};
 
-			_ = Dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyID
-				&& md.Measure.MeasureDefinitionId == row.MeasureID && md.CalendarId == calendarId)
+			_ = Dbc.MeasureData.Where(md => md.Measure!.HierarchyId == row.HierarchyId
+				&& md.Measure.MeasureDefinitionId == row.MeasureDefinitionId && md.CalendarId == calendarId)
 				.ExecuteUpdate(s => s.SetProperty(md => md.IsProcessed, (byte)IsProcessed.MeasureData)
 					.SetProperty(md => md.UserId, userId)
 					.SetProperty(md => md.LastUpdatedOn, DateTime.Now)
@@ -385,48 +370,6 @@ public sealed class UploadController : BaseController
 		catch {
 			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_UPLOADING });
 		}
-	}
-
-	// --------------------------------------------------------
-	// Target
-	// --------------------------------------------------------
-	private ImportErrorResult? ValidateTargetRows(SheetDataTarget row, int userId) {
-		//check for null values
-		if (row.MeasureID is null) {
-			return new() { Row = row.RowNumber, Message = Resource.DI_ERR_MEASURE_NULL };
-		}
-
-		if (row.HierarchyID is null) {
-			return new() { Row = row.RowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL };
-		}
-
-		//check userHierarchy
-		if (IsHierarchyValidated(row.RowNumber, (int)row.HierarchyID, null, userId) is ImportErrorResult err) {
-			return err;
-		};
-
-		var units = Dbc.Measure.Where(m => m.Active == true
-				&& m.MeasureDefinitionId == row.MeasureID
-				&& m.HierarchyId == row.HierarchyID)
-			.Select(m => m.MeasureDefinition!.UnitId)
-			.Distinct()
-			.ToArray();
-		if (units.Length != 0) {
-			foreach (var unit in units) {
-				if (row.Target != null && unit == 1 && (row.Target < 0 || row.Target > 1)) {
-					result.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_TARGET_UNIT });
-				}
-
-				if (row.Yellow != null && unit == 1 && (row.Yellow < 0 || row.Yellow > 1)) {
-					result.Error.Add(new() { Row = row.RowNumber, Message = Resource.VAL_YELLOW_UNIT });
-				}
-			}
-		}
-		else {
-			result.Error.Add(new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
-		}
-
-		return null;
 	}
 
 	// --------------------------------------------------------
@@ -443,7 +386,7 @@ public sealed class UploadController : BaseController
 			return;
 		}
 
-		if(IsHierarchyValidated(row.rowNumber, (int)row.HierarchyId, null, userId) is ImportErrorResult err) {
+		if(Dbc.IsHierarchyValidated(row.rowNumber, (int)row.HierarchyId, null, userId) is ImportErrorResult err) {
 			result.Error.Add(err);
 		};
 

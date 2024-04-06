@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Deliver.WebApi.Helper;
@@ -35,9 +36,7 @@ public sealed class AddController : BaseController
 			}).Entity;
 			Dbc.SaveChanges();
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-08",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-08",
 				Resource.MEASURE_TYPE,
 				@"Added / ID=" + mtype.Id.ToString(),
 				lastUpdatedOn,

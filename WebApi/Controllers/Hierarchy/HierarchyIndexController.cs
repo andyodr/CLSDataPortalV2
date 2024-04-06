@@ -85,9 +85,7 @@ public sealed class IndexController : BaseController
 				Hierarchy = [CreateHierarchy(Dbc)]
 			};
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-05",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-05",
 				Resource.HIERARCHY,
 				@"Added / ID=" + dto.Id.ToString(),
 				DateTime.Now,
@@ -139,9 +137,7 @@ public sealed class IndexController : BaseController
 			newHierarchy.ParentId = parent?.Id;
 			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-05",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-05",
 				Resource.HIERARCHY,
 				@"Updated / ID=" + newHierarchy.Id.ToString(),
 				updatedOn,
@@ -206,9 +202,7 @@ public sealed class IndexController : BaseController
 				Dbc.SaveChanges();
 			}
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-05",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-05",
 				Resource.HIERARCHY,
 				@"Deleted / ID=" + id.ToString() +
 						" / Name=" + hierarchyName,

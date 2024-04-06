@@ -177,9 +177,7 @@ public sealed class IndexController : BaseController
 			measureData.LastUpdatedOn = lastUpdatedOn;
 			Dbc.SaveChanges();
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-01",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-01",
 				Resource.MEASURE_DATA,
 				@"Updated / ID=" + value.MeasureDataId.ToString() +
 						" / Value=" + value.MeasureValue.ToString() +

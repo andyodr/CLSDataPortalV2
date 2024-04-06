@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -60,9 +61,7 @@ public sealed class UsersController : ControllerBase
 
 			_dbc.SaveChanges();
 
-			AddAuditTrail(_dbc,
-				Resource.WEB_PAGES,
-				"WEB-09",
+			_dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-09",
 				Resource.SETTINGS,
 				@"Updated Users",
 				lastUpdatedOn,

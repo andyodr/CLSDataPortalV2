@@ -97,9 +97,7 @@ public sealed class EditController : BaseController
 					any = true;
 					Dbc.UpdateMeasureDataIsProcessed(measure.Id, _user.Id, lastUpdatedOn, IsProcessed.Complete);
 
-					AddAuditTrail(Dbc,
-						Resource.WEB_PAGES,
-						"WEB-03",
+					Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-03",
 						Resource.MEASURE,
 						@"Updated Owner / ID=" + measure.Id.ToString() +
 								" / Owner=" + measure.Owner,

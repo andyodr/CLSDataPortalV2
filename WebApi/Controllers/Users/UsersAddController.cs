@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -93,9 +94,7 @@ public sealed class AddController : BaseController
 				Dbc.SaveChanges();
 			}
 
-			AddAuditTrail(
-			  Dbc, Resource.SECURITY,
-			   "SEC-03",
+			Dbc.AddAuditTrail(Resource.SECURITY, "SEC-03",
 			   "User Added",
 			   @"ID=" + user.Id.ToString() + " / Username=" + user.UserName,
 			   lastUpdatedOn,

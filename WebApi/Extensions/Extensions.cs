@@ -156,6 +156,25 @@ public static class Extensions
 		return isLocked;
 	}
 
+	public static bool AddAuditTrail(this ApplicationDbContext dbc, string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
+		try {
+			_ = dbc.AuditTrail.Add(new AuditTrail {
+				Type = type,
+				Code = code,
+				Description = description,
+				Data = data,
+				UpdatedBy = userId,
+				LastUpdatedOn = lastUpdatedOn
+			});
+			dbc.SaveChanges();
+
+			return true;
+		}
+		catch {
+			return false;
+		}
+	}
+
 	internal static bool UpdateMeasureDataIsProcessed(this ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, IsProcessed isProcessed) {
 		try {
 			_ = dbc.MeasureData
@@ -185,49 +204,142 @@ public static class Extensions
 		}
 	}
 
-	public static ImportErrorResult? ImportTarget(this ApplicationDbContext dbc, SheetDataTarget target, int userId, DateTime? time = null) {
-		var measure = dbc.Measure.Where(m => m.HierarchyId == target.HierarchyID
-				&& m.MeasureDefinitionId == target.MeasureID)
-			.Include(m => m.Targets!.Where(t => t.Active))
-			.Select(m => new { m.Id, m.Targets })
-			.First();
-		try {
-			double? yellowValue = target.Yellow.RoundNullable(target.Precision);
-			var now = time ?? DateTime.Now;
-			if (measure.Targets is not null && measure.Targets.Count > 0 && measure.Targets.First().Value is null) {
-				_ = dbc.Target.Where(t => t.Measure!.HierarchyId == target.HierarchyID
-					&& t.Measure.MeasureDefinitionId == target.MeasureID
-					&& (t.Value != target.Target || t.YellowValue != yellowValue))
-					.ExecuteUpdate(s => s.SetProperty(t => t.IsProcessed, (byte)IsProcessed.Complete)
-						.SetProperty(t => t.Value, target.Target)
-						.SetProperty(t => t.YellowValue, yellowValue)
-						.SetProperty(t => t.UserId, userId)
-						.SetProperty(t => t.LastUpdatedOn, now));
-			}
-			else {
-				if (measure.Targets?.First() is Target t
-						&& (t.Value != target.Target || t.YellowValue != target.Yellow)) {
-					t.IsProcessed = (byte)IsProcessed.Complete;
-					t.Active = false;
-					t.LastUpdatedOn = now;
+	public static ImportErrorResult? ValidateTargetImport(this ApplicationDbContext dbc, ImportTarget row, int userId) {
+		//check for null values
+		if (row.MeasureDefinitionId is null) {
+			return new() { Row = row.RowNumber, Message = Resource.DI_ERR_MEASURE_NULL };
+		}
+
+		if (row.HierarchyId is null) {
+			return new() { Row = row.RowNumber, Message = Resource.DI_ERR_HIERARCHY_NULL };
+		}
+
+		//check userHierarchy
+		if (dbc.IsHierarchyValidated(row.RowNumber, (int)row.HierarchyId, null, userId) is ImportErrorResult err) {
+			return err;
+		};
+
+		var units = dbc.Measure.Where(m => m.Active == true
+				&& m.MeasureDefinitionId == row.MeasureDefinitionId
+				&& m.HierarchyId == row.HierarchyId)
+			.Select(m => m.MeasureDefinition!.UnitId)
+			.Distinct()
+			.ToArray();
+		if (units.Length != 0) {
+			foreach (var unit in units) {
+				if (row.Target != null && unit == 1 && (row.Target < 0 || row.Target > 1)) {
+					return new() { Row = row.RowNumber, Message = Resource.VAL_TARGET_UNIT };
 				}
 
-				var measuredata = dbc.MeasureData.Where(md => md.Measure!.Id == measure.Id
-						&& now >= md.Calendar!.StartDate && now <= md.Calendar.EndDate
-						&& (md.Target!.Value != target.Target || md.Target.YellowValue != yellowValue));
-				foreach (var md in measuredata) {
-					md.Target = new() {
-						MeasureId = measure.Id,
-						Value = target.Target,
-						YellowValue = yellowValue,
-						Active = true,
-						UserId = userId,
-						IsProcessed = (byte)IsProcessed.Complete
-					};
-					md.LastUpdatedOn = now;
+				if (row.Yellow != null && unit == 1 && (row.Yellow < 0 || row.Yellow > 1)) {
+					return new() { Row = row.RowNumber, Message = Resource.VAL_YELLOW_UNIT };
 				}
-				_ = dbc.SaveChanges();
 			}
+		}
+		else {
+			return new() { Row = row.RowNumber, Message = Resource.DI_ERR_NO_MEASURE };
+		}
+
+		return null;
+	}
+
+	public static ImportErrorResult? IsHierarchyValidated(this ApplicationDbContext dbc, int rowNumber, int hierarchyId, double? value, int userId) {
+		var hierarchy = dbc.Hierarchy.Where(h => h.Id == hierarchyId).Select(h => h.Active ?? false).ToArray();
+		if (hierarchy.Length == 0) {
+			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_EXIST };
+		}
+		else if (!hierarchy.Any(x => x)) {
+			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACTIVE };
+		}
+		else if (!dbc.UserHierarchy.Where(u => u.UserId == userId && u.HierarchyId == hierarchyId).Any()) {
+			return new() { Row = rowNumber, Message = Resource.DI_ERR_HIERARCHY_NO_ACCESS };
+		}
+
+		return default;
+	}
+
+	public static ImportErrorResult? ImportTarget(this ApplicationDbContext dbc, ImportTarget target, int userId, DateTime? time = null) {
+		var now = time ?? DateTime.Now;
+		try {
+			var measure = dbc.Measure.Where(m => m.HierarchyId == target.HierarchyId
+					&& m.MeasureDefinitionId == target.MeasureDefinitionId)
+				.Include(m => m.Targets)
+				.Include(m => m.MeasureData.Where(md => now >= md.Calendar!.StartDate && now <= md.Calendar.EndDate))
+				.Select(m => new { m.Id, m.Targets, m.MeasureData })
+				.First();
+			double? targetValue = target.Target.RoundNullable(target.Precision);
+			double? yellowValue = target.Yellow.RoundNullable(target.Precision);
+
+			var existingTarget = measure.Targets?.FirstOrDefault(t => t.Value == targetValue && t.YellowValue == yellowValue);
+			if (existingTarget is null) {
+				var dupTarget = measure.Targets?.GroupBy(t => new { t.Value, t.YellowValue })
+					.Where(g => g.Count() > 1)
+					.Select(g => g.First())
+					.FirstOrDefault();
+				if (dupTarget is not null) {
+					dupTarget.Value = targetValue;
+					dupTarget.YellowValue = yellowValue;
+					dupTarget.LastUpdatedOn = now;
+					dupTarget.Active = true;
+					dupTarget.UserId = userId;
+					dupTarget.IsProcessed = (byte)IsProcessed.Complete;
+					foreach (var md in measure.MeasureData) {
+						md.Target = dupTarget;
+						md.LastUpdatedOn = now;
+						md.IsProcessed = (byte)IsProcessed.Complete;
+					}
+
+					foreach (var t in measure.Targets!.Where(t => t.Active)) {
+						if (t != dupTarget) {
+							t.Active = false;
+							t.LastUpdatedOn = now;
+							t.IsProcessed = (byte)IsProcessed.Complete;
+						}
+					}
+				}
+				else {
+					foreach (var t in measure.Targets?.Where(t => t.Active) ?? []) {
+						t.Active = false;
+						t.LastUpdatedOn = now;
+						t.IsProcessed = (byte)IsProcessed.Complete;
+					}
+
+					Target mdTarget = new() {
+							MeasureId = measure.Id,
+							Value = target.Target,
+							YellowValue = yellowValue,
+							Active = true,
+							UserId = userId,
+							IsProcessed = (byte)IsProcessed.Complete
+					};
+					foreach (var md in measure.MeasureData) {
+						md.Target = mdTarget;
+						md.LastUpdatedOn = now;
+						md.IsProcessed = (byte)IsProcessed.Complete;
+					}
+				}
+			}
+			else {
+				if (!existingTarget.Active) {
+					existingTarget.Active = true;
+					existingTarget.LastUpdatedOn = now;
+					existingTarget.IsProcessed = (byte)IsProcessed.Complete;
+				}
+
+				foreach (var md in measure.MeasureData.Where(md => md.Target != existingTarget)) {
+					md.Target = existingTarget;
+					md.LastUpdatedOn = now;
+					md.IsProcessed = (byte)IsProcessed.Complete;
+				}
+
+				foreach (var t in measure.Targets!.Where(t => t != existingTarget && t.Active)) {
+					t.Active = false;
+					t.LastUpdatedOn = now;
+					t.IsProcessed = (byte)IsProcessed.Complete;
+				}
+			}
+
+			_ = dbc.SaveChanges();
 		}
 		catch {
 			return new() { Row = target.RowNumber, Message = Resource.DI_ERR_UPLOADING };

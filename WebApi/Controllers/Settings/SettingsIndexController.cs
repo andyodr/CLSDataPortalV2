@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -120,9 +121,7 @@ public sealed class IndexController : ControllerBase
 			settings.LastUpdatedOn = lastUpdatedOn;
 			_dbc.SaveChanges();
 
-			AddAuditTrail(_dbc,
-				Resource.WEB_PAGES,
-				"WEB-09",
+			_dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-09",
 				Resource.SETTINGS,
 				@"Updated",
 				lastUpdatedOn,

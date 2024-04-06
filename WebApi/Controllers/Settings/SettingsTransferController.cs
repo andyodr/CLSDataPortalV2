@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,9 +32,7 @@ public sealed class TransferController : ControllerBase
 			// Runs SQL Job
 			try {
 				_ = _context.Database.ExecuteSql($"msdb.dbo.sp_start_job @job_name={_config.sQLJobSSIS}");
-				AddAuditTrail(_context,
-					Resource.WEB_PAGES,
-					"WEB-09",
+				_context.AddAuditTrail(Resource.WEB_PAGES, "WEB-09",
 					Resource.SETTINGS,
 					@"Transfer / SQL Job Run=" + _config.sQLJobSSIS,
 					DateTime.Now,

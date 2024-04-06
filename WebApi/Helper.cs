@@ -23,25 +23,6 @@ public static class Helper
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
 
-	internal static bool AddAuditTrail(ApplicationDbContext dbc, string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
-		try {
-			_ = dbc.AuditTrail.Add(new AuditTrail {
-				Type = type,
-				Code = code,
-				Description = description,
-				Data = data,
-				UpdatedBy = userId,
-				LastUpdatedOn = lastUpdatedOn
-			});
-			dbc.SaveChanges();
-
-			return true;
-		}
-		catch {
-			return false;
-		}
-	}
-
 	internal static ErrorModel ErrorProcessing(ApplicationDbContext db, Exception e, int? userId) {
 		bool authError = false;
 		string errorMessage = e.Message;

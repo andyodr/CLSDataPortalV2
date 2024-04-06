@@ -112,9 +112,7 @@ public sealed class IndexController : BaseController
 
 						Dbc.UpdateMeasureDataIsProcessed(measure.Id, _user.Id, lastUpdatedOn, EnumIsProcessed);
 
-						AddAuditTrail(Dbc,
-							Resource.WEB_PAGES,
-							"WEB-03",
+						Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-03",
 							Resource.MEASURE,
 							@"Updated / ID=" + measure.Id.ToString() +
 									" / Active=" + measure.Active.ToString() +

@@ -1,10 +1,10 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class SheetDataTarget
+public sealed class ImportTarget
 {
-	public int? HierarchyID { get; set; }
+	public int? HierarchyId { get; set; }
 
-	public long? MeasureID { get; set; }
+	public long? MeasureDefinitionId { get; set; }
 
 	public double? Target { get; set; }
 

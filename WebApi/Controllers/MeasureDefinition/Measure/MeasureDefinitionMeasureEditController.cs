@@ -179,9 +179,7 @@ public sealed class EditController : BaseController
 				Dbc.UpdateMeasureDataIsProcessed(mDef.Id, _user.Id);
 			}
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-04",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-04",
 				Resource.MEASURE_DEFINITION,
 				@"Updated / ID=" + mDef.Id.ToString(),
 				lastUpdatedOn,

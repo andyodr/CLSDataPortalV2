@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Deliver.WebApi.Helper;
@@ -120,9 +121,7 @@ public sealed class AddController : BaseController
 				throw new Exception(measuresAndTargets);
 			}
 
-			AddAuditTrail(Dbc,
-				Resource.WEB_PAGES,
-				"WEB-04",
+			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-04",
 				Resource.MEASURE_DEFINITION,
 				@"Added / ID=" + currentMD.Id.ToString(),
 				lastUpdatedOn,
