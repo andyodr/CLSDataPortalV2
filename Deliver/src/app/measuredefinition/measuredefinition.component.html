@@ -54,38 +54,7 @@
             [closeError]="closeError"></app-errors>
             @if (showError) {
               <div class="panel panel-default ng-hide noBorder marB0">
-                <div class="panel-body padB0 marB0 noBorder">
-                  <ngb-alert type="danger" (closed)="closeError()">
-                    <p>{{errorMsg.heading}}</p>
-                    <section class="table-flip-scroll table-dynamic overflowAuto">
-                      <table class="table table-bordered table-striped cf no-margin">
-                        <thead class="cf">
-                          <tr>
-                            <th class="numeric">
-                              <div class="th"> <span>Row</span></div>
-                            </th>
-                            <th class="numeric">
-                              <div class="th"> <span>Error Message</span></div>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (errorRows of errorMsg.errorRows; track errorRows) {
-                            <tr class="itgTableTr">
-                              <td class="alert-danger">{{errorRows.row}}</td>
-                              <td class="alert-danger">{{errorRows.message}}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </section>
-                  </ngb-alert>
-                </div>
-              </div>
-            }
-            <div class="panel panel-default" [hidden]="!showError">
-              <div class="panel-body padB0 marB0 noBorder">
-                <ngb-alert type="danger" (closed)="closeError()">
+                <div class="panel-body thick-red-border mat-elevation-z4">
                   <p>{{errorMsg.heading}}</p>
                   <section class="table-flip-scroll table-dynamic overflowAuto">
                     <table class="table table-bordered table-striped cf no-margin">
@@ -109,9 +78,9 @@
                       </tbody>
                     </table>
                   </section>
-                </ngb-alert>
+                </div>
               </div>
-            </div>
+            }
             <button mat-raised-button color="primary" (click)="doFilter(); drwr.open()" class="min-w-24">
               <mat-icon>filter_list</mat-icon> Filter
             </button>

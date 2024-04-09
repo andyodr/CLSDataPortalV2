@@ -10,7 +10,6 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatInputModule } from "@angular/material/input"
 import { MatFormFieldModule } from "@angular/material/form-field"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
@@ -20,7 +19,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
     templateUrl: "./userlist.component.html",
     styleUrls: ["./userlist.component.scss"],
     standalone: true,
-    imports: [SidebarComponent, ErrorsComponent, NgbAlert, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, RouterLink, MatTableModule, MatSortModule]
+    imports: [SidebarComponent, ErrorsComponent, MatFormFieldModule, MatInputModule, MatButtonModule,
+        MatIconModule, RouterLink, MatTableModule, MatSortModule]
 })
 export class UserListComponent implements AfterViewInit {
     title = "Users"

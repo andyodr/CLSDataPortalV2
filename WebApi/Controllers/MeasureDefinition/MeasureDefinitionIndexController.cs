@@ -18,7 +18,7 @@ public sealed class IndexController : BaseController
 		}
 
 		try {
-			var returnObject = new MeasureDefinitionIndexReturnObject { Data = new List<MeasureDefinitionEdit>() };
+			MeasureDefinitionIndexReturnObject returnObject = new() { Data = [] };
 
 			var mDef = from md in Dbc.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId
@@ -91,7 +91,6 @@ public sealed class IndexController : BaseController
 			}
 
 			_user.savedFilters[Pages.MeasureDefinition].measureTypeId = measureTypeId;
-			//returnObject.filter = _user.savedFilters[pages.measureDefinition];
 
 			return returnObject;
 		}

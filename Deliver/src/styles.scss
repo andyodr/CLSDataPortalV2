@@ -283,6 +283,14 @@ button.min-w-32 {
   width: 7rem;
 }
 
+.m-1 {
+  margin: .25rem; /* 4px */
+}
+
 .m-2 {
-  margin: .5rem;
+  margin: .5rem; /* 8px */
+}
+
+.thick-red-border {
+  border: 8px solid red;
 }

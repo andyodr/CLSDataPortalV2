@@ -6,7 +6,6 @@ import { processError } from "../lib/app-constants"
 import { Hierarchy, RegionFilter } from "../_services/hierarchy.service"
 import { HierarchyService } from "../_services/hierarchy.service"
 import { LoggerService } from "../_services/logger.service"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { RegionTreeComponent } from "../lib/region-tree/region-tree.component"
@@ -27,7 +26,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
     templateUrl: "./hierarchy.component.html",
     styleUrls: ["./hierarchy.component.scss"],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatTableModule, MatSortModule]
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule,
+        MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule,
+        RegionTreeComponent, SidebarComponent, ErrorsComponent, MatTableModule, MatSortModule]
 })
 export class RegionHierarchyComponent implements AfterViewInit {
     title = "Region Hierarchy"

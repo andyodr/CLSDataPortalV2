@@ -1,13 +1,11 @@
 import { Component, Input } from "@angular/core"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 
 @Component({
     selector: "app-errors",
     template: `
 <div class="panel panel-default ng-hide noBorder marB0">
-  <div class="panel-body padB0 marB0 noBorder">
+  <div class="panel-body thick-red-border p-2 mat-elevation-z4">
     @if (showContentPage) {
-      <ngb-alert type="danger" (closed)="closeError()">
         <p>{{error.heading}}</p>
         @if (error.id != null) {
           <p>{{error.id}}</p>
@@ -16,11 +14,8 @@ import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
           <p>{{error.status}}</p>
         }
         <p>{{error.message}}</p>
-      </ngb-alert>
     }
-
-    @if (!showContentPage) {
-      <ngb-alert type="danger">
+    @else {
         @if (error.id != null) {
           <p>{{error.id}}</p>
         }
@@ -28,12 +23,11 @@ import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
           <p>{{error.status}}</p>
         }
         <p>{{error.message}}</p>
-      </ngb-alert>
     }
   </div>
 </div>`,
     standalone: true,
-    imports: [NgbAlert]
+    imports: []
 })
 export class ErrorsComponent {
     @Input() error!: { id: any, status: any, message: any, heading: any }

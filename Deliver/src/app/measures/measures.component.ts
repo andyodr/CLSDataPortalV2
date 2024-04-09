@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, OnInit, ViewChild } from "@angular/core"
+import { Component, ViewChild } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTable, MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -16,7 +16,6 @@ import {
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatInputModule } from "@angular/material/input"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { MatOptionModule } from "@angular/material/core"
@@ -58,7 +57,9 @@ class ToggleQuery {
         ])
     ],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule, MatCheckboxModule, MatTooltipModule]
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule,
+        MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
+        ErrorsComponent, MatInputModule, MatTableModule, MatSortModule, MatCheckboxModule, MatTooltipModule]
 })
 export class MeasuresComponent {
     title = "Measures"

@@ -18,9 +18,9 @@ public sealed class FilterController : BaseController
 		}
 
 		try {
-			var result = new FilterReturnObject {
-				MeasureTypes = Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArray()
-			};
+			FilterReturnObject result = new() {
+				MeasureTypes = [.. Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description))]
+            };
 
 			_user.savedFilters[Pages.MeasureDefinition].measureTypeId ??= Dbc.MeasureType.FirstOrDefault()?.Id;
 			result.Filter = _user.savedFilters[Pages.MeasureDefinition];

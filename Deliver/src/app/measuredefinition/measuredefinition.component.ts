@@ -8,7 +8,6 @@ import { LoggerService } from "../_services/logger.service"
 import { MeasureDefinition, FilterResponseDto, MeasureDefinitionService, MeasureType } from "../_services/measure-definition.service"
 import { RouterLink } from "@angular/router"
 import { MatMenuModule } from "@angular/material/menu"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { MatInputModule } from "@angular/material/input"
@@ -34,7 +33,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
         ])
     ],
     standalone: true,
-    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, MatInputModule, SidebarComponent, ErrorsComponent, NgbAlert, MatMenuModule, RouterLink, MatTableModule, MatSortModule]
+    imports: [MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule,
+        MatFormFieldModule, MatSelectModule, MatOptionModule, MatInputModule, SidebarComponent,
+        ErrorsComponent, MatMenuModule, RouterLink, MatTableModule, MatSortModule]
 })
 export class MeasureDefinitionComponent implements OnInit {
     title = "Measure Definition"

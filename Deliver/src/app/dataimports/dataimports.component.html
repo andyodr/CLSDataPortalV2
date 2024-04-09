@@ -154,62 +154,32 @@
 
       <!-- Table Section-->
       <div class="panel-body padT0">
-
         <!-- Error Section-->
-        <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage" [closeError]="closeError"></app-errors>
         @if (showUploadError) {
-          <div class="panel panel-default ng-hide noBorder marB0">
-            <div class="panel-body padB0 marB0 noBorder">
-              <ngb-alert type="danger" (closed)="closeUploadError()">
-                <p>{{errorUploadMsg.heading}}</p>
-                <section class="table-flip-scroll table-dynamic overflowAuto">
-                  <table class="table table-bordered table-striped cf no-margin">
-                    <thead class="cf">
-                      <tr>
-                        <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                        <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (errorRows of errorUploadMsg.errorRows; track errorRows) {
-                        <tr class="itgTableTr">
-                          <td class="alert-danger">{{errorRows.row}}</td>
-                          <td class="alert-danger">{{errorRows.message}}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </section>
-              </ngb-alert>
-            </div>
-          </div>
-        }
-        <div class="panel panel-default ng-hide noBorder marB0" [hidden]="!showUploadError">
-          <div class="panel-body padB0 marB0 noBorder">
-            <ngb-alert type="danger" (closed)="closeUploadError()">
-              <p>{{errorUploadMsg.heading}}</p>
-              <section class="table-flip-scroll table-dynamic overflowAuto">
-                <table class="table table-bordered table-striped cf no-margin">
-                  <thead class="cf">
-                    <tr>
-                      <th class="numeric"><div class="th"> <span>Row</span></div></th>
-                      <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+        <div class="panel panel-default">
+          <div class="panel-body thick-red-border mat-elevation-z4">
+            <section>
+              <p class="m-2">{{errorUploadMsg.heading}}</p>
+              <table class="table table-bordered table-striped cf no-margin">
+                <thead class="cf">
+                  <tr>
+                    <th class="numeric"><div class="th"> <span>Row</span></div></th>
+                    <th class="numeric"><div class="th"> <span>Error Message</span></div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (errorRows of errorUploadMsg.errorRows; track errorRows) {
+                    <tr class="itgTableTr">
+                      <td class="alert-danger">{{errorRows.row}}</td>
+                      <td class="alert-danger">{{errorRows.message}}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    @for (errorRows of errorUploadMsg.errorRows; track errorRows) {
-                      <tr class="itgTableTr">
-                        <td class="alert-danger">{{errorRows.row}}</td>
-                        <td class="alert-danger">{{errorRows.message}}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </section>
-            </ngb-alert>
+                  }
+                </tbody>
+              </table>
+            </section>
           </div>
         </div>
-
+        }
         <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
           <!-- Table Section-->
           <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">

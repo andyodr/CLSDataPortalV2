@@ -18,7 +18,6 @@ import { AccountService } from '../_services/account.service';
 import { NgClass, DatePipe, DecimalPipe, PercentPipe } from "@angular/common"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatInputModule } from "@angular/material/input"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { MatOptionModule } from "@angular/material/core"
@@ -44,7 +43,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
     standalone: true,
     imports: [DecimalPipe, PercentPipe, MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule,
         FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent,
-        ErrorsComponent, NgbAlert, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
+        ErrorsComponent, MatInputModule, MatTooltipModule, MatTableModule, MatSortModule, NgClass, DatePipe]
 })
 export class MeasureDataComponent {
 

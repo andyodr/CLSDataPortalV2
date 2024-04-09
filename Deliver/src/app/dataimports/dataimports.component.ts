@@ -14,7 +14,6 @@ import { LoggerService } from "../_services/logger.service"
 import { MeasureDataService } from "../_services/measure-data.service"
 import { IntervalDto } from "../_services/measure-definition.service"
 import { FiltersIntervalsData } from "../_models/measureData"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { UploadDirective } from "./upload.directive"
 import { MatInputModule } from "@angular/material/input"
@@ -69,7 +68,7 @@ type UploadsBody = {
     standalone: true,
     imports: [SidebarComponent, MatProgressBarModule, MatFormFieldModule, MatSelectModule, FormsModule,
         MatOptionModule, MatButtonModule, MatIconModule, MatInputModule, UploadDirective, ErrorsComponent,
-        NgbAlert, TableComponent, DatePipe]
+        TableComponent, DatePipe]
 })
 export class DataImportsComponent {
     title = "Data Imports"

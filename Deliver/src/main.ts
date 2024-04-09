@@ -1,7 +1,6 @@
 import { enableProdMode, importProvidersFrom } from "@angular/core"
 import { environment } from "./environments/environment"
 import { AppComponent } from "./app/app.component"
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap"
 import { MatTreeModule } from "@angular/material/tree"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatTableModule } from "@angular/material/table"
@@ -19,7 +18,7 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatDialogModule } from "@angular/material/dialog"
 import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatButtonModule } from "@angular/material/button"
-import { AppRoutingModule, routes } from "./app/app-routing.module"
+import { routes } from "./app/app-routing.module"
 import { FormsModule, ReactiveFormsModule } from "@angular/forms"
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser"
 import { provideAnimations } from "@angular/platform-browser/animations"
@@ -33,10 +32,10 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, FormsModule, MatButtonModule, MatCheckboxModule,
-            MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatProgressBarModule,
-            MatRadioModule, MatRippleModule, MatSelectModule, MatSidenavModule, MatSnackBarModule, MatSortModule,
-            MatTableModule, MatTooltipModule, MatTreeModule, NgbModule, ReactiveFormsModule),
+        importProvidersFrom(BrowserModule, FormsModule, MatButtonModule, MatCheckboxModule, MatDialogModule,
+            MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatProgressBarModule,
+            MatRadioModule, MatRippleModule, MatSelectModule, MatSidenavModule, MatSnackBarModule,
+            MatSortModule, MatTableModule, MatTooltipModule, MatTreeModule, ReactiveFormsModule),
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
         provideAnimations(),
         provideHttpClient(withInterceptorsFromDi()),

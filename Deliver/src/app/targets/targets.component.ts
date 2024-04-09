@@ -14,7 +14,6 @@ import { RegionTreeComponent } from '../lib/region-tree/region-tree.component';
 import { HttpParams } from '@angular/common/http';
 import { AccountService } from "../_services/account.service"
 import { MatInputModule } from "@angular/material/input"
-import { NgbAlert } from "@ng-bootstrap/ng-bootstrap"
 import { ErrorsComponent } from "../errors/errors.component"
 import { SidebarComponent } from "../nav/sidebar.component"
 import { MatOptionModule } from "@angular/material/core"
@@ -55,12 +54,13 @@ interface TargetData {
         ])
     ],
     standalone: true,
-    imports: [DecimalPipe, PercentPipe, MatProgressBarModule, MatSidenavModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule, RegionTreeComponent, SidebarComponent, ErrorsComponent, NgbAlert, MatInputModule, MatTableModule, MatSortModule]
+    imports: [DecimalPipe, PercentPipe, MatProgressBarModule, MatSidenavModule, MatButtonModule,
+        MatIconModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule,
+        RegionTreeComponent, SidebarComponent, ErrorsComponent, MatInputModule, MatTableModule, MatSortModule]
 })
 export class TargetsComponent implements AfterViewInit {
-
     title = "Targets"
-    targetResponse: TargetApiResponse | undefined;
+    targetResponse: TargetApiResponse | undefined
 
     //Filter Properties
     drawer = {
