@@ -14,7 +14,7 @@ public sealed class Measure
 
 	public List<Target>? Targets { get; } = [];
 
-	public ICollection<MeasureData> MeasureData { get; } = new HashSet<MeasureData>();
+	public ICollection<MeasureData> MeasureData { get; } = [];
 
 	public bool? Active { get; set; }
 

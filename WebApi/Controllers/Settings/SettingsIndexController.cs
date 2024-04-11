@@ -33,7 +33,7 @@ public sealed class IndexController : ControllerBase
 				return Unauthorized();
 			}
 
-			var result = new SettingsGetReturnObject { Locked = new(), Years = new() };
+			var result = new SettingsGetReturnObject { Locked = [], Years = [] };
 			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.IntervalId == (int)Intervals.Monthly);
 			var settings = _dbc.Setting;
 			if (!settings.Any()) {
@@ -86,7 +86,7 @@ public sealed class IndexController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(_dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -154,7 +154,7 @@ public sealed class IndexController : ControllerBase
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(_dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

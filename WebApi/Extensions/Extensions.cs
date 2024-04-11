@@ -175,6 +175,33 @@ public static class Extensions
 		}
 	}
 
+	internal static ErrorModel ErrorProcessing(this ApplicationDbContext db, Exception e, int? userId) {
+		bool authError = false;
+		string errorMessage = e.Message;
+
+		if (errorMessage == Resource.PAGE_AUTHORIZATION_ERR) {
+			authError = true;
+			errorMessage = Resource.USER_NOT_AUTHORIZED;
+		}
+
+		var auditTrail = db.AuditTrail.Add(new() {
+			UpdatedBy = userId,
+			Type = Resource.SYSTEM,
+			Code = "SE-01",
+			Data = errorMessage + "\n" + e.StackTrace?.ToString(),
+			Description = "Web Site Error",
+			LastUpdatedOn = DateTime.Now
+		}
+		);
+		db.SaveChanges();
+
+		return new ErrorModel {
+			Id = auditTrail.Entity.Id,
+			Message = errorMessage,
+			AuthError = authError
+		};
+	}
+
 	internal static bool UpdateMeasureDataIsProcessed(this ApplicationDbContext dbc, long measureId, int userId, DateTime lastUpdatedOn, IsProcessed isProcessed) {
 		try {
 			_ = dbc.MeasureData

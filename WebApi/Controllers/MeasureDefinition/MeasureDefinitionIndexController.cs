@@ -1,4 +1,5 @@
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -95,7 +96,7 @@ public sealed class IndexController : BaseController
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

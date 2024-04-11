@@ -11,6 +11,11 @@ export class MeasureDataService {
 
     constructor(private http: HttpClient) { }
 
+    /**
+     * Calls GET api/measuredata/filter
+     *
+     * @returns MeasureData filters
+     */
     getFilters(): Observable<MeasureDataFilterResponseDto> {
         return this.http.get<MeasureDataFilterResponseDto>(this.baseUrl + "filter").pipe(
             map((response: MeasureDataFilterResponseDto) => {
@@ -19,6 +24,9 @@ export class MeasureDataService {
         )
     }
 
+    /**
+     * Calls GET api/filters/intervals
+     */
     getFiltersIntervals(params: HttpParams): Observable<FiltersIntervalsDto> {
         return this.http.get<FiltersIntervalsDto>(environment.baseUrl + "api/filters/intervals", { params }).pipe(
             map((response: FiltersIntervalsDto) => {
@@ -27,6 +35,9 @@ export class MeasureDataService {
         )
     }
 
+    /**
+     * Calls GET api/measuredata/index/{ params }
+     */
     getMeasureDataList(params: HttpParams): Observable<MeasureDataApiResponse> {
         return this.http.get<MeasureDataApiResponse>(this.baseUrl + "Index/", { params }).pipe(
             map((response: MeasureDataApiResponse) => {
@@ -35,6 +46,9 @@ export class MeasureDataService {
         )
     }
 
+    /**
+     * Calls PUT api/measuredata/index/ + body
+     */
     updateMeasureData(body: MeasureDataPutDto): Observable<MeasureDataApiResponse> {
         return this.http.put<MeasureDataApiResponse>(this.baseUrl + "Index/", body).pipe(
             map((response: MeasureDataApiResponse) => {

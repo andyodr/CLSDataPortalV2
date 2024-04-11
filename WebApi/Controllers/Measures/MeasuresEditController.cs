@@ -51,7 +51,7 @@ public sealed class EditController : BaseController
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -115,7 +115,7 @@ public sealed class EditController : BaseController
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

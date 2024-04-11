@@ -284,7 +284,7 @@ public sealed class UploadController : BaseController
 			return returnObject;
 		}
 		catch (Exception e) {
-			ErrorProcessing(Dbc, e, _user.Id);
+			Dbc.ErrorProcessing(e, _user.Id);
 			return null;
 		}
 	}

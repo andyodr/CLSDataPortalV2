@@ -137,7 +137,7 @@ public sealed class IndexController : BaseController
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -196,7 +196,7 @@ public sealed class IndexController : BaseController
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -213,11 +213,11 @@ public sealed class IndexController : BaseController
 			Intervals.Monthly or Intervals.Yearly => $"[ {date1}, {date2} ]",
 			_ => date1
 		};
-    }
+	}
 
 	/// <summary>
 	/// This is for a special case where some level 2 hierarchies can not be edited since they are a sum value
 	/// </summary>
-    internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) =>
-        !(config.SpecialHierarchies is List<int> hierarchies && hierarchies.Contains(hierarchyId));
+	internal static bool CanEditValueFromSpecialHierarchy(ConfigSettings config, int hierarchyId) =>
+		!(config.SpecialHierarchies is List<int> hierarchies && hierarchies.Contains(hierarchyId));
 }

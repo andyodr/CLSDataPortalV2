@@ -23,33 +23,6 @@ public static class Helper
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
 
-	internal static ErrorModel ErrorProcessing(ApplicationDbContext db, Exception e, int? userId) {
-		bool authError = false;
-		string errorMessage = e.Message;
-
-		if (errorMessage == Resource.PAGE_AUTHORIZATION_ERR) {
-			authError = true;
-			errorMessage = Resource.USER_NOT_AUTHORIZED;
-		}
-
-		var auditTrail = db.AuditTrail.Add(new() {
-			UpdatedBy = userId,
-			Type = Resource.SYSTEM,
-			Code = "SE-01",
-			Data = errorMessage + "\n" + e.StackTrace?.ToString(),
-			Description = "Web Site Error",
-			LastUpdatedOn = DateTime.Now
-		}
-		);
-		db.SaveChanges();
-
-		return new ErrorModel {
-			Id = auditTrail.Entity.Id,
-			Message = errorMessage,
-			AuthError = authError
-		};
-	}
-
 	internal static DataImportObject DataImportHeading(DataImports dataImport) {
 		DataImportObject result = new() { Heading = new List<HeadingObject>() };
 

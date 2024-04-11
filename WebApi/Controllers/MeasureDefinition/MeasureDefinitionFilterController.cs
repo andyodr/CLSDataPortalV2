@@ -1,5 +1,6 @@
 using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Deliver.WebApi.Helper;
@@ -27,7 +28,7 @@ public sealed class FilterController : BaseController
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

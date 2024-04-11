@@ -1,5 +1,6 @@
 using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -72,7 +73,7 @@ public sealed class IntervalsController : BaseController
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

@@ -22,7 +22,7 @@ public sealed class EditController : BaseController
 			return new MeasureType(measType.Id, measType.Name, measType.Description);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -63,7 +63,7 @@ public sealed class EditController : BaseController
 			);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

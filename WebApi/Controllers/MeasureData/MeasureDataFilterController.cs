@@ -1,5 +1,6 @@
 using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 using Deliver.WebApi.Data;
+using Deliver.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +55,7 @@ public sealed class FilterController : BaseController
 				filter.CurrentCalendarIds.yearlyCalendarId = FindPreviousCalendarId(Dbc.Calendar, (int)Intervals.Yearly);
 			}
 			catch (Exception e) {
-				filter.Error = ErrorProcessing(Dbc, e, _user.Id);
+				filter.Error = Dbc.ErrorProcessing(e, _user.Id);
 			}
 
 
@@ -91,7 +92,7 @@ public sealed class FilterController : BaseController
 			return StatusCode(499);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -140,7 +141,7 @@ public sealed class FilterController : BaseController
 			};
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

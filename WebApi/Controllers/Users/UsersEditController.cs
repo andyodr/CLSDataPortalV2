@@ -73,7 +73,7 @@ public sealed class EditController : BaseController
 		}
 		catch (Exception e) {
 			int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -149,7 +149,7 @@ public sealed class EditController : BaseController
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

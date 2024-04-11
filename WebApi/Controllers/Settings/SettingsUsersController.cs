@@ -36,7 +36,7 @@ public sealed class UsersController : ControllerBase
 		}
 
 		try {
-			var result = new SettingsGetReturnObject { Year = dto.Year, Users = new() { dto.User } };
+			var result = new SettingsGetReturnObject { Year = dto.Year, Users = [dto.User] };
 			var calendarRecords = _dbc.Calendar
 				.Where(c => c.Year == dto.Year && c.IntervalId == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);
@@ -71,7 +71,7 @@ public sealed class UsersController : ControllerBase
 			return result;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_dbc, e, _user.Id));
+			return BadRequest(_dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

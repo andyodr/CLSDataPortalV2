@@ -28,7 +28,7 @@ public sealed class IndexController : BaseController
 			return GetMeasures(Dbc, hierarchyId, measureTypeId);
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 
@@ -131,7 +131,7 @@ public sealed class IndexController : BaseController
 			return returnObject;
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(Dbc, e, _user.Id));
+			return BadRequest(Dbc.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

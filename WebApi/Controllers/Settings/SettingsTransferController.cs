@@ -46,7 +46,7 @@ public sealed class TransferController : ControllerBase
 			}
 		}
 		catch (Exception e) {
-			return BadRequest(ErrorProcessing(_context, e, _user.Id));
+			return BadRequest(_context.ErrorProcessing(e, _user.Id));
 		}
 	}
 }

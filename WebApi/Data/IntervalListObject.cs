@@ -8,5 +8,5 @@ public sealed class IntervalListObject
 
 	public List<GetIntervalsObject> Data { get; init; } = [];
 
-	public List<MeasureType> MeasureTypes { get; init; } = [];
+	public IList<MeasureType> MeasureTypes { get; init; } = [];
 }
