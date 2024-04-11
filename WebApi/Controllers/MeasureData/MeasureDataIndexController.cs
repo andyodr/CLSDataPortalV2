@@ -34,23 +34,18 @@ public sealed class IndexController : BaseController
 					.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any(),
 				EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId)
 			};
-			DateTime? date = new();
-			if (string.IsNullOrEmpty(dto.Day)) {
-				date = null;
-			}
-			else {
-				date = Convert.ToDateTime(dto.Day);
-				var cal = Dbc.Calendar
-					.Where(c => c.StartDate == date)
-					.AsNoTrackingWithIdentityResolution().ToArray();
-				if (cal.Length > 0) {
-					result.CalendarId = cal.First().Id;
-				}
+
+			DateTime? date = string.IsNullOrEmpty(dto.Day) ? null : Convert.ToDateTime(dto.Day);
+			var cal = Dbc.Calendar
+				.Where(c => c.StartDate == date)
+				.AsNoTracking().ToArray();
+			if (cal.Length > 0) {
+				result.CalendarId = cal.First().Id;
 			}
 
 			var calendar = Dbc.Calendar
 				.Where(c => c.Id == result.CalendarId)
-				.AsNoTrackingWithIdentityResolution().First();
+				.AsNoTracking().First();
 
 			// From settings page, DO NOT USE = !Active
 			if (Dbc.Setting.AsNoTracking().First().Active == true) {
@@ -84,7 +79,15 @@ public sealed class IndexController : BaseController
 					calculated = Dbc.IsMeasureCalculated(md.Measure.Expression ?? false, dto.HierarchyId, calendar.IntervalId, md.Measure.MeasureDefinition.Id, null)
 				});
 
-			foreach (var md in measureData.AsNoTrackingWithIdentityResolution()) {
+			var variables = Dbc.MeasureData
+				.Where(d => d.CalendarId == result.CalendarId
+					&& d.Measure!.HierarchyId == dto.HierarchyId
+					&& d.Measure!.Active == true
+					&& d.Measure!.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId)
+				.Select(d => new { d.Measure!.MeasureDefinitionId, d.Measure.MeasureDefinition!.VariableName, d.Value })
+				.ToArray();
+
+			foreach (var md in measureData.AsNoTracking()) {
 				MeasureDataReturnObject measureDataDto = new() {
 					Id = md.Id,
 					Name = md.Name,
@@ -104,19 +107,11 @@ public sealed class IndexController : BaseController
 				};
 
 				if (measureDataDto.Calculated && !string.IsNullOrEmpty(measureDataDto.Expression)) {
-					// Find expression variables/values
-					var vNames = Dbc.MeasureData
-						.Where(d => d.CalendarId == result.CalendarId
-							&& d.Measure!.HierarchyId == dto.HierarchyId
-							&& d.Measure!.Active == true
-							&& d.Measure!.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
-							&& measureDataDto.Expression.Contains(d.Measure!.MeasureDefinition!.VariableName))
-						.Select(d => new { d.Measure!.MeasureDefinitionId, d.Measure.MeasureDefinition!.VariableName, d.Value });
 					// Search measure data values from variables
 					string sExpression = measureDataDto.Expression;
-					foreach (var name in vNames) {
-						if (name.Value is double v) {
-							sExpression = sExpression.Replace($@"Data[""{name.VariableName}""]", v.ToString());
+					foreach (var variable in variables) {
+						if (variable.Value is double v) {
+							sExpression = sExpression.Replace($@"Data[""{variable.VariableName}""]", v.ToString());
 						}
 					}
 
@@ -133,7 +128,6 @@ public sealed class IndexController : BaseController
 			}
 			_user.savedFilters[Pages.MeasureData].hierarchyId = dto.HierarchyId;
 			result.Filter = _user.savedFilters[Pages.MeasureData];
-
 			return result;
 		}
 		catch (Exception e) {

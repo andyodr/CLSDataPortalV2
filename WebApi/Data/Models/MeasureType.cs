@@ -9,4 +9,6 @@ public sealed class MeasureType
 	public string? Description { get; set; }
 
 	public DateTime LastUpdatedOn { get; set; }
+
+	public IReadOnlyList<MeasureDefinition>? MeasureDefinitions { get; set; }
 }
