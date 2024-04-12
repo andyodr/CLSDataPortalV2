@@ -453,7 +453,6 @@ export class MeasureDataComponent {
 
     processLocalError(title: string, message: string, id: null | number, status: null | number, authError: boolean | null): void {
         this.errorMsg = this.processError(title, message, id, status);
-        this.progress = false;
         this.disabledAll = false;
         this.showContentPage = (authError !== true);
     }

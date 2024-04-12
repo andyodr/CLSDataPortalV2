@@ -19,7 +19,7 @@ public sealed class IndexController : BaseController
 	/// Get a MeasureDataIndexListObject
 	/// </summary>
 	[HttpGet]
-	public ActionResult<MeasureDataIndexListObject> Get([FromQuery] MeasureDataReceiveObject dto) {
+	public async Task<ActionResult<MeasureDataIndexListObject>> GetAsync([FromQuery] MeasureDataReceiveObject dto, CancellationToken cancel) {
 		if (CreateUserObject(User) is not UserObject _user) {
 			return Unauthorized();
 		}
@@ -30,25 +30,25 @@ public sealed class IndexController : BaseController
 				CalendarId = dto.CalendarId,
 				Range = BuildRangeString(dto.CalendarId),
 				Locked = false,
-				Allow = Dbc.UserHierarchy
-					.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).Any(),
+				Allow = await Dbc.UserHierarchy
+					.Where(d => d.UserId == _user.Id && d.HierarchyId == dto.HierarchyId).AnyAsync(cancel),
 				EditValue = CanEditValueFromSpecialHierarchy(Config, dto.HierarchyId)
 			};
 
 			DateTime? date = string.IsNullOrEmpty(dto.Day) ? null : Convert.ToDateTime(dto.Day);
-			var cal = Dbc.Calendar
+			var cal = await Dbc.Calendar
 				.Where(c => c.StartDate == date)
-				.AsNoTracking().ToArray();
+				.AsNoTracking().ToArrayAsync(cancel);
 			if (cal.Length > 0) {
 				result.CalendarId = cal.First().Id;
 			}
 
-			var calendar = Dbc.Calendar
+			var calendar = await Dbc.Calendar
 				.Where(c => c.Id == result.CalendarId)
-				.AsNoTracking().First();
+				.AsNoTracking().FirstAsync(cancel);
 
 			// From settings page, DO NOT USE = !Active
-			if (Dbc.Setting.AsNoTracking().First().Active == true) {
+			if ((await Dbc.Setting.AsNoTracking().FirstAsync(cancel)).Active == true) {
 				result.Locked = Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar);
 			}
 
@@ -87,7 +87,7 @@ public sealed class IndexController : BaseController
 				.Select(d => new { d.Measure!.MeasureDefinitionId, d.Measure.MeasureDefinition!.VariableName, d.Value })
 				.ToArray();
 
-			foreach (var md in measureData.AsNoTracking()) {
+			foreach (var md in await measureData.AsNoTracking().ToArrayAsync(cancel)) {
 				MeasureDataReturnObject measureDataDto = new() {
 					Id = md.Id,
 					Name = md.Name,
