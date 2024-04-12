@@ -1,6 +1,7 @@
 using Deliver.WebApi;
 using Deliver.WebApi.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,8 @@ builder.Services
 		options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 	})
 	.Configure<ConfigSettings>(builder.Configuration.GetSection(ConfigSettings.SectionName))
-	.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"))
+	.AddDbContext<ApplicationDbContext>(options => options
+		.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient)
 	.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
 	.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(options => {

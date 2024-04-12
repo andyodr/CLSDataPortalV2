@@ -6,7 +6,7 @@ public sealed class IntervalListObject
 {
 	public int CalendarId { get; set; }
 
-	public List<GetIntervalsObject> Data { get; init; } = [];
+	public IList<GetIntervalsObject> Data { get; init; } = [];
 
 	public IList<MeasureType> MeasureTypes { get; init; } = [];
 }

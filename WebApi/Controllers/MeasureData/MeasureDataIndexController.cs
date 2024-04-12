@@ -52,14 +52,11 @@ public sealed class IndexController : BaseController
 				result.Locked = Dbc.IsDataLocked(calendar.IntervalId, _user.Id, calendar);
 			}
 
-			var measureData = Dbc.MeasureData
+			var measureData = await Dbc.MeasureData
 				.Where(m => m.Measure!.Active == true
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
 					&& m.CalendarId == result.CalendarId)
-				.Include(md => md.Target)
-				.Include(md => md.User)
-				.Include(md => md.Measure).ThenInclude(m => m!.MeasureDefinition)
 				.Select(md => new {
 					lastUpdatedOn = md.LastUpdatedOn,
 					md.User,
@@ -77,17 +74,18 @@ public sealed class IndexController : BaseController
 					md.Action,
 					md.Measure.HierarchyId,
 					calculated = Dbc.IsMeasureCalculated(md.Measure.Expression ?? false, dto.HierarchyId, calendar.IntervalId, md.Measure.MeasureDefinition.Id, null)
-				});
+				})
+				.ToArrayAsync(cancel);
 
-			var variables = Dbc.MeasureData
+			var variables = await Dbc.MeasureData
 				.Where(d => d.CalendarId == result.CalendarId
 					&& d.Measure!.HierarchyId == dto.HierarchyId
 					&& d.Measure!.Active == true
 					&& d.Measure!.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId)
 				.Select(d => new { d.Measure!.MeasureDefinitionId, d.Measure.MeasureDefinition!.VariableName, d.Value })
-				.ToArray();
+				.ToArrayAsync(cancel);
 
-			foreach (var md in await measureData.AsNoTracking().ToArrayAsync(cancel)) {
+			foreach (var md in measureData) {
 				MeasureDataReturnObject measureDataDto = new() {
 					Id = md.Id,
 					Name = md.Name,

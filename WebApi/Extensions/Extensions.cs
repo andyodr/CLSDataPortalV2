@@ -7,8 +7,7 @@ namespace Deliver.WebApi.Extensions;
 
 public static class Extensions
 {
-	public static IList<RegionsDataViewModel> OrderByHierarchy(this IEnumerable<RegionsDataViewModel> regions, RegionsDataViewModel parent = null!)
-	{
+	public static IList<RegionsDataViewModel> OrderByHierarchy(this IEnumerable<RegionsDataViewModel> regions, RegionsDataViewModel parent = null!) {
 		List<RegionsDataViewModel> result = [];
 		if (parent is null) {
 			parent = regions.First(h => h.ParentId is null);
@@ -86,28 +85,12 @@ public static class Extensions
 		// --------------------------------- Lock Override ----------------------------
 		bool isLocked = false;
 		bool isLockedOverride = false;
-
-		if (calendar.IntervalId == (int)Intervals.Monthly) {
-			if (calendar.Locked == true) {
-				isLocked = true;
-				var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == calendarId);
-				foreach (var itemUserCal in userCal) {
-					if (itemUserCal.LockOverride ?? false) {
-						isLockedOverride = true;
-						break;
-					}
-				}
-			}
-		}
-
-		// This is a fix because Settings page does not have calendarLock by other intervals yet. Only monthly.
-		if (calendar.IntervalId == (int)Intervals.Weekly) {
-			var cal = dbc.Calendar.Where(
-			  c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year && c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
+		IQueryable<Calendar>? cal;
+		switch ((Intervals)calendar.IntervalId) {
+			case Intervals.Monthly:
+				if (calendar.Locked == true) {
 					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
+					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == calendarId);
 					foreach (var itemUserCal in userCal) {
 						if (itemUserCal.LockOverride ?? false) {
 							isLockedOverride = true;
@@ -115,45 +98,64 @@ public static class Extensions
 						}
 					}
 				}
-			}
-		}
-		if (calendar.IntervalId == (int)Intervals.Quarterly) {
-			var cal = dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
-					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
-					foreach (var itemUserCal in userCal) {
-						if (itemUserCal.LockOverride ?? false) {
-							isLockedOverride = true;
-							break;
+
+				break;
+			case Intervals.Weekly:
+				// This is a fix because Settings page does not have calendarLock by other intervals yet. Only monthly.
+				cal = dbc.Calendar
+					.Where(c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year
+						&& c.StartDate >= calendar.StartDate && c.EndDate <= calendar.StartDate)
+					.Include(c => c.UserCalendarLocks.Where(l => l.UserId == userId));
+				foreach (var c in cal) {
+					if (c.Locked == true) {
+						isLocked = true;
+						foreach (var userLock in c.UserCalendarLocks) {
+							if (userLock.LockOverride ?? false) {
+								isLockedOverride = true;
+								break;
+							}
 						}
 					}
 				}
-			}
-		}
-		if (calendar.IntervalId == (int)Intervals.Yearly) {
-			var cal = dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year);
-			foreach (var item in cal) {
-				if (item.Locked == true) {
-					isLocked = true;
-					var userCal = dbc.UserCalendarLock.Where(u => u.User.Id == userId && u.CalendarId == item.Id);
-					foreach (var itemUserCal in userCal) {
-						if (itemUserCal.LockOverride ?? false) {
-							isLockedOverride = true;
-							break;
+
+				break;
+			case Intervals.Quarterly:
+				cal = dbc.Calendar
+					.Where(c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year && c.Quarter == calendar.Quarter)
+					.Include(c => c.UserCalendarLocks.Where(l => l.UserId == userId));
+				foreach (var c in cal) {
+					if (c.Locked == true) {
+						isLocked = true;
+						foreach (var itemUserCal in c.UserCalendarLocks) {
+							if (itemUserCal.LockOverride ?? false) {
+								isLockedOverride = true;
+								break;
+							}
 						}
 					}
 				}
-			}
+
+				break;
+			case Intervals.Yearly:
+				cal = dbc.Calendar
+					.Where(c => c.IntervalId == (int)Intervals.Monthly && c.Year == calendar.Year)
+					.Include(c => c.UserCalendarLocks.Where(l => l.UserId == userId));
+				foreach (var c in cal) {
+					if (c.Locked == true) {
+						isLocked = true;
+						foreach (var itemUserCal in c.UserCalendarLocks) {
+							if (itemUserCal.LockOverride ?? false) {
+								isLockedOverride = true;
+								break;
+							}
+						}
+					}
+				}
+
+				break;
 		}
 
-		if (isLocked && !isLockedOverride)
-			isLocked = true;
-		else
-			isLocked = false;
-
-		return isLocked;
+		return isLocked && !isLockedOverride;
 	}
 
 	public static bool AddAuditTrail(this ApplicationDbContext dbc, string type, string code, string description, string data, DateTime lastUpdatedOn, int? userId = null) {
@@ -332,12 +334,12 @@ public static class Extensions
 					}
 
 					Target mdTarget = new() {
-							MeasureId = measure.Id,
-							Value = target.Target,
-							YellowValue = yellowValue,
-							Active = true,
-							UserId = userId,
-							IsProcessed = (byte)IsProcessed.Complete
+						MeasureId = measure.Id,
+						Value = target.Target,
+						YellowValue = yellowValue,
+						Active = true,
+						UserId = userId,
+						IsProcessed = (byte)IsProcessed.Complete
 					};
 					foreach (var md in measure.MeasureData) {
 						md.Target = mdTarget;
