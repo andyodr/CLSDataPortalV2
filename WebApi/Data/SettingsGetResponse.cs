@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class SettingsGetReturnObject
+public sealed class SettingsGetResponse
 {
 	public ErrorModel Error { get; set; } = null!;
 

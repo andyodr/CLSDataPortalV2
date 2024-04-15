@@ -2,53 +2,53 @@ namespace Deliver.WebApi.Data;
 
 public sealed class SheetDataCustomer
 {
-	public int? HierarchyId { get; set; }
+	public int? HierarchyId { get; init; }
 
-	public int? CalendarId { get; set; }
+	public int? CalendarId { get; init; }
 
-	public string CustomerGroup { get; set; } = null!;
+	public string CustomerGroup { get; init; } = null!;
 
-	public string CustomerSubGroup { get; set; } = null!;
+	public string CustomerSubGroup { get; init; } = null!;
 
-	public string PurchaseType { get; set; } = null!;
+	public string PurchaseType { get; init; } = null!;
 
-	public string TradeChannel { get; set; } = null!;
+	public string TradeChannel { get; init; } = null!;
 
-	public string TradeChannelGroup { get; set; } = null!;
+	public string TradeChannelGroup { get; init; } = null!;
 
-	public double? Sales { get; set; }
+	public double? Sales { get; init; }
 
-	public double? NumOrders { get; set; }
+	public double? NumOrders { get; init; }
 
-	public double? NumLines { get; set; }
+	public double? NumLines { get; init; }
 
-	public string OrderType { get; set; } = null!;
+	public string OrderType { get; init; } = null!;
 
-	public double? NumLateOrders { get; set; }
+	public double? NumLateOrders { get; init; }
 
-	public double? NumLateLines { get; set; }
+	public double? NumLateLines { get; init; }
 
-	public double? NumOrdLens { get; set; }
+	public double? NumOrdLens { get; init; }
 
-	public double? OrdQty { get; set; }
+	public double? OrdQty { get; init; }
 
-	public Byte IsProcessed { get; set; }
+	public Byte IsProcessed { get; init; }
 
-	public int rowNumber { get; set; }
+	public int rowNumber { get; init; }
 
-	public string HeaderStatusCode { get; set; } = null!;
+	public string HeaderStatusCode { get; init; } = null!;
 
-	public string HeaderStatus { get; set; } = null!;
+	public string HeaderStatus { get; init; } = null!;
 
-	public string BlockCode { get; set; } = null!;
+	public string BlockCode { get; init; } = null!;
 
-	public string BlockText { get; set; } = null!;
+	public string BlockText { get; init; } = null!;
 
-	public string RejectionCode { get; set; } = null!;
+	public string RejectionCode { get; init; } = null!;
 
-	public string RejectionText { get; set; } = null!;
+	public string RejectionText { get; init; } = null!;
 
-	public string CreditStatusCheck { get; set; } = null!;
+	public string CreditStatusCheck { get; init; } = null!;
 
-	public string CreditCode { get; set; } = null!;
+	public string CreditCode { get; init; } = null!;
 }

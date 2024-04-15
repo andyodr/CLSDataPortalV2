@@ -2,7 +2,7 @@ namespace Deliver.WebApi.Data;
 
 public sealed class UserIndexGetObject
 {
-	public List<IntervalsObject> Roles { get; set; } = null!;
+	public List<IntervalDto> Roles { get; set; } = null!;
 
 	public ErrorModel Error { get; set; } = null!;
 

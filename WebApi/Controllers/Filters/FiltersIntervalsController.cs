@@ -18,17 +18,17 @@ public sealed class IntervalsController : BaseController
 	/// Get interval data from Calendar table for the specified year
 	/// </summary>
 	[HttpGet]
-	public async Task<ActionResult<IntervalListObject>> GetAsync([FromQuery] MeasureDataFilterReceiveObject values, CancellationToken cancel) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public async Task<ActionResult<FiltersIntervalsResponse>> GetAsync([FromQuery] MeasureDataFilterRequest values, CancellationToken cancel) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
 			var cal = Dbc.Calendar.Where(c => c.IntervalId == values.IntervalId && c.Year == values.Year);
 			int intervalId = values.IntervalId ?? Config.DefaultInterval;
-			Task<GetIntervalsObject[]> data = values.IntervalId switch {
+			Task<GetIntervalsResponse[]> data = values.IntervalId switch {
 				(int)Intervals.Weekly =>
-					cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
+					cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsResponse {
 						Id = d.Id,
 						Number = d.WeekNumber,
 						StartDate = d.StartDate.ToString(),
@@ -36,7 +36,7 @@ public sealed class IntervalsController : BaseController
 						Month = null
 					}).ToArrayAsync(cancel),
 				(int)Intervals.Monthly =>
-					cal.OrderBy(c => c.Month).Select(d => new GetIntervalsObject {
+					cal.OrderBy(c => c.Month).Select(d => new GetIntervalsResponse {
 						Id = d.Id,
 						Number = d.Quarter,
 						StartDate = d.StartDate.ToString(),
@@ -44,14 +44,14 @@ public sealed class IntervalsController : BaseController
 						Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(d.Month))
 					}).ToArrayAsync(cancel),
 				(int)Intervals.Quarterly =>
-					cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsObject {
+					cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsResponse {
 						Id = d.Id,
 						Number = d.Quarter,
 						StartDate = d.StartDate.ToString(),
 						EndDate = d.EndDate.ToString(),
 						Month = null
 					}).ToArrayAsync(cancel),
-				_ => Task.FromResult<GetIntervalsObject[]>([new() {
+				_ => Task.FromResult<GetIntervalsResponse[]>([new() {
 					Error = new() { Message = Resource.VAL_VALID_INTERVAL_ID } }])
 			};
 			Task<MeasureType[]> measureTypes = HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>().MeasureType
@@ -65,7 +65,7 @@ public sealed class IntervalsController : BaseController
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefaultAsync(cancel);
 			await Task.WhenAll([data, measureTypes, calendarId]);
-			IntervalListObject result = new() {
+			FiltersIntervalsResponse result = new() {
 				Data = data.Result,
 				MeasureTypes = measureTypes.Result,
 				CalendarId = calendarId.Result?.Id ?? -1

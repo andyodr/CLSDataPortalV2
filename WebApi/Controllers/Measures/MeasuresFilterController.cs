@@ -13,13 +13,13 @@ namespace Deliver.WebApi.Controllers.Measures;
 public sealed class FilterController : BaseController
 {
 	[HttpGet("{measureTypeId?}/{hierarchyId?}")]
-	public ActionResult<FilterReturnObject> GetAll(int? measureTypeId, int? hierarchyId) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<FilterResponse> GetAll(int? measureTypeId, int? hierarchyId) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			FilterReturnObject result = new() {
+			FilterResponse result = new() {
 				MeasureTypes = Dbc.MeasureType
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 					.ToArray(),

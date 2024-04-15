@@ -2,15 +2,15 @@ using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
 namespace Deliver.WebApi.Data;
 
-public sealed class MeasureDefinitionIndexReturnObject
+public sealed class MeasureDefinitionIndexResponse
 {
 	public ErrorModel? Error { get; set; }
 
-	public FilterSaveObject? Filter { get; set; }
+	public FilterSaveDto? Filter { get; set; }
 
-	public IList<UnitsObject> Units { get; set; } = null!;
+	public IList<UnitsDto> Units { get; set; } = null!;
 
-	public IList<IntervalsObject> Intervals { get; set; } = null!;
+	public IList<IntervalDto> Intervals { get; set; } = null!;
 
 	public IList<MeasureType> MeasureTypes { get; set; } = null!;
 

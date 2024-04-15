@@ -12,7 +12,7 @@ namespace Deliver.WebApi.Controllers;
 public class HomeController : Controller
 {
 	private readonly ConfigSettings _config;
-	private UserObject? _user = new();
+	private UserDto? _user = new();
 
 	public HomeController(IOptions<ConfigSettings> config) => _config = config.Value;
 

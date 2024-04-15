@@ -10,5 +10,5 @@ public sealed class MeasureTypeDataObject
 
 	public string? Owner { set; get; }
 
-	public ICollection<RegionOwnerObject> Hierarchy { get; set; } = new List<RegionOwnerObject>();
+	public ICollection<RegionOwnerObject> Hierarchy { get; set; } = [];
 }

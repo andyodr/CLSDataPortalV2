@@ -15,7 +15,7 @@ public sealed class EditController : BaseController
 	[HttpGet]
 	public ActionResult<MeasureIDReturnObject> Get([FromQuery] MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -58,7 +58,7 @@ public sealed class EditController : BaseController
 	[HttpPut]
 	public ActionResult<MeasureIDReturnObject> Put(MeasuresOwnerObject values) {
 		var returnObject = new MeasureIDReturnObject();
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

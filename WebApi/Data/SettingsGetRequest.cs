@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class SettingsGetRecieveObject
+public sealed class SettingsGetRequest
 {
 	public int Year { get; set; }
 

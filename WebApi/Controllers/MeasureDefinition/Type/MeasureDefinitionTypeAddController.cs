@@ -16,7 +16,7 @@ public sealed class AddController : BaseController
 {
 	[HttpPost]
 	public ActionResult<MeasureTypeResult> Post(MeasureType body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

@@ -15,11 +15,11 @@ namespace Deliver.WebApi.Controllers.MeasureData;
 public sealed class FilterController : BaseController
 {
 	[HttpGet]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FilterReturnObject))]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetIntervalsObject>))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FilterResponse))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetIntervalsResponse>))]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<IActionResult> GetAsync([FromQuery] MeasureDataFilterReceiveObject values, CancellationToken token) {
+	public async Task<IActionResult> GetAsync([FromQuery] MeasureDataFilterRequest values, CancellationToken token) {
 		if (values.Year is null) {
 			return await FilterAsync(token);
 		}
@@ -29,19 +29,19 @@ public sealed class FilterController : BaseController
 	}
 
 	private async Task<IActionResult> FilterAsync(CancellationToken token) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			FilterReturnObject filter = new() {
+			FilterResponse filter = new() {
 				Intervals = await Dbc.Interval.OrderBy(i => i.Id)
-					.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
+					.Select(i => new IntervalDto { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
 				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)],
 				Years = await Dbc.Calendar
 					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.IntervalId == (int)Intervals.Yearly)
 					.OrderByDescending(c => c.Year)
-					.Select(c => new YearsObject { Id = c.Id, Year = c.Year }).ToArrayAsync(token),
+					.Select(c => new YearsDto { Id = c.Id, Year = c.Year }).ToArrayAsync(token),
 				CurrentCalendarIds = new(),
 				MeasureTypes = await Dbc.MeasureType.OrderBy(m => m.Id)
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description)).ToArrayAsync(token)
@@ -97,8 +97,8 @@ public sealed class FilterController : BaseController
 	}
 
 	// Used after Measure Data page has been open already.
-	private async Task<IActionResult> FilterAsync(MeasureDataFilterReceiveObject body, CancellationToken token) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	private async Task<IActionResult> FilterAsync(MeasureDataFilterRequest body, CancellationToken token) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -108,7 +108,7 @@ public sealed class FilterController : BaseController
 			return body.IntervalId switch {
 				(int)Intervals.Weekly => Ok(await Dbc.Calendar.OrderBy(c => c.WeekNumber)
 						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
-						.Select(c => new GetIntervalsObject {
+						.Select(c => new GetIntervalsResponse {
 							Id = c.Id,
 							Number = c.WeekNumber,
 							StartDate = c.StartDate.ToString(),
@@ -118,7 +118,7 @@ public sealed class FilterController : BaseController
 						.ToArrayAsync(token)),
 				(int)Intervals.Monthly => Ok(await Dbc.Calendar.OrderBy(c => c.Month)
 						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
-						.Select(c => new GetIntervalsObject {
+						.Select(c => new GetIntervalsResponse {
 							Id = c.Id,
 							Number = c.WeekNumber,
 							StartDate = c.StartDate.ToString(),
@@ -128,14 +128,14 @@ public sealed class FilterController : BaseController
 						.ToArrayAsync(token)),
 				(int)Intervals.Quarterly => Ok(await Dbc.Calendar.OrderBy(c => c.Quarter)
 						.Where(c => c.IntervalId == body.IntervalId && c.Year == body.Year)
-						.Select(d => new GetIntervalsObject {
+						.Select(d => new GetIntervalsResponse {
 							Id = d.Id,
 							Number = d.WeekNumber,
 							StartDate = d.StartDate.ToString(),
 							EndDate = d.EndDate.ToString(),
 							Month = null
 						}).ToArrayAsync(token)),
-				_ => Ok(new GetIntervalsObject() {
+				_ => Ok(new GetIntervalsResponse() {
 					Error = new ErrorModel() { Message = Resource.VAL_VALID_INTERVAL_ID }
 				})
 			};

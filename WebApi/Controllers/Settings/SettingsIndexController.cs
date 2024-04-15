@@ -16,7 +16,7 @@ public sealed class IndexController : ControllerBase
 {
 	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
-	private UserObject _user = null!;
+	private UserDto _user = null!;
 
 	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -27,13 +27,13 @@ public sealed class IndexController : ControllerBase
 	/// Get settings for selected year
 	/// </summary>
 	[HttpGet("{year:range(2000,9999)?}")]
-	public ActionResult<SettingsGetReturnObject> Get(int? year) {
+	public ActionResult<SettingsGetResponse> Get(int? year) {
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
+			if (CreateUserObject(User) is not UserDto _user) {
 				return Unauthorized();
 			}
 
-			var result = new SettingsGetReturnObject { Locked = [], Years = [] };
+			var result = new SettingsGetResponse { Locked = [], Years = [] };
 			var calendarRecords = _dbc.Calendar.Where(c => c.Year == (year ?? DateTime.Today.Year) && c.IntervalId == (int)Intervals.Monthly);
 			var settings = _dbc.Setting;
 			if (!settings.Any()) {
@@ -91,14 +91,14 @@ public sealed class IndexController : ControllerBase
 	}
 
 	[HttpPut]
-	public ActionResult<SettingsGetReturnObject> Put(SettingsGetRecieveObject value) {
+	public ActionResult<SettingsGetResponse> Put(SettingsGetRequest value) {
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
+			if (CreateUserObject(User) is not UserDto _user) {
 				return Unauthorized();
 			}
 
 			var lastUpdatedOn = DateTime.Now;
-			var returnObject = new SettingsGetReturnObject { Locked = new(), Years = new() };
+			var returnObject = new SettingsGetResponse { Locked = new(), Years = new() };
 			var calendarRecords = _dbc.Calendar
 				.Where(c => c.Year == value.Year && c.IntervalId == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);

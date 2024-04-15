@@ -36,7 +36,7 @@ public sealed class AccountController : BaseController
 		bool continueLogin = true;
 		string authenticationType = string.Empty;
 		string msgErr = Resource.USER_AUTHORIZATION_ERR;
-		UserObject? user = null;
+		UserDto? user = null;
 
 		// Checks if userName exists in database
 		if (continueLogin) {
@@ -143,7 +143,7 @@ public sealed class AccountController : BaseController
 		}
 	}
 
-	private async Task<UserObject?> CreateDetailedUserObject(string userName, CancellationToken token) {
+	private async Task<UserDto?> CreateDetailedUserObject(string userName, CancellationToken token) {
 		var entity = await Dbc.User
 			.Where(u => u.UserName == userName)
 			.Include(u => u.UserRole)
@@ -151,7 +151,7 @@ public sealed class AccountController : BaseController
 			.Include(u => u.UserHierarchies)
 			.AsSplitQuery()
 			.AsNoTrackingWithIdentityResolution().FirstAsync(token);
-		UserObject user = new() {
+		UserDto user = new() {
 			Id = entity.Id,
 			RoleId = (Roles)entity.UserRole!.Id,
 			UserName = entity.UserName,

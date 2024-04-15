@@ -12,17 +12,17 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition.Measure;
 public sealed class AddController : BaseController
 {
 	[HttpGet]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Get() {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDefinitionIndexResponse> Get() {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			return new MeasureDefinitionIndexReturnObject {
+			return new MeasureDefinitionIndexResponse {
 				Units = Dbc.Unit.OrderBy(u => u.Id)
-					.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray(),
+					.Select(unit => new UnitsDto { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray(),
 				Intervals = Dbc.Interval.OrderBy(i => i.Id)
-					.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray(),
+					.Select(item => new IntervalDto { Id = item.Id, Name = item.Name }).ToArray(),
 				AggFunctions = AggregationFunctions.List,
 				MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
 					.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray()
@@ -34,13 +34,13 @@ public sealed class AddController : BaseController
 	}
 
 	[HttpPost]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Post(MeasureDefinitionAdd body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDefinitionIndexResponse> Post(MeasureDefinitionAdd body) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new MeasureDefinitionIndexReturnObject { Data = new List<MeasureDefinitionEdit>() };
+			var result = new MeasureDefinitionIndexResponse { Data = new List<MeasureDefinitionEdit>() };
 
 			// Validates name and variable name
 			int invalidCount = Dbc.MeasureDefinition
@@ -53,9 +53,9 @@ public sealed class AddController : BaseController
 			}
 
 			result.Intervals = Dbc.Interval.OrderBy(i => i.Id)
-				.Select(item => new IntervalsObject { Id = item.Id, Name = item.Name }).ToArray();
+				.Select(item => new IntervalDto { Id = item.Id, Name = item.Name }).ToArray();
 			result.Units = Dbc.Unit.OrderBy(u => u.Id)
-				.Select(unit => new UnitsObject { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray();
+				.Select(unit => new UnitsDto { Id = unit.Id, Name = unit.Name, ShortName = unit.Short }).ToArray();
 			result.MeasureTypes = Dbc.MeasureType.OrderBy(m => m.Id)
 				.Select(mt => new Type.MeasureType(mt.Id, mt.Name, mt.Description)).ToArray();
 

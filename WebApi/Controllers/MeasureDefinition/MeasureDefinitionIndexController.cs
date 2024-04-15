@@ -13,13 +13,13 @@ namespace Deliver.WebApi.Controllers.MeasureDefinition;
 public sealed class IndexController : BaseController
 {
 	[HttpGet("{measureTypeId}")]
-	public ActionResult<MeasureDefinitionIndexReturnObject> Get(int measureTypeId) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDefinitionIndexResponse> Get(int measureTypeId) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			MeasureDefinitionIndexReturnObject returnObject = new() { Data = [] };
+			MeasureDefinitionIndexResponse returnObject = new() { Data = [] };
 
 			var mDef = from md in Dbc.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId

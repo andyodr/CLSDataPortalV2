@@ -16,13 +16,13 @@ public sealed class FilterController : BaseController
 	/// Get measureType and hierarchy data
 	/// </summary>
 	[HttpGet]
-	public ActionResult<FilterReturnObject> Get() {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<FilterResponse> Get() {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new FilterReturnObject {
+			var result = new FilterResponse {
 				Intervals = null,
 				MeasureTypes = [],
 				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)]

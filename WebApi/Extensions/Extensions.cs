@@ -35,7 +35,7 @@ public static class Extensions
 		};
 	}
 
-	internal static bool IsMeasureCalculated(this ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedObject? measureCalculated = null) {
+	internal static bool IsMeasureCalculated(this ApplicationDbContext dbc, bool isCalculatedExpression, int hId, int intervalId, long measureDefId, MeasureCalculatedDto? measureCalculated = null) {
 		// Expression calculated overrides calculated from MeasureDefinition if true only
 		if (isCalculatedExpression) {
 			return true;

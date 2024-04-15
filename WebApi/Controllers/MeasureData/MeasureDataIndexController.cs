@@ -19,13 +19,13 @@ public sealed class IndexController : BaseController
 	/// Get a MeasureDataIndexListObject
 	/// </summary>
 	[HttpGet]
-	public async Task<ActionResult<MeasureDataIndexListObject>> GetAsync([FromQuery] MeasureDataReceiveObject dto, CancellationToken cancel) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public async Task<ActionResult<MeasureDataIndexResponse>> GetAsync([FromQuery] MeasureDataRequest dto, CancellationToken cancel) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			MeasureDataIndexListObject result = new() {
+			MeasureDataIndexResponse result = new() {
 				Data = [],
 				CalendarId = dto.CalendarId,
 				Range = BuildRangeString(dto.CalendarId),
@@ -86,7 +86,7 @@ public sealed class IndexController : BaseController
 				.ToArrayAsync(cancel);
 
 			foreach (var md in measureData) {
-				MeasureDataReturnObject measureDataDto = new() {
+				MeasureDataResponse measureDataDto = new() {
 					Id = md.Id,
 					Name = md.Name,
 					Description = md.Description,
@@ -134,13 +134,14 @@ public sealed class IndexController : BaseController
 	}
 
 	[HttpPut]
-	public ActionResult<MeasureDataIndexListObject> Put(MeasureDataReceiveObject value) {
-		MeasureDataIndexListObject result = new();
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDataIndexResponse> Put(MeasureDataRequest value) {
+		MeasureDataIndexResponse result = new();
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
+			double? measureValue = null;
 			//apply precision and validate unit if value != null
 			if (value.MeasureValue is not null) {
 				var precision = from md in Dbc.MeasureData.Where(md => md.Id == value.MeasureDataId)
@@ -156,7 +157,7 @@ public sealed class IndexController : BaseController
 				}
 
 				//round to precision value
-				value.MeasureValue = Math.Round((double)value.MeasureValue, mData.Precision, MidpointRounding.AwayFromZero);
+				measureValue = Math.Round((double)value.MeasureValue, mData.Precision, MidpointRounding.AwayFromZero);
 			}
 
 			var lastUpdatedOn = DateTime.Now;
@@ -172,7 +173,7 @@ public sealed class IndexController : BaseController
 			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-01",
 				Resource.MEASURE_DATA,
 				@"Updated / ID=" + value.MeasureDataId.ToString() +
-						" / Value=" + value.MeasureValue.ToString() +
+						" / Value=" + measureValue.ToString() +
 						" / Explanation=" + value.Explanation +
 						" / Action=" + value.Action,
 				lastUpdatedOn,
@@ -180,7 +181,7 @@ public sealed class IndexController : BaseController
 			);
 
 			result.Data = [new() {
-				  Value = value.MeasureValue,
+				  Value = measureValue,
 				  Explanation = value.Explanation,
 				  Action = value.Action,
 				  Updated = LastUpdatedOnObj(DateTime.Now, _user.UserName)

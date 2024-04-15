@@ -16,7 +16,7 @@ public sealed class EditController : BaseController
 	/// <returns>User information including roles and hierarchy assignments</returns>
 	[HttpGet("{id:min(1)}")]
 	public ActionResult<UserIndexGetObject> Get(int id) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -82,7 +82,7 @@ public sealed class EditController : BaseController
 	/// </summary>
 	[HttpPut("{id:min(1)}")]
 	public ActionResult<UserIndexGetObject> Put(int id, UserIndexDto body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

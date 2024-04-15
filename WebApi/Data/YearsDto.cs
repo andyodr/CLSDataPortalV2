@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class YearsObject
+public sealed class YearsDto
 {
 	public int Id { get; set; }
 

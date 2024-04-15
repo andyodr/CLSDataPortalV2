@@ -30,13 +30,13 @@ public sealed class UsersController : ControllerBase
 	/// </summary>
 	/// <param name="dto"></param>
 	[HttpPut]
-	public ActionResult<SettingsGetReturnObject> Put(Model dto) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<SettingsGetResponse> Put(Model dto) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new SettingsGetReturnObject { Year = dto.Year, Users = [dto.User] };
+			var result = new SettingsGetResponse { Year = dto.Year, Users = [dto.User] };
 			var calendarRecords = _dbc.Calendar
 				.Where(c => c.Year == dto.Year && c.IntervalId == (int)Intervals.Monthly)
 				.OrderBy(c => c.Month);

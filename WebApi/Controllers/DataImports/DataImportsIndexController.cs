@@ -12,21 +12,19 @@ namespace Deliver.WebApi.Controllers.DataImports;
 public sealed class IndexController : BaseController
 {
 	[HttpGet]
-	public ActionResult<DataImportsMainObject> Get() {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<DataImportsResponseDataElement> Get() {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new DataImportsMainObject {
-				Years = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
-						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
+			var result = new DataImportsResponseDataElement {
+				Years = [.. Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
+						.OrderByDescending(y => y.Year).Select(c => new YearsDto { Year = c.Year, Id = c.Id })],
 				//calculationTime = new CalculationTimeObject(),
 				CalculationTime = "00:01:00",
-				DataImport = new List<DataImportObject>(),
-				Intervals = Dbc.Interval
-                    .Select(i => new IntervalsObject { Id = i.Id, Name = i.Name })
-                    .ToArray(),
+				DataImport = [],
+				Intervals = [.. Dbc.Interval.Select(i => new IntervalDto { Id = i.Id, Name = i.Name })],
 				IntervalId = Config.DefaultInterval,
 				CalendarId = FindPreviousCalendarId(Dbc.Calendar, Config.DefaultInterval)
 			};
@@ -42,16 +40,16 @@ public sealed class IndexController : BaseController
 			result.CurrentYear = Dbc.Calendar
                 .First(c => c.Id == calendarId).Year;
 
-            DataImportObject measureData = DataImportHeading(Helper.DataImports.MeasureData);
+            DataImportsResponseDataImportElement measureData = DataImportHeading(Helper.DataImports.MeasureData);
 			result.DataImport.Add(measureData);
 
 			if (User.IsInRole(Roles.SystemAdministrator.ToString())) {
-                DataImportObject targetData = DataImportHeading(Helper.DataImports.Target);
+                DataImportsResponseDataImportElement targetData = DataImportHeading(Helper.DataImports.Target);
 				result.DataImport.Add(targetData);
 
 				// This is for kris only
 				if (Config.UsesCustomer) {
-                    DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
+                    DataImportsResponseDataImportElement customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					result.DataImport.Add(customerRegionData);
 				}
 			}

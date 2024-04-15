@@ -16,8 +16,8 @@ public sealed class IndexController : BaseController
 	/// Gets hierarchy and measuredefinition data
 	/// </summary>
 	[HttpGet]
-	public ActionResult<RegionIndexGetReturnObject> Get(int hierarchyId, int measureTypeId) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<RegionIndexGetResponse> Get(int hierarchyId, int measureTypeId) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -33,12 +33,12 @@ public sealed class IndexController : BaseController
 	}
 
 	[NonAction]
-	public static RegionIndexGetReturnObject GetMeasures(ApplicationDbContext dbc, int hierarchyId, int measureTypeId) {
+	public static RegionIndexGetResponse GetMeasures(ApplicationDbContext dbc, int hierarchyId, int measureTypeId) {
 		Data.Models.Hierarchy[] hierarchies = [..dbc.Hierarchy
 			.Where(h => h.Id == hierarchyId || h.HierarchyParentId == hierarchyId && h.Active == true)
 			.OrderBy(h => h.HierarchyParentId)
 			.ThenBy(h => h.Id).AsNoTrackingWithIdentityResolution()];
-		RegionIndexGetReturnObject result = new() {
+		RegionIndexGetResponse result = new() {
 			Allow = true,
 			Hierarchy = [.. hierarchies.Select(h => h.Name)]
 		};
@@ -77,12 +77,11 @@ public sealed class IndexController : BaseController
 	}
 
 	[HttpPut]
-	public ActionResult<RegionIndexGetReturnObject> Put(MeasuresIndexPutObject dto) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<RegionIndexGetResponse> Put(MeasuresIndexRequest dto) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
-		var returnObject = new RegionIndexGetReturnObject();
 		var lastUpdatedOn = DateTime.Now;
 		try {
 			var currentMeasure = new MeasureTypeRegionsObject {
@@ -127,7 +126,7 @@ public sealed class IndexController : BaseController
 				currentMeasure.Hierarchy.Add(measureHierarchy);
 			}
 
-			returnObject.Data.Add(currentMeasure);
+			RegionIndexGetResponse returnObject = new() { Data = [currentMeasure] };
 			return returnObject;
 		}
 		catch (Exception e) {

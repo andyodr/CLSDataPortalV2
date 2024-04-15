@@ -14,7 +14,7 @@ public sealed class IndexController : BaseController
 {
 	[HttpGet]
 	public ActionResult<RegionMetricsFilterObject> Get() {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -32,7 +32,7 @@ public sealed class IndexController : BaseController
 						ParentName = h.Parent == null ? "" : h.Parent.Name
 					}).ToArray().OrderByHierarchy(),
 				Hierarchy = [CreateHierarchy(Dbc)],
-				Levels = [.. Dbc.HierarchyLevel.OrderBy(l => l.Id).Select(l => new LevelObject { Id = l.Id, Name = l.Name })]
+				Levels = [.. Dbc.HierarchyLevel.OrderBy(l => l.Id).Select(l => new HierarchyLevelDto { Id = l.Id, Name = l.Name })]
 			};
 
 			return result;
@@ -45,7 +45,7 @@ public sealed class IndexController : BaseController
 
 	[HttpPost]
 	public ActionResult<RegionMetricsFilterObject> Post(RegionsDataViewModelAdd body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -59,18 +59,16 @@ public sealed class IndexController : BaseController
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			_ = Dbc.SaveChanges();
+			var parent = Dbc.Hierarchy.Where(h => h.Id == newHierarchy.HierarchyParentId).FirstOrDefault();
 			RegionsDataViewModel dto = new() {
 				Id = newHierarchy.Id,
 				Name = newHierarchy.Name,
 				LevelId = newHierarchy.HierarchyLevelId,
 				Level = Dbc.HierarchyLevel.Where(h => h.Id == newHierarchy.HierarchyLevelId).First().Name,
 				ParentId = newHierarchy.HierarchyParentId,
-				Active = newHierarchy.Active ?? false
+				Active = newHierarchy.Active ?? false,
+				ParentName = parent?.Name ?? string.Empty
 			};
-
-			var parent = Dbc.Hierarchy.Where(h => h.Id == newHierarchy.HierarchyParentId).FirstOrDefault();
-			dto.ParentId = parent?.Id;
-			dto.ParentName = parent?.Name ?? string.Empty;
 
 			CreateMeasuresAndTargets(_user.Id, dto.Id);
 
@@ -102,7 +100,7 @@ public sealed class IndexController : BaseController
 	[HttpPut]
 	public ActionResult<RegionMetricsFilterObject> Put(RegionsDataViewModel dto) {
 		var result = new RegionMetricsFilterObject { Data = [] };
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -121,21 +119,21 @@ public sealed class IndexController : BaseController
 			updateHierarchy.IsProcessed = (byte)IsProcessed.Complete;
 			Dbc.SaveChanges();
 
+			var parent = Dbc.Hierarchy.Where(h => h.Id == dto.ParentId).FirstOrDefault();
 			RegionsDataViewModel newHierarchy = new() {
 				Id = updateHierarchy.Id,
 				Name = updateHierarchy.Name,
 				LevelId = updateHierarchy.HierarchyLevelId,
 				Active = updateHierarchy.Active ?? false,
-				Level = Dbc.HierarchyLevel.Where(h => h.Id == updateHierarchy.HierarchyLevelId).First().Name
+				Level = Dbc.HierarchyLevel.Where(h => h.Id == updateHierarchy.HierarchyLevelId).First().Name,
+				ParentId = dto.ParentId,
+				ParentName = parent?.Name ?? string.Empty
 			};
 			var exists = (from measure in Dbc.Measure
 						  from md in measure.MeasureData
 						  where measure.HierarchyId == newHierarchy.Id
 						  select md.Id).Any();
 			newHierarchy.Remove = !exists;
-			var parent = Dbc.Hierarchy.Where(h => h.Id == dto.ParentId).FirstOrDefault();
-			newHierarchy.ParentId = parent?.Id;
-			newHierarchy.ParentName = parent?.Name ?? string.Empty;
 
 			Dbc.AddAuditTrail(Resource.WEB_PAGES, "WEB-05",
 				Resource.HIERARCHY,
@@ -154,7 +152,7 @@ public sealed class IndexController : BaseController
 
 	[HttpDelete("{id}")]
 	public ActionResult<RegionMetricsFilterObject> Delete(int id) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

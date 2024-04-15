@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Deliver.WebApi.Data;
 
-public sealed class GetIntervalsObject
+public sealed class GetIntervalsResponse
 {
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public ErrorModel? Error { get; set; }

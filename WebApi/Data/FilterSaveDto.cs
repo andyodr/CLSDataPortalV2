@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class FilterSaveObject
+public sealed class FilterSaveDto
 {
 	public int? hierarchyId { set; get; }
 	public int? measureTypeId { set; get; }

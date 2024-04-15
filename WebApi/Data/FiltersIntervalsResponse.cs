@@ -2,11 +2,11 @@ using Deliver.WebApi.Controllers.MeasureDefinition.Type;
 
 namespace Deliver.WebApi.Data;
 
-public sealed class IntervalListObject
+public sealed class FiltersIntervalsResponse
 {
 	public int CalendarId { get; set; }
 
-	public IList<GetIntervalsObject> Data { get; init; } = [];
+	public IList<GetIntervalsResponse> Data { get; init; } = [];
 
 	public IList<MeasureType> MeasureTypes { get; init; } = [];
 }

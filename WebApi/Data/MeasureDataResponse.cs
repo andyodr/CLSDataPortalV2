@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Deliver.WebApi.Data;
 
-public sealed class MeasureDataReturnObject
+public sealed class MeasureDataResponse
 {
 	public long Id { get; set; }
 

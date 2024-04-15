@@ -19,7 +19,7 @@ public sealed class AddController : BaseController
 	[HttpGet]
 	public ActionResult<UserIndexGetObject> Get() {
 		var returnObject = new UserIndexGetObject { Hierarchy = new(), Roles = new() };
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -49,7 +49,7 @@ public sealed class AddController : BaseController
 	/// <param name="body"></param>
 	[HttpPost]
 	public ActionResult<UserIndexGetObject> Post(UserIndexDto body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

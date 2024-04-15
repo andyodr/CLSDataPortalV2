@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class DataImportObject
+public sealed class DataImportsResponseDataImportElement
 {
 	public int Id { get; set; }
 

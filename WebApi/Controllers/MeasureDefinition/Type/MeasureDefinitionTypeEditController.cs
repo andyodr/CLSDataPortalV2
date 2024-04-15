@@ -13,7 +13,7 @@ public sealed class EditController : BaseController
 {
 	[HttpGet("{id:min(1)}")]
 	public ActionResult<MeasureType> Get(int id) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -28,7 +28,7 @@ public sealed class EditController : BaseController
 
 	[HttpPut]
 	public ActionResult<MeasureTypeResult> Put(MeasureType body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

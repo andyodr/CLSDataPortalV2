@@ -2,17 +2,17 @@ namespace Deliver.WebApi.Data;
 
 public sealed class SheetDataMeasureData
 {
-	public int? HierarchyId { get; set; }
+	public int? HierarchyId { get; init; }
 
-	public long? MeasureDefinitionId { get; set; }
+	public long? MeasureDefinitionId { get; init; }
 
-	public double? Value { get; set; }
+	public double? Value { get; init; }
 
-	public string? Action { get; set; }
+	public string? Action { get; init; }
 
-	public string? Explanation { get; set; }
+	public string? Explanation { get; init; }
 
-	public int RowNumber { get; set; }
+	public int RowNumber { get; init; }
 
 	public int UnitId { get; set; }
 

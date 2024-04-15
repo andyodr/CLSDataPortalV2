@@ -16,9 +16,9 @@ public sealed class IndexController : BaseController
 	/// Get Measure data
 	/// </summary>
 	[HttpGet]
-	public ActionResult<MeasureDataIndexListObject> Get(int hierarchyId, int measureTypeId) {
-		var result = new MeasureDataIndexListObject { Data = [] };
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDataIndexResponse> Get(int hierarchyId, int measureTypeId) {
+		var result = new MeasureDataIndexResponse { Data = [] };
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -35,7 +35,7 @@ public sealed class IndexController : BaseController
 					.Include(t => t.Measure)
 					.ThenInclude(m => m!.MeasureDefinition)
 					.ThenInclude(df => df!.Unit).AsNoTrackingWithIdentityResolution()) {
-				MeasureDataReturnObject mdr = new() {
+				MeasureDataResponse mdr = new() {
 					Id = t.MeasureId,
 					Name = t.Measure!.MeasureDefinition!.Name,
 					Target = t.Value,
@@ -78,8 +78,8 @@ public sealed class IndexController : BaseController
 	}
 
 	[HttpPut]
-	public ActionResult<MeasureDataIndexListObject> Put(TargetGetAllObject body) {
-		if (CreateUserObject(User) is not UserObject _user) {
+	public ActionResult<MeasureDataIndexResponse> Put(TargetGetAllRequest body) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
@@ -111,7 +111,7 @@ public sealed class IndexController : BaseController
 			);
 
 			var target = Dbc.Target.Where(t => t.MeasureId == body.MeasureId && t.Active == true).First();
-			return new MeasureDataIndexListObject { Data = [new() {
+			return new MeasureDataIndexResponse { Data = [new() {
 				Target = body.Target,
 				Yellow = body.Yellow,
 				TargetId = target.Id,
@@ -125,10 +125,10 @@ public sealed class IndexController : BaseController
 	}
 
 	[HttpPut("[action]")]
-	public ActionResult<MeasureDataIndexListObject> ApplyToChildren(TargetGetAllObject body) {
-		var result = new MeasureDataIndexListObject();
+	public ActionResult<MeasureDataIndexResponse> ApplyToChildren(TargetGetAllRequest body) {
+		var result = new MeasureDataIndexResponse();
 		var lastUpdatedOn = DateTime.Now;
-		if (CreateUserObject(User) is not UserObject _user) {
+		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 

@@ -23,8 +23,8 @@ public static class Helper
 		return calendarRepo.Where(c => c.Interval.Id == intervalId && c.EndDate <= DateTime.Today).OrderByDescending(d => d.EndDate).First().Id;
 	}
 
-	internal static DataImportObject DataImportHeading(DataImports dataImport) {
-		DataImportObject result = new() { Heading = new List<HeadingObject>() };
+	internal static DataImportsResponseDataImportElement DataImportHeading(DataImports dataImport) {
+		DataImportsResponseDataImportElement result = new() { Heading = [] };
 
 		if (dataImport == DataImports.Target) {
 			result.Id = (int)DataImports.Target;
@@ -204,8 +204,8 @@ public static class Helper
 		return update;
 	}
 
-	public static UserObject? CreateUserObject(ClaimsPrincipal userClaim) {
-		UserObject user = userClaim;
+	public static UserDto? CreateUserObject(ClaimsPrincipal userClaim) {
+		UserDto user = userClaim;
 		return user.Id > 0 ? user : null;
 	}
 

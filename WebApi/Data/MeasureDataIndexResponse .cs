@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class MeasureDataIndexListObject
+public sealed class MeasureDataIndexResponse
 {
 	public string Range { get; set; } = null!;
 
@@ -14,9 +14,9 @@ public sealed class MeasureDataIndexListObject
 
 	public bool Confirmed { get; set; }
 
-	public FilterSaveObject Filter { get; set; } = null!;
+	public FilterSaveDto Filter { get; set; } = null!;
 
-	public IList<MeasureDataReturnObject> Data { get; set; } = null!;
+	public IList<MeasureDataResponse> Data { get; set; } = null!;
 
 	public ErrorModel Error { get; set; } = null!;
 }

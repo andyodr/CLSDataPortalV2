@@ -2,13 +2,13 @@ namespace Deliver.WebApi.Data;
 
 public sealed class MeasuresOwnerObject
 {
-	public long MeasureDefinitionId { get; set; }
+	public long MeasureDefinitionId { get; init; }
 
-	public int MeasureTypeId { get; set; }
+	public int MeasureTypeId { get; init; }
 
-	public int HierarchyId { get; set; }
+	public int HierarchyId { get; init; }
 
-	public List<RegionOwnerObject>? Hierarchy { get; set; }
+	public List<RegionOwnerObject>? Hierarchy { get; init; }
 
-	public string Owner { get; set; } = null!;
+	public string Owner { get; init; } = null!;
 }

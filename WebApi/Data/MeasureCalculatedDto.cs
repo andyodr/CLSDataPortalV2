@@ -1,6 +1,6 @@
 namespace Deliver.WebApi.Data;
 
-public sealed class MeasureCalculatedObject
+public sealed class MeasureCalculatedDto
 {
 	public int ReportIntervalId { get; set; }
 

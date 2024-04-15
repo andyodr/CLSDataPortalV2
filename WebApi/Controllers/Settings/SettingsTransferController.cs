@@ -15,7 +15,7 @@ public sealed class TransferController : ControllerBase
 {
 	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _context;
-	private UserObject _user = null!;
+	private UserDto _user = null!;
 
 	public TransferController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
@@ -25,7 +25,7 @@ public sealed class TransferController : ControllerBase
 	[HttpPut]
 	public ActionResult Put() {
 		try {
-			if (CreateUserObject(User) is not UserObject _user) {
+			if (CreateUserObject(User) is not UserDto _user) {
 				return Unauthorized();
 			}
 

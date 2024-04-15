@@ -3,7 +3,7 @@ namespace Deliver.WebApi.Data;
 using System.Security.Claims;
 using static Deliver.WebApi.Helper;
 
-public sealed class UserObject
+public sealed class UserDto
 {
 	public int Id { get; set; }
 
@@ -27,24 +27,24 @@ public sealed class UserObject
 
 	public List<UserCalendarLocks> calendarLockIds = new();
 
-	public Dictionary<Pages, FilterSaveObject> savedFilters = new ()
+	public Dictionary<Pages, FilterSaveDto> savedFilters = new ()
 	{
-		{ Pages.MeasureData, new FilterSaveObject() },
-		{ Pages.Target, new FilterSaveObject() },
-		{ Pages.Measure, new FilterSaveObject() },
-		{ Pages.MeasureDefinition, new FilterSaveObject() },
-		{ Pages.DataImports, new FilterSaveObject() }
+		{ Pages.MeasureData, new FilterSaveDto() },
+		{ Pages.Target, new FilterSaveDto() },
+		{ Pages.Measure, new FilterSaveDto() },
+		{ Pages.MeasureDefinition, new FilterSaveDto() },
+		{ Pages.DataImports, new FilterSaveDto() }
 	};
 
-	public static implicit operator UserObject(ClaimsPrincipal userClaim) {
+	public static implicit operator UserDto(ClaimsPrincipal userClaim) {
 		var claimUserId = userClaim.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 		if (claimUserId is string userId) {
-			return new UserObject {
+			return new UserDto {
 				Id = int.Parse(userId),
 				UserName = userClaim.Identity!.Name!
 			};
 		}
 
-		return new UserObject();
+		return new UserDto();
 	}
 }

@@ -13,26 +13,26 @@ namespace Deliver.WebApi.Controllers.DataImports;
 public sealed class FilterController : BaseController
 {
 	[HttpGet]
-	public ActionResult<IList<DataImportFilterGetAllObject>> Get(int intervalId, int year) {
+	public ActionResult<IReadOnlyList<DataImportFilterGetAllResponse>> Get(int intervalId, int year) {
 		try {
 			var calendarRecords = Dbc.Calendar.Where(c => c.IntervalId == intervalId && c.Year == year)
 				.AsNoTrackingWithIdentityResolution();
 			return (Intervals)intervalId switch {
-				Intervals.Weekly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				Intervals.Weekly => calendarRecords.Select(c => new DataImportFilterGetAllResponse {
 					Id = c.Id,
 					Number = c.WeekNumber,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
 					Month = null
 				}).ToArray(),
-				Intervals.Quarterly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				Intervals.Quarterly => calendarRecords.Select(c => new DataImportFilterGetAllResponse {
 					Id = c.Id,
 					Number = c.Quarter,
 					StartDate = c.StartDate,
 					EndDate = c.EndDate,
 					Month = null
 				}).ToArray(),
-				Intervals.Monthly => calendarRecords.Select(c => new DataImportFilterGetAllObject {
+				Intervals.Monthly => calendarRecords.Select(c => new DataImportFilterGetAllResponse {
 					Id = c.Id,
 					Number = c.Month,
 					StartDate = null,
@@ -44,7 +44,7 @@ public sealed class FilterController : BaseController
 		}
 		catch (Exception e) {
 			var errorId = LogError(e.Message, e.InnerException, e.StackTrace);
-			DataImportFilterGetAllObject result = new() { Error = new() };
+			DataImportFilterGetAllResponse result = new() { Error = new() };
 			result.Error.Id = errorId;
 			result.Error.Message = e.Message;
 			return BadRequest(result);

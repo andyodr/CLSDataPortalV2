@@ -18,8 +18,8 @@ namespace Deliver.WebApi.Controllers.DataImports;
 public sealed class UploadController : BaseController
 {
 	private readonly JsonSerializerOptions webDefaults = new(JsonSerializerDefaults.Web);
-	private readonly DataImportReturnObject result = new() { Data = new(), Error = [] };
-	private UserObject _user = new();
+	private readonly DataImportsResponse result = new() { Data = new(), Error = [] };
+	private UserDto _user = new();
 
 	public sealed class Model
 	{
@@ -42,9 +42,9 @@ public sealed class UploadController : BaseController
 	}
 
 	[HttpPost]
-	public ActionResult<DataImportReturnObject> Post([FromBody] dynamic jsonString) {
+	public ActionResult<DataImportsResponse> Post([FromBody] dynamic jsonString) {
 		int rowNumber = 1;
-		if (CreateUserObject(User) is not UserObject user) {
+		if (CreateUserObject(User) is not UserDto user) {
 			return Unauthorized();
 		}
 
@@ -80,14 +80,14 @@ public sealed class UploadController : BaseController
 					List<ImportTarget> impTargets = [];
 					foreach (var token in array!) {
 						var targetData = token.Deserialize<ImportTarget>(webDefaults)!;
-						targetData.RowNumber = rowNumber++;
+						rowNumber++;
 						var df = Dbc.MeasureDefinition.Where(md => md.Id == targetData.MeasureDefinitionId).FirstOrDefault();
 						if (df is not null) {
 							targetData.Precision = df.Precision;
 							impTargets.Add(targetData);
 						}
 						else {
-							result.Error.Add(new() { Row = targetData.RowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
+							result.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_TARGET_NO_EXIST });
 						}
 					}
 
@@ -148,7 +148,7 @@ public sealed class UploadController : BaseController
 						var customerData = token.Deserialize<SheetDataCustomer>(webDefaults);
 						if (customerData == null) { continue; }
 						ValidateCustomerRows(customerData, _user.Id);
-						customerData!.rowNumber = rowNumber++;
+						rowNumber++;
 						listCustomer.Add(customerData);
 					}
 
@@ -187,7 +187,8 @@ public sealed class UploadController : BaseController
 
 					foreach (var token in array!) {
 						var measureData = token.Deserialize<SheetDataMeasureData>(webDefaults);
-						measureData!.RowNumber = rowNumber++;
+						rowNumber++;
+						if (measureData is null) continue;
 						var mdef = Dbc.MeasureDefinition.Where(md => md.Id == measureData.MeasureDefinitionId).FirstOrDefault();
 						if (mdef is Data.Models.MeasureDefinition md) {
 							measureData.UnitId = md.UnitId;
@@ -195,7 +196,7 @@ public sealed class UploadController : BaseController
 							listMeasureData.Add(measureData);
 						}
 						else {
-							result.Error.Add(new() { Row = measureData.RowNumber, Message = Resource.DI_ERR_NO_MEASURE });
+							result.Error.Add(new() { Row = rowNumber, Message = Resource.DI_ERR_NO_MEASURE });
 						}
 					}
 
@@ -250,18 +251,18 @@ public sealed class UploadController : BaseController
 				LastUpdatedOn = DateTime.Now
 			}).Entity;
 			Dbc.SaveChanges();
-			return new DataImportReturnObject { Error = new() { new() { Id = record.Id, Row = null, Message = e.Message } } };
+			return new DataImportsResponse { Error = new() { new() { Id = record.Id, Row = null, Message = e.Message } } };
 		}
 	}
 
-	private DataImportsMainObject? DataReturn(UserObject user) {
+	private DataImportsResponseDataElement? DataReturn(UserDto user) {
 		try {
-			var returnObject = new DataImportsMainObject {
-				Years = Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
-						.OrderByDescending(y => y.Year).Select(c => new YearsObject { Year = c.Year, Id = c.Id }).ToArray(),
+			var returnObject = new DataImportsResponseDataElement {
+				Years = [.. Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
+						.OrderByDescending(y => y.Year).Select(c => new YearsDto { Year = c.Year, Id = c.Id })],
 				CalculationTime = "00:01:00",
-				DataImport = new List<DataImportObject>() { DataImportHeading(Helper.DataImports.MeasureData) },
-				Intervals = Dbc.Interval.Select(i => new IntervalsObject { Id = i.Id, Name = i.Name }).ToArray(),
+				DataImport = [DataImportHeading(Helper.DataImports.MeasureData)],
+				Intervals = [.. Dbc.Interval.Select(i => new IntervalDto { Id = i.Id, Name = i.Name })],
 				IntervalId = Config.DefaultInterval,
 				CalendarId = FindPreviousCalendarId(Dbc.Calendar, Config.DefaultInterval)
 			};
@@ -275,7 +276,7 @@ public sealed class UploadController : BaseController
 				returnObject.DataImport.Add(DataImportHeading(Helper.DataImports.Target));
 
 				if (Config.UsesCustomer) {
-					DataImportObject customerRegionData = DataImportHeading(Helper.DataImports.Customer);
+					DataImportsResponseDataImportElement customerRegionData = DataImportHeading(Helper.DataImports.Customer);
 					returnObject.DataImport.Add(customerRegionData);
 				}
 
@@ -327,7 +328,7 @@ public sealed class UploadController : BaseController
 			.Include(m => m.MeasureDefinition)
 			.AsNoTrackingWithIdentityResolution()
 			.FirstOrDefault() is Measure m) {
-			MeasureCalculatedObject measureCalculated = new() {
+			MeasureCalculatedDto measureCalculated = new() {
 				ReportIntervalId = m.MeasureDefinition!.ReportIntervalId,
 				Calculated = m.MeasureDefinition.Calculated ?? false,
 				AggDaily = m.MeasureDefinition.AggDaily ?? false,

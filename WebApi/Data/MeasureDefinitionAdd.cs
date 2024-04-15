@@ -2,29 +2,29 @@ namespace Deliver.WebApi.Data;
 
 public class MeasureDefinitionAdd
 {
-	public string Name { get; set; } = null!;
+	public string Name { get; init; } = null!;
 
-	public int MeasureTypeId { get; set; }
+	public int MeasureTypeId { get; init; }
 
-	public string? Interval { get; set; }
+	public string? Interval { get; init; }
 
-	public int IntervalId { get; set; }
+	public int IntervalId { get; init; }
 
-	public string VarName { get; set; } = null!;
+	public string VarName { get; init; } = null!;
 
-	public string? Description { get; set; }
+	public string? Description { get; init; }
 
 	public string? Expression { get; set; }
 
-	public byte Precision { get; set; }
+	public byte Precision { get; init; }
 
-	public int Priority { get; set; }
+	public int Priority { get; init; }
 
-	public short FieldNumber { get; set; }
+	public short FieldNumber { get; init; }
 
-	public int UnitId { get; set; }
+	public int UnitId { get; init; }
 
-	public string? Units { get; set; }
+	public string? Units { get; init; }
 
 	public bool? Calculated { get; set; }
 
@@ -48,26 +48,26 @@ public sealed class MeasureDefinitionEdit : MeasureDefinitionAdd {
 	public MeasureDefinitionEdit() { }
 
 	public MeasureDefinitionEdit(MeasureDefinitionAdd copy) {
-		this.Name = copy.Name;
-		this.MeasureTypeId = copy.MeasureTypeId;
-		this.Interval = copy.Interval;
-		this.IntervalId = copy.IntervalId;
-		this.VarName = copy.VarName;
-		this.Description = copy.Description;
-		this.Expression = copy.Expression;
-		this.Precision = copy.Precision;
-		this.Priority = copy.Priority;
-		this.FieldNumber = copy.FieldNumber;
-		this.UnitId= copy.UnitId;
-		this.Units = copy.Units;
-		this.Calculated	= copy.Calculated;
-		this.Daily = copy.Daily;
-		this.Weekly = copy.Weekly;
-		this.Monthly = copy.Monthly;
-		this.Quarterly = copy.Quarterly;
-		this.Yearly = copy.Yearly;
-		this.AggFunction = copy.AggFunction;
-		this.AggFunctionId = copy.AggFunctionId;
+		Name = copy.Name;
+		MeasureTypeId = copy.MeasureTypeId;
+		Interval = copy.Interval;
+		IntervalId = copy.IntervalId;
+		VarName = copy.VarName;
+		Description = copy.Description;
+		Expression = copy.Expression;
+		Precision = copy.Precision;
+		Priority = copy.Priority;
+		FieldNumber = copy.FieldNumber;
+		UnitId = copy.UnitId;
+		Units = copy.Units;
+		Calculated	= copy.Calculated;
+		Daily = copy.Daily;
+		Weekly = copy.Weekly;
+		Monthly = copy.Monthly;
+		Quarterly = copy.Quarterly;
+		Yearly = copy.Yearly;
+		AggFunction = copy.AggFunction;
+		AggFunctionId = copy.AggFunctionId;
 	}
 
 	public long Id { get; set; }
