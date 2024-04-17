@@ -1,6 +1,6 @@
 {
   "name": "clsdata-portal-v2",
-  "version": "2.0.2489.1",
+  "version": "2.0.24107.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --ssl --ssl-cert %APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem --ssl-key %APPDATA%\\ASP.NET\\https\\%npm_package_name%.key",

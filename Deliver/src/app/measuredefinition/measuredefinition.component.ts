@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, DestroyRef, OnInit, ViewChild, inject } from "@angular/core"
+import { Component, DestroyRef, OnInit, Signal, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -20,6 +20,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
+import packageJson from "../../../package.json"
 
 @Component({
     selector: "app-measuredefinition",
@@ -39,6 +40,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 })
 export class MeasureDefinitionComponent implements OnInit {
     title = "Measure Definition"
+    version: string = packageJson.version
+    apiVersion: Signal<string> = this.acctSvc.version
     filters!: FilterResponseDto
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasureDefinition>()

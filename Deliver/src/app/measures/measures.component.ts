@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, ViewChild } from "@angular/core"
+import { Component, Signal, ViewChild } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTable, MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -27,6 +27,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
+import packageJson from "../../../package.json"
 
 interface MeasuresTableRow {
     id: number
@@ -63,6 +64,8 @@ class ToggleQuery {
 })
 export class MeasuresComponent {
     title = "Measures"
+    version: string = packageJson.version
+    apiVersion: Signal<string>
     measureResponse: MeasureApiResponse | undefined;
     filters!: MeasureFilter
     filtersSelected: string[] = []
@@ -92,6 +95,7 @@ export class MeasuresComponent {
         const measureTypeId = userSettings?.measureTypeId
         const hierarchyId = userSettings?.hierarchyId
         this.progress = true
+        this.apiVersion = acctSvc.version
         this.api.getMeasureFilter(measureTypeId, hierarchyId)
             .pipe(takeUntilDestroyed(), finalize(() => this.progress = false))
             .subscribe({

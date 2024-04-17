@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, Signal, ViewChild, inject } from "@angular/core"
 import { Intervals } from "../lib/app-constants"
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
@@ -28,6 +28,7 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
+import packageJson from "../../../package.json"
 
 @Component({
     selector: 'app-measure-data',
@@ -47,8 +48,10 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
 })
 export class MeasureDataComponent {
 
-    title = 'Measure Data';
-    measureDataResponse: MeasureDataApiResponse | undefined;
+    title = "Measure Data"
+    measureDataResponse: MeasureDataApiResponse | undefined
+    version: string = packageJson.version
+    apiVersion: Signal<string>
 
     //Filter Properties
     drawer = {
@@ -137,7 +140,8 @@ export class MeasureDataComponent {
 
     constructor(private measureDataSvc: MeasureDataService, private acctSvc: AccountService, private logger: LoggerService, private dialog: MatDialog) {
         this.progress = true
-        this.measureDataSvc.getFilters()
+        this.apiVersion = acctSvc.version
+        measureDataSvc.getFilters()
             .pipe(takeUntilDestroyed(), finalize(() => this.progress = false))
             .subscribe({
                 next: filter => {
@@ -153,7 +157,7 @@ export class MeasureDataComponent {
                     }
 
                     let { intervalId, measureTypeId, hierarchyId } = filter.filter
-                    const saved = this.acctSvc.getCurrentUser()?.filter
+                    const saved = acctSvc.getCurrentUser()?.filter
                     measureTypeId = saved?.measureTypeId || measureTypeId
                     hierarchyId = saved?.hierarchyId || hierarchyId
                     this.model.fMeasureTypeSelected = filter.measureTypes.find(m => m.id === (saved?.measureTypeId ?? measureTypeId))

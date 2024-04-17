@@ -161,6 +161,10 @@
   font-feature-settings: "liga";
 }
 
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
 html,
 body {
   height: 100%;
@@ -247,6 +251,10 @@ th .mat-sort-header-content {
   vertical-align: bottom;
 }
 
+.text-center {
+  text-align: center;
+}
+
 mat-icon {
   vertical-align: bottom;
 }
@@ -293,4 +301,9 @@ button.min-w-32 {
 
 .thick-red-border {
   border: 8px solid red;
+}
+
+footer div {
+  font-size: smaller;
+  color: var(--mat-gray-600);
 }

@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http"
-import { Injectable } from "@angular/core"
+import { Injectable, signal } from "@angular/core"
 import { BehaviorSubject, tap } from "rxjs"
 import { UserState, AuthenticatedUser } from "../_models/user"
 import { environment } from "../../environments/environment"
@@ -11,14 +11,23 @@ export type SignIn = {
     persistent: boolean
 }
 
+export type ApiStatus = {
+    version: string,
+    databaseConnected: boolean
+}
+
 @Injectable({
     providedIn: "root"
 })
 export class AccountService {
     private readonly currentUserSource = new BehaviorSubject<UserState | null>(null)
     currentUser$ = this.currentUserSource.asObservable()
+    readonly version = signal("?")
 
-    constructor(private http: HttpClient, private router: Router) { }
+    constructor(private http: HttpClient, private router: Router) {
+        http.get<ApiStatus>(environment.baseUrl + "api/CanConnect")
+            .subscribe(value => this.version.set(value.version))
+    }
 
     login(model: SignIn) {
         var form = new FormData()
@@ -69,7 +78,7 @@ export class AccountService {
             })
     }
 
-    checkDatabaseConnection() {
-        return this.http.get<boolean>(environment.baseUrl + "api/CanConnect")
+    checkApiStatus() {
+        return this.http.get<ApiStatus>(environment.baseUrl + "api/CanConnect")
     }
 }

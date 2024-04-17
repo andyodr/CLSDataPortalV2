@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Security.Claims;
 using static Deliver.WebApi.Helper;
@@ -136,7 +137,11 @@ public sealed class AccountController : BaseController
 	[HttpGet("[action]")]
 	public async Task<IActionResult> CanConnect(CancellationToken token) {
 		try {
-			return Ok(await Dbc.Database.CanConnectAsync(token));
+			var v = typeof(AccountController).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+			return Ok(new {
+				Version = v,
+				DatabaseConnected = await Dbc.Database.CanConnectAsync(token)
+			});
 		}
 		catch (TaskCanceledException) {
 			return StatusCode(499);

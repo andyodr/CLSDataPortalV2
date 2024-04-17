@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, DestroyRef, inject } from "@angular/core"
+import { Component, AfterViewInit, DestroyRef, inject } from "@angular/core"
 import { Router } from "@angular/router"
 import { NavSettingsService } from "src/app/_services/nav-settings.service"
 import { AccountService, SignIn } from "../../_services/account.service"
@@ -21,22 +21,17 @@ import { MatProgressBarModule } from "@angular/material/progress-bar"
     standalone: true,
     imports: [MatProgressBarModule, FormsModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatTooltipModule, MatButtonModule]
 })
-export class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements AfterViewInit {
 
     model: SignIn = { userName: "", password: "", persistent: false }
     progress = false
     canConnect = false
     destroyRef = inject(DestroyRef)
+    timeoutId!: any
 
-    constructor(
-        private api: AccountService,
-        private router: Router,
-        private logger: LoggerService,
-        public _navSettingsService: NavSettingsService) { }
-
-    ngOnInit() {
-        this._navSettingsService.hideNavBar()
-        const user = this.api.getCurrentUser()
+    constructor(private acctSvc: AccountService, private router: Router, private logger: LoggerService, public _navSettingsService: NavSettingsService) {
+        _navSettingsService.hideNavBar()
+        const user = acctSvc.getCurrentUser()
         if (user?.persist) {
             this.model.userName = user.userName
             this.model.persistent = user.persist
@@ -44,12 +39,20 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.updateDatabaseStatus()
-    }
+        if (document.cookie.split(";").some(c => c.trim().startsWith("AuthPresent="))) {
+            setTimeout(() => {
+                this._navSettingsService.showNavBar()
+                this.router.navigate(["measuredata"])
+            }, 250)
+        }
+        else {
+            this.updateDatabaseStatus()
+        }
+}
 
     login() {
         this.progress = true
-        this.api.login(this.model)
+        this.acctSvc.login(this.model)
             .pipe(finalize(() => this.progress = false), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: user => {
@@ -64,19 +67,20 @@ export class LoginComponent implements OnInit, AfterViewInit {
                             }
                         }
 
-                        this.api.setCurrentUser(userState)
+                        this.acctSvc.setCurrentUser(userState)
                         localStorage.setItem("userState", JSON.stringify(userState))
                     }
                     catch { }
                     this._navSettingsService.showNavBar()
                     this.router.navigate(["measuredata"])
+                    clearTimeout(this.timeoutId)
                 },
                 error: error => this.logger.logError(error.message)
             })
     }
 
     logout() {
-        this.api.logout()
+        this.acctSvc.logout()
     }
 
     clear() {
@@ -86,23 +90,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
 
     updateDatabaseStatus() {
-        this.api.checkDatabaseConnection().subscribe(result => {
-            this.canConnect = result
-            if (!this.canConnect) {
-                setTimeout(this.updateDatabaseStatus.bind(this), 2_000)
-                return
-            }
-
-            if (document.cookie.split(";").some(c => c.trim().startsWith("AuthPresent="))) {
-                setTimeout(() => {
-                    this.logger.logInfo("Proceed")
-                    this._navSettingsService.showNavBar()
-                    this.router.navigate(["measuredata"])
-                }, 500)
-            }
-            else {
-                setTimeout(this.updateDatabaseStatus.bind(this), 60_000)
-            }
+        this.acctSvc.checkApiStatus().subscribe(result => {
+            this.canConnect = result.databaseConnected
+            this.timeoutId = setTimeout(this.updateDatabaseStatus.bind(this), 6_000)
         })
     }
 }

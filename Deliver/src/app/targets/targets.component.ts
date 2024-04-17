@@ -1,6 +1,6 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, DestroyRef, ViewChild, inject } from "@angular/core"
-import { MatDialog } from '@angular/material/dialog';
+import { animate, state, style, transition, trigger } from "@angular/animations"
+import { AfterViewInit, Component, DestroyRef, Signal, ViewChild, inject } from "@angular/core"
+import { MatDialog } from "@angular/material/dialog"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -25,6 +25,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSidenavModule } from "@angular/material/sidenav"
 import { MatProgressBarModule } from "@angular/material/progress-bar"
 import { DecimalPipe, PercentPipe } from "@angular/common"
+import packageJson from "../../../package.json"
 
 interface TargetData {
     measureId: number
@@ -60,6 +61,8 @@ interface TargetData {
 })
 export class TargetsComponent implements AfterViewInit {
     title = "Targets"
+    apiVersion: Signal<string>
+    version: string = packageJson.version
     targetResponse: TargetApiResponse | undefined
 
     //Filter Properties
@@ -150,6 +153,7 @@ export class TargetsComponent implements AfterViewInit {
 
     constructor(private targetSvc: TargetService, public acctSvc: AccountService, public logger: LoggerService, private dialog: MatDialog) {
         this.progress = true
+        this.apiVersion = acctSvc.version
         this.targetSvc.getTargetFilter()
             .pipe(finalize(() => this.progress = false), takeUntilDestroyed())
             .subscribe({

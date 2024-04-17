@@ -1,6 +1,6 @@
 import { formatDate, DatePipe } from "@angular/common"
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http"
-import { Component, DestroyRef, Inject, LOCALE_ID, ViewChild, inject } from "@angular/core"
+import { Component, DestroyRef, Inject, LOCALE_ID, Signal, ViewChild, inject } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
 import { Intervals, LINE1, LINE2, MESSAGES, processError } from "../lib/app-constants"
 import { environment } from "../../environments/environment"
@@ -28,6 +28,7 @@ import { SidebarComponent } from "../nav/sidebar.component"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { finalize } from "rxjs"
 import { AccountService } from "../_services/account.service"
+import packageJson from "../../../package.json"
 
 type DataOut = {
     dataImport: number
@@ -72,6 +73,8 @@ type UploadsBody = {
 })
 export class DataImportsComponent {
     title = "Data Imports"
+    version: string = packageJson.version
+    apiVersion: Signal<string>
     @ViewChild(TableComponent)
     private table!: TableComponent
 
@@ -127,13 +130,14 @@ export class DataImportsComponent {
             private api: MeasureDataService,
             private logger: LoggerService,
             @Inject(LOCALE_ID) private locale: string) {
+        this.apiVersion = acctSvc.version
         this.disAll(false)
         this.showError = false
         this.disAll()
 
         // Call Server
         this.setProgress(true)
-        this.http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
+        http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
             .pipe(finalize(() => this.setProgress(false)), takeUntilDestroyed())
             .subscribe({
                 next: dto => {
