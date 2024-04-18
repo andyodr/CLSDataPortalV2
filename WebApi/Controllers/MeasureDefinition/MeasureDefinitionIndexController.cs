@@ -23,7 +23,7 @@ public sealed class IndexController : BaseController
 
 			var mDef = from md in Dbc.MeasureDefinition
 					   where md.MeasureTypeId == measureTypeId
-					   orderby md.FieldNumber ascending, md.Name
+					   orderby md.FieldNumber, md.Priority, md.Name
 					   select new
 					   {
 						   id = md.Id,

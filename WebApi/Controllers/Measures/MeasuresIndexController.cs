@@ -37,7 +37,7 @@ public sealed class IndexController : BaseController
 		Data.Models.Hierarchy[] hierarchies = [..dbc.Hierarchy
 			.Where(h => h.Id == hierarchyId || h.HierarchyParentId == hierarchyId && h.Active == true)
 			.OrderBy(h => h.HierarchyParentId)
-			.ThenBy(h => h.Id).AsNoTrackingWithIdentityResolution()];
+			.ThenBy(h => h.Id).AsNoTracking()];
 		RegionIndexGetResponse result = new() {
 			Allow = true,
 			Hierarchy = [.. hierarchies.Select(h => h.Name)]
@@ -45,15 +45,15 @@ public sealed class IndexController : BaseController
 
 		var measureDefinitions = from measureDef in dbc.MeasureDefinition
 								 where measureDef.MeasureType!.Id == measureTypeId
-								 orderby measureDef.FieldNumber ascending, measureDef.Name
+								 orderby measureDef.FieldNumber, measureDef.Priority, measureDef.Name
 								 select measureDef;
 
-		foreach (var measuredef in measureDefinitions.AsNoTrackingWithIdentityResolution()) {
+		foreach (var measuredef in measureDefinitions.AsNoTracking()) {
 			MeasureTypeRegionsObject currentDataObject = new() { Hierarchy = [] };
 			foreach (var hierarchy in hierarchies) {
 				var measure = dbc.Measure
 					.Where(m => m.MeasureDefinition!.Id == measuredef.Id && m.Hierarchy!.Id == hierarchy.Id)
-					.AsNoTrackingWithIdentityResolution().ToArray();
+					.AsNoTracking().ToArray();
 				if (measure.Length > 0) {
 					RegionActiveCalculatedObject newRegion = new() {
 						Id = measure.First().Id,
@@ -86,7 +86,7 @@ public sealed class IndexController : BaseController
 		try {
 			var currentMeasure = new MeasureTypeRegionsObject {
 				Id = dto.MeasureDefinitionId,
-				Hierarchy = new(),
+				Hierarchy = [],
 				Name = Dbc.MeasureDefinition.Find(dto.MeasureDefinitionId)?.Name + "*"
 			};
 

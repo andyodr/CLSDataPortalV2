@@ -57,6 +57,9 @@ public sealed class IndexController : BaseController
 					&& m.Measure.HierarchyId == dto.HierarchyId
 					&& m.Measure.MeasureDefinition!.MeasureTypeId == dto.MeasureTypeId
 					&& m.CalendarId == result.CalendarId)
+				.OrderBy(m => m.Measure!.MeasureDefinition!.FieldNumber)
+				.ThenBy(m => m.Measure!.MeasureDefinition!.Priority)
+				.ThenBy(m => m.Measure!.MeasureDefinition!.Name)
 				.Select(md => new {
 					lastUpdatedOn = md.LastUpdatedOn,
 					md.User,
