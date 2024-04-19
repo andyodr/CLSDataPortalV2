@@ -1,4 +1,6 @@
-<mat-progress-bar [hidden]="!progress" [mode]="progress ? 'indeterminate' : 'determinate'" class="fixed-top" />
+@if (progress) {
+<div class="fixed-top bg-white"><mat-progress-bar mode="indeterminate" title="progress" /></div>
+}
 <mat-drawer-container>
   <mat-drawer #drwr>
     <header>
@@ -289,7 +291,7 @@
         </table>
         <footer>
           <span> Showing {{dataSource.filteredData.length}} entries </span>
-          <div class="text-center">v{{ version }} / API v{{ apiVersion() }}</div>
+          <div class="text-right">v{{ version }} / API v{{ apiVersion() }}</div>
         </footer>
       </main>
     </div>

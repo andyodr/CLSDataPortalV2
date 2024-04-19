@@ -1,8 +1,10 @@
+@if (progress) {
+<div class="fixed-top bg-white"><mat-progress-bar mode="indeterminate" title="progress" /></div>
+}
 <app-sidebar/>
 <div>
   <h1>Settings</h1>
   <main class="panel panel-body mat-elevation-z4">
-    <mat-progress-bar [hidden]="!progress" [mode]="progress ? 'indeterminate' : 'determinate'" class="fixed-top"></mat-progress-bar>
     <header class="panel-header">
       <dl class="form-group">
         <dt>Last Calculated:</dt>

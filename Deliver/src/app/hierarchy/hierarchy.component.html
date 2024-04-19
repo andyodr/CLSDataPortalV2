@@ -1,4 +1,6 @@
-<mat-progress-bar [hidden]="!progress" [mode]="progress ? 'indeterminate' : 'determinate'" class="fixed-top"></mat-progress-bar>
+@if (progress) {
+<div class="fixed-top bg-white"><mat-progress-bar mode="indeterminate" title="progress" /></div>
+}
 <mat-drawer-container>
   <mat-drawer #drawer position="end">
     <header>

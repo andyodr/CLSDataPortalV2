@@ -16,7 +16,6 @@ export class TargetService {
     getTargetFilter(): Observable<TargetFilter> {
         return this.http.get<TargetFilter>(this.baseUrl + "filter").pipe(
             map((response: TargetFilter) => {
-                console.log("Target Filter Response on Service : ", response)
                 return response
             })
         )
