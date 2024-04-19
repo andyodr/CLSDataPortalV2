@@ -16,18 +16,17 @@ import { MatIconModule } from "@angular/material/icon"
     imports: [MatIconModule, MatButtonModule, MatMenuModule, RouterLink, AsyncPipe]
 })
 export class TopbarComponent {
-    public opened = true
+    readonly expanded = this.toggleService.toggle
 
-    constructor(public api: AccountService,
+    constructor(public acctSvc: AccountService,
         private toggleService: ToggleService,
         public _navSettingsService: NavSettingsService) { }
 
     logout() {
-        this.api.logout()
+        this.acctSvc.logout()
     }
 
     toggle() {
-        this.opened = !this.opened;
-        this.toggleService.setToggle(this.opened)
+        this.toggleService.toggle.set(!this.expanded())
     }
 }

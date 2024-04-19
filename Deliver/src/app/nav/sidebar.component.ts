@@ -14,12 +14,11 @@ import { MatIconModule } from "@angular/material/icon"
     imports: [NgClass, MatRippleModule, MatIconModule, RouterLink]
 })
 export class SidebarComponent {
-    opened = true
+    readonly expanded = this.toggleService.toggle
     roleId = 0
 
     constructor(public api: AccountService, private toggleService: ToggleService) {
         this.api.currentUser$.subscribe(u => this.roleId = u?.roleId ?? 0)
-        this.toggleService.toggle$.subscribe(toggle => this.opened = toggle)
     }
 
     tableau() {

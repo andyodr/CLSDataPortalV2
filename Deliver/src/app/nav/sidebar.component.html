@@ -1,12 +1,12 @@
-<div [ngClass]="{'sidebar-expanded': opened, 'sidebar-collapsed': !opened}" class="sidebar mat-elevation-z6">
-  @if (opened) {
+<div [ngClass]="{'sidebar-expanded': expanded(), 'sidebar-collapsed': !expanded()}" class="sidebar mat-elevation-z6">
+  @if (expanded()) {
   <header class="sidebar-title text-center">DELIVER Data Portal</header>
   }
   <ul>
     <li matRipple>
       <a routerLink="/measuredata">
         <mat-icon fontIcon="event_note" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Measure Data</span>
         }
       </a>
@@ -15,7 +15,7 @@
     <li matRipple>
       <a routerLink="/targets">
         <mat-icon fontIcon="track_changes" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Targets</span>
         }
       </a>
@@ -25,7 +25,7 @@
     <li matRipple>
       <a routerLink="/measures">
         <mat-icon fontIcon="checklist" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Measures</span>
         }
       </a>
@@ -35,7 +35,7 @@
     <li matRipple>
       <a routerLink="/measuredefinition">
         <mat-icon fontIcon="description" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Measure Definition</span>
         }
       </a>
@@ -45,7 +45,7 @@
     <li matRipple>
       <a routerLink="/hierarchy">
         <mat-icon fontIcon="map" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Hierarchy</span>
         }
       </a>
@@ -54,7 +54,7 @@
     <li matRipple>
       <a routerLink="/dataimports">
         <mat-icon fontIcon="publish" />
-        @if (opened) {
+        @if (expanded()) {
         <span>Data Imports</span>
         }
       </a>
@@ -62,7 +62,7 @@
     <li>
       <a (click)="tableau()">
         <mat-icon fontIcon="link" />
-        @if (opened) {
+        @if (expanded()) {
         <span matRipple>Tableau</span>
         }
       </a>

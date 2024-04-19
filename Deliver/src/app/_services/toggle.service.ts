@@ -1,16 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from "@angular/core"
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class ToggleService {
-  private toggle = new Subject<boolean>();
-  toggle$ = this.toggle.asObservable();
+  readonly toggle = signal(true)
 
   constructor() { }
-
-  setToggle(toggle: boolean) {
-    this.toggle.next(toggle);
-  }
 }

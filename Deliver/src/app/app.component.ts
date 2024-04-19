@@ -14,15 +14,12 @@ import { TopbarComponent } from "./nav/topbar.component"
     imports: [TopbarComponent, RouterOutlet]
 })
 export class AppComponent implements OnInit {
-	toggle: any = true;
+	toggle = this.toggleService.toggle()
 
 	constructor(private api: AccountService, private toggleService: ToggleService, public _navSettingsService: NavSettingsService) { }
 
 	ngOnInit(): void {
-		this.setCurrentUser();
-		this.toggleService.toggle$.subscribe(toggle => {
-			this.toggle = toggle;
-		});
+		this.setCurrentUser()
 	}
 
 	setCurrentUser() {
