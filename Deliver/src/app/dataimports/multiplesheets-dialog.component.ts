@@ -5,7 +5,8 @@ import { FormsModule } from "@angular/forms"
 import { MatRadioModule } from "@angular/material/radio"
 
 @Component({
-    selector: "dialog-multiple-sheets", templateUrl: "multiplesheets.tmpl.html",
+    selector: "dialog-multiple-sheets",
+    templateUrl: "multiplesheets.tmpl.html",
     standalone: true,
     imports: [MatDialogModule, MatRadioModule, FormsModule, MatButtonModule]
 })

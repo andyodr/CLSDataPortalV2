@@ -153,9 +153,8 @@
           </div>
         </div>
       </div>
-
       <!-- Table Section-->
-      <div class="panel-body padT0">
+      <div class="panel-body">
         <!-- Error Section-->
         @if (showUploadError) {
         <div class="panel panel-default">
@@ -182,7 +181,7 @@
           </div>
         </div>
         }
-        <div class="panel panel-default itgTable itgNoDisplay" [hidden]="!showContentPage">
+        <div class="panel panel-default" [hidden]="!showContentPage">
           <!-- Table Section-->
           <app-table [hidden]="hideTable" class="table-flip-scroll table-dynamic overflowAuto">
           </app-table>

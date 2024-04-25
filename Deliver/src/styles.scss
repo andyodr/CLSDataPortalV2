@@ -215,12 +215,8 @@ h4 {
   background: #ba1212
 }
 
-:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout {
-  flex-direction: column-reverse;
-}
-
-:is(app-useradd, app-useredit) form>div label.mat-checkbox-layout>span.mat-checkbox-inner-container {
-  margin: 2px auto;
+.flex-column div {
+  flex-direction: column;
 }
 
 .tooltips {
@@ -305,6 +301,11 @@ button.min-w-32 {
 
 .m-2 {
   margin: .5rem; /* 8px */
+}
+
+.mx-3 {
+  margin-left: 0.75rem; /* 12px */
+  margin-right: 0.75rem; /* 12px */
 }
 
 .thick-red-border {
