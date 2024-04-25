@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Signal, ViewChild, inject } from "@angular/core"
+import { Component, DestroyRef, HostListener, Signal, ViewChild, inject } from "@angular/core"
 import { Intervals } from "../lib/app-constants"
 import { MeasureDataDto, MeasureDataApiResponse, MeasureDataFilterResponseDto, FiltersIntervalsData } from '../_models/measureData';
 import { MeasureDataService } from "../_services/measure-data.service"
@@ -52,13 +52,13 @@ export class MeasureDataComponent {
     measureDataResponse: MeasureDataApiResponse | undefined
     version: string = packageJson.version
     apiVersion: Signal<string>
-
     //Filter Properties
     drawer = {
         title: "Filter",
         button: "Apply",
         position: "start" as "start" | "end"
     }
+
     filters!: MeasureDataFilterResponseDto
     filterSelected: string[] = []
     select = {
@@ -334,7 +334,20 @@ export class MeasureDataComponent {
             })
     }
 
-    applyTableFilter(event: Event) {
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
+    }
+
+    applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }

@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, Signal, ViewChild } from "@angular/core"
+import { Component, HostListener, Signal, ViewChild } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTable, MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -66,7 +66,7 @@ export class MeasuresComponent {
     title = "Measures"
     version: string = packageJson.version
     apiVersion: Signal<string>
-    measureResponse: MeasureApiResponse | undefined;
+    measureResponse: MeasureApiResponse | undefined
     filters!: MeasureFilter
     filtersSelected: string[] = []
     dataSource = new MatTableDataSource<MeasuresTableRow>()
@@ -140,6 +140,19 @@ export class MeasuresComponent {
                     this.displayedColumns.splice(1, Infinity, ...dto.hierarchy)
                 }
             })
+    }
+
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
     }
 
     applyFilter(event: Event) {

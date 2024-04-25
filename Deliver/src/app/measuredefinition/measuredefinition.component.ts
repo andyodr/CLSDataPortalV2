@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { Component, DestroyRef, OnInit, Signal, ViewChild, inject } from "@angular/core"
+import { Component, DestroyRef, HostListener, OnInit, Signal, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -125,7 +125,19 @@ export class MeasureDefinitionComponent implements OnInit {
         this.measureTypeInput = { ...this.selectedMeasureType }
     }
 
-    /** filter input keyup event */
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
+    }
+
     applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()

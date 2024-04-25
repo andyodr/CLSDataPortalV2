@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit } from "@angular/core"
+import { Component, ViewChild, AfterViewInit, HostListener } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { Router, RouterLink } from "@angular/router"
@@ -48,6 +48,19 @@ export class UserListComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.dataSource.sort = this.sort
+    }
+
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
     }
 
     applyFilter(event: Event) {

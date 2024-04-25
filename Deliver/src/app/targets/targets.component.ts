@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations"
-import { AfterViewInit, Component, DestroyRef, Signal, ViewChild, inject } from "@angular/core"
+import { AfterViewInit, Component, DestroyRef, HostListener, Signal, ViewChild, inject } from "@angular/core"
 import { MatDialog } from "@angular/material/dialog"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
@@ -71,6 +71,7 @@ export class TargetsComponent implements AfterViewInit {
         button: "Apply",
         position: "start" as "start" | "end"
     }
+
     filters!: TargetFilter
     filtersSelected: string[] = []
     hierarchy: RegionFilter[] = []
@@ -249,7 +250,20 @@ export class TargetsComponent implements AfterViewInit {
             })
     }
 
-    applyTableFilter(event: Event) {
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
+    }
+
+    applyFilter(event: Event) {
         const filterValue = (event.currentTarget as HTMLInputElement).value
         this.dataSource.filter = filterValue.trim().toLowerCase()
     }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ViewChild, inject } from "@angular/core"
+import { AfterViewInit, Component, DestroyRef, HostListener, ViewChild, inject } from "@angular/core"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
 import { finalize } from "rxjs"
@@ -122,6 +122,19 @@ export class RegionHierarchyComponent implements AfterViewInit {
                     this.getHierarchy()
                 }
             })
+    }
+
+    @HostListener("window:keyup", ["$event"])
+    keyEvent(event: KeyboardEvent) {
+        let input: any = document.querySelector("mat-form-field input")
+        switch (event.code) {
+            case "Slash":
+                input.focus()
+                break
+            case "Escape":
+                input.blur()
+                break
+        }
     }
 
     applyFilter(event: Event) {

@@ -74,9 +74,9 @@
         <div class="panel-header">
           <mat-form-field appearance="fill">
             <mat-label>Filter</mat-label>
-            <input matInput (keyup)="applyTableFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
             @if (input.value) {
-            <button matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyTableFilter($event)">
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="input.value=''; applyFilter($event)">
               <mat-icon fontIcon="close" />
             </button>
             }
