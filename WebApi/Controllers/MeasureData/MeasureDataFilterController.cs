@@ -37,7 +37,7 @@ public sealed class FilterController : BaseController
 			FilterResponse filter = new() {
 				Intervals = await Dbc.Interval.OrderBy(i => i.Id)
 					.Select(i => new IntervalDto { Id = i.Id, Name = i.Name }).ToArrayAsync(token),
-				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)],
+				Hierarchy = [Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)],
 				Years = await Dbc.Calendar
 					.Where(c => c.Year >= DateTime.Now.Year - 2 && c.IntervalId == (int)Intervals.Yearly)
 					.OrderByDescending(c => c.Year)

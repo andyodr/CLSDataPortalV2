@@ -135,7 +135,7 @@ public sealed class AccountController : BaseController
 	}
 
 	[HttpGet("[action]")]
-	public async Task<IActionResult> CanConnect(CancellationToken token) {
+	public async Task<IActionResult> StatusAsync(CancellationToken token) {
 		try {
 			var v = typeof(AccountController).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
 			return Ok(new {

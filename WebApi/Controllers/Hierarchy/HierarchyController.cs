@@ -8,9 +8,9 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.Hierarchy;
 
 [ApiController]
-[Route("api/hierarchy/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : BaseController
+public sealed class HierarchyController : BaseController
 {
 	[HttpGet]
 	public ActionResult<RegionMetricsFilterObject> Get() {

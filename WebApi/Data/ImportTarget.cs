@@ -10,7 +10,7 @@ public sealed class ImportTarget
 
 	public double? Yellow { get; init; }
 
-	public int RowNumber { get; init; }
+	public int RowNumber { get; set; }
 
 	public int UnitId { get; init; }
 

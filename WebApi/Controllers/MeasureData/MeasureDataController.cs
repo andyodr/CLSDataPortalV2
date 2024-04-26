@@ -11,9 +11,9 @@ namespace Deliver.WebApi.Controllers.MeasureData;
 public record VariableName(long Id, string VarName);
 
 [ApiController]
-[Route("api/measuredata/[controller]")]
+[Route("api/[controller]")]
 [Authorize]
-public sealed class IndexController : BaseController
+public sealed class MeasureDataController : BaseController
 {
 	/// <summary>
 	/// Get a MeasureDataIndexListObject

@@ -25,7 +25,7 @@ export class AccountService {
     readonly version = signal("?")
 
     constructor(private http: HttpClient, private router: Router) {
-        http.get<ApiStatus>(environment.baseUrl + "api/CanConnect")
+        http.get<ApiStatus>(environment.baseUrl + "api/status")
             .subscribe(value => this.version.set(value.version))
     }
 
@@ -79,6 +79,6 @@ export class AccountService {
     }
 
     checkApiStatus() {
-        return this.http.get<ApiStatus>(environment.baseUrl + "api/CanConnect")
+        return this.http.get<ApiStatus>(environment.baseUrl + "api/status")
     }
 }

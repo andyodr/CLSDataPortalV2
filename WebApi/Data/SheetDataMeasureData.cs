@@ -12,7 +12,7 @@ public sealed class SheetDataMeasureData
 
 	public string? Explanation { get; init; }
 
-	public int RowNumber { get; init; }
+	public int RowNumber { get; set; }
 
 	public int UnitId { get; set; }
 

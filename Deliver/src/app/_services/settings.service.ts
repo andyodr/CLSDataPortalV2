@@ -54,12 +54,12 @@ export class CalendarSettingsService {
     constructor(private http: HttpClient, private router: Router) { }
 
     getSettings(year?: number): Observable<SettingsResponseDto> {
-        const url = environment.baseUrl + "api/settings/index"
+        const url = environment.baseUrl + "api/settings"
         return this.http.get<SettingsResponseDto>(year ? `${ url }/${ year }` : url)
     }
 
     updateSettings(body: SettingsRequestDto) {
-        return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings/index", body)
+        return this.http.put<SettingsResponseDto>(environment.baseUrl + "api/settings", body)
     }
 
     updateUser(body: UpdateUserSettingDto) {

@@ -137,7 +137,7 @@ export class DataImportsComponent {
 
         // Call Server
         this.setProgress(true)
-        http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports/index")
+        http.get<DataImportsMainObject>(environment.baseUrl + "api/dataimports")
             .pipe(finalize(() => this.setProgress(false)), takeUntilDestroyed())
             .subscribe({
                 next: dto => {

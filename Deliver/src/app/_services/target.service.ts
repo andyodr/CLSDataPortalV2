@@ -9,12 +9,12 @@ import { TargetFilter, TargetApiResponse, TargetPutDto } from "../_models/target
 })
 export class TargetService {
 
-    private baseUrl = environment.baseUrl + 'api/targets/';
+    private baseUrl = environment.baseUrl + "api/targets"
 
     constructor(private http: HttpClient) { }
 
     getTargetFilter(): Observable<TargetFilter> {
-        return this.http.get<TargetFilter>(this.baseUrl + "filter").pipe(
+        return this.http.get<TargetFilter>(this.baseUrl + "/filter").pipe(
             map((response: TargetFilter) => {
                 return response
             })
@@ -22,7 +22,7 @@ export class TargetService {
     }
 
     getTargetList(params: HttpParams): Observable<TargetApiResponse> {
-        return this.http.get<TargetApiResponse>(this.baseUrl + "Index/" , {params}).pipe(
+        return this.http.get<TargetApiResponse>(this.baseUrl , {params}).pipe(
             map((response: TargetApiResponse) => {
                 return response
             }),
@@ -30,7 +30,7 @@ export class TargetService {
     }
 
     updateTarget(body: TargetPutDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(this.baseUrl + "Index/", body).pipe(
+        return this.http.put<TargetApiResponse>(this.baseUrl, body).pipe(
             map((response: TargetApiResponse) => {
                 return response
             }),
@@ -38,7 +38,7 @@ export class TargetService {
     }
 
     updateTarget2(id: number, body: TargetPutDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(this.baseUrl + `/Index/${ id }`, body ).pipe(
+        return this.http.put<TargetApiResponse>(`{this.baseUrl}/${ id }`, body ).pipe(
             map((response: TargetApiResponse) => {
                 return response
             }),
@@ -46,7 +46,7 @@ export class TargetService {
     }
 
     applyTargetToChildren(body: TargetPutDto): Observable<TargetApiResponse> {
-        return this.http.put<TargetApiResponse>(this.baseUrl + "Index/", body ).pipe(
+        return this.http.put<TargetApiResponse>(this.baseUrl, body ).pipe(
             map((response: TargetApiResponse) => {
                 return response
             }),

@@ -8,9 +8,9 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.Measures;
 
 [ApiController]
-[Route("api/measures/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : BaseController
+public sealed class MeasuresController : BaseController
 {
 	/// <summary>
 	/// Gets hierarchy and measuredefinition data

@@ -10,15 +10,15 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.Settings;
 
 [ApiController]
-[Route("api/settings/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : ControllerBase
+public sealed class SettingsController : ControllerBase
 {
 	private readonly ConfigSettings _config;
 	private readonly ApplicationDbContext _dbc;
 	private UserDto _user = null!;
 
-	public IndexController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
+	public SettingsController(IOptions<ConfigSettings> config, ApplicationDbContext context) {
 		_config = config.Value;
 		_dbc = context;
 	}

@@ -5,31 +5,28 @@ import { RolesAndRegions, User, UserData } from '../_models/user';
 
 @Injectable({ providedIn: "root" })
 export class UserService {
-    private baseUrl = environment.baseUrl + 'api/users/';
-    /*users: User[] = [];
-    userData: UserData | undefined;
-    users$: Observable<User[]> | undefined;*/
+    private baseUrl = environment.baseUrl + "api/users"
 
     constructor(private http: HttpClient) { }
 
     // Get Users from API
     getUsers() {
-        return this.http.get<UserData>(this.baseUrl + '/index')
+        return this.http.get<UserData>(this.baseUrl)
     }
 
     getUserData(id: number) {
-        return this.http.get<UserData>(`${this.baseUrl}edit/${id}`)
+        return this.http.get<UserData>(`${this.baseUrl}/edit/${id}`)
     }
 
     addUser(user: User) {
-        return this.http.post<UserData>(`${this.baseUrl}add`, user)
+        return this.http.post<UserData>(`${this.baseUrl}/add`, user)
     }
 
     updateUser(user: User) {
-        return this.http.put<UserData>(`${this.baseUrl}edit/${user.id}`, user)
+        return this.http.put<UserData>(`${this.baseUrl}/edit/${user.id}`, user)
     }
 
     getRolesAndRegions() {
-        return this.http.get<RolesAndRegions>(`${this.baseUrl}add`)
+        return this.http.get<RolesAndRegions>(`${this.baseUrl}/add`)
     }
 }

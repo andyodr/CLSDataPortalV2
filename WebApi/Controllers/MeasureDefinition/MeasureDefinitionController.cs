@@ -8,9 +8,9 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.MeasureDefinition;
 
 [ApiController]
-[Route("api/measureDefinition/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class IndexController : BaseController
+public sealed class MeasureDefinitionController : BaseController
 {
 	[HttpGet("{measureTypeId}")]
 	public ActionResult<MeasureDefinitionIndexResponse> Get(int measureTypeId) {

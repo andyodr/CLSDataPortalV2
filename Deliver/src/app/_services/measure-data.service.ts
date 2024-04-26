@@ -7,7 +7,7 @@ import { FiltersIntervalsDto, MeasureDataApiResponse, MeasureDataFilterResponseD
 @Injectable({ providedIn: "root" })
 export class MeasureDataService {
 
-    private baseUrl = environment.baseUrl + "api/measuredata/"
+    private baseUrl = environment.baseUrl + "api/measuredata"
 
     constructor(private http: HttpClient) { }
 
@@ -17,7 +17,7 @@ export class MeasureDataService {
      * @returns MeasureData filters
      */
     getFilters(): Observable<MeasureDataFilterResponseDto> {
-        return this.http.get<MeasureDataFilterResponseDto>(this.baseUrl + "filter").pipe(
+        return this.http.get<MeasureDataFilterResponseDto>(this.baseUrl + "/filter").pipe(
             map((response: MeasureDataFilterResponseDto) => {
                 return response
             })
@@ -39,7 +39,7 @@ export class MeasureDataService {
      * Calls GET api/measuredata/index/{ params }
      */
     getMeasureDataList(params: HttpParams): Observable<MeasureDataApiResponse> {
-        return this.http.get<MeasureDataApiResponse>(this.baseUrl + "Index/", { params }).pipe(
+        return this.http.get<MeasureDataApiResponse>(this.baseUrl, { params }).pipe(
             map((response: MeasureDataApiResponse) => {
                 return response
             })
@@ -50,7 +50,7 @@ export class MeasureDataService {
      * Calls PUT api/measuredata/index/ + body
      */
     updateMeasureData(body: MeasureDataPutDto): Observable<MeasureDataApiResponse> {
-        return this.http.put<MeasureDataApiResponse>(this.baseUrl + "Index/", body).pipe(
+        return this.http.put<MeasureDataApiResponse>(this.baseUrl, body).pipe(
             map((response: MeasureDataApiResponse) => {
                 return response
             })

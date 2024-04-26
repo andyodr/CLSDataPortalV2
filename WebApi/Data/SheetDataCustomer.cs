@@ -34,7 +34,7 @@ public sealed class SheetDataCustomer
 
 	public Byte IsProcessed { get; init; }
 
-	public int rowNumber { get; init; }
+	public int RowNumber { get; set; }
 
 	public string HeaderStatusCode { get; init; } = null!;
 

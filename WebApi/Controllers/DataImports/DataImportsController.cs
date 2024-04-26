@@ -7,18 +7,18 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.DataImports;
 
 [ApiController]
-[Route("api/dataimports/[controller]")]
+[Route("api/[controller]")]
 [Authorize]
-public sealed class IndexController : BaseController
+public sealed class DataImportsController : BaseController
 {
 	[HttpGet]
-	public ActionResult<DataImportsResponseDataElement> Get() {
+	public ActionResult<DataImportsResponse> Get() {
 		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var result = new DataImportsResponseDataElement {
+			var result = new DataImportsResponse {
 				Years = [.. Dbc.Calendar.Where(c => c.IntervalId == (int)Intervals.Yearly)
 						.OrderByDescending(y => y.Year).Select(c => new YearsDto { Year = c.Year, Id = c.Id })],
 				//calculationTime = new CalculationTimeObject(),

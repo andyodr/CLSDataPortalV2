@@ -8,9 +8,9 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.Users;
 
 [ApiController]
-[Route("api/users/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "SystemAdministrator")]
-public sealed class IndexController : BaseController
+public sealed class UsersController : BaseController
 {
 	/// <returns>Complete list of authorized users</returns>
 	[HttpGet]

@@ -51,14 +51,14 @@ export class HierarchyService {
     constructor(private http: HttpClient) { }
 
     getHierarchy(): Observable<HierarchyApiResult> {
-        return this.http.get<HierarchyApiResult>(this.baseUrl + "/index")
+        return this.http.get<HierarchyApiResult>(this.baseUrl)
     }
 
     addHierarchy(add: HierarchyAdd): Observable<HierarchyApiResult> {
-        return this.http.post<HierarchyApiResult>(this.baseUrl + "/index", add)
+        return this.http.post<HierarchyApiResult>(this.baseUrl, add)
     }
 
     updateHierarchy(update: Hierarchy): Observable<HierarchyApiResult> {
-        return this.http.put<HierarchyApiResult>(this.baseUrl + "/index", update)
+        return this.http.put<HierarchyApiResult>(this.baseUrl, update)
     }
 }

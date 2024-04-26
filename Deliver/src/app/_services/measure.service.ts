@@ -55,7 +55,7 @@ export type MeasureDefinitionPutDto = {
 })
 export class MeasureService {
 
-    private baseUrl = environment.baseUrl + "api/measures";
+    private baseUrl = environment.baseUrl + "api/measures"
 
     constructor(private http: HttpClient) { }
 
@@ -63,7 +63,7 @@ export class MeasureService {
         let params = new HttpParams()
         params = params.append("hierarchyId", filtered.hierarchyId)
         params = params.append("measureTypeId", filtered.measureTypeId)
-        return this.http.get<MeasureApiResponse>(this.baseUrl + "/index", { params: params })
+        return this.http.get<MeasureApiResponse>(this.baseUrl, { params: params })
     }
 
     getMeasureFilter(measureTypeId?: number, hierarchyId?: number): Observable<MeasureFilter> {
@@ -75,6 +75,6 @@ export class MeasureService {
     }
 
     updateMeasures(body: MeasureDefinitionPutDto): Observable<MeasureApiResponse> {
-        return this.http.put<MeasureApiResponse>(this.baseUrl + "/index", body)
+        return this.http.put<MeasureApiResponse>(this.baseUrl, body)
     }
 }

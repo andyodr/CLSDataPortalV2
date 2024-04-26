@@ -8,9 +8,9 @@ using static Deliver.WebApi.Helper;
 namespace Deliver.WebApi.Controllers.Targets;
 
 [ApiController]
-[Route("api/targets/[controller]")]
+[Route("api/[controller]")]
 [Authorize(Roles = "RegionalAdministrator, SystemAdministrator")]
-public sealed class IndexController : BaseController
+public sealed class TargetsController : BaseController
 {
 	/// <summary>
 	/// Get Measure data

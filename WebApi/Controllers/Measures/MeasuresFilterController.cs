@@ -24,14 +24,14 @@ public sealed class FilterController : BaseController
 					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
 					.ToArray(),
 				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)
+					Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)
 				}
 			};
 
 			var hId = _user.savedFilters[Pages.Measure].hierarchyId ??= 1;
 			var tId = _user.savedFilters[Pages.Measure].measureTypeId ??= Dbc.MeasureType.First().Id;
 			result.Filter = _user.savedFilters[Pages.Measure];
-			result.Measures = IndexController.GetMeasures(Dbc, hierarchyId ?? hId, measureTypeId ?? tId);
+			result.Measures = MeasuresController.GetMeasures(Dbc, hierarchyId ?? hId, measureTypeId ?? tId);
 			return result;
 		}
 		catch (Exception e) {

@@ -25,7 +25,7 @@ public sealed class FilterController : BaseController
 			var result = new FilterResponse {
 				Intervals = null,
 				MeasureTypes = [],
-				Hierarchy = [Hierarchy.IndexController.CreateUserHierarchy(Dbc, _user.Id)]
+				Hierarchy = [Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)]
 			};
 
 			result.MeasureTypes = Dbc.MeasureType

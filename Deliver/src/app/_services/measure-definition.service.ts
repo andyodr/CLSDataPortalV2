@@ -85,7 +85,7 @@ export class MeasureDefinitionService {
     constructor(private http: HttpClient) { }
 
     getMeasureDefinition(measureTypeId: number): Observable<{ data: MeasureDefinition[] }> {
-        return this.http.get<{ data: MeasureDefinition[] }>(`${ this.baseUrl }/index/${ measureTypeId }`)
+        return this.http.get<{ data: MeasureDefinition[] }>(`${ this.baseUrl }/${ measureTypeId }`)
     }
 
     getMeasureDefinitionFilter(): Observable<FilterResponseDto> {
