@@ -24,10 +24,6 @@ app-sidebar~* {
   padding: 20px;
 }
 
-.panel-body {
-  padding: 15px;
-}
-
 .panel-header {
   background: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
@@ -115,8 +111,4 @@ tr.mat-mdc-row:active {
 
 .mat-mdc-no-data-row:hover td {
   background-color: initial;
-}
-
-footer {
-  padding: 15px;
 }

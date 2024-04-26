@@ -39,7 +39,6 @@ mat-drawer header {
   background: linear-gradient(hsl(var(--mat-primary-600)), hsl(var(--mat-primary-500)) 33%, hsl(var(--mat-primary-500)));
   padding: 15px 20px;
   display: flex;
-  //gap: 15px;
   gap: 1em;
   min-width: 33em;
 }
@@ -47,28 +46,6 @@ mat-drawer header {
 mat-drawer header h2 {
   color: white;
   margin: auto auto auto 2em;
-}
-
-mat-drawer form>mat-form-field:first-of-type,
-mat-drawer form>mat-form-field:last-of-type {
-  display: block;
-}
-
-mat-drawer form>:nth-child(2) {
-  margin-right: .625em;
-}
-
-mat-drawer form :is(h4, h5) {
-  display: inline-block;
-}
-
-mat-drawer form h5 {
-  margin-left: 2em;
-  font-size: 14px;
-}
-
-.panel-body {
-  padding: 15px;
 }
 
 .panel>button {
@@ -94,18 +71,8 @@ span.filter {
   align-items: center;
 }
 
-.panel-header> :first-child {
-  margin-right: auto;
-}
-
 .panel-header>button:not(:first-child) {
   margin: 0px 20px 13px;
-}
-
-button mat-icon {
-  position: relative;
-  top: -1px;
-  left: -4px;
 }
 
 table {
@@ -150,10 +117,6 @@ table {
 .mat-column-action {
   width: 20em;
   padding-inline: 1ch;
-}
-
-.mat-column-action>* {
-  width: 100%;
 }
 
 .mat-column-updated {
@@ -231,10 +194,6 @@ tr.table-row:not(.expanded-row):active {
 .expand-detail a {
   grid-row: 1 / 3;
   justify-self: center;
-}
-
-footer {
-  padding: 15px;
 }
 
 .bgred {

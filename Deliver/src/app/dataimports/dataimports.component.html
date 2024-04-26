@@ -4,14 +4,14 @@
   <div class="fixed-top bg-white"><mat-progress-bar mode="indeterminate" title="progress" /></div>
   }
   <h1>{{title}}</h1>
-  <main class="panel panel-default panel-body mat-elevation-z4">
+  <main class="panel panel-default p-4 mat-elevation-z4">
     <div class="panel panel-default">
       <!-- Heading and Buttons Section-->
       <div class="panel-header" [hidden]="!showContentPage">
         <!-- Progress Section-->
         <div class="page-header">
-          <div class="form-inline">
-            <dl class="form-group mar0 marT10 padL15 textTransformNone">
+          <div class="form-inline mr-auto">
+            <dl class="form-group">
               <dt class="f12">Calculation Update Every</dt>
               <dd>{{calculationTime}}</dd>
             </dl>
@@ -33,7 +33,7 @@
           </button>
         </div>
       </div>
-      <div class="panel-body" [hidden]="!showContentPage">
+      <div class="p-4" [hidden]="!showContentPage">
         <div class="section-1">
           <!-- Intervals Selection -->
           <div [hidden]="!showIntervals">
@@ -120,7 +120,7 @@
               </div>
             </div>
           </div>
-          <div class="panel panel-default panel-body">
+          <div class="panel panel-default p-4">
             <div class="button-row">
               <form class="pad0 mar0">
                 <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
@@ -154,11 +154,11 @@
         </div>
       </div>
       <!-- Table Section-->
-      <div class="panel-body">
+      <div class="p-4">
         <!-- Error Section-->
         @if (showUploadError) {
         <div class="panel panel-default">
-          <div class="panel-body thick-red-border mat-elevation-z4">
+          <div class="p-4 thick-red-border mat-elevation-z4">
             <section>
               <p class="m-2">{{errorUploadMsg.heading}}</p>
               <table class="table table-bordered table-striped cf no-margin">
@@ -188,7 +188,7 @@
         </div>
       </div>
     </div>
-    <footer>
+    <footer class="p-4">
       <div class="text-right">v{{ version }} / API v{{ apiVersion() }}</div>
     </footer>
   </main>

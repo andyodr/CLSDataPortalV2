@@ -13,10 +13,6 @@ app-sidebar ~ * {
   grid-column: 2;
 }
 
-.panel-body {
-  padding: 15px;
-}
-
 .panel-header {
   background-color: hsl(var(--mat-primary-50));
   border-color: #e2edeb;
@@ -78,8 +74,4 @@ tr.mat-mdc-row:active {
 
 .mat-row:hover .empty-table {
   background-color: initial;
-}
-
-footer {
-  padding: 15px;
 }

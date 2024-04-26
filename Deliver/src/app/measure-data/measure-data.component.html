@@ -12,7 +12,7 @@
         <mat-icon fontIcon="save_alt"/> Apply
       </button>
     </header>
-    <form class="panel-body">
+    <form class="p-4">
       <mat-form-field appearance="fill">
         <mat-label>Intervals</mat-label>
         <mat-select name="fIntervalSelected" [(ngModel)]="model.fIntervalSelected" (selectionChange)="intervalChange()"
@@ -84,7 +84,7 @@
         </mat-select>
       </mat-form-field>
       <h4>Region Hierarchy:</h4>
-      <h5>{{ regions.ancestorPath.at(-1) }}</h5>
+      <h5 class="text-sm ml-8">{{ regions.ancestorPath.at(-1) }}</h5>
       <app-region-tree #regions [hierarchy]="select.hierarchy"
         [(selectedRegions)]="model.selectedRegion"></app-region-tree>
     </form>
@@ -93,13 +93,13 @@
     <app-sidebar/>
     <div>
       <h1>{{title}}</h1>
-      <main class="panel panel-default panel-body mat-elevation-z4">
+      <main class="panel panel-default p-4 mat-elevation-z4">
         <!-- Error Section -->
         <app-errors [error]="errorMsg" [hidden]="!showError" [showContentPage]="showContentPage"
           [closeError]="closeError"></app-errors>
         @if (showError) {
         <div class="panel panel-default">
-          <div class="panel-body thick-red-border mat-elevation-z4">
+          <div class="p-4 thick-red-border mat-elevation-z4">
             <p>{{errorMsg.heading}}</p>
             <section class="table-flip-scroll table-dynamic overflowAuto">
               <table class="table table-bordered table-striped cf no-margin">
@@ -135,7 +135,7 @@
         <span class="filter">{{filter}}</span>
         }
         <div class="panel-header">
-          <div>
+          <div class="mr-auto">
             <mat-form-field appearance="fill">
               <mat-label>Filter</mat-label>
               <input matInput (keyup)="applyFilter($event)" placeholder="Search..." [disabled]="disabledAll" #input>
@@ -288,7 +288,7 @@
             <td class="mat-cell empty-table" colspan="6">No data matching the filter {{ input.value }}</td>
           </tr>
         </table>
-        <footer>
+        <footer class="p-4">
           <span> Showing {{dataSource.filteredData.length}} entries </span>
           <div class="text-right">v{{ version }} / API v{{ apiVersion() }}</div>
         </footer>

@@ -239,12 +239,21 @@ h4 {
   margin-left: auto;
 }
 
+.ml-8.ml-8 {
+  margin-left: 2rem;
+}
+
 th .mat-sort-header-content {
   text-align: initial;
 }
 
 .align-bottom {
   vertical-align: bottom;
+}
+
+.text-sm.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
 }
 
 .text-center {
@@ -277,6 +286,10 @@ button.min-w-32 {
 
 .p-2 {
   padding: 0.5rem; /* 8px */
+}
+
+.p-4 {
+  padding: 1rem; /* 16px */
 }
 
 .pr-4 {

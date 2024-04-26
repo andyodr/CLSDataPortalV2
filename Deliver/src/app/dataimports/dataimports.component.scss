@@ -24,10 +24,6 @@ app-sidebar ~ * {
   justify-content: flex-end;
   align-items: baseline;
   gap: 24px;
-
-  :first-child {
-    margin-right: auto;
-  }
 }
 
 .panel-header {
@@ -37,10 +33,6 @@ app-sidebar ~ * {
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
-}
-
-.panel-body {
-  padding: 15px;
 }
 
 .section-1 {

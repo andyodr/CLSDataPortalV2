@@ -44,10 +44,6 @@ mat-drawer header h2 {
   margin: auto 2em;
 }
 
-.panel-body {
-  padding: 15px;
-}
-
 div.panel>button {
   margin: 6px 11px 10px 0px;
 }
@@ -70,10 +66,6 @@ span.filter {
   display: flex;
   align-items: center;
   margin-top: 1em;
-}
-
-.panel-header> :first-child {
-  margin-right: auto;
 }
 
 .panel-header>button:not(:first-child) {
@@ -175,8 +167,4 @@ tr.table-row:not(.expanded-row):active {
 .expand-detail a {
   grid-row: 1 / 3;
   justify-self: center;
-}
-
-footer {
-  padding: 15px;
 }

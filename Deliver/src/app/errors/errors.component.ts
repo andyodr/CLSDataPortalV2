@@ -4,7 +4,7 @@ import { Component, Input } from "@angular/core"
     selector: "app-errors",
     template: `
 <div class="panel panel-default ng-hide noBorder marB0">
-  <div class="panel-body thick-red-border p-2 mat-elevation-z4">
+  <div class="thick-red-border p-2 mat-elevation-z4">
     @if (showContentPage) {
         <p>{{error.heading}}</p>
         @if (error.id != null) {

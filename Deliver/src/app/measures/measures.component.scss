@@ -46,23 +46,8 @@ mat-drawer header h2 {
   margin: auto 2em;
 }
 
-mat-drawer form h4,
-mat-drawer form h5 {
-  display: inline-block;
-  margin-bottom: 1ch;
-}
-
-mat-drawer form h5 {
-  margin-left: 2em;
-  font-size: 14px;
-}
-
 app-region-tree {
   border: 1px solid hsl(var(--mat-primary-100));
-}
-
-.panel-body {
-  padding: 15px;
 }
 
 .panel button {
@@ -86,10 +71,6 @@ span.filter {
   border-top-left-radius: 2px;
   display: flex;
   align-items: center;
-}
-
-.panel-header> :first-child {
-  margin-right: auto;
 }
 
 .panel-header>button:not(:first-child) {
@@ -134,8 +115,4 @@ td.mat-column-measureDefinition:not(.expanded-row):active {
 
 .expand-detail button {
   margin: 1ch auto;
-}
-
-footer {
-  padding: 1em;
 }
