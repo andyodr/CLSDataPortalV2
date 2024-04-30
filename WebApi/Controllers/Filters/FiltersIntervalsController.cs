@@ -18,17 +18,17 @@ public sealed class IntervalsController : BaseController
 	/// Get interval data from Calendar table for the specified year
 	/// </summary>
 	[HttpGet]
-	public async Task<ActionResult<FiltersIntervalsResponse>> GetAsync([FromQuery] MeasureDataFilterRequest values, CancellationToken cancel) {
+	public async Task<ActionResult<FiltersIntervalsResponse>> GetAsync([FromQuery] MeasureDataFilterRequest queryParams, CancellationToken cancel) {
 		if (CreateUserObject(User) is not UserDto _user) {
 			return Unauthorized();
 		}
 
 		try {
-			var cal = Dbc.Calendar.Where(c => c.IntervalId == values.IntervalId && c.Year == values.Year);
-			int intervalId = values.IntervalId ?? Config.DefaultInterval;
-			Task<GetIntervalsResponse[]> data = values.IntervalId switch {
+			int intervalId = queryParams.IntervalId ?? Config.DefaultInterval;
+			var cal = Dbc.Calendar.Where(c => c.IntervalId == intervalId && c.Year == queryParams.Year);
+			Task<GetIntervalsResponse[]> intervals = intervalId switch {
 				(int)Intervals.Weekly =>
-					cal.OrderBy(c => c.Quarter).Select(d => new GetIntervalsResponse {
+					cal.OrderBy(c => c.WeekNumber).Select(d => new GetIntervalsResponse {
 						Id = d.Id,
 						Number = d.WeekNumber,
 						StartDate = d.StartDate.ToString(),
@@ -54,20 +54,23 @@ public sealed class IntervalsController : BaseController
 				_ => Task.FromResult<GetIntervalsResponse[]>([new() {
 					Error = new() { Message = Resource.VAL_VALID_INTERVAL_ID } }])
 			};
-			Task<MeasureType[]> measureTypes = HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>().MeasureType
+			var getMeasureTypes = queryParams.IsDataImport != true;
+			Task<MeasureType[]> measureTypes = getMeasureTypes
+				? HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>().MeasureType
 				.Where(t => t.MeasureDefinitions!
 					.Any(df => df.Measures!
 						.Any(m => m.Active == true && m.Hierarchy!.Active == true && m.MeasureData
-							.Any(md => md.Calendar!.IntervalId == values.IntervalId && md.Calendar.Year == values.Year))))
-				.Select(t => new MeasureType(t.Id, t.Name, t.Description)).ToArrayAsync(cancel);
+							.Any(md => md.Calendar!.IntervalId == intervalId && md.Calendar.Year == queryParams.Year))))
+				.Select(t => new MeasureType(t.Id, t.Name, t.Description)).ToArrayAsync(cancel)
+				: Task.FromResult<MeasureType[]>([]);
 			Task<Data.Models.Calendar?> calendarId = HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>().Calendar
 				.Where(c => c.IntervalId == intervalId && c.EndDate <= DateTime.Today)
 				.OrderByDescending(d => d.EndDate)
 				.FirstOrDefaultAsync(cancel);
-			await Task.WhenAll([data, measureTypes, calendarId]);
+			await Task.WhenAll([intervals, measureTypes, calendarId]);
 			FiltersIntervalsResponse result = new() {
-				Data = data.Result,
-				MeasureTypes = measureTypes.Result,
+				Data = intervals.Result,
+				MeasureTypes = getMeasureTypes ? measureTypes.Result : null,
 				CalendarId = calendarId.Result?.Id ?? -1
 			};
 

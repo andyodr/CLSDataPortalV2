@@ -28,10 +28,9 @@ public sealed class FilterController : BaseController
 				Hierarchy = [Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)]
 			};
 
-			result.MeasureTypes = Dbc.MeasureType
+			result.MeasureTypes = [.. Dbc.MeasureType
 				.OrderBy(m => m.Id)
-				.Select(m => new MeasureType(m.Id, m.Name, m.Description))
-				.ToArray();
+				.Select(m => new MeasureType(m.Id, m.Name, m.Description))];
 
 			_user.savedFilters[Pages.Target].measureTypeId ??= Dbc.MeasureType.First().Id;
 			_user.savedFilters[Pages.Target].hierarchyId ??= 1;

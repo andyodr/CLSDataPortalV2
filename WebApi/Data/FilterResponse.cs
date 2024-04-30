@@ -4,9 +4,9 @@ namespace Deliver.WebApi.Data;
 
 public sealed class FilterResponse
 {
-	public IList<MeasureType> MeasureTypes { get; set; } = null!;
+	public IReadOnlyList<MeasureType> MeasureTypes { get; set; } = null!;
 
-	public IList<RegionFilterObject>? Hierarchy { get; set; }
+	public IReadOnlyList<RegionFilterObject>? Hierarchy { get; set; }
 
 	public IList<IntervalDto>? Intervals { get; set; }
 

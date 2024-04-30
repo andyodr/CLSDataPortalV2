@@ -20,12 +20,8 @@ public sealed class FilterController : BaseController
 
 		try {
 			FilterResponse result = new() {
-				MeasureTypes = Dbc.MeasureType
-					.Select(m => new MeasureType(m.Id, m.Name, m.Description))
-					.ToArray(),
-				Hierarchy = new RegionFilterObject[] {
-					Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)
-				}
+				MeasureTypes = [.. Dbc.MeasureType.Select(m => new MeasureType(m.Id, m.Name, m.Description))],
+				Hierarchy = [Hierarchy.HierarchyController.CreateUserHierarchy(Dbc, _user.Id)]
 			};
 
 			var hId = _user.savedFilters[Pages.Measure].hierarchyId ??= 1;

@@ -1,4 +1,5 @@
 using Deliver.WebApi.Controllers.MeasureDefinition.Type;
+using System.Text.Json.Serialization;
 
 namespace Deliver.WebApi.Data;
 
@@ -6,7 +7,8 @@ public sealed class FiltersIntervalsResponse
 {
 	public int CalendarId { get; set; }
 
-	public IList<GetIntervalsResponse> Data { get; init; } = [];
+	public IReadOnlyList<GetIntervalsResponse> Data { get; init; } = null!;
 
-	public IList<MeasureType> MeasureTypes { get; init; } = [];
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+	public IReadOnlyList<MeasureType>? MeasureTypes { get; init; }
 }
