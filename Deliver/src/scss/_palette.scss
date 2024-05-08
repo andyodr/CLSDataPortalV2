@@ -1,4 +1,3 @@
-/* For use in src/lib/core/theming/_palette.scss */
 :root {
   --mat-primary-50: 186 28% 96%;
   --mat-primary-100: 187 49% 81%;
@@ -32,7 +31,8 @@
   --jaguar-aqua: #00677F;
   --jaguar-helmet-gold: #9F792C;
 }
-$teal-palette: (
+
+$teal: (
  50 : hsl(186 28% 96%),
 100 : hsl(187 49% 81%),
 200 : hsl(188 60% 66%),
@@ -63,8 +63,8 @@ contrast: (
     A400 : #000000,
     A700 : #000000
 ));
-/* For use in src/lib/core/theming/_palette.scss */
-$orange-palette: (
+
+$orange: (
   50 : #fef3e2,
   100 : #fde1b6,
   200 : #fcce86,

@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @use "sass:map";
 @use "@angular/material" as mat;
-@import "./scss/_variables.scss";
+@use "scss/variables";
 
 @font-face {
   font-family: "Material Icons";
