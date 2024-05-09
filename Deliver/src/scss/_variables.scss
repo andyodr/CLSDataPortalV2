@@ -1,23 +1,21 @@
 @use "@angular/material" as mat;
-@use "custom" as *;
+@use "custom";
 
-$app-theme: mat.define-light-theme((
+$theme: mat.define-light-theme((
     color: (
-    primary: $primary,
-    accent: $accent,
-    warn: $warn),
-    typography: mat.define-typography-config(),
-    density: 0
+      primary: custom.$primary,
+      accent: custom.$accent,
+      warn: custom.$warn)
 ));
 
-@include mat.core-theme($app-theme);
-@include mat.button-theme($app-theme);
-@include mat.checkbox-theme($app-theme);
-@include mat.dialog-theme($app-theme);
-@include mat.form-field-theme($app-theme);
-@include mat.icon-theme($app-theme);
-@include mat.input-theme($app-theme);
-@include mat.progress-bar-theme($app-theme);
-@include mat.radio-theme($app-theme);
-@include mat.select-theme($app-theme);
-@include mat.tree-theme($app-theme);
+@include mat.core-theme($theme);
+@include mat.button-theme($theme);
+@include mat.checkbox-theme($theme);
+@include mat.dialog-theme($theme);
+@include mat.form-field-theme($theme);
+@include mat.icon-theme($theme);
+@include mat.input-theme($theme);
+@include mat.progress-bar-theme($theme);
+@include mat.radio-theme($theme);
+@include mat.select-theme($theme);
+@include mat.tree-theme($theme);

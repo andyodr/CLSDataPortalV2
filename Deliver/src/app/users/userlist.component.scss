@@ -1,3 +1,6 @@
+@use "@angular/material" as mat;
+@use "../../scss/variables" as *;
+
 :host {
   display: grid;
   grid-template: 1fr / auto 1fr;
@@ -14,10 +17,10 @@ app-sidebar ~ * {
 }
 
 .panel-header {
-  background-color: hsl(var(--mat-primary-50));
+  background-color: mat.get-theme-color($theme, primary, 50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -32,7 +35,7 @@ app-sidebar ~ * {
 
 table {
   width: 100%;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
 }
 
 .mat-column-userName {
@@ -61,11 +64,11 @@ table {
 }
 
 tr.mat-mdc-row:hover {
-  background-color: hsl(var(--mat-primary-50));
+  background-color: mat.get-theme-color($theme, primary, 50);
 }
 
 tr.mat-mdc-row:active {
-  background-color: hsl(var(--mat-primary-100));
+  background-color: mat.get-theme-color($theme, primary, 100);
 }
 
 .mat-row .empty-table {

@@ -25,7 +25,7 @@ import packageJson from "../../../package.json"
 @Component({
     selector: "app-measuredefinition",
     templateUrl: "./measuredefinition.component.html",
-    styleUrls: ["./measuredefinition.component.css"],
+    styleUrls: ["./measuredefinition.component.scss"],
     animations: [
         trigger("detailExpand", [
             state("false", style({ height: "0px", minHeight: "0" })),

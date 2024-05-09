@@ -1,19 +1,15 @@
+@use "@angular/material" as mat;
+@use "../../scss/variables" as *;
+
 :host {
   height: 100%;
   overflow-y: hidden;
-}
-
-mat-drawer-container,
-mat-drawer,
-app-sidebar {
-  height: 100%;
 }
 
 mat-drawer-content {
   display: grid;
   grid-template: 1fr / auto 1fr;
   background-color: inherit;
-  height: 100%;
 }
 
 app-sidebar {
@@ -34,7 +30,7 @@ mat-drawer form * {
 }
 
 mat-drawer header {
-  background: linear-gradient(hsl(var(--mat-primary-600)), hsl(var(--mat-primary-500)) 33%, hsl(var(--mat-primary-500)));
+  background: linear-gradient(mat.get-theme-color($theme, primary, 600), mat.get-theme-color($theme, primary, 500) 33%, mat.get-theme-color($theme, primary, 500));
   padding: 15px 20px;
   display: flex;
   gap: 15px;
@@ -47,7 +43,7 @@ mat-drawer header h2 {
 }
 
 app-region-tree {
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
 }
 
 .panel button {
@@ -62,10 +58,10 @@ span.filter {
 }
 
 .panel-header {
-  background-color: hsl(var(--mat-primary-50));
+  background-color: mat.get-theme-color($theme, primary, 50);
   border-color: #e2edeb;
   padding: 10px 15px 0px;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
@@ -85,7 +81,7 @@ button mat-icon {
 
 table {
   width: 100%;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
 }
 
 td mat-checkbox {
@@ -97,11 +93,11 @@ tr.detail-row {
 }
 
 td.mat-column-measureDefinition:not(.expanded-row):hover {
-  background-color: hsl(var(--mat-primary-50));
+  background-color: mat.get-theme-color($theme, primary, 50);
 }
 
 td.mat-column-measureDefinition:not(.expanded-row):active {
-  background-color: hsl(var(--mat-primary-100));
+  background-color: mat.get-theme-color($theme, primary, 100);
 }
 
 .table-row td {

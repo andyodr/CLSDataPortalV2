@@ -1,7 +1,10 @@
+@use "@angular/material" as mat;
+@use "../../scss/variables" as *;
+
 .topbar {
   display: flex;
   color: white;
-  background-color: hsl(var(--mat-primary-500));
+  background-color: mat.get-theme-color($theme, primary, default);
   height: 70px;
 }
 

@@ -122,7 +122,7 @@
           </div>
           <div class="panel panel-default p-4">
             <div class="button-row">
-              <form class="pad0 mar0">
+              <form>
                 <input type="file" title="Select File" (change)="onFileSelected($event)" hidden #fileSelect>
                 <button mat-raised-button (click)="fileSelect.click()" color="primary" aria-label="Select File" [disabled]="disFile">
                   <mat-icon fontIcon="file_open"/> Select File

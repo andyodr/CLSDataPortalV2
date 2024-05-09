@@ -11,7 +11,7 @@ import { MatIconModule } from "@angular/material/icon"
 @Component({
     selector: "app-topbar",
     templateUrl: "./topbar.component.html",
-    styleUrls: ["./topbar.component.css"],
+    styleUrls: ["./topbar.component.scss"],
     standalone: true,
     imports: [MatIconModule, MatButtonModule, MatMenuModule, RouterLink, AsyncPipe]
 })

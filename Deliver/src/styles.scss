@@ -1,7 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @use "sass:map";
+@use "sass:color";
 @use "@angular/material" as mat;
-@use "scss/variables";
+@use "scss/variables" as *;
 
 @font-face {
   font-family: "Material Icons";
@@ -166,21 +167,26 @@
 }
 
 html,
-body {
+body,
+mat-drawer-container,
+mat-drawer-content,
+mat-drawer,
+app-sidebar {
   height: 100%;
 }
 
+/* https://material.angular.io/guide/theming-your-components */
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background: #eff1f3;
+  background: mat.get-theme-color($theme, background, background);
 }
 
 h1,
 h2,
 h3,
 h4 {
-  color: hsl(var(--mat-primary-600));
+  color: mat.get-theme-color($theme, primary, text);
 }
 
 .fixed-top.fixed-top {
@@ -189,14 +195,15 @@ h4 {
 }
 
 .panel {
-  margin-bottom: 20px;
-  background: #fff;
+  margin-bottom: 1rem;
+  background: mat.get-theme-color($theme, background, card);
   border: 1px solid transparent;
   border-radius: 2px;
 }
 
 .panel-default {
-  border-color: #e2edeb;
+  border-color: hsl(186, 23%, 91%);
+  border-color: color.adjust(mat.get-theme-color($theme, primary, text), $saturation: -50%, $alpha: -0.86);
 }
 
 .snackbar-success {
@@ -217,10 +224,6 @@ h4 {
 
 .flex-column div {
   flex-direction: column;
-}
-
-.tooltips {
-  background: var(--jaguar-black);
 }
 
 .select-none {
@@ -265,7 +268,7 @@ th .mat-sort-header-content {
 }
 
 .bg-white {
-  background-color: white;
+  background-color: mat.get-theme-color($theme, background, background);
 }
 
 mat-icon {
@@ -327,5 +330,5 @@ button.min-w-32 {
 
 footer div {
   font-size: smaller;
-  color: var(--mat-gray-600);
+  color: mat.get-theme-color($theme, foreground, secondary-text);
 }

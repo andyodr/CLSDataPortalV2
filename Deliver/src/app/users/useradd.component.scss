@@ -1,3 +1,6 @@
+@use "@angular/material" as mat;
+@use "../../scss/variables" as *;
+
 :host {
   display: grid;
   grid-template: 1fr / auto 1fr;
@@ -14,9 +17,9 @@ app-sidebar ~ * {
 }
 
 .panel-header {
-  background-color: hsl(var(--mat-primary-50));
+  background-color: mat.get-theme-color($theme, primary, 50);
   margin-top: 10px;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
   padding: 10px 15px;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
