@@ -11,7 +11,10 @@ const title = "DELIVER - "
 
 export const routes: Routes = [
     { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-    { path: 'measuredata', title: `${ title }Measure Data`, component: MeasureDataComponent },
+    {
+        path: "measuredata", title: `${ title }Measure Data`,
+        loadComponent: () => import("./measure-data/measure-data.component").then(m => m.MeasureDataComponent)
+    },
     {
         path: "users", children: [
             { path: "add", title: `${ title }Add User`,
@@ -35,10 +38,10 @@ export const routes: Routes = [
         canActivate: [AuthGuard], children: []
     },
     {
-        path: 'targets', title: `${ title }Targets`,
+        path: "targets", title: `${ title }Targets`,
         loadComponent: () => import("./targets/targets.component").then(m => m.TargetsComponent) },
     {
-        path: 'measures', title: `${ title }Measures`,
+        path: "measures", title: `${ title }Measures`,
         loadComponent: () => import("./measures/measures.component").then(m => m.MeasuresComponent)
     },
     {
@@ -57,10 +60,16 @@ export const routes: Routes = [
             },
         ]
     },
-    { path: "dataimports", title: `${ title }Data Imports`, component: DataImportsComponent },
-    { path: 'errors', component: TestErrorComponent },
-    { path: 'not-found', component: NotFoundComponent },
-    { path: 'server-error', component: ServerErrorComponent },
+    {
+        path: "dataimports", title: `${ title }Data Imports`,
+        loadComponent: () => import("./dataimports/dataimports.component").then(m => m.DataImportsComponent)
+    },
+    {
+        path: "errors",
+        loadComponent: () => import("./errors/test-error/test-error.component").then(m => m.TestErrorComponent)
+    },
+    { path: "not-found", component: NotFoundComponent },
+    { path: "server-error", component: ServerErrorComponent },
     { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
 

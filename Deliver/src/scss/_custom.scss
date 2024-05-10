@@ -2,13 +2,11 @@
 @use "palette";
 
 // https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors
-// $primary: mat.define-palette(palette.$jaguar-teal);
+$primary: mat.define-palette(palette.$jaguar-teal);
 // $primary: mat.define-palette(mat.$brown-palette);
-// $primary: mat.define-palette(mat.$red-palette);
-// $primary: mat.define-palette(mat.$gray-palette);
 // $primary: mat.define-palette(mat.$blue-palette);
 // $primary: mat.define-palette(mat.$blue-gray-palette);
-$primary: mat.define-palette(mat.$deep-purple-palette);
+// $primary: mat.define-palette(mat.$deep-purple-palette);
 // $primary: mat.define-palette(mat.$light-green-palette);
 $accent: mat.define-palette(mat.$amber-palette);
 $warn: mat.define-palette(mat.$red-palette);
