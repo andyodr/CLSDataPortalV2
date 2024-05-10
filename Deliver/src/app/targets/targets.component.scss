@@ -16,7 +16,7 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar~* {
+app-sidebar ~ * {
   grid-column: 2;
   padding: 20px;
 }

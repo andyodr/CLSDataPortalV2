@@ -4,6 +4,18 @@
 @use "@angular/material" as mat;
 @use "scss/variables" as *;
 
+@include mat.core-theme($theme);
+@include mat.button-theme($theme);
+@include mat.checkbox-theme($theme);
+@include mat.dialog-theme($theme);
+@include mat.form-field-theme($theme);
+@include mat.icon-theme($theme);
+@include mat.input-theme($theme);
+@include mat.progress-bar-theme($theme);
+@include mat.radio-theme($theme);
+@include mat.select-theme($theme);
+@include mat.tree-theme($theme);
+
 @font-face {
   font-family: "Material Icons";
   font-style: normal;

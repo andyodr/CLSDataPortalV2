@@ -1,9 +1,13 @@
+@use "@angular/material" as mat;
+@use "sass:color";
+@use "../../scss/variables" as *;
+
 :host {
   height: 100%;
 }
 
 .sidebar {
-  color: var(--mat-gray-100);
+  color: color.adjust(mat.get-theme-color($theme, primary, default-contrast), $alpha: -0.065);
   background-color: hsl(212 11% 25%);
   /* transition: all .3s ease;
     transform: translateX(-100%);
@@ -43,7 +47,7 @@
 
 .sidebar li a {
   display: block;
-  color: var(--mat-gray-100);
+  color: color.adjust(mat.get-theme-color($theme, primary, default-contrast), $alpha: -0.065);
   padding: 8px 0px 8px 1rem;
   text-decoration: none;
   user-select: none;

@@ -16,7 +16,7 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar~* {
+app-sidebar ~ * {
   grid-column: 2;
   padding: 20px;
 }
@@ -73,7 +73,7 @@ span.filter {
 
 table {
   width: 100%;
-  border: 1px solid hsl(var(--mat-primary-100));
+  border: 1px solid mat.get-theme-color($theme, primary, 100);
 }
 
 .mat-column-name {

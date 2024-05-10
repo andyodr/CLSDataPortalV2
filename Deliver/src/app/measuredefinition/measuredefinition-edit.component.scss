@@ -11,14 +11,9 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-app-sidebar~* {
+app-sidebar ~ * {
   padding: 20px;
   grid-column: 2;
-}
-
-.panel-body {
-  padding: 15px;
-  color: var(--jaguar-black);
 }
 
 .panel-header {

@@ -11,17 +11,13 @@ app-sidebar {
   grid-row: 1 / -1;
 }
 
-h1,
-.panel-body {
-  margin: 20px;
+app-sidebar ~ * {
+  padding: 20px;
+  grid-column: 2;
 }
 
 .mat-raised-button {
   margin: 0px 20px 13px;
-}
-
-.panel-body {
-  padding: 1em;
 }
 
 .panel-header {
