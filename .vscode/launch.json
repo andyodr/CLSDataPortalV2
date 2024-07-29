@@ -19,7 +19,6 @@
 		{
 			"name": "Launch Edge",
 			"request": "launch",
-			"preLaunchTask": "npm: start - Deliver",
 			"type": "msedge",
 			"url": "https://localhost:4200/",
 			"webRoot": "${workspaceFolder}\\Deliver"

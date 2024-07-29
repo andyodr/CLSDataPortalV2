@@ -356,19 +356,19 @@ export class MeasureDataComponent {
     // Selection Calculated
     // -----------------------------------------------------------------------------
     onSelCalChange(): void {
-        console.log("onSelCalChange: ", this.model.selCalSelected);
+        switch (this.model.selCalSelected) {
+            case 0:
+                this.dataSource.data = this.measureDataList
+                break
+            case 1:
+                this.dataSource.data = this.measureDataList.filter(item => !item.calculated)
+                break
+            case 2:
+                this.dataSource.data = this.measureDataList.filter(item => item.calculated)
+                break
+        }
 
-        if (this.model.selCalSelected == 2) {
-            this.dataSource.data = this.measureDataList.filter(item => item.calculated);
-        }
-        if (this.model.selCalSelected == 1) {
-            this.dataSource.data = this.measureDataList.filter(item => !item.calculated);
-        }
-        if (this.model.selCalSelected == 0) {
-            this.dataSource.data = this.measureDataList
-        }
-        this.dataSource._updateChangeSubscription();
-        console.log("Datasource on onSelCalChange: ", this.dataSource.data)
+        this.dataSource._updateChangeSubscription()
     }
 
     // -----------------------------------------------------------------------------

@@ -175,26 +175,34 @@
           </ng-container>
           <ng-container matColumnDef="calculated">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Calculated </th>
-            <td mat-cell *matCellDef="let measure"> <mat-icon
-                fontIcon="{{ measure.calculated === true ? 'check': '' }}"/>
+            <td mat-cell *matCellDef="let measure">
+              @if (measure.calculated) {
+                <mat-icon fontIcon="check"/>
+              }
             </td>
           </ng-container>
           <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Value </th>
             <td mat-cell *matCellDef="let measure">
               @if (measure.value && measure.target) {
-              <div [ngClass]="{
-                  bggreen: measure.value >= measure.target,
+              <div [ngClass]="{ bggreen: measure.value >= measure.target,
                   bgorange: measure.value < measure.target && measure.value >= measure.yellow,
-                  bgred: measure.value < measure.yellow}">
-                  @if (measure.units == "%") {
+                  bgred: measure.value < measure.yellow }">
+                  @if (measure.units === "%") {
                   {{ measure.value | percent: "1.0-4" }}
                   } @else {
                   {{ measure.value | number }}
                   }
               </div>
               } @else {
-              <div>{{ measure.value | number }}</div>
+              <div>
+                @if (measure.units === "%") {
+                  {{ measure.value | percent: "1.0-4" }}
+                  } @else {
+                  {{ measure.value | number }}
+                  }
+
+              </div>
               }
             </td>
           </ng-container>
